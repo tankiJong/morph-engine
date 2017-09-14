@@ -8,6 +8,15 @@
     <Filter Include="Math">
       <UniqueIdentifier>{3414708f-28cd-40bf-9ae7-5ad67f955f26}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{1bb7e7c3-0047-43be-9538-e05bb2df9a86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{ad2eac7c-cfa4-4f98-838a-799d8c700820}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{c13b14c1-3e86-4b6b-8aba-ab270f5427d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
@@ -22,6 +31,15 @@
     <ClCompile Include="Math\AABB2.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Rgba.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Renderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Input\Input.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -35,6 +53,18 @@
     </ClInclude>
     <ClInclude Include="Math\AABB2.hpp">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Rgba.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Renderer.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\Input.hpp">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\KeyState.hpp">
+      <Filter>Input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

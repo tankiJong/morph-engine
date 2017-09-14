@@ -25,7 +25,7 @@ float sinDegrees(float degrees) {
 }
 
 float getRandomFromZerotoOne() {
-    return (float(RAND_MAX - rand())) / RAND_MAX;
+    return (float)rand() / (float)RAND_MAX;
 }
 
 float getRandomInRange(float minInclusive, float maxInclusive) {
@@ -45,4 +45,18 @@ float getDistance(const Vector2 & a, const Vector2 & b)
 {
 	float dx = a.x - b.x, dy = a.y - b.y;
 	return sqrtf(dx*dx + dy*dy);
+}
+
+float clamp(float value, float min, float max) {
+	if (value > max)
+	{
+		return max;
+	}
+
+	if (value < min)
+	{
+		return min;
+	}
+
+	return value;
 }

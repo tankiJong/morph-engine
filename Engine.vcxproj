@@ -72,15 +72,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -151,16 +159,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Core\Rgba.cpp" />
+    <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Math\AABB2.cpp" />
     <ClCompile Include="Math\Disc2.cpp" />
     <ClCompile Include="Math\MathUtils.cpp" />
     <ClCompile Include="Math\Vector2.cpp" />
+    <ClCompile Include="Renderer\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\Rgba.hpp" />
+    <ClInclude Include="Input\Input.hpp" />
+    <ClInclude Include="Input\KeyState.hpp" />
     <ClInclude Include="Math\AABB2.hpp" />
     <ClInclude Include="Math\Disc2.hpp" />
     <ClInclude Include="Math\MathUtils.hpp" />
     <ClInclude Include="Math\Vector2.hpp" />
+    <ClInclude Include="Renderer\Renderer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

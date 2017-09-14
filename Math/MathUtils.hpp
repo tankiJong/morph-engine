@@ -16,4 +16,4 @@ int32_t getRandomInt32InRange(int32_t minInclusive, int32_t maxInclusive);
 float getSquaredDistance(const Vector2& a, const Vector2& b);
 float getDistance(const Vector2& a, const Vector2& b);
 
-
+float clamp(float value, float min, float max);
