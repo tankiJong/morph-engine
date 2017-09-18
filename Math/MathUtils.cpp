@@ -47,7 +47,7 @@ float getDistance(const Vector2 & a, const Vector2 & b)
 	return sqrtf(dx*dx + dy*dy);
 }
 
-float clamp(float value, float min, float max) {
+float clampf(float value, float min, float max) {
 	if (value > max)
 	{
 		return max;
