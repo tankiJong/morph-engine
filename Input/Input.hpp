@@ -1,6 +1,8 @@
 #pragma once
 #include "Engine/Input/KeyState.hpp"
 
+void runMessagePump();
+
 class Input {
 public:
 	Input() {};
@@ -15,7 +17,12 @@ public:
 
 	void beforeFrame();
 	void afterFrame();
-private:
+
+protected:
+	void updateKeyboard();
+	void updateControllers();
+
+protected:
 	KeyState keyStates[NUM_KEY];
 
 };
