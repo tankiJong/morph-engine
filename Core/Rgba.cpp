@@ -12,15 +12,15 @@ Rgba::Rgba(unsigned char redByte, unsigned char greenByte, unsigned char blueByt
 void Rgba::setByBytes(unsigned char redByte, unsigned char greenByte, unsigned char blueByte, unsigned char alphaByte) {
 	r = redByte;
 	g = greenByte;
-	b = greenByte;
+	b = blueByte;
 	a = alphaByte;
 }
 
 void Rgba::setByFloats(float normalizedRed, float normalizedGreen, float normalizedBlue, float normalizedAlpha) {
-	r = normalizedRed * 255;
-	g = normalizedGreen * 255;
-	b = normalizedBlue * 255;
-	a = normalizedAlpha * 255;
+	r = unsigned char(normalizedRed * 255);
+	g = unsigned char(normalizedGreen * 255);
+	b = unsigned char(normalizedBlue * 255);
+	a = unsigned char(normalizedAlpha * 255);
 }
 
 void Rgba::getAsFloats(float & out_normalizedRed, float & out_normalizedGreen, float & out_normalizedBlue, float & out_normalizedAlpha) const {
@@ -31,18 +31,16 @@ void Rgba::getAsFloats(float & out_normalizedRed, float & out_normalizedGreen, f
 }
 
 void Rgba::scaleColor(float rgbScale) {
-	r *= rgbScale;
-	g *= rgbScale;
-	b *= rgbScale;
-	a *= rgbScale;
+	float _r = r * rgbScale;
+	float _g = g * rgbScale;
+	float _b = b * rgbScale;
 
-	r = clamp(r, 0, 255);
-	g = clamp(g, 0, 255);
-	b = clamp(b, 0, 255);
-	a = clamp(a, 0, 255);
+	r = unsigned char(clampf(_r, 0, 255));
+	g = unsigned char(clampf(_g, 0, 255));
+	b = unsigned char(clampf(_b, 0, 255));
 }
 
 void Rgba::scaleOpacity(float alphaScale) {
-	a *= alphaScale;
-	a = clamp(a, 0, 255);
+	float _a = a * alphaScale;
+	a = unsigned char(clampf(_a, 0, 255));
 }
