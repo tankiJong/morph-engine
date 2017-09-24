@@ -28,8 +28,8 @@ public:
 	float normalizeAndGetLength(); // set my new length to 1.0f; keep my direction
 	Vector2 getNormalized() const; // return a new vector, which is a normalized copy of me
 	float getOrientationDegrees() const; // return 0 for east (5,0), 90 for north (0,8), etc.
-	static Vector2 makeDirectionAtDegrees(float degrees); // create vector at angle
 
+	static Vector2 makeDirectionAtDegrees(float degrees); // create vector at angle
     friend const Vector2 operator*(float uniformScale, const Vector2& vecToScale);	// float * vec2
 
 	
@@ -37,6 +37,7 @@ public:
 public: // NOTE: this is one of the few cases where we break both the "m_" naming rule AND the avoid-public-members rule
     float x;
     float y;
+	static const Vector2 zero;
 };
 
 

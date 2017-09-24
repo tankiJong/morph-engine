@@ -160,7 +160,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Core\Rgba.cpp" />
+    <ClCompile Include="Core\Time.cpp" />
     <ClCompile Include="Input\Input.cpp" />
+    <ClCompile Include="Input\XboxController.cpp" />
     <ClCompile Include="Math\AABB2.cpp" />
     <ClCompile Include="Math\Disc2.cpp" />
     <ClCompile Include="Math\MathUtils.cpp" />
@@ -169,8 +171,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\Rgba.hpp" />
+    <ClInclude Include="Core\Time.hpp" />
     <ClInclude Include="Input\Input.hpp" />
     <ClInclude Include="Input\KeyState.hpp" />
+    <ClInclude Include="Input\XboxController.hpp" />
     <ClInclude Include="Math\AABB2.hpp" />
     <ClInclude Include="Math\Disc2.hpp" />
     <ClInclude Include="Math\MathUtils.hpp" />

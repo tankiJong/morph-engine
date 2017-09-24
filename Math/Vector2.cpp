@@ -1,7 +1,7 @@
-#include <Math.h>
 #include "Engine\Math\Vector2.hpp"
 #include "Engine\Math\MathUtils.hpp"
 
+const Vector2 Vector2::zero = Vector2(0.f, 0.f);
 
 //-----------------------------------------------------------------------------------------------
 Vector2::Vector2 (const Vector2& copy)

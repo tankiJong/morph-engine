@@ -24,6 +24,10 @@ float sinDegrees(float degrees) {
     return sinf(convertDegreesToRadians(degrees));
 }
 
+float atan2Degree(float y, float x) {
+	return convertRadiansToDegrees(atan2f(y, x));
+}
+
 float getRandomFromZerotoOne() {
     return (float)rand() / (float)RAND_MAX;
 }
@@ -60,3 +64,24 @@ float clampf(float value, float min, float max) {
 
 	return value;
 }
+
+float clampf01(float value) {
+	return clampf(value, 0.f, 1.f);
+}
+
+float rangeMapf(float v, float inStart, float inEnd, float outStart, float outEnd) {
+	if (inStart == inEnd) {
+		return (outStart + outEnd) * 0.5f;
+	}
+
+	float inRange = inEnd - inStart,
+      	  outRange = outEnd - outStart,
+      	  inFromStart = v - inStart,
+      	  fractionInRange = inFromStart / inRange;
+
+	float outFromStart = fractionInRange * outRange;
+
+	return outFromStart + outStart;
+}
+
+

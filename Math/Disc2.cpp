@@ -1,6 +1,6 @@
 #include "Engine\Math\Disc2.hpp"
 #include "Engine\Math\MathUtils.hpp"
-#include <math.h>
+
 Disc2::Disc2(const Disc2 & copyFrom) {
 	center = copyFrom.center;
 	radius = copyFrom.radius;

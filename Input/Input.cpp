@@ -16,37 +16,48 @@ void runMessagePump() {
 	}
 }
 
-void Input::onKeyDown(unsigned char keyCode) {
-	if (!keyStates[keyCode].m_isDown) {
-		keyStates[keyCode].m_justPressed = 1;
+Input::Input() {}
+
+Input::~Input() {
+	for (int i = 0; i < NUM_XBOXCONTROLLER; i++) {
+		if (m_xboxControllers[i] != nullptr) {
+			delete m_xboxControllers[i];
+			m_xboxControllers[i] = nullptr;
+		}
 	}
-	keyStates[keyCode].m_isDown = 1;
+}
+
+void Input::onKeyDown(unsigned char keyCode) {
+	if (!m_keyStates[keyCode].m_isDown) {
+		m_keyStates[keyCode].m_justPressed = 1;
+	}
+	m_keyStates[keyCode].m_isDown = 1;
 }
 
 void Input::onKeyUp(unsigned char keyCode) {
-	keyStates[keyCode].m_isDown = 0;
-	keyStates[keyCode].m_justReleased = 1;
+	m_keyStates[keyCode].m_isDown = 0;
+	m_keyStates[keyCode].m_justReleased = 1;
 }
 
 bool Input::isKeyDown(unsigned char keyCode) {
-	return keyStates[keyCode].m_isDown;
+	return m_keyStates[keyCode].m_isDown;
 }
 
 bool Input::isKeyUp(unsigned char keyCode) {
-	return !keyStates[keyCode].m_isDown;
+	return !m_keyStates[keyCode].m_isDown;
 }
 
 bool Input::isKeyJustDown(unsigned char keyCode) {
-	return keyStates[keyCode].m_justPressed;
+	return m_keyStates[keyCode].m_justPressed;
 }
 
 bool Input::isKeyJustUp(unsigned char keyCode) {
-	return keyStates[keyCode].m_justReleased;
+	return m_keyStates[keyCode].m_justReleased;
 }
 
 void Input::beforeFrame() {
 	updateKeyboard();
-	updateControllers();
+	updateXboxControllers();
 	runMessagePump();
 }
 
@@ -54,11 +65,25 @@ void Input::afterFrame() {
 	
 }
 
+XboxController* Input::getController(XboxControllerID controllerId) {
+	if (m_xboxControllers[controllerId] == nullptr) {
+		m_xboxControllers[controllerId] = new XboxController(controllerId);
+	}
+
+	return m_xboxControllers[controllerId];
+}
+
 void Input::updateKeyboard() {
 	for (int i = 0; i < NUM_KEY; i++) {
-		keyStates[i].m_justPressed = 0;
-		keyStates[i].m_justReleased = 0;
+		m_keyStates[i].m_justPressed = 0;
+		m_keyStates[i].m_justReleased = 0;
 	}
 }
              
-void Input::updateControllers() {}
+void Input::updateXboxControllers() {
+	for (int i = 0; i < NUM_XBOXCONTROLLER; i++) {
+		if (m_xboxControllers[i] != nullptr) {
+			m_xboxControllers[i]->updateControllerState();
+		}
+	}
+}
