@@ -4,7 +4,7 @@
 
 struct _XINPUT_STATE;
 typedef _XINPUT_STATE XINPUT_STATE;
-enum XBOX_KEY {
+enum XboxKey {
 	XBOX_KEY_DPAD_UP,
 	XBOX_KEY_DPAD_DOWN,
 	XBOX_KEY_DPAD_LEFT,
@@ -22,7 +22,7 @@ enum XBOX_KEY {
 	NUM_XBOX_KEYS
 };
 
-enum XBOX_THUMB {
+enum XBoxThumb {
 	XOBX_THUMB_LEFT,
 	XOBX_THUMB_RIGHT,
 	NUM_XBOX_THUMB
@@ -31,7 +31,7 @@ enum XBOX_THUMB {
 static constexpr float THUMB_INNER_DEADZONE_FRACTION = 5200.f / 32768.f; // 23%
 static constexpr float THUMB_OUTER_DEADZONE_FRACTION = 31000.f / 32768.f; // 90%
 
-struct XBOX_THUMB_STATE {
+struct XboxThumbState {
 	Vector2 position = Vector2(0.f, 0.f);
 	float magnitude = 0;
 	float angleDegree = 0;
@@ -39,7 +39,7 @@ struct XBOX_THUMB_STATE {
 
 static constexpr float TRIGGER_INNER_DEADZONE_FRACTION = 0.2f; // 23%
 static constexpr float TRIGGER_OUTER_DEADZONE_FRACTION = 0.95f; // 90%
-enum XBOX_TRIGGER {
+enum XboxTrigger {
 	XBOX_TRIGGER_LEFT,
 	XBOX_TRIGGER_RIGHT,
 	NUM_XBOX_TRIGGER
@@ -58,15 +58,15 @@ public:
 	~XboxController() {};
 
 	void updateControllerState();
-	bool isKeyDown(XBOX_KEY keyName);
-	bool isKeyUp(XBOX_KEY keyName);
-	bool isKeyJustDown(XBOX_KEY keyName);
-	bool isKeyJustUp(XBOX_KEY keyName);
-	XBOX_THUMB_STATE getThumbState(XBOX_THUMB thumbId);
-	float getTriggerState(XBOX_TRIGGER triggerId);
+	bool isKeyDown(XboxKey keyName);
+	bool isKeyUp(XboxKey keyName);
+	bool isKeyJustDown(XboxKey keyName);
+	bool isKeyJustUp(XboxKey keyName);
+	XboxThumbState getThumbState(XBoxThumb thumbId);
+	float getTriggerState(XboxTrigger triggerId);
 protected:
 	KeyState m_keyStates[NUM_XBOX_KEYS];
-	XBOX_THUMB_STATE m_thumbStates[NUM_XBOX_THUMB];
+	XboxThumbState m_thumbStates[NUM_XBOX_THUMB];
 	float m_triggerStates[NUM_XBOX_TRIGGER];
 
 private:

@@ -18,27 +18,27 @@ void XboxController::updateControllerState() {
 	updateTriggers(xboxControllerState);
 }
 
-bool XboxController::isKeyDown(XBOX_KEY keyName) {
+bool XboxController::isKeyDown(XboxKey keyName) {
 	return m_keyStates[keyName].m_isDown;
 }
 
-bool XboxController::isKeyUp(XBOX_KEY keyName) {
+bool XboxController::isKeyUp(XboxKey keyName) {
 	return !m_keyStates[keyName].m_isDown;
 }
 
-bool XboxController::isKeyJustDown(XBOX_KEY keyName) {
+bool XboxController::isKeyJustDown(XboxKey keyName) {
 	return m_keyStates[keyName].m_justPressed;
 }
 
-bool XboxController::isKeyJustUp(XBOX_KEY keyName) {
+bool XboxController::isKeyJustUp(XboxKey keyName) {
 	return m_keyStates[keyName].m_justReleased;
 }
 
-XBOX_THUMB_STATE XboxController::getThumbState(XBOX_THUMB thumbId) {
+XboxThumbState XboxController::getThumbState(XBoxThumb thumbId) {
 	return m_thumbStates[thumbId];
 }
 
-float XboxController::getTriggerState(XBOX_TRIGGER triggerId) {
+float XboxController::getTriggerState(XboxTrigger triggerId) {
 	return m_triggerStates[triggerId];
 }
 
@@ -70,7 +70,7 @@ void XboxController::updateThumbs(const XINPUT_STATE& xboxControllerState) {
 		x = rangeMapf(x, -32768.f, 32767.f, -1.f, 1.f);
 		y = rangeMapf(y, -32768.f, 32767.f, -1.f, 1.f);
 
-		float magnitude = sqrtf(x*x + y*y), theta = atan2Degree(y, x);
+		float magnitude = sqrt(x*x + y*y), theta = atan2Degree(y, x);
 		magnitude = rangeMapf(magnitude
 							  , THUMB_INNER_DEADZONE_FRACTION
 							  , THUMB_OUTER_DEADZONE_FRACTION
@@ -86,7 +86,7 @@ void XboxController::updateThumbs(const XINPUT_STATE& xboxControllerState) {
 		x = rangeMapf(x, -32768.f, 32767.f, -1.f, 1.f);
 		y = rangeMapf(y, -32768.f, 32767.f, -1.f, 1.f);
 
-		float magnitude = sqrtf(x*x + y*y), theta = atan2Degree(y, x);
+		float magnitude = sqrt(x*x + y*y), theta = atan2Degree(y, x);
 		magnitude = rangeMapf(magnitude
 							  , THUMB_INNER_DEADZONE_FRACTION
 							  , THUMB_OUTER_DEADZONE_FRACTION
