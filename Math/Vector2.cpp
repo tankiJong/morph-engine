@@ -101,7 +101,7 @@ bool Vector2::operator!=(const Vector2& compare) const {
 }
 
 float Vector2::getLength() const {
-	return sqrt(x*x + y*y);
+	return sqrtf(x*x + y*y);
 }
 
 float Vector2::getLengthSquared() const {
@@ -121,7 +121,7 @@ Vector2 Vector2::getNormalized() const {
 }
 
 float Vector2::getOrientationDegrees() const {
-	return convertRadiansToDegrees(atan2(y, x));
+	return convertRadiansToDegrees(atan2f(y, x));
 
 }
 

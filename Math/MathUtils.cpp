@@ -15,16 +15,16 @@ float convertDegreesToRadians(float degrees) {
 
 //-----------------------------------------------------------------------------------------------
 float cosDegrees(float degrees) {
-	return cos(convertDegreesToRadians(degrees));
+	return cosf(convertDegreesToRadians(degrees));
 }
 
 //-----------------------------------------------------------------------------------------------
 float sinDegrees(float degrees) {
-	return sin(convertDegreesToRadians(degrees));
+	return sinf(convertDegreesToRadians(degrees));
 }
 
 float atan2Degree(float y, float x) {
-	return convertRadiansToDegrees(atan2(y, x));
+	return convertRadiansToDegrees(atan2f(y, x));
 }
 
 float getRandomf01() {
@@ -55,7 +55,7 @@ float getSquaredDistance(const Vector2& a, const Vector2& b) {
 
 float getDistance(const Vector2 & a, const Vector2 & b) {
 	float dx = a.x - b.x, dy = a.y - b.y;
-	return sqrt(dx*dx + dy*dy);
+	return sqrtf(dx*dx + dy*dy);
 }
 
 float turnToward(float current, float goal, float maxTurnAngle) {
