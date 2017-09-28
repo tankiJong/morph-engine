@@ -1,3 +1,4 @@
+
 #include "Engine\Math\Vector2.hpp"
 #include "Engine\Math\MathUtils.hpp"
 
@@ -32,6 +33,10 @@ const Vector2 Vector2::operator*(float uniformScale) const {
     return Vector2 (this->x*uniformScale, this->y*uniformScale);
 }
 
+
+float Vector2::operator*(const Vector2& another) const{
+	return x*another.x + y*another.y;
+}
 
 //-----------------------------------------------------------------------------------------------
 const Vector2 Vector2::operator/(float inverseScale) const {
@@ -79,6 +84,10 @@ const Vector2 operator*(float uniformScale, const Vector2& vecToScale) {
     return Vector2 (vecToScale.x * uniformScale, vecToScale.y * uniformScale);
 }
 
+float dotProduct(const Vector2 & a, const Vector2 & b) {
+	return a*b;
+}
+
 
 //-----------------------------------------------------------------------------------------------
 bool Vector2::operator==(const Vector2& compare) const {
@@ -92,7 +101,7 @@ bool Vector2::operator!=(const Vector2& compare) const {
 }
 
 float Vector2::getLength() const {
-	return sqrtf(x*x + y*y);
+	return sqrt(x*x + y*y);
 }
 
 float Vector2::getLengthSquared() const {
@@ -112,7 +121,7 @@ Vector2 Vector2::getNormalized() const {
 }
 
 float Vector2::getOrientationDegrees() const {
-	return convertRadiansToDegrees(atan2f(y, x));
+	return convertRadiansToDegrees(atan2(y, x));
 
 }
 
