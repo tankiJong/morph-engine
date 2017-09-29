@@ -3,6 +3,9 @@
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/Math/MathUtils.hpp"
 
+
+const Rgba Rgba::white = Rgba(255,255,255);
+
 Rgba::Rgba(unsigned char redByte, unsigned char greenByte, unsigned char blueByte, unsigned char alphaByte)
 	: r(redByte)
 	, g(greenByte)

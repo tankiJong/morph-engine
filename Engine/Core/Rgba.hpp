@@ -18,7 +18,7 @@ public:
 	void Rgba::scaleColor(float rgbScale);
 	void Rgba::scaleOpacity(float alphaScale);
 
-
+  const static Rgba white;
 public:
 	unsigned char r = 255;
 	unsigned char b = 255;
