@@ -39,19 +39,19 @@ void Input::onKeyUp(unsigned char keyCode) {
 	m_keyStates[keyCode].m_justReleased = 1;
 }
 
-bool Input::isKeyDown(unsigned char keyCode) {
+bool Input::isKeyDown(unsigned char keyCode) const {
 	return m_keyStates[keyCode].m_isDown;
 }
 
-bool Input::isKeyUp(unsigned char keyCode) {
+bool Input::isKeyUp(unsigned char keyCode) const {
 	return !m_keyStates[keyCode].m_isDown;
 }
 
-bool Input::isKeyJustDown(unsigned char keyCode) {
+bool Input::isKeyJustDown(unsigned char keyCode) const {
 	return m_keyStates[keyCode].m_justPressed;
 }
 
-bool Input::isKeyJustUp(unsigned char keyCode) {
+bool Input::isKeyJustUp(unsigned char keyCode) const {
 	return m_keyStates[keyCode].m_justReleased;
 }
 

@@ -4,6 +4,7 @@
 
 struct _XINPUT_STATE;
 typedef _XINPUT_STATE XINPUT_STATE;
+
 enum XboxKey {
 	XBOX_KEY_DPAD_UP,
 	XBOX_KEY_DPAD_DOWN,
@@ -54,7 +55,7 @@ enum XboxControllerID {
 };
 class XboxController {
 public:
-	XboxController(XboxControllerID id);
+  friend class Input;
 	~XboxController() {};
 
 	void updateControllerState();
@@ -64,7 +65,9 @@ public:
 	bool isKeyJustUp(XboxKey keyName);
 	XboxThumbState getThumbState(XBoxThumb thumbId);
 	float getTriggerState(XboxTrigger triggerId);
+
 protected:
+	XboxController(XboxControllerID id);
 	KeyState m_keyStates[NUM_XBOX_KEYS];
 	XboxThumbState m_thumbStates[NUM_XBOX_THUMB];
 	float m_triggerStates[NUM_XBOX_TRIGGER];

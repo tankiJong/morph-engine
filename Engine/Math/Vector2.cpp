@@ -34,10 +34,6 @@ const Vector2 Vector2::operator*(float uniformScale) const {
 }
 
 
-float Vector2::operator*(const Vector2& another) const{
-	return x*another.x + y*another.y;
-}
-
 //-----------------------------------------------------------------------------------------------
 const Vector2 Vector2::operator/(float inverseScale) const {
     return Vector2 (this->x*(1.f / inverseScale), this->y*(1.f / inverseScale));
@@ -84,8 +80,8 @@ const Vector2 operator*(float uniformScale, const Vector2& vecToScale) {
     return Vector2 (vecToScale.x * uniformScale, vecToScale.y * uniformScale);
 }
 
-float dotProduct(const Vector2 & a, const Vector2 & b) {
-	return a*b;
+float Vector2::dotProduct(const Vector2 & a, const Vector2 & b) {
+  return a.x*b.x + a.y*b.y;
 }
 
 

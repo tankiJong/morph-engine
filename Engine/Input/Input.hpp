@@ -12,10 +12,10 @@ public:
 	void onKeyDown(unsigned char keyCode);
 	void onKeyUp(unsigned char keyCode);
 
-	bool isKeyDown(unsigned char keyCode);
-	bool isKeyUp(unsigned char keyCode);
-	bool isKeyJustDown(unsigned char keyCode);
-	bool isKeyJustUp(unsigned char keyCode);
+	bool isKeyDown(unsigned char keyCode) const;
+	bool isKeyUp(unsigned char keyCode) const;
+	bool isKeyJustDown(unsigned char keyCode) const;
+	bool isKeyJustUp(unsigned char keyCode) const;
 
 	void beforeFrame();
 	void afterFrame();

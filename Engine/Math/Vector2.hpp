@@ -14,7 +14,6 @@ public:
     const Vector2 operator+(const Vector2& vecToAdd) const;		// vec2 + vec2
     const Vector2 operator-(const Vector2& vecToSubtract) const;	// vec2 - vec2
     const Vector2 operator*(float uniformScale) const;			// vec2 * float
-	float operator*(const Vector2& another) const;            // vec2 * vec2, dot product
     const Vector2 operator/(float inverseScale) const;			// vec2 / float
     void operator+=(const Vector2& vecToAdd);						// vec2 += vec2
     void operator-=(const Vector2& vecToSubtract);				// vec2 -= vec2
@@ -31,6 +30,7 @@ public:
 	float getOrientationDegrees() const; // return 0 for east (5,0), 90 for north (0,8), etc.
 
 	static Vector2 makeDirectionAtDegrees(float degrees); // create vector at angle
+  static float dotProduct(const Vector2& a, const Vector2& b);
     friend const Vector2 operator*(float uniformScale, const Vector2& vecToScale);	// float * vec2
 
 	
@@ -41,4 +41,3 @@ public: // NOTE: this is one of the few cases where we break both the "m_" namin
 	static const Vector2 zero;
 };
 
-float dotProduct(const Vector2& a, const Vector2& b);
