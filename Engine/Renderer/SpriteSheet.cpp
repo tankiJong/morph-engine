@@ -4,16 +4,16 @@
 
 SpriteSheet::SpriteSheet(Texture& texture
                          , int tilesWidth, int tilesHeight)
-           : m_spriteSheetTexture(texture)
-           , m_spriteLayout(tilesWidth, tilesHeight) {
-
+  : m_spriteSheetTexture(texture)
+    , m_spriteLayout(tilesWidth, tilesHeight) {
+  
 }
 
 AABB2 SpriteSheet::getTexCoords(const IntVector2& spriteCoords) const {
   float unitSzieX = 1.f / m_spriteLayout.x;
   float unitSizeY = 1.f / m_spriteLayout.y;
-  Vector2 mins = Vector2(unitSzieX * (float)spriteCoords.x, unitSizeY * (float)(spriteCoords.y + 1));
-  Vector2 maxs = Vector2(unitSzieX * (float)(spriteCoords.x + 1), unitSizeY * (float)spriteCoords.y);
+  Vector2 mins = Vector2(unitSzieX * (float) spriteCoords.x, unitSizeY * (float) (spriteCoords.y + 1));
+  Vector2 maxs = Vector2(unitSzieX * (float) (spriteCoords.x + 1), unitSizeY * (float) spriteCoords.y);
 
   return AABB2(mins, maxs);
 }
@@ -25,8 +25,8 @@ AABB2 SpriteSheet::getTexCoordsByIndex(int spriteIndex) const {
   return getTexCoords(IntVector2(x, y));
 }
 
-Texture* SpriteSheet::getTexture() const {
-  return &m_spriteSheetTexture;
+const Texture& SpriteSheet::getTexture() const {
+  return m_spriteSheetTexture;
 }
 
 int SpriteSheet::getNumSprites() const {

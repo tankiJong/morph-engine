@@ -87,6 +87,14 @@ void Renderer::traslate2D(const Vector2& translation) { // QA: better to have 2 
 	glTranslatef(translation.x, translation.y, 0);
 }
 
+void Renderer::setAddtiveBlending() {
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+}
+
+void Renderer::resetAlphaBlending() {
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
 void Renderer::rotate2D(float degree) {
 	glRotatef(degree, 0.f, 0.f, 1);
 }

@@ -12,10 +12,10 @@ public:
 
   AABB2 getTexCoords(const IntVector2& spriteCoords) const; // for sprites
   AABB2 getTexCoordsByIndex(int spriteIndex) const; // for sprite animations
-  Texture* getTexture() const;
+  const Texture& getTexture() const;
   int getNumSprites() const;
 
 private:
-  Texture& 	m_spriteSheetTexture; 	// Texture w/grid-based layout of sprites
-  IntVector2		m_spriteLayout;		// # of sprites across, and down, on the sheet
+  Texture& m_spriteSheetTexture; // Texture w/grid-based layout of sprites
+  IntVector2 m_spriteLayout; // # of sprites across, and down, on the sheet
 };

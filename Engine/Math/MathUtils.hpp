@@ -19,6 +19,7 @@ float getAngularDisplacement(float startDegrees, float endDegrees);
 // it should work for all different scales, no matter degree or radian or whatever
 // maxTurnAngle should not be negative
 float turnToward(float current, float goal, float maxTurnAngle);
+Vector2 reflect(const Vector2& in, const Vector2& normal);
 
 float getRandomf01();
 float getRandomf(float minInclusive, float maxInclusive);
@@ -28,7 +29,8 @@ bool checkRandomChance(float chanceForSuccess);
 
 //--------------------------- ranging, clamping ------------------------------------------------------------
 
-int rounding(float in); // TODO: warp math.h
+// QA: constexpr with link error
+int rounding(float in);
 float roundingf(float in);
 
 int clamp(int v, int min, int max);

@@ -30,6 +30,8 @@ public:
 	void setOrtho2D(const Vector2& bottomLeft, const Vector2& topRight);
 	void scale2D(float ratioX, float ratioY, float ratioZ = 1.f);
 	void traslate2D(const Vector2& translation);
+  void setAddtiveBlending();
+  void resetAlphaBlending();
 protected:
 	void swapBuffers(HDC);
 	std::map<std::string, Texture*>* m_textures;

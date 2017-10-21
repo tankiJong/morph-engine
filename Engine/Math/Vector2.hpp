@@ -1,6 +1,9 @@
 #pragma once
 
-
+class IntVector2;
+namespace std {
+  template <typename T> class initializer_list;
+}
 //-----------------------------------------------------------------------------------------------
 class Vector2 {
 public:
@@ -8,8 +11,9 @@ public:
     ~Vector2 () {}											// destructor: do nothing (for speed)
     Vector2 () {}											// default constructor: do nothing (for speed)
     Vector2 (const Vector2& copyFrom);						// copy constructor (from another vec2)
+    Vector2(const IntVector2& copyFrom);						// convert from IntVec2)
     explicit Vector2 (float initialX, float initialY);		// explicit constructor (from x, y)
-
+    Vector2(std::initializer_list<float>);
                                                             // Operators
     const Vector2 operator+(const Vector2& vecToAdd) const;		// vec2 + vec2
     const Vector2 operator-(const Vector2& vecToSubtract) const;	// vec2 - vec2

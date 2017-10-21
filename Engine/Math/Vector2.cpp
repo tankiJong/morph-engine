@@ -1,6 +1,8 @@
 
 #include "Engine\Math\Vector2.hpp"
 #include "Engine\Math\MathUtils.hpp"
+#include "IntVector2.hpp"
+#include <initializer_list>
 
 const Vector2 Vector2::zero = Vector2(0.f, 0.f);
 
@@ -9,12 +11,22 @@ Vector2::Vector2 (const Vector2& copy)
     : x (copy.x)
     , y (copy.y) {}
 
+Vector2::Vector2(const IntVector2& copyFrom)
+    : x((float)copyFrom.x)
+    , y((float)copyFrom.y) {
+  
+}
 
 //-----------------------------------------------------------------------------------------------
 Vector2::Vector2 (float initialX, float initialY)
     : x (initialX)
     , y (initialY) {}
 
+Vector2::Vector2(std::initializer_list<float> list) {
+  auto begin = list.begin();
+  x = *begin++;
+  y = *begin;
+}
 
 //-----------------------------------------------------------------------------------------------
 const Vector2 Vector2::operator + (const Vector2& vecToAdd) const {

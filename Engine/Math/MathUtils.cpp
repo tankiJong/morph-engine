@@ -2,6 +2,7 @@
 #include "Engine\Math\MathUtils.hpp"
 #include "Engine\Math\Vector2.hpp"
 #include "Engine\Math\Disc2.hpp"
+#include <cassert>
 
 //-----------------------------------------------------------------------------------------------
 float convertRadiansToDegrees(float radians) {
@@ -67,6 +68,13 @@ float turnToward(float current, float goal, float maxTurnAngle) {
 		return current - maxTurnAngle;
 	}
 	return current + angDis;
+}
+
+Vector2 reflect(const Vector2& in, const Vector2& normal) {
+  // QA: sometimes fail
+//  assert(1.f - normal.getLengthSquared() < 1e-9 && 1.f - normal.getLengthSquared() > -1e-9);
+
+  return in - 2.f * Vector2::dotProduct(in, normal) * normal;
 }
 
 float getAngularDisplacement(float startDegrees, float endDegrees) {
