@@ -25,6 +25,9 @@
     <Filter Include="ThirdParty\fmod">
       <UniqueIdentifier>{b4ca5da3-5d77-47d1-b6b0-5ab3ff61d5c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ThirdParty\TinyXML">
+      <UniqueIdentifier>{22eee405-3868-46f8-9ecc-a294e4e7687e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">

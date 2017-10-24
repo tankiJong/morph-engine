@@ -26,8 +26,8 @@ public:
 	virtual ~Audio();
 
 public:
-	virtual void				beginFrame();
-	virtual void				endFrame();
+	virtual void				beforeFrame();
+	virtual void				afterFrame();
 
 	virtual SoundID				createOrGetSound( const std::string& soundFilePath );
 	virtual SoundPlaybackID		playSound( SoundID soundID, bool isLooped=false, float volume=1.f, float balance=0.0f, float speed=1.0f, bool isPaused=false );

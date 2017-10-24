@@ -9,6 +9,7 @@
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/Renderer/Texture.hpp"
 #include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/MathUtils.hpp"
 
 Renderer::Renderer() {
 	loadIdentity();
@@ -121,6 +122,26 @@ void Renderer::drawAABB2(const AABB2& bounds, const Rgba& color) {
 		glVertex2f(bounds.mins.x, bounds.maxs.y);
 	}
 	glEnd();
+}
+
+void Renderer::drawCircle(const Vector2& center, float radius, const Rgba& color, bool filled) {
+  if(filled) {
+    glBegin(GL_POLYGON);
+  }
+  else {
+    glBegin(GL_LINE_LOOP);
+  }
+  glColor4ub(color.r, color.g, color.b, color.a);
+  for(int ii = 0; ii < 20; ii++) {
+    float theta = 2.0f * PI * float(ii) * 0.05f;//get the current angle 
+
+    float x = radius * cosf(theta);//calculate the x component 
+    float y = radius * sinf(theta);//calculate the y component 
+
+    glVertex2f(x + center.x, y + center.y);//output vertex 
+
+  }
+  glEnd();
 }
 
 void Renderer::cleanScreen(const Rgba& color) {

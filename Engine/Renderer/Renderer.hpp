@@ -20,6 +20,7 @@ public:
 	void cleanScreen(const Rgba& color);
 	Texture* createOrGetTexture(const std::string& filePath);
 	void drawAABB2(const AABB2& bounds, const Rgba& color);
+  void drawCircle(const Vector2& center, float radius, const Rgba& color, bool filled = false);
 	void drawLine(const Vector2 & start, const Vector2 & end, const Rgba& startColor, const Rgba& endColor, float lineThickness = 1.f) const;
 	void drawTexturedAABB2(const AABB2& bounds, const Texture& texture,
 						   const Vector2& texCoordsAtMins, const Vector2& texCoordsAtMaxs, const Rgba& tint);
