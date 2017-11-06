@@ -2,6 +2,11 @@
 
 #define PI (3.1415926535897932384626433832795f)
 #include <Math.h>
+class FloatRange;
+class AABB2;
+class IntVector2;
+class IntRange;
+class Rgba;
 typedef int int32_t;
 class Vector2;
 class Disc2;
@@ -44,8 +49,30 @@ float rangeMapf(float v, float inStart, float inEnd, float outStart, float outEn
 
 //-------------------------- interpolation --------------------------------------------------
 
+float	smoothStart2(float t); // 2nd-degree smooth start (a.k.a. “quadratic ease in”)
+float	smoothStart3(float t); // 3rd-degree smooth start (a.k.a. “cubic ease in”)
+float	smoothStart4(float t); // 4th-degree smooth start (a.k.a. “quartic ease in”)
+float	smoothStop2(float t); // 2nd-degree smooth start (a.k.a. “quadratic ease out”)
+float	smoothStop3(float t); // 3rd-degree smooth start (a.k.a. “cubic ease out”)
+float	smoothStop4(float t); // 4th-degree smooth start (a.k.a. “quartic ease out”)
+float	smoothStep3(float t); // 3rd-degree smooth start/stop (a.k.a. “smoothstep”)
+
 // linear interpolate
-float lerpf(float from, float to, float fraction);
+inline float lerpf(float from, float to, float fraction);
+
+template<typename T>
+T lerp(const T& from, const T& to, float fraction);
+float lerp(float from, float to, float fraction);
+const Vector2 lerp(const Vector2& from, const Vector2& to, float fraction);
+const FloatRange lerp(const FloatRange& from, const FloatRange& to, float fraction);
+const AABB2 lerp(const AABB2& from, const AABB2& to, float fraction);
+const Disc2 lerp(const Disc2& from, const Disc2& to, float fraction);
+
+int lerp(int from, int to, float fraction);
+unsigned char lerp(unsigned char from, unsigned char to, float fraction);
+const IntVector2 lerp(const IntVector2& from, const IntVector2& to, float fraction);
+const IntRange lerp(const IntRange& from, const IntRange& to, float fraction);
+const Rgba lerp(const Rgba& from, const Rgba& to, float fraction);
 
 
 //---------------------------- Bitwise operation --------------------------------------------

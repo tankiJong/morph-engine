@@ -25,7 +25,7 @@
     <Filter Include="ThirdParty\fmod">
       <UniqueIdentifier>{b4ca5da3-5d77-47d1-b6b0-5ab3ff61d5c5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ThirdParty\TinyXML">
+    <Filter Include="ThirdParty\pugixml">
       <UniqueIdentifier>{22eee405-3868-46f8-9ecc-a294e4e7687e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -83,6 +83,27 @@
     </ClCompile>
     <ClCompile Include="Audio\Audio.cpp">
       <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\pugixml\pugixml.cpp">
+      <Filter>ThirdParty\pugixml</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\FloatRange.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Blackboard.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\EngineCommon.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Xml.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Image.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\BitmapFont.cpp">
+      <Filter>Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +187,30 @@
     </ClInclude>
     <ClInclude Include="..\ThirdParty\fmod\fmod_output.h">
       <Filter>ThirdParty\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\pugixml\pugiconfig.hpp">
+      <Filter>ThirdParty\pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\pugixml\pugixml.hpp">
+      <Filter>ThirdParty\pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\FloatRange.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Blackboard.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\EngineCommon.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Xml.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Image.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\BitmapFont.hpp">
+      <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

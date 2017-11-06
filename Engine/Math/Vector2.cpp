@@ -3,9 +3,14 @@
 #include "Engine\Math\MathUtils.hpp"
 #include "IntVector2.hpp"
 #include <initializer_list>
+#include "Engine/Core/StringUtils.hpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
 
-const Vector2 Vector2::zero = Vector2(0.f, 0.f);
-
+const Vector2 Vector2::zero(0.f, 0.f);
+const Vector2 Vector2::top(0, 1.f);
+const Vector2 Vector2::down(0, -1.f);
+const Vector2 Vector2::left(-1.f, 0);
+const Vector2 Vector2::right(1.f, 0);
 //-----------------------------------------------------------------------------------------------
 Vector2::Vector2 (const Vector2& copy)
     : x (copy.x)
@@ -26,6 +31,22 @@ Vector2::Vector2(std::initializer_list<float> list) {
   auto begin = list.begin();
   x = *begin++;
   y = *begin;
+}
+
+Vector2::Vector2(const char* str) {
+  fromString(str);
+}
+
+void Vector2::fromString(const char* data) {
+  auto raw = split(data, " ,");
+  GUARANTEE_OR_DIE(raw.size() == 2, "illegal input string to parse");
+
+  x = parse<float>(raw[0]);
+  y = parse<float>(raw[1]);
+}
+
+std::string Vector2::toString() const {
+  return Stringf("%f,%f", x, y);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -96,6 +117,42 @@ float Vector2::dotProduct(const Vector2 & a, const Vector2 & b) {
   return a.x*b.x + a.y*b.y;
 }
 
+const Vector2 projectTo(const Vector2& vectorToProject, const Vector2& projectOnto) {
+
+
+  return (vectorToProject.dot(projectOnto) / projectOnto.getLengthSquared())
+        * projectOnto;
+}
+
+const Vector2 transform(const Vector2& originalVector, 
+                        const Vector2& fromX, const Vector2& fromY, 
+                        const Vector2& toI, const Vector2& toJ) {
+  float nx = originalVector.x * fromX.x + originalVector.y * fromY.x;
+  float ny = originalVector.x * fromX.y + originalVector.y * fromY.y;
+
+  Vector2 vecInStandard(nx, ny);
+
+  float i = vecInStandard.dot(toI) / toI.getLengthSquared();
+  float j = vecInStandard.dot(toJ) / toJ.getLengthSquared();
+
+  return Vector2(i, j);
+}
+
+const Vector2 transToBasis(const Vector2& originalVector, 
+                           const Vector2& toBasisI, const Vector2& toBasisJ) {
+  return transform(originalVector, Vector2::right, Vector2::top, toBasisI, toBasisJ);
+}
+
+const Vector2 transFromBasis(const Vector2& originalVector, 
+                             const Vector2& fromBasisI, const Vector2& fromBasisJ) {
+  return transform(originalVector, fromBasisI, fromBasisJ, Vector2::right, Vector2::top);
+}
+
+void decompose(const Vector2& originalVector, const Vector2& newBasisI, const Vector2& newBasisJ,
+  Vector2& out_vectorAlongI, Vector2& out_vectorAlongJ) {
+  out_vectorAlongI = projectTo(originalVector, newBasisI);
+  out_vectorAlongJ = projectTo(originalVector, newBasisJ);
+}
 
 //-----------------------------------------------------------------------------------------------
 bool Vector2::operator==(const Vector2& compare) const {
@@ -131,6 +188,10 @@ Vector2 Vector2::getNormalized() const {
 float Vector2::getOrientationDegrees() const {
 	return convertRadiansToDegrees(atan2f(y, x));
 
+}
+
+float Vector2::dot(const Vector2& another) const {
+  return dotProduct(*this, another);
 }
 
 Vector2 Vector2::makeDirectionAtDegrees(float degrees) {

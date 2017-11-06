@@ -1,5 +1,7 @@
 #pragma once
+#include <string>
 
+class Vector2;
 class IntVector2 {
 public:
 	IntVector2() {};
@@ -7,6 +9,8 @@ public:
 	// Construction/Destruction
 	IntVector2(const IntVector2& copyFrom);						// copy constructor (from another vec2)
 	explicit IntVector2(int initialX, int initialY);		// explicit constructor (from x, y)
+  explicit IntVector2(const Vector2& castFrom);
+  IntVector2(std::initializer_list<int> list);
 
 															// Operators
 	const IntVector2 operator+(const IntVector2& vecToAdd) const;		// vec2 + vec2
@@ -22,9 +26,14 @@ public:
 	bool operator==(const IntVector2& compare) const;				// vec2 == vec2
 	bool operator!=(const IntVector2& compare) const;				// vec2 != vec2
 
+  void fromString(const char* data);
+  std::string toString() const;
 public:
 	int x = 0;
 	int y = 0;
 	static const IntVector2 zero;
-
+  static const IntVector2 top;
+  static const IntVector2 down;
+  static const IntVector2 left;
+  static const IntVector2 right;
 };

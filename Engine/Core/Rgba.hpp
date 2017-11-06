@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 class Rgba {
 public:
@@ -17,8 +18,10 @@ public:
 
 	void Rgba::scaleColor(float rgbScale);
 	void Rgba::scaleOpacity(float alphaScale);
-
+  void fromString(const char* data);
+  std::string toString(bool withAlpha = true);
   const static Rgba white;
+  const static Rgba red;
 public:
 	unsigned char r = 255;
 	unsigned char b = 255;

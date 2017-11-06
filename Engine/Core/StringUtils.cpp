@@ -41,6 +41,23 @@ const std::string Stringf( const int maxLength, const char* format, ... )
 	return returnValue;
 }
 
+std::vector<std::string> split(const char* data, const char* delimiters) {
+  // TODO: better way to split string
+  char raw[(unsigned char)-1];
+  strcpy_s(raw, data);
+  std::vector<std::string> vals;
+
+  char* val = nullptr;
+  char* rest = nullptr;
+  val = strtok_s(raw, delimiters, &rest);
+  while(val != NULL) {
+    vals.push_back(val);
+    val = strtok_s(NULL, delimiters, &rest);
+  }
+
+  return vals;
+}
+
 
 
 

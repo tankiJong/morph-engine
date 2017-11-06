@@ -10,17 +10,22 @@
 #include "Engine/Renderer/Texture.hpp"
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/MathUtils.hpp"
+#include "BitmapFont.hpp"
+#include "SpriteSheet.hpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
 
 Renderer::Renderer() {
 	loadIdentity();
-	m_textures = new std::map<std::string, Texture*>();
 }
 
 Renderer::~Renderer() {
-	for (const auto& kv: *m_textures) {
+  for (const auto& kv : m_fonts) {
+    delete kv.second;
+  }
+
+	for (const auto& kv: m_textures) {
 		delete kv.second;
 	}
-	delete m_textures;
 }
 
 void Renderer::afterFrame() {
@@ -46,7 +51,7 @@ void Renderer::drawTexturedAABB2(const AABB2& bounds,
 								 const Texture& texture, 
 								 const Vector2& texCoordsAtMins, 
 								 const Vector2& texCoordsAtMaxs, 
-								 const Rgba& tint) {
+								 const Rgba& tint) const {
 	glEnable(GL_TEXTURE_2D);
 	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glBindTexture(GL_TEXTURE_2D, texture.m_textureID); 
@@ -70,6 +75,33 @@ void Renderer::drawTexturedAABB2(const AABB2& bounds,
 	glDisable(GL_TEXTURE_2D);
 }
 
+void Renderer::drawTexturedAABB2(const AABB2& bounds, const Texture& texture, 
+                                 const AABB2& texCoords, const Rgba& tint) const {
+  drawTexturedAABB2(bounds, texture, texCoords.mins, texCoords.maxs, tint);
+}
+
+void Renderer::drawText2D(const Vector2& drawMins, const std::string& asciiText, 
+                          float cellHeight, const Rgba& tint, 
+                          float aspectScale, const BitmapFont* font) const {
+  // QA: default case?
+  GUARANTEE_OR_DIE(font != nullptr, "no font assigned");
+
+  float charWidth = font->GetStringWidth(asciiText, cellHeight, aspectScale) / asciiText.length();
+  Vector2 dx(charWidth, 0.f), dy(0.f, cellHeight);
+
+  for(int i =0; i<(int)asciiText.length(); i++) {
+    Vector2 mins = drawMins + float(i) * dx;
+    AABB2 textBounds(mins, mins + dx + dy);
+    AABB2 uv = font->GetUVsForGlyph(asciiText[i]);
+    drawTexturedAABB2(textBounds, font->m_spriteSheet.getTexture(), uv, tint);
+  }
+}
+
+void Renderer::drawText2D(const Vector2& drawMins, const std::string& asciiText, float cellHeight,
+                          const BitmapFont* font, const Rgba& tint, float aspectScale) const {
+  drawText2D(drawMins, asciiText, cellHeight, tint, aspectScale, font);
+}
+
 void Renderer::setOrtho2D(const Vector2& bottomLeft, const Vector2& topRight) {
   loadIdentity();
 	glOrtho(bottomLeft.x, topRight.x, bottomLeft.y, topRight.y, 0.f, 1.f);
@@ -84,7 +116,7 @@ void Renderer::popMatrix() {
 	glPopMatrix();
 }
 
-void Renderer::traslate2D(const Vector2& translation) { // QA: better to have 2 different fn for 2D and 3D? 
+void Renderer::traslate2D(const Vector2& translation) {
 	glTranslatef(translation.x, translation.y, 0);
 }
 
@@ -151,11 +183,30 @@ void Renderer::cleanScreen(const Rgba& color) {
 	glClear(GL_COLOR_BUFFER_BIT);// TODO: move to renderer
 }
 
+BitmapFont* Renderer::CreateOrGetBitmapFont(const char* bitmapFontName, const char* path) {
+  const char* fullPath = std::string(path).append(bitmapFontName).c_str();
+  return CreateOrGetBitmapFont(fullPath);
+}
+
+BitmapFont* Renderer::CreateOrGetBitmapFont(const char* fontNameWithPath) {
+  auto kv = m_fonts.find(fontNameWithPath);
+  if (kv != m_fonts.end()) {
+    return kv->second;
+  }
+
+  Texture* fontTex = createOrGetTexture(fontNameWithPath);
+  // QA: will get trouble if store the spriteSheet as reference
+  BitmapFont* font = new BitmapFont(fontNameWithPath, SpriteSheet(*fontTex, 16, 16));
+  m_fonts[fontNameWithPath] = font;
+
+  return font;
+}
+
 Texture* Renderer::createOrGetTexture(const std::string& filePath) {
-	auto it = m_textures->find(filePath);
-	if (it == m_textures->end()) {
+	auto it = m_textures.find(filePath);
+	if (it == m_textures.end()) {
 		Texture* texture = new Texture(filePath);
-		(*m_textures)[filePath] = texture;
+		m_textures[filePath] = texture;
 		return texture;
 	}
 	return it->second;
