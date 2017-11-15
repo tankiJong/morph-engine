@@ -17,9 +17,9 @@ public:
 private:
   explicit BitmapFont(const std::string& fontName, const SpriteSheet& glyphSheet,
                       float baseAspect = 1.f); // private, can only called by Renderer (friend class)
-
+  ~BitmapFont();
 private:
-  const SpriteSheet	m_spriteSheet; // used internally; assumed to be a 16x16 glyph sheet
+  const SpriteSheet&	m_spriteSheet; // used internally; assumed to be a 16x16 glyph sheet
   float	m_baseAspect = 1.0f; // used as the base aspect ratio for all glyphs
 
 };

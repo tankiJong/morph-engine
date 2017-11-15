@@ -6,6 +6,7 @@ class IntVector2;
 
 class Image {
 public:
+  Image() {}
   explicit Image(const std::string& imageFilePath);
   Rgba	getTexel(int x, int y) const; 			// (0,0) is top-left
   void	setTexel(int x, int y, const Rgba& color);

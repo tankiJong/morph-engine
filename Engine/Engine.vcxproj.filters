@@ -69,9 +69,6 @@
     <ClCompile Include="Renderer\SpriteSheet.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\SpriteAnimation.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Math\IntRange.cpp">
       <Filter>Math</Filter>
     </ClCompile>
@@ -103,6 +100,18 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\BitmapFont.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Vector3.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Matrix44.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\SpriteAnimSet.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\SpriteAnim.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
   </ItemGroup>
@@ -147,9 +156,6 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\SpriteSheet.hpp">
-      <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\SpriteAnimation.hpp">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Math\IntRange.hpp">
@@ -210,6 +216,18 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\BitmapFont.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Vector3.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Matrix44.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\SpriteAnimSet.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\SpriteAnim.hpp">
       <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>

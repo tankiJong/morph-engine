@@ -31,7 +31,7 @@ public:
   }
 
   template<typename Functor>
-  inline Functor traverseChilds(const Functor& fn) {
+  inline Functor traverseChilds(const Functor& fn) const {
     for(auto& node: m_node) {
       Xml child(node, m_document);
       fn(child);
@@ -41,7 +41,7 @@ public:
   }
 
   template<typename Functor>
-  inline Functor traverseAttributes(const Functor& fn) {
+  inline Functor traverseAttributes(const Functor& fn) const {
     for (auto& attr : m_node.attributes()) {
       fn(attr.name(), attr.value());
     }
@@ -70,4 +70,11 @@ template<>
 inline std::string parseXmlAttribute(const Xml& ele, const char* attributeName, std::string defaultValue) {
   auto raw = ele[attributeName];
   return (raw.length() == 0) ? defaultValue : raw;
+}
+
+template<typename T, typename A>
+inline std::vector<T, A> parseXmlAttribute(const Xml& ele, const char* attributeName, std::vector<T, A> defaultValue) {
+  auto raw = ele[attributeName];
+
+  return (raw.length() == 0) ? defaultValue : parse<T, A>(raw.c_str(), " ,");
 }

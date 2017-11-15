@@ -8,7 +8,7 @@ class IntVector2;
 class SpriteSheet {
 public:
   SpriteSheet(Texture& texture, int tilesWide, int tilesHigh);
-  ~SpriteSheet() {};
+  ~SpriteSheet() {}
 
   AABB2 getTexCoords(const IntVector2& spriteCoords) const; // for sprites
   AABB2 getTexCoordsByIndex(int spriteIndex) const; // for sprite animations

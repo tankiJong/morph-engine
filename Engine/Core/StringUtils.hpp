@@ -2,11 +2,13 @@
 //-----------------------------------------------------------------------------------------------
 #include <string>
 #include <vector>
+#include <algorithm>
 
 //-----------------------------------------------------------------------------------------------
 const std::string Stringf( const char* format, ... );
 const std::string Stringf( const int maxLength, const char* format, ... );
 std::vector<std::string> split(const char* data, const char* tokens);
+unsigned char castHex(char hex);
 
 //---------------------Parse---------------------------------------------------------------------
 template<typename T>
@@ -39,6 +41,15 @@ inline float parse(const char* str) {
 template<>
 inline bool parse(const char* str) {
   return strcmp(str, "true")==0 ? true : false;
+}
+
+template<typename T, typename A>
+inline std::vector<T, A> parse(const char* str, const char* tokens) {
+  auto datas = split(str, tokens);
+  std::vector<T, A> results(datas.size());
+  std::transform(datas.begin(), datas.end(), results.begin(), [](auto& str) { return parse<T>(str); });
+
+  return results;
 }
 
 //--------------toString-------------------------------------------------------------------------

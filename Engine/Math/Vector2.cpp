@@ -1,8 +1,9 @@
 
-#include "Engine\Math\Vector2.hpp"
-#include "Engine\Math\MathUtils.hpp"
 #include "IntVector2.hpp"
 #include <initializer_list>
+#include "Engine/Math/Vector2.hpp"
+#include "Engine/Math/MathUtils.hpp"
+#include "Engine/Math/Vector3.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
@@ -21,6 +22,10 @@ Vector2::Vector2(const IntVector2& copyFrom)
     , y((float)copyFrom.y) {
   
 }
+
+Vector2::Vector2(const Vector3& copyFrom) 
+  : x(copyFrom.x)
+  , y(copyFrom.y) {}
 
 //-----------------------------------------------------------------------------------------------
 Vector2::Vector2 (float initialX, float initialY)
@@ -72,6 +77,10 @@ const Vector2 Vector2::operator/(float inverseScale) const {
     return Vector2 (this->x*(1.f / inverseScale), this->y*(1.f / inverseScale));
 }
 
+void Vector2::operator=(const Vector3& copyFrom) {
+  x = copyFrom.x;
+  y = copyFrom.y;
+}
 
 //-----------------------------------------------------------------------------------------------
 void Vector2::operator+=(const Vector2& vecToAdd) {

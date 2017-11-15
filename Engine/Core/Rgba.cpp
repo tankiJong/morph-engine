@@ -50,7 +50,7 @@ void Rgba::scaleOpacity(float alphaScale) {
 	a = unsigned char(clampf(_a, 0, 255));
 }
 
-void Rgba::fromString(const char* data) {
+void Rgba::fromRgbString(const char* data) {
   auto rgba = split(data, " ,");
 
   GUARANTEE_RECOVERABLE(rgba.size() == 3 || rgba.size() == 4, "try to cast illegal string to Rgba");
@@ -67,7 +67,36 @@ void Rgba::fromString(const char* data) {
       parse<unsigned char>(rgba[2]), 
       parse<unsigned char>(rgba[3]));
   }
+}
 
+void Rgba::fromHexString(const char* data) {
+  // FFAABBFF
+  // 01234567
+  r = 16 * castHex(data[0]) + castHex(data[1]);
+  g = 16 * castHex(data[2]) + castHex(data[3]);
+  b = 16 * castHex(data[4]) + castHex(data[5]);
+
+  switch(strlen(data)) {
+    case 6:
+      a = 255;
+    break;
+    case 8:
+      a = 16 * castHex(data[6]) + castHex(data[7]);
+    break;
+    default:
+      ERROR_AND_DIE("illegal hex string for Rgba");
+    break;
+  }
+}
+
+void Rgba::fromString(const char* data) {
+  if(data[0] == '#') {
+    fromHexString(data+1);
+    return;
+  } else {
+    fromRgbString(data);
+    return;
+  }
 }
 
 std::string Rgba::toString(bool withAlpha) {

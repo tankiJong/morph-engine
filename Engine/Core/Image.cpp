@@ -35,7 +35,7 @@ void Image::populateFromData(unsigned char* imageData, const IntVector2& dimensi
   }
 
   if(numComponents == 3) {
-    union rgb {
+    struct rgb {
       unsigned char r;
       unsigned char g;
       unsigned char b;

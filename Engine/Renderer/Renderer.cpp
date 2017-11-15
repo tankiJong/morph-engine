@@ -176,6 +176,37 @@ void Renderer::drawCircle(const Vector2& center, float radius, const Rgba& color
   glEnd();
 }
 
+void Renderer::drawMeshImmediate(Vertex_PCU* vertices, int numVerts, DrawPrimitive drawPrimitive) {
+  GLenum mode = (GLenum)-1;
+
+  switch(drawPrimitive) {
+    case DRAW_TRIANGLES: 
+      mode = GL_TRIANGLES;
+    break;
+
+    case DRAW_LINE: 
+      mode = GL_LINE;
+    break;
+
+    case DRAW_QUADS: 
+      mode = GL_QUADS;
+    break;
+
+    case DRAW_UNKNOWN:
+    default: 
+    ERROR_AND_DIE("unknown primitive type for draw function");
+  }
+
+  glBegin(mode);
+
+  for(int i = 0; i < numVerts; i++) {
+    Vertex_PCU& vtx = vertices[i];
+    glColor4ub(vtx.color.r, vtx.color.g, vtx.color.b, vtx.color.a);
+    glTexCoord2f(vtx.uv.x, vtx.uv.y);
+    glVertex3f(vtx.pos.x, vtx.pos.y, vtx.pos.z);
+  }
+}
+
 void Renderer::cleanScreen(const Rgba& color) {
 	float r = 0, g = 0 , b = 0, a = 1;
 	color.getAsFloats(r, g, b, a);
@@ -196,7 +227,7 @@ BitmapFont* Renderer::CreateOrGetBitmapFont(const char* fontNameWithPath) {
 
   Texture* fontTex = createOrGetTexture(fontNameWithPath);
   // QA: will get trouble if store the spriteSheet as reference
-  BitmapFont* font = new BitmapFont(fontNameWithPath, SpriteSheet(*fontTex, 16, 16));
+  BitmapFont* font = new BitmapFont(fontNameWithPath, *(new SpriteSheet(*fontTex, 16, 16)));
   m_fonts[fontNameWithPath] = font;
 
   return font;

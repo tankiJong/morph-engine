@@ -2,6 +2,7 @@
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Core/Rgba.hpp"
+#include "Engine/Math/Vector3.hpp"
 #include <string>
 #include <map>
 
@@ -12,6 +13,18 @@ class Rgba;
 class Texture;
 class AABB2;
 
+struct Vertex_PCU {
+  Vector3 pos;
+  Vector2 uv;
+  Rgba    color;
+};
+
+enum DrawPrimitive {
+  DRAW_UNKNOWN = -1,
+  DRAW_TRIANGLES,
+  DRAW_LINE,
+  DRAW_QUADS
+};
 class Renderer {
 public:
 	Renderer();
@@ -24,7 +37,7 @@ public:
 	Texture* createOrGetTexture(const std::string& filePath);
 	void drawAABB2(const AABB2& bounds, const Rgba& color);
   void drawCircle(const Vector2& center, float radius, const Rgba& color, bool filled = false);
-
+  void drawMeshImmediate(Vertex_PCU* vertexArray, int numverts, DrawPrimitive drawPrimitive);
 	void drawLine(const Vector2 & start, const Vector2 & end, 
                 const Rgba& startColor, const Rgba& endColor, 
                 float lineThickness = 1.f) const;

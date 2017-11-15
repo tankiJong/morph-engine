@@ -1,6 +1,6 @@
 #include "Engine/Core/StringUtils.hpp"
 #include <stdarg.h>
-
+#include "Engine/Core/ErrorWarningAssert.hpp"
 
 //-----------------------------------------------------------------------------------------------
 const int STRINGF_STACK_LOCAL_TEMP_LENGTH = 2048;
@@ -56,6 +56,20 @@ std::vector<std::string> split(const char* data, const char* delimiters) {
   }
 
   return vals;
+}
+
+unsigned char castHex(char hex) {
+  if(hex >= '0' && hex <= '9') {
+    return hex - '0';
+  }
+  if(hex >= 'a' && hex <= 'f') {
+    return hex - 'a';
+  }
+  if(hex >= 'A' && hex <= 'F') {
+    return hex - 'A';
+  }
+
+  ERROR_AND_DIE("illegal hex char");
 }
 
 

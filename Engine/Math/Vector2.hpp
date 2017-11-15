@@ -2,7 +2,7 @@
 #include <string>
 
 class IntVector2;
-
+class Vector3;
 namespace std {
   template< typename T >
   class initializer_list;
@@ -16,6 +16,7 @@ public:
   Vector2() {} // default constructor: do nothing (for speed)
   Vector2(const Vector2& copyFrom); // copy constructor (from another vec2)
   Vector2(const IntVector2& copyFrom); // convert from IntVec2)
+  Vector2(const Vector3& copyFrom);   // need explicit convertion to use as vector3
   explicit Vector2(float initialX, float initialY); // explicit constructor (from x, y)
   Vector2(std::initializer_list<float>);
   Vector2(const char* str);
@@ -27,6 +28,7 @@ public:
   const Vector2 operator-(const Vector2& vecToSubtract) const; // vec2 - vec2
   const Vector2 operator*(float uniformScale) const; // vec2 * float
   const Vector2 operator/(float inverseScale) const; // vec2 / float
+  void operator=(const Vector3& copyFrom); // vec2 = vec3
   void operator+=(const Vector2& vecToAdd); // vec2 += vec2
   void operator-=(const Vector2& vecToSubtract); // vec2 -= vec2
   void operator*=(const float uniformScale); // vec2 *= float
@@ -46,8 +48,8 @@ public:
   friend const Vector2 operator*(float uniformScale, const Vector2& vecToScale); // float * vec2
 
 public: // NOTE: this is one of the few cases where we break both the "m_" naming rule AND the avoid-public-members rule
-  float x;
-  float y;
+  float x = 0;
+  float y = 0;
   static const Vector2 zero;
   static const Vector2 top;
   static const Vector2 down;
