@@ -5,7 +5,7 @@ class Rgba {
 public:
 	Rgba() {};
 	~Rgba() {};
-	explicit Rgba(unsigned char redByte, unsigned char greenByte,
+	Rgba(unsigned char redByte, unsigned char greenByte,
 						unsigned char blueByte, unsigned char alphaByte = 255);
 	void setByBytes(unsigned char redByte, unsigned char greenByte,
 						  unsigned char blueByte, unsigned char alphaByte = 255);

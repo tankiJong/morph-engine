@@ -65,6 +65,13 @@ Vector2 AABB2::getCenter() const {
 	return 0.5f * (mins + maxs);
 }
 
+float AABB2::width() const {
+  return getDimensions().x;
+}
+float AABB2::height() const {
+  return getDimensions().y;
+}
+
 void AABB2::operator+=(const Vector2& translation) {
 	mins += translation;
 	maxs += translation;

@@ -10,10 +10,10 @@ class BitmapFont {
 public:
   const std::string m_fontName;
   
-  AABB2 GetUVsForGlyph(int glyphUnicode) const; // pass ‘A’ or 65 for A, etc.
-  float GetStringWidth(const std::string& asciiText, float cellHeight, float aspectScale) const;
-  float GetGlyphAspect(int glyphUnicode) const { UNUSED(glyphUnicode);  return m_baseAspect; } // will change later
-
+  AABB2 getUVsForGlyph(int glyphUnicode) const; // pass ‘A’ or 65 for A, etc.
+  float getStringWidth(const std::string& asciiText, float cellHeight, float aspectScale = 1.f) const;
+  float getGlyphAspect(int glyphUnicode) const { UNUSED(glyphUnicode);  return m_baseAspect; } // will change later
+  int maxCharacterInWidth(float spaceWidth, float cellHeight, float aspectScale = 1.f) const;
 private:
   explicit BitmapFont(const std::string& fontName, const SpriteSheet& glyphSheet,
                       float baseAspect = 1.f); // private, can only called by Renderer (friend class)

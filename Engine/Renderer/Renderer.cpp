@@ -86,13 +86,13 @@ void Renderer::drawText2D(const Vector2& drawMins, const std::string& asciiText,
   // QA: default case?
   GUARANTEE_OR_DIE(font != nullptr, "no font assigned");
 
-  float charWidth = font->GetStringWidth(asciiText, cellHeight, aspectScale) / asciiText.length();
+  float charWidth = font->getStringWidth(asciiText, cellHeight, aspectScale) / asciiText.length();
   Vector2 dx(charWidth, 0.f), dy(0.f, cellHeight);
 
   for(int i =0; i<(int)asciiText.length(); i++) {
     Vector2 mins = drawMins + float(i) * dx;
     AABB2 textBounds(mins, mins + dx + dy);
-    AABB2 uv = font->GetUVsForGlyph(asciiText[i]);
+    AABB2 uv = font->getUVsForGlyph(asciiText[i]);
     drawTexturedAABB2(textBounds, font->m_spriteSheet.getTexture(), uv, tint);
   }
 }
@@ -100,6 +100,115 @@ void Renderer::drawText2D(const Vector2& drawMins, const std::string& asciiText,
 void Renderer::drawText2D(const Vector2& drawMins, const std::string& asciiText, float cellHeight,
                           const BitmapFont* font, const Rgba& tint, float aspectScale) const {
   drawText2D(drawMins, asciiText, cellHeight, tint, aspectScale, font);
+}
+
+void Renderer::drawTextInBox2D(const AABB2& bounds, const std::string& asciiText, float cellHeight,
+                               Vector2 aligns, TextDrawMode drawMode,
+                               const BitmapFont* font, const Rgba& tint, float aspectScale) const {
+  auto texts = split(asciiText.c_str(), "\n");
+  std::vector<std::string>* toDraw = nullptr;
+  std::vector<std::string> blocks = {};
+
+  if(drawMode == TEXT_DRAW_SHRINK_TO_FIT) {
+    float scale = 1.f;
+    const std::string& longest 
+      = *std::max_element(texts.begin(), texts.end(),
+                          [&font = font, &cellHeight = cellHeight](auto& a, auto& b) {
+                            return font->getStringWidth(a, cellHeight) < font->getStringWidth(b, cellHeight);
+                          });
+
+    float scaleX = 1.f, scaleY = 1.f;
+
+    float textWidth = font->getStringWidth(longest, cellHeight);
+    if( textWidth > bounds.width()) {
+      scaleX = bounds.width() / textWidth;
+    }
+
+    float textHeight = cellHeight * texts.size();
+    if(textHeight > bounds.height()) {
+      scaleY = bounds.height() / textHeight;
+    }
+
+    scale = std::min<float>(scaleY, scaleX);
+    toDraw = &texts;
+    cellHeight *= scale;
+    goto STEP_DRAW;
+  }
+
+  if(drawMode == TEXT_DRAW_OVERRUN) {
+    toDraw = &texts;
+    goto STEP_DRAW;
+  }
+
+
+  // drawMode == TEXT_DRAW_WORD_WRAP
+  {
+    const int numMaxChar = font->maxCharacterInWidth(bounds.width(), cellHeight);
+    for(const auto& line: texts) {
+      if(line.size() > numMaxChar) {
+        int startPos = 0;
+
+//        while(line[startDrawingPos] == ' ') {
+//          startDrawingPos++;
+//        }
+        while(startPos < line.size()) {
+          const int origin = std::min<int>(startPos + numMaxChar, line.size());
+          int endPos = origin;
+          bool isFound = false;
+          for(; endPos >= startPos; endPos--) {
+            if (line[endPos] == ' ') {
+              isFound = true;
+              break;
+            }
+          }
+          if(!isFound) {
+            endPos = origin;
+            for (; endPos < line.size(); endPos++) {
+              if (line[endPos] == ' ') {
+                isFound = true;
+                break;
+              }
+            }
+          }
+          if(isFound) {
+            blocks.push_back(line.substr(startPos, endPos - startPos));
+            startPos = endPos + 1;
+          } else {
+            blocks.push_back(line.substr(startPos, line.size() - startPos));
+            break;
+          }
+//          while (startDrawingPos < line.size() && line[startDrawingPos] == ' ') {
+//            startDrawingPos++;
+//          }
+        }
+      } else {
+        blocks.push_back(line);
+      }
+    }
+
+    toDraw = &blocks;    
+  }
+
+STEP_DRAW:
+  const auto& longest = *std::max_element(toDraw->begin(), toDraw->end(), [](std::string& a, std::string& b) { return a.size() < b.size(); });
+
+  float blockWidth = font->getStringWidth(longest, cellHeight);
+  float blockHeight = cellHeight * toDraw->size();
+
+  Vector2 anchor(bounds.mins.x, bounds.maxs.y);
+
+  Vector2 padding = bounds.getDimensions() - Vector2(blockWidth, blockHeight);
+  padding.x *= aligns.x;
+  padding.y *= -aligns.y;
+
+  anchor += padding;
+
+  anchor.y -= cellHeight;
+
+  for(const auto& line: *toDraw) {
+    drawText2D(anchor, line, cellHeight, tint, aspectScale, font);
+    anchor.y -= cellHeight;
+  }
 }
 
 void Renderer::setOrtho2D(const Vector2& bottomLeft, const Vector2& topRight) {

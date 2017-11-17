@@ -6,9 +6,9 @@ public:
 	~AABB2() {}
 	AABB2() {}
 	AABB2(const AABB2& copy);
-	explicit AABB2(float minX, float minY, float maxX, float maxY);
-	explicit AABB2(const Vector2& mins, const Vector2& maxs);
-	explicit AABB2(const Vector2& center, float radiusX, float radiusY);
+	AABB2(float minX, float minY, float maxX, float maxY);
+	AABB2(const Vector2& mins, const Vector2& maxs);
+	AABB2(const Vector2& center, float radiusX, float radiusY);
 
 	void stretchToIncludePoint(float x, float y); // note: stretch, not move…
 	void stretchToIncludePoint(const Vector2& point); // note: stretch, not move…
@@ -20,7 +20,8 @@ public:
 	bool isPointInside(const Vector2& point) const; // is “point” within box’s interior?
 	Vector2 getDimensions() const; // return a Vector2 of ( width, height )
 	Vector2 getCenter() const; // return the center position of the box
-
+  float width() const;
+  float height() const;
 	void operator+=(const Vector2& translation); // move (translate) the box
 	void operator-=(const Vector2& antiTranslation);
 	AABB2 operator+(const Vector2& translation) const; // create a (temp) moved box

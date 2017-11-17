@@ -25,6 +25,13 @@ enum DrawPrimitive {
   DRAW_LINE,
   DRAW_QUADS
 };
+
+enum TextDrawMode {
+  TEXT_DRAW_OVERRUN,
+  TEXT_DRAW_SHRINK_TO_FIT,
+  TEXT_DRAW_WORD_WRAP,
+  NUM_TEXT_DRAW_MODE
+};
 class Renderer {
 public:
 	Renderer();
@@ -54,6 +61,9 @@ public:
   void drawText2D(const Vector2& drawMins, const std::string& asciiText,
                   float cellHeight, const BitmapFont* font = nullptr,
                   const Rgba& tint = Rgba::white, float aspectScale = 1.f) const;
+  void drawTextInBox2D(const AABB2& bounds, const std::string& asciiText, float cellHeight, 
+                       Vector2 aligns = Vector2::zero, TextDrawMode drawMode = TEXT_DRAW_OVERRUN, 
+                       const BitmapFont* font = nullptr, const Rgba& tint = Rgba::white, float aspectScale = 1.f) const;
 	void loadIdentity();
 	void pushMatrix();
 	void popMatrix();
