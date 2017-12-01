@@ -16,6 +16,10 @@ Rgba Image::getTexel(int x, int y) const {
   return m_texels[x + y * m_dimensions.x];
 }
 
+Rgba Image::getTexel(IntVector2 v) const {
+  return getTexel(v.x, v.y);
+}
+
 void Image::setTexel(int x, int y, const Rgba& color) {
   m_texels[x + y * m_dimensions.x] = color;
 }

@@ -24,6 +24,7 @@ public:
   std::string toString(bool withAlpha = true);
   const static Rgba white;
   const static Rgba red;
+  const static Rgba cyan;
 public:
 	unsigned char r = 255;
 	unsigned char g = 255;

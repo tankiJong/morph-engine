@@ -34,6 +34,9 @@ const IntVector2 IntVector2::operator + (const IntVector2& vecToAdd) const {
 	return IntVector2(this->x + vecToAdd.x, this->y + vecToAdd.y);
 }
 
+const Vector2 IntVector2::operator+(const Vector2& vecToAdd) const {
+  return vecToAdd + *this;
+}
 
 //-----------------------------------------------------------------------------------------------
 const IntVector2 IntVector2::operator-(const IntVector2& vecToSubtract) const {

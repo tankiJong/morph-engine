@@ -6,9 +6,10 @@ public:
   int max;
   int min;
   IntRange();
-  explicit IntRange(int minInclusive, int maxInclusive);
+  IntRange(int minInclusive, int maxInclusive);
   explicit IntRange(int minMax);
   bool isOverlappedWith(const IntRange& another);
+  bool isInRange(int number) const;
   int getRandomInRange() const;
   int numIntIncluded() const;
 

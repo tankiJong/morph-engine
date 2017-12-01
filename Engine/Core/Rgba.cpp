@@ -6,7 +6,8 @@
 #include "Engine/Math/MathUtils.hpp"
 
 const Rgba Rgba::white = Rgba(255, 255, 255);
-const Rgba Rgba::red = Rgba(255, 0  , 0  );
+const Rgba Rgba::red   = Rgba(255, 0  , 0  );
+const Rgba Rgba::cyan  = Rgba(0  , 255, 255);
 
 Rgba::Rgba(unsigned char redByte, unsigned char greenByte, unsigned char blueByte, unsigned char alphaByte)
 	: r(redByte)

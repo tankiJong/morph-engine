@@ -8,8 +8,9 @@ class Image {
 public:
   Image() {}
   explicit Image(const std::string& imageFilePath);
-  Rgba	getTexel(int x, int y) const; 			// (0,0) is top-left
-  void	setTexel(int x, int y, const Rgba& color);
+  Rgba getTexel(int x, int y) const; 			// (0,0) is top-left
+  Rgba getTexel(IntVector2 v) const;
+  void setTexel(int x, int y, const Rgba& color);
   void populateFromData(unsigned char* imageData, const IntVector2& dimensions, int numComponents);
 
   private:

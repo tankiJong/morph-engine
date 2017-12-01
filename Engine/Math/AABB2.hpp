@@ -26,7 +26,8 @@ public:
 	void operator-=(const Vector2& antiTranslation);
 	AABB2 operator+(const Vector2& translation) const; // create a (temp) moved box
 	AABB2 operator-(const Vector2& antiTranslation) const;
-
+  void fromString(const char* data);
+  std::string toString() const;
 	Vector2 mins; // like Vector2, this breaks the “no public members” and “m_” naming rules;
 	Vector2 maxs; // this is so low-level math primitives feel like built-in types (and are fast in Debug)
 };

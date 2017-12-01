@@ -14,25 +14,27 @@ enum SpriteAnimMode {
 class SpriteSheet;
 
 class SpriteAnimDefinition {
-  friend class SpriteAnim;
+  friend class   SpriteAnim;
   friend class SpriteAnimSetDefinition;
+  friend class SpriteAnimSet;
 public:
   /**
-   * \brief input node format: <spriteAnim name="walkEast" spriteIndexes="1,2,3">
+   * \brief input node format: <SpriteAnim name="walkEast" spriteIndexes="1,2,3">
    * \param node 
    */
   explicit SpriteAnimDefinition(const SpriteSheet& spriteSheet, const Xml& node);
 protected:
   explicit SpriteAnimDefinition(const SpriteSheet& spriteSheet, float durationSeconds,
                                      SpriteAnimMode playbackMode, std::vector<int> frames);
-  std::vector<int> m_frameIndexes = {0};
+  std::vector<int> m_frameIndexes;
   float m_durationSeconds;
   const SpriteSheet& m_spriteSheet;
-  SpriteAnimMode m_playMode;
+  SpriteAnimMode m_playMode = SPRITE_ANIM_MODE_PLAY_TO_END;
   std::string m_name;
 };
 
 class SpriteAnim {
+  friend SpriteAnimSet;
 public:
   SpriteAnim(const SpriteSheet& spriteSheet, float durationSeconds,
                   SpriteAnimMode playbackMode, int startSpriteIndex, int endSpriteIndex);

@@ -19,6 +19,11 @@ IntRange::IntRange(int minMax)
 bool IntRange::isOverlappedWith(const IntRange& another) {
   return areRangesOverlap(*this, another);
 }
+
+bool IntRange::isInRange(int number) const {
+  return number >= min && number <= max;
+}
+
 int IntRange::getRandomInRange() const {
   return getRandomInt32(min, max);
 }

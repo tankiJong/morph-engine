@@ -148,6 +148,14 @@ float clampfInAbs1(float v) {
 	return clampf(v, -1.f, 1.f);
 }
 
+Vector2 clamp(const Vector2& v, Vector2 min, Vector2 max) {
+  return { clampf(v.x, min.x, max.x), clampf(v.y, min.y, max.y) };
+}
+
+IntVector2 clamp(const IntVector2& v, IntVector2 min, IntVector2 max) {
+  return { clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y) };
+}
+
 float getFraction(float v, float start, float end) {
 	return (v - start) / (end - start);
 }

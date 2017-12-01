@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Engine/Math/AABB2.hpp"
-
-
+#include "Engine/Renderer/SpriteAnim.hpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
 
 AABB2::AABB2(const AABB2& copy)
 	: mins(copy.mins)
@@ -88,6 +88,16 @@ AABB2 AABB2::operator+(const Vector2& translation) const {
 
 AABB2 AABB2::operator-(const Vector2& antiTranslation) const {
 	return AABB2(mins - antiTranslation, maxs - antiTranslation);
+}
+
+void AABB2::fromString(const char* data) {
+  auto components = split(data, ";");
+  GUARANTEE_OR_DIE(components.size() == 2, "input data invalid");
+  mins.fromString(components[0].c_str());
+  maxs.fromString(components[1].c_str());
+}
+std::string AABB2::toString() const {
+  return Stringf("%s;%s", mins.toString().c_str(), maxs.toString().c_str());
 }
 
 bool areAABBsOverlap(const AABB2& a, const AABB2& b) {

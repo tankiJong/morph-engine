@@ -14,6 +14,14 @@
 #include "SpriteSheet.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 
+int g_openGlPrimitiveTypes[NUM_PRIMITIVE_TYPES] =
+{
+  GL_POINTS,			// called PRIMITIVE_POINTS		in our engine
+  GL_LINES,			// called PRIMITIVE_LINES		in our engine
+  GL_TRIANGLES,		// called PRIMITIVE_TRIANGES	in our engine
+  GL_QUADS			// called PRIMITIVE_QUADS		in our engine
+};
+
 Renderer::Renderer() {
 	loadIdentity();
 }
@@ -145,15 +153,15 @@ void Renderer::drawTextInBox2D(const AABB2& bounds, const std::string& asciiText
   {
     const int numMaxChar = font->maxCharacterInWidth(bounds.width(), cellHeight);
     for(const auto& line: texts) {
-      if(line.size() > numMaxChar) {
-        int startPos = 0;
+      if(line.size() > unsigned int(numMaxChar)) {
+        unsigned int startPos = 0;
 
 //        while(line[startDrawingPos] == ' ') {
 //          startDrawingPos++;
 //        }
         while(startPos < line.size()) {
-          const int origin = std::min<int>(startPos + numMaxChar, line.size());
-          int endPos = origin;
+          const int origin = std::min<int>(startPos + numMaxChar, static_cast<int>(line.size()));
+          unsigned int endPos = origin;
           bool isFound = false;
           for(; endPos >= startPos; endPos--) {
             if (line[endPos] == ' ') {
@@ -163,7 +171,7 @@ void Renderer::drawTextInBox2D(const AABB2& bounds, const std::string& asciiText
           }
           if(!isFound) {
             endPos = origin;
-            for (; endPos < line.size(); endPos++) {
+            for ( ; endPos < line.size(); endPos++) {
               if (line[endPos] == ' ') {
                 isFound = true;
                 break;
@@ -237,6 +245,12 @@ void Renderer::resetAlphaBlending() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+void Renderer::bindTexutre(const Texture& texture) {
+  glEnable(GL_TEXTURE_2D);
+  //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  glBindTexture(GL_TEXTURE_2D, texture.m_textureID);
+}
+
 void Renderer::rotate2D(float degree) {
 	glRotatef(degree, 0.f, 0.f, 1);
 }
@@ -286,34 +300,20 @@ void Renderer::drawCircle(const Vector2& center, float radius, const Rgba& color
 }
 
 void Renderer::drawMeshImmediate(Vertex_PCU* vertices, int numVerts, DrawPrimitive drawPrimitive) {
-  GLenum mode = (GLenum)-1;
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-  switch(drawPrimitive) {
-    case DRAW_TRIANGLES: 
-      mode = GL_TRIANGLES;
-    break;
+  glVertexPointer(3, GL_FLOAT, sizeof(Vertex_PCU), &vertices[0].position);
+  glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex_PCU), &vertices[0].color);
+  glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex_PCU), &vertices[0].uvs);
 
-    case DRAW_LINE: 
-      mode = GL_LINE;
-    break;
+  GLenum glPrimitiveType = g_openGlPrimitiveTypes[drawPrimitive];
+  glDrawArrays(glPrimitiveType, 0, numVerts);
 
-    case DRAW_QUADS: 
-      mode = GL_QUADS;
-    break;
-
-    case DRAW_UNKNOWN:
-    default: 
-    ERROR_AND_DIE("unknown primitive type for draw function");
-  }
-
-  glBegin(mode);
-
-  for(int i = 0; i < numVerts; i++) {
-    Vertex_PCU& vtx = vertices[i];
-    glColor4ub(vtx.color.r, vtx.color.g, vtx.color.b, vtx.color.a);
-    glTexCoord2f(vtx.uv.x, vtx.uv.y);
-    glVertex3f(vtx.pos.x, vtx.pos.y, vtx.pos.z);
-  }
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void Renderer::cleanScreen(const Rgba& color) {

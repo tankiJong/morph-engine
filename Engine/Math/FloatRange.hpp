@@ -3,11 +3,13 @@
 
 class FloatRange {
 public:
-  float max;
-  float min;
-  explicit FloatRange(float minInclusive, float maxInclusive);
+  float min = 0;
+  float max = 0;
+  FloatRange() {}
+  FloatRange(float minInclusive, float maxInclusive);
   explicit FloatRange(float minMax);
   bool isOverlappedWith(const FloatRange& another);
+  bool isInRange(float number) const;
   float getRandomInRange() const;
 
   void fromString(const char* data);

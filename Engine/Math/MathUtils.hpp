@@ -2,6 +2,8 @@
 
 #define PI (3.1415926535897932384626433832795f)
 #include <Math.h>
+
+constexpr float fSQRT_3_OVER_3 = 0.577350269f;
 class FloatRange;
 class AABB2;
 class IntVector2;
@@ -32,6 +34,10 @@ int32_t getRandomInt32(int32_t minInclusive, int32_t maxInclusive);
 int32_t getRandomInt32LessThan(int32_t maxNotInclusive);
 bool checkRandomChance(float chanceForSuccess);
 
+template<class VectorType>
+float dotProduct(const VectorType& a, const VectorType& b) {
+  return a.dot(b);
+}
 //--------------------------- ranging, clamping ------------------------------------------------------------
 
 // QA: constexpr with link error
@@ -42,6 +48,8 @@ int clamp(int v, int min, int max);
 float clampf(float v, float min, float max);
 float clampf01(float v);
 float clampfInAbs1(float v);
+Vector2 clamp(const Vector2& v, Vector2 min, Vector2 max);
+IntVector2 clamp(const IntVector2& v, IntVector2 min, IntVector2 max);
 
 float getFraction(float v, float start, float end);
 

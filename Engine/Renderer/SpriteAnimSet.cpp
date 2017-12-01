@@ -10,8 +10,7 @@ SpriteAnimSetDefinition::SpriteAnimSetDefinition(const Xml& node, Renderer& rend
   GUARANTEE_OR_DIE(node.name() == "SpriteAnimSet", "xml node tag name unmatched");
 
   IntVector2 layout = node.attribute("spriteLayout", IntVector2::zero);
-
-  // TODO: create spriteSheet
+  m_defaultAnimName = node.attribute("default", m_defaultAnimName);
   m_spriteSheet = new SpriteSheet(*render.createOrGetTexture(node["spriteSheet"]), layout.x, layout.y);
 
   node.traverseChilds([&anims = m_animations, &sprite = *m_spriteSheet](const Xml& node) {
@@ -33,8 +32,47 @@ SpriteAnimSetDefinition::~SpriteAnimSetDefinition() {
 }
 
 SpriteAnimSet::SpriteAnimSet(const SpriteAnimSetDefinition& definition)
-  : m_definition(definition) {
-  for(auto& anim: definition.m_animations) {
-    m_animations[anim.first] = new SpriteAnim(*anim.second);
+  : m_definition(definition)
+  , m_defaultAnim(*m_definition.m_animations.at(m_definition.m_defaultAnimName)){
+  m_currentAnim = &m_defaultAnim;
+}
+
+void SpriteAnimSet::play(const char* name) {
+  if (m_nextAnim != nullptr) {
+    if(m_nextAnim->m_definition->m_name == name) return;
+    delete m_nextAnim;
   }
+  
+  m_nextAnim = spawnAnim(name);
+}
+
+SpriteAnim* SpriteAnimSet::spawnAnim(const char* name) const {
+  auto it = m_definition.m_animations.find(name);
+
+  GUARANTEE_OR_DIE(it != m_definition.m_animations.end(), "undefined animation name");
+  return new SpriteAnim(*it->second);
+}
+
+void SpriteAnimSet::update(float dSecond) {
+  if(m_currentAnim->isFinished()) {
+    if (m_nextAnim == nullptr) {
+      m_currentAnim = &m_defaultAnim;
+    } else {
+
+      if (m_currentAnim != &m_defaultAnim)  delete m_currentAnim;
+
+      m_currentAnim = m_nextAnim;
+      m_nextAnim = nullptr;
+    }
+    m_currentAnim->reset();
+  }
+  m_currentAnim->update(dSecond);
+}
+
+AABB2 SpriteAnimSet::currentTexCorrds() const {
+  return m_currentAnim->getCurrentTexCoords();
+}
+
+const Texture& SpriteAnimSet::currentTexture() const {
+  return m_currentAnim->getTexture();
 }

@@ -14,6 +14,7 @@ public:
 
 															// Operators
 	const IntVector2 operator+(const IntVector2& vecToAdd) const;		// vec2 + vec2
+  const Vector2    operator+(const Vector2& vecToAdd) const;
 	const IntVector2 operator-(const IntVector2& vecToSubtract) const;	// vec2 - vec2
 	const IntVector2 operator*(int uniformScale) const;			// vec2 * int
 	int operator*(const IntVector2& another) const;            // vec2 * vec2, dot product

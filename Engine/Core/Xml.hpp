@@ -40,6 +40,18 @@ public:
     return (fn);
   }
 
+
+  template<typename Functor>
+  inline Functor traverseChilds(const std::string& name, const Functor& fn) const {
+    for (auto& node : m_node) {
+      if (node.name() != name) continue;
+      Xml child(node, m_document);
+      fn(child);
+    }
+
+    return (fn);
+  }
+
   template<typename Functor>
   inline Functor traverseAttributes(const Functor& fn) const {
     for (auto& attr : m_node.attributes()) {

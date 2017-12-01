@@ -14,16 +14,21 @@ class Texture;
 class AABB2;
 
 struct Vertex_PCU {
-  Vector3 pos;
-  Vector2 uv;
+  Vertex_PCU() {}
+  Vertex_PCU(const Vector3& pos, const Rgba& col, const Vector2& uvs) : position(pos), color(col), uvs(uvs) {}
+  Vertex_PCU(const Vector2& pos, const Rgba& col, const Vector2& uvs): position(pos), color(col), uvs(uvs) {}
+  Vector3 position;
   Rgba    color;
+  Vector2 uvs;
 };
 
 enum DrawPrimitive {
   DRAW_UNKNOWN = -1,
-  DRAW_TRIANGLES,
-  DRAW_LINE,
-  DRAW_QUADS
+  DRAW_POINTS,		// in OpenGL, for example, this becomes GL_POINTS
+  DRAW_LINES,		// in OpenGL, for example, this becomes GL_LINES
+  DRAW_TRIANGES,		// in OpenGL, for example, this becomes GL_TRIANGLES
+  DRAW_QUADS,		// in OpenGL, for example, this becomes GL_QUADS
+  NUM_PRIMITIVE_TYPES
 };
 
 enum TextDrawMode {
@@ -32,6 +37,7 @@ enum TextDrawMode {
   TEXT_DRAW_WORD_WRAP,
   NUM_TEXT_DRAW_MODE
 };
+
 class Renderer {
 public:
 	Renderer();
@@ -73,6 +79,7 @@ public:
 	void traslate2D(const Vector2& translation);
   void setAddtiveBlending();
   void resetAlphaBlending();
+  void bindTexutre(const Texture& texture);
 protected:
 	void swapBuffers(HDC);
 	std::map<std::string, Texture*> m_textures = {};

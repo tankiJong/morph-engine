@@ -126,6 +126,14 @@ float Vector2::dotProduct(const Vector2 & a, const Vector2 & b) {
   return a.x*b.x + a.y*b.y;
 }
 
+float Vector2::dot(const Vector2& a, const Vector2& b) {
+  return a.dot(b);
+}
+
+float Vector2::angle(const Vector2& a, const Vector2& b) {
+  return getAngularDisplacement(a.getOrientationDegrees(), b.getOrientationDegrees());
+}
+
 const Vector2 projectTo(const Vector2& vectorToProject, const Vector2& projectOnto) {
 
 
@@ -201,6 +209,12 @@ float Vector2::getOrientationDegrees() const {
 
 float Vector2::dot(const Vector2& another) const {
   return dotProduct(*this, another);
+}
+
+void Vector2::setAngle(float degree) {
+  float length = getLength();
+  x = cosDegrees(degree) * length;
+  y = sinDegrees(degree) * length;
 }
 
 Vector2 Vector2::makeDirectionAtDegrees(float degrees) {

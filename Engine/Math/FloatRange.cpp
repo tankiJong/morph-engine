@@ -13,16 +13,24 @@ FloatRange::FloatRange(float minMax)
 bool FloatRange::isOverlappedWith(const FloatRange& another) {
   return areRangesOverlap(*this, another);
 }
+
+bool FloatRange::isInRange(float number) const {
+  return number >= min && number <= max;
+}
+
 float FloatRange::getRandomInRange() const {
   return getRandomf(min, max);
 }
 
 void FloatRange::fromString(const char* data) {
-  auto raw = split(data, " ,");
+  auto raw = split(data, "~ ");
   GUARANTEE_OR_DIE(raw.size() == 2 || raw.size() == 1, "illegal input string to parse");
 
-  min = parse<float>(raw[0]);
-  max = parse<float>(raw[raw.size() - 1]);
+  float a = parse<float>(raw[0]);
+  float b = parse<float>(raw[raw.size() - 1]);
+
+  max = std::max(a, b);
+  min = std::min(a, b);
 }
 
 std::string FloatRange::toString() const {

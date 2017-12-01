@@ -6,7 +6,11 @@
 SpriteAnimDefinition::SpriteAnimDefinition(const SpriteSheet& spriteSheet, const Xml& node)
   : m_spriteSheet(spriteSheet) {
   GUARANTEE_OR_DIE(node.name() == "SpriteAnim", "xml node tag is not correct");
-  m_durationSeconds = node.attribute("duration", m_durationSeconds);
+  float fps = 0.f;
+  fps = node.attribute("fps", fps);
+//  GUARANTEE_RECOVERABLE(fps != 0, Stringf("missing fps infomation for %s", node["name"].c_str()));
+  if (fps == 0) fps = 1.f;
+  m_durationSeconds = 1.f / fps;
   m_frameIndexes = node.attribute("spriteIndexes", m_frameIndexes);
   m_name = node.attribute("name", m_name);
 }
@@ -36,7 +40,8 @@ SpriteAnim::SpriteAnim(const SpriteSheet& spriteSheet,
 
 SpriteAnim::SpriteAnim(const SpriteAnimDefinition& definition)
   : m_definition(&definition)
-  , m_fromDefinition(true) {}
+  , m_fromDefinition(true) {
+}
 
 SpriteAnim::~SpriteAnim() {
   if(!m_fromDefinition) {
@@ -62,7 +67,7 @@ void SpriteAnim::update(float deltaSeconds) {
 }
 AABB2 SpriteAnim::getCurrentTexCoords() const {
   float secPerUnit = m_definition->m_durationSeconds / float(m_definition->m_frameIndexes.size());
-  int curremtFrameIdx = int(floor(m_elapsedSeconds / secPerUnit));
+  int curremtFrameIdx = clamp(int(floor(m_elapsedSeconds / secPerUnit)), 0, m_definition->m_frameIndexes.size() - 1);
   
   return m_definition->m_spriteSheet.getTexCoordsByIndex(m_definition->m_frameIndexes[curremtFrameIdx]);
 }
@@ -77,6 +82,8 @@ void SpriteAnim::resume() {
 }
 void SpriteAnim::reset() {
   m_isPlaying = true;
+  m_isFinished = false;
+  m_elapsedSeconds = 0;
 }
 void SpriteAnim::setSecondsElapsed(float secondsElapsed) {
   m_elapsedSeconds = secondsElapsed;

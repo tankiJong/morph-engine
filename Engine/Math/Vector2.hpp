@@ -43,8 +43,11 @@ public:
   Vector2 getNormalized() const; // return a new vector, which is a normalized copy of me
   float getOrientationDegrees() const; // return 0 for east (5,0), 90 for north (0,8), etc.
   float dot(const Vector2& another) const;
+  void setAngle(float degree);
   static Vector2 makeDirectionAtDegrees(float degrees); // create vector at angle
   static float dotProduct(const Vector2& a, const Vector2& b);
+  static float dot(const Vector2& a, const Vector2& b);
+  static float angle(const Vector2& a, const Vector2& b);
   friend const Vector2 operator*(float uniformScale, const Vector2& vecToScale); // float * vec2
 
 public: // NOTE: this is one of the few cases where we break both the "m_" naming rule AND the avoid-public-members rule
@@ -78,3 +81,6 @@ const Vector2 transFromBasis(const Vector2& originalVector,
 void decompose(const Vector2& originalVector,
                               const Vector2& newBasisI, const Vector2& newBasisJ,
                               Vector2& out_vectorAlongI, Vector2& out_vectorAlongJ);
+
+
+using Point2 = Vector2;
