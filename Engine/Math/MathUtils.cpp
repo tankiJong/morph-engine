@@ -201,7 +201,7 @@ float smoothStep3(float t) {
 }
 
 float lerpf(float from, float to, float fraction) {
-	return from + fraction * (to - from);
+	return from * ( 1.f - fraction) + fraction * to;
 }
 
 float lerp(float from, float to, float fraction) {

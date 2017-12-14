@@ -63,10 +63,10 @@ unsigned char castHex(char hex) {
     return hex - '0';
   }
   if(hex >= 'a' && hex <= 'f') {
-    return hex - 'a';
+    return hex - 'a' + 10;
   }
   if(hex >= 'A' && hex <= 'F') {
-    return hex - 'A';
+    return hex - 'A' + 10;
   }
 
   ERROR_AND_DIE("illegal hex char");

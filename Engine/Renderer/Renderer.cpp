@@ -18,12 +18,17 @@ int g_openGlPrimitiveTypes[NUM_PRIMITIVE_TYPES] =
 {
   GL_POINTS,			// called PRIMITIVE_POINTS		in our engine
   GL_LINES,			// called PRIMITIVE_LINES		in our engine
+  GL_LINE_LOOP,
   GL_TRIANGLES,		// called PRIMITIVE_TRIANGES	in our engine
+  GL_TRIANGLE_FAN,
   GL_QUADS			// called PRIMITIVE_QUADS		in our engine
 };
 
+using Vertices = std::vector<Vertex_PCU>;
+
 Renderer::Renderer() {
 	loadIdentity();
+  m_textures["$"] = new Texture();
 }
 
 Renderer::~Renderer() {
@@ -46,13 +51,14 @@ void Renderer::beforeFrame() {}
 
 void Renderer::drawLine(const Vector2& start, const Vector2& end, 
 						const Rgba& startColor, const Rgba& endColor, float lineThickness) const {
-	glBegin(GL_LINES);
-	glLineWidth(lineThickness);
-	glColor4ub(startColor.r, startColor.g, startColor.b, startColor.a);
-	glVertex2f(start.x, start.y);
-	glColor4ub(endColor.r, endColor.g, endColor.b, endColor.a);
-	glVertex2f(end.x, end.y);
-	glEnd();
+  bindTexutre(m_textures.at("$"));
+  Vertex_PCU verts[2] = {
+    { start, startColor, {0,0}},
+    { end, endColor, {0,1}}
+  };
+
+  glLineWidth(lineThickness);
+  drawMeshImmediate(verts, 2, DRAW_LINES);
 }
 
 void Renderer::drawTexturedAABB2(const AABB2& bounds, 
@@ -60,27 +66,15 @@ void Renderer::drawTexturedAABB2(const AABB2& bounds,
 								 const Vector2& texCoordsAtMins, 
 								 const Vector2& texCoordsAtMaxs, 
 								 const Rgba& tint) const {
-	glEnable(GL_TEXTURE_2D);
-	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glBindTexture(GL_TEXTURE_2D, texture.m_textureID); 
-	glColor4ub(tint.r, tint.g, tint.b, tint.a);
-	glBegin(GL_QUADS);
-	{
-		//glTexCoord2i(0, 0); glVertex2i(100, 100);
-		//glTexCoord2i(0, 1); glVertex2i(100, 500);
-		//glTexCoord2i(1, 1); glVertex2i(500, 500);
-		//glTexCoord2i(1, 0); glVertex2i(500, 100);
-		glTexCoord2f(texCoordsAtMins.x, texCoordsAtMins.y);
-		glVertex2f(bounds.mins.x, bounds.mins.y);
-		glTexCoord2f(texCoordsAtMaxs.x, texCoordsAtMins.y);
-		glVertex2f(bounds.maxs.x, bounds.mins.y);
-		glTexCoord2f(texCoordsAtMaxs.x, texCoordsAtMaxs.y);
-		glVertex2f(bounds.maxs.x, bounds.maxs.y);
-		glTexCoord2f(texCoordsAtMins.x, texCoordsAtMaxs.y);
-		glVertex2f(bounds.mins.x, bounds.maxs.y);
-	}
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
+  bindTexutre(&texture);
+  Vertex_PCU verts[4] = {
+    { bounds.mins, tint, texCoordsAtMins },
+    { Vector2{ bounds.maxs.x, bounds.mins.y }, tint, Vector2{ texCoordsAtMaxs.x, texCoordsAtMins.y } },
+    { bounds.maxs, tint, texCoordsAtMaxs },
+    { Vector2{ bounds.mins.x, bounds.maxs.y }, tint, Vector2{ texCoordsAtMins.x, texCoordsAtMaxs.y } },
+  };
+
+  drawMeshImmediate(verts, 4, DRAW_QUADS);
 }
 
 void Renderer::drawTexturedAABB2(const AABB2& bounds, const Texture& texture, 
@@ -245,10 +239,14 @@ void Renderer::resetAlphaBlending() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void Renderer::bindTexutre(const Texture& texture) {
+void Renderer::bindTexutre(const Texture* texture) const {
+  if (texture == nullptr) {
+    glDisable(GL_TEXTURE_2D);
+    return;
+  }
   glEnable(GL_TEXTURE_2D);
   //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  glBindTexture(GL_TEXTURE_2D, texture.m_textureID);
+  glBindTexture(GL_TEXTURE_2D, texture->m_textureID);
 }
 
 void Renderer::rotate2D(float degree) {
@@ -267,39 +265,36 @@ void Renderer::loadIdentity() {
 	glLoadIdentity();
 }
 
-void Renderer::drawAABB2(const AABB2& bounds, const Rgba& color) {
-	glColor4ub(color.r, color.g, color.b, color.a);
-	glBegin(GL_QUADS);
-	{
-		glVertex2f(bounds.mins.x, bounds.mins.y);
-		glVertex2f(bounds.maxs.x, bounds.mins.y);
-		glVertex2f(bounds.maxs.x, bounds.maxs.y);
-		glVertex2f(bounds.mins.x, bounds.maxs.y);
-	}
-	glEnd();
+void Renderer::drawAABB2(const AABB2& bounds, const Rgba& color) const {
+  drawTexturedAABB2(bounds, *m_textures.at("$"), { 0,1 }, { 1,0 }, color);
 }
 
 void Renderer::drawCircle(const Vector2& center, float radius, const Rgba& color, bool filled) {
+  Vertices verts;
+  verts.reserve(21);
+
   if(filled) {
-    glBegin(GL_POLYGON);
+    verts.emplace_back(center, color, Vector2::zero);
   }
-  else {
-    glBegin(GL_LINE_LOOP);
-  }
-  glColor4ub(color.r, color.g, color.b, color.a);
+
   for(int ii = 0; ii < 20; ii++) {
     float theta = 2.0f * PI * float(ii) * 0.05f;//get the current angle 
 
     float x = radius * cosf(theta);//calculate the x component 
     float y = radius * sinf(theta);//calculate the y component 
 
-    glVertex2f(x + center.x, y + center.y);//output vertex 
-
+    verts.emplace_back(Vector2{ x + center.x, y + center.y }, color, Vector2::zero);
   }
-  glEnd();
+
+  if(!filled) {
+    drawMeshImmediate(verts.data(), verts.size(), DRAW_LINE_LOOP);
+  } else {
+    verts.emplace_back(Vector2{ radius + center.x, center.y }, color, Vector2::zero);
+    drawMeshImmediate(verts.data(), verts.size(), DRAW_TRIANGLE_FAN);
+  }
 }
 
-void Renderer::drawMeshImmediate(Vertex_PCU* vertices, int numVerts, DrawPrimitive drawPrimitive) {
+void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, int numVerts, DrawPrimitive drawPrimitive) const {
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);

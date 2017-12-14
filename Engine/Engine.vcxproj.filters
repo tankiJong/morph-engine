@@ -120,6 +120,12 @@
     <ClCompile Include="Math\SmoothNoise.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="Math\Spline.hpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Spline.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vector2.hpp">
@@ -250,5 +256,8 @@
     <Library Include="..\ThirdParty\fmod\fmod64_vc.lib">
       <Filter>ThirdParty\fmod</Filter>
     </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\ReadMe.txt" />
   </ItemGroup>
 </Project>

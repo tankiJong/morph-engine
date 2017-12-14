@@ -58,7 +58,7 @@ void SpriteAnim::update(float deltaSeconds) {
         m_isFinished = true;
         break;
       case SPRITE_ANIM_MODE_LOOPING: 
-        m_elapsedSeconds = 0.f;
+        m_elapsedSeconds -= m_definition->m_durationSeconds;
       break;
       case NUM_SPRITE_ANIM_MODES: 
       break;

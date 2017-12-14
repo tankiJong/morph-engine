@@ -69,7 +69,9 @@ float	smoothStep3(float t); // 3rd-degree smooth start/stop (a.k.a. “smoothstep”
 inline float lerpf(float from, float to, float fraction);
 
 template<typename T>
-T lerp(const T& from, const T& to, float fraction);
+T lerp(const T& from, const T& to, float fraction) {
+  return from * (1.f - fraction) + to * fraction;
+};
 float lerp(float from, float to, float fraction);
 const Vector2 lerp(const Vector2& from, const Vector2& to, float fraction);
 const FloatRange lerp(const FloatRange& from, const FloatRange& to, float fraction);

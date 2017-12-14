@@ -7,7 +7,10 @@
 #include "Engine/Renderer/Texture.hpp"
 #include "ThirdParty/stb/stb_image.h"
 
-
+Texture::Texture() {
+  unsigned char data[4] = { 255, 255, 255, 255 };
+  PopulateFromData(data, { 1, 1 }, 4);
+}
 //-----------------------------------------------------------------------------------------------
 // Called only by the Renderer.  Use renderer->CreateOrGetTexture() to instantiate textures.
 //

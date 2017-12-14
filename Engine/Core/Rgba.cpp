@@ -6,7 +6,9 @@
 #include "Engine/Math/MathUtils.hpp"
 
 const Rgba Rgba::white = Rgba(255, 255, 255);
+const Rgba Rgba::black = Rgba(0,   0,   0  );
 const Rgba Rgba::red   = Rgba(255, 0  , 0  );
+const Rgba Rgba::yellow= Rgba(255, 255, 0  );
 const Rgba Rgba::cyan  = Rgba(0  , 255, 255);
 
 Rgba::Rgba(unsigned char redByte, unsigned char greenByte, unsigned char blueByte, unsigned char alphaByte)
@@ -106,5 +108,46 @@ std::string Rgba::toString(bool withAlpha) {
   } else {
     return Stringf("%u,%u,%u", r, g, b);
   }
+}
+
+float HueToRGB(float v1, float v2, float vH) {
+  if (vH < 0)
+    vH += 1;
+
+  if (vH > 1)
+    vH -= 1;
+
+  if ((6 * vH) < 1)
+    return (v1 + (v2 - v1) * 6 * vH);
+
+  if ((2 * vH) < 1)
+    return v2;
+
+  if ((3 * vH) < 2)
+    return (v1 + (v2 - v1) * ((2.0f / 3) - vH) * 6);
+
+  return v1;
+}
+
+Rgba hsl(float h, float s, float l) {
+  unsigned char r = 0;
+  unsigned char g = 0;
+  unsigned char b = 0;
+
+  if (s == 0) {
+    r = g = b = (unsigned char)(l * 255);
+  } else {
+    float v1, v2;
+    float hue = (float)h / 360;
+
+    v2 = (l < 0.5) ? (l * (1 + s)) : ((l + s) - (l * s));
+    v1 = 2 * l - v2;
+
+    r = (unsigned char)(255 * HueToRGB(v1, v2, hue + (1.0f / 3)));
+    g = (unsigned char)(255 * HueToRGB(v1, v2, hue));
+    b = (unsigned char)(255 * HueToRGB(v1, v2, hue - (1.0f / 3)));
+  }
+
+  return Rgba(r, g, b);
 }
 

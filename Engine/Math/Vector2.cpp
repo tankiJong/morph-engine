@@ -192,19 +192,25 @@ float Vector2::getLengthSquared() const {
 
 float Vector2::normalizeAndGetLength() {
 	float magnitude = getLength();
-	x = x / magnitude;
-	y = y / magnitude;
+  if(magnitude == 0) {
+    return 0;
+  }
+
+  float rmagnitude = 1.f / magnitude;
+	x *= rmagnitude;
+	y *= rmagnitude;
 	return magnitude;
 }
 
 Vector2 Vector2::getNormalized() const {
 	float magnitude = getLength();
-	return Vector2(x / magnitude, y / magnitude);
+  if (magnitude == 0) return Vector2::zero;
+  magnitude = 1.f / magnitude;
+	return Vector2(x * magnitude, y * magnitude);
 }
 
 float Vector2::getOrientationDegrees() const {
 	return convertRadiansToDegrees(atan2f(y, x));
-
 }
 
 float Vector2::dot(const Vector2& another) const {

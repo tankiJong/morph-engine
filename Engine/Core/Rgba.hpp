@@ -25,6 +25,8 @@ public:
   const static Rgba white;
   const static Rgba red;
   const static Rgba cyan;
+  const static Rgba black;
+  const static Rgba yellow;
 public:
 	unsigned char r = 255;
 	unsigned char g = 255;
@@ -32,4 +34,4 @@ public:
 	unsigned char a = 255;
 };
 
-
+Rgba hsl(float h, float s, float l);

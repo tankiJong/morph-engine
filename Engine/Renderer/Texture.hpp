@@ -13,6 +13,7 @@ class Texture
 	friend class Renderer; // Textures are managed by a Renderer instance
 
 private:
+  Texture();
 	Texture( const std::string& imageFilePath ); // Use renderer->CreateOrGetTexture() instead!
 	void PopulateFromData( unsigned char* imageData, const IntVector2& texelSize, int numComponents );
 

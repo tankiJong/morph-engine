@@ -26,7 +26,9 @@ enum DrawPrimitive {
   DRAW_UNKNOWN = -1,
   DRAW_POINTS,		// in OpenGL, for example, this becomes GL_POINTS
   DRAW_LINES,		// in OpenGL, for example, this becomes GL_LINES
+  DRAW_LINE_LOOP,
   DRAW_TRIANGES,		// in OpenGL, for example, this becomes GL_TRIANGLES
+  DRAW_TRIANGLE_FAN,
   DRAW_QUADS,		// in OpenGL, for example, this becomes GL_QUADS
   NUM_PRIMITIVE_TYPES
 };
@@ -48,9 +50,9 @@ public:
   BitmapFont* CreateOrGetBitmapFont(const char* bitmapFontName, const char* path);
   BitmapFont* CreateOrGetBitmapFont(const char* fontNameWithPath);
 	Texture* createOrGetTexture(const std::string& filePath);
-	void drawAABB2(const AABB2& bounds, const Rgba& color);
+  void drawAABB2(const AABB2& bounds, const Rgba& color) const;
   void drawCircle(const Vector2& center, float radius, const Rgba& color, bool filled = false);
-  void drawMeshImmediate(Vertex_PCU* vertexArray, int numverts, DrawPrimitive drawPrimitive);
+  void drawMeshImmediate(const Vertex_PCU* vertices, int numVerts, DrawPrimitive drawPrimitive) const;
 	void drawLine(const Vector2 & start, const Vector2 & end, 
                 const Rgba& startColor, const Rgba& endColor, 
                 float lineThickness = 1.f) const;
@@ -71,7 +73,7 @@ public:
                        Vector2 aligns = Vector2::zero, TextDrawMode drawMode = TEXT_DRAW_OVERRUN, 
                        const BitmapFont* font = nullptr, const Rgba& tint = Rgba::white, float aspectScale = 1.f) const;
 	void loadIdentity();
-	void pushMatrix();
+  void pushMatrix();
 	void popMatrix();
 	void rotate2D(float degree);
 	void setOrtho2D(const Vector2& bottomLeft, const Vector2& topRight);
@@ -79,7 +81,7 @@ public:
 	void traslate2D(const Vector2& translation);
   void setAddtiveBlending();
   void resetAlphaBlending();
-  void bindTexutre(const Texture& texture);
+  void bindTexutre(const Texture* texture) const;
 protected:
 	void swapBuffers(HDC);
 	std::map<std::string, Texture*> m_textures = {};
