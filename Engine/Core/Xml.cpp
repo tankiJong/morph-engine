@@ -2,6 +2,7 @@
 #include "ThirdParty/pugixml/pugixml.hpp"
 
 using namespace pugi;
+
 Xml::Xml(const char* path) {
   xml_document* doc = new xml_document();
   doc->load_file(path);
@@ -55,8 +56,43 @@ bool Xml::isEmpty() const {
   return m_node.empty();
 }
 
-std::string Xml::operator[](const char* attribute) const {
-  return m_node.attribute(attribute).as_string();
+bool Xml::hasAttribute(const char* name) const {
+  return *m_node.attribute(name).name() != '\0';
+}
+
+xml::Attribute Xml::appendAttribute(const char* name, const char* value) {
+  if(hasAttribute(name)) {
+    (*this)[name] = value;
+  } else {
+    m_node.append_attribute(name) = value;
+  }
+  return (*this)[name];
+}
+
+Xml Xml::selectNode(const char* xpath) const {
+  xpath_node node = m_node.select_node(xpath);
+  GUARANTEE_OR_DIE(node, "query return empty");
+  return { node.node(), m_document };
+}
+
+bool Xml::save(const char* path) const {
+  return m_document->save_file(path);
+}
+
+void Xml::save(std::ostream& stream) const {
+  m_document->save(stream);
+}
+
+void Xml::print(std::ostream& stream) const {
+  m_node.print(stream);
+}
+
+const xml::Attribute Xml::operator[](const char* attribute) const {
+  return m_node.attribute(attribute);
+}
+
+xml::Attribute Xml::operator[](const char* attribute) {
+  return m_node.attribute(attribute);
 }
 
 Xml::Xml(const pugi::xml_node& xmlNode, pugi::xml_document* doc, bool isRoot)

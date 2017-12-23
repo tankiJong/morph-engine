@@ -14,7 +14,7 @@ SpriteAnimSetDefinition::SpriteAnimSetDefinition(const Xml& node, Renderer& rend
   m_spriteSheet = new SpriteSheet(*render.createOrGetTexture(node["spriteSheet"]), layout.x, layout.y);
 
   node.traverseChilds([&anims = m_animations, &sprite = *m_spriteSheet](const Xml& node) {
-    auto name = node["name"];
+    std::string name = node["name"];
     auto kv = anims.find(name);
     GUARANTEE_RECOVERABLE(kv == anims.end(), Stringf("anim definition \"%s\" already exists", name.c_str()));
     anims[name] = new SpriteAnimDefinition(sprite, node);
