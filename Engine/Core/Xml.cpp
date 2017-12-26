@@ -8,6 +8,7 @@ Xml::Xml(const char* path) {
   doc->load_file(path);
   m_node = doc->first_child();
   m_document = doc;
+  m_isRoot = true;
 }
 
 Xml::Xml(const char* content, size_t size) {

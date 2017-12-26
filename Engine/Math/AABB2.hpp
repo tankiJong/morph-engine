@@ -9,6 +9,7 @@ public:
 	AABB2(float minX, float minY, float maxX, float maxY);
 	AABB2(const Vector2& mins, const Vector2& maxs);
 	AABB2(const Vector2& center, float radiusX, float radiusY);
+  AABB2(float width, float height, const Vector2& mins);
 
 	void stretchToIncludePoint(float x, float y); // note: stretch, not move…
 	void stretchToIncludePoint(const Vector2& point); // note: stretch, not move…

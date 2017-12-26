@@ -78,14 +78,14 @@ public:
     for (auto&& node : m_node) {
       if (node.name() != name) continue;
       Xml child(node, m_document);
-      std::invoke(std::forward<Functor>(fn), std::forward<pugi::xml_node>(node));
+      fn(child);
     }
   }
 
   template<typename Functor>
   inline void traverseAttributes(const Functor&& fn) const {
     for (auto& attr : m_node.attributes()) {
-      std::invoke(std::forward<Functor>(fn), attr.name(), attr.value());
+      std::invoke(fn, attr.name(), attr.value());
     }
   }
 

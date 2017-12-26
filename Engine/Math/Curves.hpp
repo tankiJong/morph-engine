@@ -12,7 +12,7 @@
 
 template< typename T >
 T evaluateQuadraticBezier(const T& startPos, const T& actualCurveMidPos, const T& endPos, float t) {
-  const auto& guide =  actualCurveMidPos * 2.f - (startPos + endPos) * .5f ;
+  const auto& guide = actualCurveMidPos * 2.f - (startPos + endPos) * .5f;
   const auto& a = lerp(startPos, guide, t);
   const auto& b = lerp(guide, endPos, t);
   return lerp(a, b, t);
@@ -59,8 +59,8 @@ public:
   void	 appendPoints(const Vector2* positionsArray, int numPoints, const Vector2* velocitiesArray = nullptr) {
     m_positions.insert(m_positions.end(), positionsArray, positionsArray + numPoints);
     m_velocities.reserve(m_positions.size());
-    if(velocitiesArray == nullptr) {
-      for(int i = 0; i < numPoints; i++) {
+    if (velocitiesArray == nullptr) {
+      for (int i = 0; i < numPoints; i++) {
         m_velocities.emplace_back(0.f, 0.f);
       }
     } else {
@@ -130,7 +130,7 @@ public:
   };
   Vector2			evaluateAtCumulativeParametric(float t) const {
     if (t + 1.f > (float)m_positions.size()) {
-       return m_positions.back();
+      return m_positions.back();
     }
 
     float a = floor(t), b = ceil(t);
@@ -141,7 +141,7 @@ public:
     float tick = 1.f / (m_positions.size() - 1);
 
     int index = 0;
-    while(t > tick) {
+    while (t > tick) {
       t -= tick;
       index++;
     }

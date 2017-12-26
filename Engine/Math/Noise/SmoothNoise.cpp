@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------------------------
 // SmoothNoise.cpp
 //
-#include "Engine/Math/RawNoise.hpp"
+#include "Engine/Math/Noise/RawNoise.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"

@@ -28,6 +28,9 @@
     <Filter Include="ThirdParty\pugixml">
       <UniqueIdentifier>{22eee405-3868-46f8-9ecc-a294e4e7687e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Math\Noise">
+      <UniqueIdentifier>{44d7ecc3-e84e-4180-84de-87e464395009}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
@@ -114,17 +117,14 @@
     <ClCompile Include="Renderer\SpriteAnim.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Math\RawNoise.cpp">
+    <ClCompile Include="Math\Curves.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="Math\SmoothNoise.cpp">
-      <Filter>Math</Filter>
+    <ClCompile Include="Math\Noise\RawNoise.cpp">
+      <Filter>Math\Noise</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Spline.hpp">
-      <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\Spline.cpp">
-      <Filter>Math</Filter>
+    <ClCompile Include="Math\Noise\SmoothNoise.cpp">
+      <Filter>Math\Noise</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -242,11 +242,14 @@
     <ClInclude Include="Renderer\SpriteAnim.hpp">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Math\RawNoise.hpp">
+    <ClInclude Include="Math\Curves.hpp">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="Math\SmoothNoise.hpp">
-      <Filter>Math</Filter>
+    <ClInclude Include="Math\Noise\RawNoise.hpp">
+      <Filter>Math\Noise</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise\SmoothNoise.hpp">
+      <Filter>Math\Noise</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

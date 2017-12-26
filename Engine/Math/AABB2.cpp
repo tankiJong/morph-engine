@@ -20,6 +20,10 @@ AABB2::AABB2(const Vector2& center, float radiusX, float radiusY)
 	: mins(center.x - radiusX, center.y - radiusY)
 	, maxs(center.x + radiusX, center.y + radiusY) {}
 
+AABB2::AABB2(float width, float height, const Vector2& mins)
+  : mins(mins)
+  , maxs(mins.x + width, mins.y + height) {}
+
 void AABB2::stretchToIncludePoint(float x, float y) {
 	if (x < mins.x) mins.x = x;
 	else if (x > maxs.x ) maxs.x = x;

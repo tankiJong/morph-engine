@@ -43,7 +43,7 @@ inline bool parse(const char* str) {
   return strcmp(str, "true")==0 ? true : false;
 }
 
-template<typename T, typename A>
+template<typename T, typename A = std::allocator<T>>
 inline std::vector<T, A> parse(const char* str, const char* tokens) {
   auto datas = split(str, tokens);
   std::vector<T, A> results(datas.size());
