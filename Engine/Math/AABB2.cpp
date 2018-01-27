@@ -3,6 +3,7 @@
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Renderer/SpriteAnim.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include <array>
 
 AABB2::AABB2(const AABB2& copy)
 	: mins(copy.mins)
@@ -51,6 +52,15 @@ void AABB2::translate(const Vector2& translation) {
 void AABB2::translate(float translationX, float translationY) {
 	Vector2 translation(translationX, translationY);
 	translate(translation);
+}
+
+std::array<Vector2, 4> AABB2::vertices() const {
+  return {
+    mins,
+    {mins.x, maxs.y},
+    maxs,
+    {maxs.x, mins.y},
+  };
 }
 
 bool AABB2::isPointInside(float x, float y) const {

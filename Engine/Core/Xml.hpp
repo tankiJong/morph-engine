@@ -57,8 +57,13 @@ public:
     GUARANTEE_OR_DIE(node, "query return empty");
     return parse<T>(node.attribute().value());
   }
+
   template<typename T>
-  inline T attribute(const char* attributeName, T defaultValue) const {
+  T selectAttribute(const std::string& xpath) const {
+    return selectAttribute<T>(xpath.c_str());
+  }
+  template<typename T>
+  inline T attribute(const char* attributeName, const T& defaultValue) const {
     return parseXmlAttribute(*this, attributeName, defaultValue);
   }
 
@@ -100,7 +105,7 @@ protected:
 };
 
 template<typename T>
-inline T parseXmlAttribute(const Xml& ele, const char* attributeName, T defaultValue) {
+inline T parseXmlAttribute(const Xml& ele, const char* attributeName, const T& defaultValue) {
   std::string raw = ele[attributeName];
   if (raw.length() == 0) return defaultValue;
   T result = parse<T>(raw);
@@ -108,13 +113,13 @@ inline T parseXmlAttribute(const Xml& ele, const char* attributeName, T defaultV
 }
 
 template<>
-inline std::string parseXmlAttribute(const Xml& ele, const char* attributeName, std::string defaultValue) {
+inline std::string parseXmlAttribute(const Xml& ele, const char* attributeName, const std::string& defaultValue) {
   std::string raw = ele[attributeName];
   return (raw.length() == 0) ? defaultValue : raw;
 }
 
 template<typename T, typename A>
-inline std::vector<T, A> parseXmlAttribute(const Xml& ele, const char* attributeName, std::vector<T, A> defaultValue) {
+inline std::vector<T, A> parseXmlAttribute(const Xml& ele, const char* attributeName, const std::vector<T, A>& defaultValue) {
   std::string raw = ele[attributeName];
 
   return (raw.length() == 0) ? defaultValue : parse<T, A>(raw.c_str(), " ,");

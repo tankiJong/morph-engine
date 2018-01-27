@@ -27,6 +27,7 @@ public:
   const static Rgba cyan;
   const static Rgba black;
   const static Rgba yellow;
+  const static Rgba transparent;
 public:
 	unsigned char r = 255;
 	unsigned char g = 255;

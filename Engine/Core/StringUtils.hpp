@@ -22,6 +22,11 @@ inline T parse(const char* str) {
 };
 
 template<>
+inline std::string parse(const char* str) {
+  return std::string(str);
+}
+
+template<>
 inline int parse(const char* str) {
   return atoi(str);
 }

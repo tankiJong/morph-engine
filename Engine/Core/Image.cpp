@@ -1,4 +1,8 @@
-﻿#include "ThirdParty/stb/stb_image.h"
+﻿#pragma warning( push )
+#pragma warning( disable : 4456 ) 
+#pragma warning( disable : 4457 ) 
+#include "ThirdParty/stb/stb_image.h"
+#pragma warning( pop )  
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/Math/IntVector2.hpp"
 #include "Image.hpp"

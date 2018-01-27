@@ -11,6 +11,8 @@ const Rgba Rgba::red   = Rgba(255, 0  , 0  );
 const Rgba Rgba::yellow= Rgba(255, 255, 0  );
 const Rgba Rgba::cyan  = Rgba(0  , 255, 255);
 
+const Rgba Rgba::transparent = Rgba(255, 255, 255, 0);
+
 Rgba::Rgba(unsigned char redByte, unsigned char greenByte, unsigned char blueByte, unsigned char alphaByte)
 	: r(redByte)
 	, g(greenByte)

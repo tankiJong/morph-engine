@@ -16,7 +16,8 @@ public:
 	void addPaddingToSides(float xPaddingRadius, float yPaddingRadius);
 	void translate(const Vector2& translation); // move the box; similar to +=
 	void translate(float translationX, float translationY);
-          
+
+  std::array<Vector2,4> vertices() const;
 	bool isPointInside(float x, float y) const; // is “x,y” within box’s interior?
 	bool isPointInside(const Vector2& point) const; // is “point” within box’s interior?
 	Vector2 getDimensions() const; // return a Vector2 of ( width, height )
