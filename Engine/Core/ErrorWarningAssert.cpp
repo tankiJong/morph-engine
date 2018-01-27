@@ -40,7 +40,6 @@ bool IsDebuggerAvailable()
 #endif
 }
 
-
 //-----------------------------------------------------------------------------------------------
 void DebuggerPrintf( const char* messageFormat, ... )
 {

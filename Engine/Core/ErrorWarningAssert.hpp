@@ -166,4 +166,68 @@ int SystemDialogue_YesNoCancel( const std::string& messageTitle, const std::stri
 }
 #endif
 
+//-----------------------------------------------------------------------------------------------
+// EXPECTS
+//
+// Inspired by GSL.
+// Removed if DISABLE_ASSERTS is defined, typically in a Final build configuration.
+// Triggers if condition is false. This is used for precondition assert.
+// Depending on the platform, this typically:
+//	- Logs a warning message to the console and/or log file
+//	- Opens an warning/message dialogue box
+//	- Triggers a debug breakpoint (if appropriate development suite is present)
+//	- Continues execution
+//
+#if defined( DISABLE_ASSERTS )
+#define EXPECTS( condition ) { (void)( condition ); }
+#else
+#define EXPECTS( condition )											\
+{																									\
+	if( !(condition) )																				\
+	{																								\
+		const char* conditionText = #condition;														\
+		FatalError( __FILE__,  __FUNCTION__, __LINE__, "Precondition unfulfilled", conditionText );	\
+	}																								\
+}
+#endif
 
+//-----------------------------------------------------------------------------------------------
+// ENSURES
+//
+// Inspired by GSL.
+// Removed if DISABLE_ASSERTS is defined, typically in a Final build configuration.
+// Triggers if condition is false. This is used for precondition assert.
+// Depending on the platform, this typically:
+//	- Logs a warning message to the console and/or log file
+//	- Opens an warning/message dialogue box
+//	- Triggers a debug breakpoint (if appropriate development suite is present)
+//	- Continues execution
+//
+#if defined( DISABLE_ASSERTS )
+#define ENSURES( condition ) { (void)( condition ); }
+#else
+#define ENSURES( condition )											\
+{																									\
+	if( !(condition) )																				\
+	{																								\
+		const char* conditionText = #condition;														\
+		FatalError( __FILE__,  __FUNCTION__, __LINE__, "Postcondition unfulfilled", conditionText );	\
+	}																								\
+}
+#endif
+
+#define DEBUGBREAK __debugbreak()
+#define _QUOTE(x) # x
+#define QUOTE(x) _QUOTE(x)
+#define __FILE__LINE__ __FILE__ "(" QUOTE(__LINE__) ") : "
+
+#define PRAGMA(p)  __pragma( p )
+#define NOTE( x )  PRAGMA( message(x) )
+#define FILE_LINE  NOTE( __FILE__LINE__ )
+
+#define TODO( x )  NOTE( __FILE__LINE__"\n"           \
+        " --------------------------------------------------------------------------------------\n" \
+        "|  TODO :   " ##x "\n" \
+        " --------------------------------------------------------------------------------------\n" )
+
+#define UNIMPLEMENTED()  TODO( "IMPLEMENT: " QUOTE(__FILE__) " (" QUOTE(__LINE__) ")" )
