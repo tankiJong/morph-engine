@@ -31,6 +31,24 @@
     <Filter Include="Math\Noise">
       <UniqueIdentifier>{44d7ecc3-e84e-4180-84de-87e464395009}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ThirdParty\yaml-cpp">
+      <UniqueIdentifier>{eab496f2-fe0a-41b5-8a28-8921c6f0d75d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\yaml-cpp\contrib">
+      <UniqueIdentifier>{c0c8ecbd-51b6-4914-a253-c994469ae800}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\External">
+      <UniqueIdentifier>{d1bce8d8-4c01-411f-ab2a-c0e4cb20b92c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\External\gl">
+      <UniqueIdentifier>{963fcc2d-ea1a-4f26-8ff9-f557bcc27e3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\Shader">
+      <UniqueIdentifier>{cb708e38-def9-4fbd-be53-d21baa6a4912}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File">
+      <UniqueIdentifier>{8b6df7c6-a558-41d7-98e7-6f8caaf38b68}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
@@ -125,6 +143,27 @@
     </ClCompile>
     <ClCompile Include="Math\Noise\SmoothNoise.cpp">
       <Filter>Math\Noise</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Noise\Noise.cpp">
+      <Filter>Math\Noise</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Yaml.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\glFunctions.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ShaderProgram.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderBuffer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="File\FileUtils.cpp">
+      <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="File\Blob.cpp">
+      <Filter>File</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -251,6 +290,93 @@
     <ClInclude Include="Math\Noise\SmoothNoise.hpp">
       <Filter>Math\Noise</Filter>
     </ClInclude>
+    <ClInclude Include="Core\Utils.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Noise\Noise.hpp">
+      <Filter>Math\Noise</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\anchor.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\binary.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\dll.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\emitfromevents.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\emitter.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\emitterdef.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\emittermanip.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\emitterstyle.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\eventhandler.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\exceptions.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\mark.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\noncopyable.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\null.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\ostream_wrapper.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\parser.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\stlemitter.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\traits.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\yaml.h">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Yaml.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\External\gl\glcorearb.h">
+      <Filter>Renderer\External\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\External\gl\glext.h">
+      <Filter>Renderer\External\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\External\gl\wglext.h">
+      <Filter>Renderer\External\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\glFunctions.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\ShaderProgram.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderBuffer.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="File\FileUtils.hpp">
+      <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="File\Blob.hpp">
+      <Filter>File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\ThirdParty\fmod\fmod_vc.lib">
@@ -259,8 +385,19 @@
     <Library Include="..\ThirdParty\fmod\fmod64_vc.lib">
       <Filter>ThirdParty\fmod</Filter>
     </Library>
+    <Library Include="..\ThirdParty\yaml-cpp\libyaml-cppmd.lib">
+      <Filter>ThirdParty\yaml-cpp</Filter>
+    </Library>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Renderer\Shader\passthrough.fs">
+      <Filter>Renderer\Shader</Filter>
+    </None>
+    <None Include="Renderer\Shader\passthrough.vs">
+      <Filter>Renderer\Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
