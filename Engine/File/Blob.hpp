@@ -4,19 +4,14 @@
 
 class Blob {
 public:
-  void* buffer = nullptr;
-  unsigned size;
-
   template<typename T>
-  Blob(T* source, unsigned size): buffer(source), size(size) {}
-
-  template<typename T>
-  Blob(const T* source, unsigned _size): size(_size) {
-    buffer = malloc(size);
+  Blob(T* source, unsigned size): buffer(malloc(size)), dataSize(size), bufferSize(size) {
     memcpy_s(buffer, size, source, size);
   }
 
-  Blob(): buffer(nullptr), size(0) {}
+  Blob(unsigned size): buffer(malloc(size)), dataSize(0), bufferSize(size) {}
+
+  Blob(): buffer(malloc(0)), dataSize(0), bufferSize(0) {}
 
   Blob(Blob& b) = delete;
   ~Blob();
@@ -26,7 +21,7 @@ public:
 
   template<typename T>
   operator T() {
-    return as<T>();
+     return as<T>();
   }
 
   template<typename T>
@@ -47,4 +42,12 @@ public:
     static_assert(std::is_pointer<T>::value, "T has to be pointer type");
     return reinterpret_cast<const T>(buffer);
   }
+
+  inline unsigned size() const { return dataSize; };
+  inline unsigned capacity() const { return bufferSize; };
+protected:
+  void* buffer = nullptr;
+  unsigned dataSize;
+  unsigned bufferSize;
+
 };

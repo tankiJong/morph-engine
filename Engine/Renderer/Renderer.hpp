@@ -4,8 +4,9 @@
 #include "Engine/Math/Vector3.hpp"
 #include <string>
 #include <map>
+
+#include "Engine/Math/mat4.hpp"
 #include "RenderBuffer.hpp"
-#include "ShaderProgram.hpp"
 
 struct HDC__;
 struct HGLRC__;
@@ -17,6 +18,9 @@ class BitmapFont;
 class Rgba;
 class Texture;
 class AABB2;
+class ShaderProgram;
+class RenderBuffer;
+class Sampler;
 
 struct Vertex_PCU {
   Vertex_PCU() {}
@@ -90,27 +94,30 @@ public:
   bool reloadShaderProgram();
   bool reloadShaderProgram(const char* nameWithPath);
 	void rotate2D(float degree);
+  void setAddtiveBlending();
 	void scale2D(float ratioX, float ratioY, float ratioZ = 1.f);
 	void setOrtho2D(const Vector2& bottomLeft, const Vector2& topRight);
-  void setAddtiveBlending();
+  void setProjection(const mat4& projection);
 	void traslate2D(const Vector2& translation);
   void useShaderProgram(ShaderProgram* program);
   static HGLRC createRealRenderContext(HDC hdc, int major, int minor);
   static HGLRC createOldRenderContext(HDC hdc);
 protected:
 	void swapBuffers(HDC);
-	std::map<std::string, Texture*> m_textures = {};
-  std::map<std::string, BitmapFont*> m_fonts = {};
-  std::map<std::string, ShaderProgram*> m_shaderPrograms = {};
+	std::map<std::string, Texture*> mTextures = {};
+  std::map<std::string, BitmapFont*> mFonts = {};
+  std::map<std::string, ShaderProgram*> mShaderPrograms = {};
 
   // QA:...
-  RenderBuffer m_tempRenderBuffer;
-  ShaderProgram* m_currentShaderProgram = nullptr;
-  ShaderProgram* m_defaultShaderProgram = nullptr;
-  unsigned m_defaultVao;
+  RenderBuffer mTempRenderBuffer;
+  ShaderProgram* mCurrentShaderProgram = nullptr;
+  ShaderProgram* mDefaultShaderProgram = nullptr;
+  unsigned mDefaultVao;
+  mat4 mProjection;
+  Sampler* mDefaultSampler;
 private:
 
-  HWND m_glWnd = nullptr;
-  HDC m_hdc = nullptr;
-  HGLRC m_glContext = nullptr;
+  HWND mGlWnd = nullptr;
+  HDC mHdc = nullptr;
+  HGLRC mGlContext = nullptr;
 };

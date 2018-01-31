@@ -34,7 +34,7 @@ Texture::Texture( const std::string& imageFilePath )
 //-----------------------------------------------------------------------------------------------
 // Creates a texture identity on the video card, and populates it with the given image texel data
 //
-void Texture::PopulateFromData( unsigned char* imageData, const IntVector2& texelSize, int numComponents )
+void Texture:: PopulateFromData( unsigned char* imageData, const IntVector2& texelSize, int numComponents )
 {
   UNIMPLEMENTED();
 //	m_dimensions = texelSize;

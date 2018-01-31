@@ -6,10 +6,11 @@
 #include "Engine/Math/MathUtils.hpp"
 
 const Rgba Rgba::white = Rgba(255, 255, 255);
-const Rgba Rgba::black = Rgba(0,   0,   0  );
+const Rgba Rgba::black = Rgba(0  , 0  , 0  );
 const Rgba Rgba::red   = Rgba(255, 0  , 0  );
 const Rgba Rgba::yellow= Rgba(255, 255, 0  );
 const Rgba Rgba::cyan  = Rgba(0  , 255, 255);
+const Rgba Rgba::blue  = Rgba(0  , 0  , 255);
 
 const Rgba Rgba::transparent = Rgba(255, 255, 255, 0);
 

@@ -5,6 +5,7 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"
+#include "Noise.hpp"
 //#include "Engine/Math/Vector4.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -739,3 +740,17 @@ float Compute3dPerlinNoise( float posX, float posY, float posZ, float scale, uns
 //	return totalNoise;
 //}
 
+
+class PerlinNoise : public Noise {
+public:
+  PerlinNoise(float scale = 1.f, unsigned int numOctaves = 1, float octavePersistence = 0.5f, float octaveScale = 2.f, bool renormalize = true, unsigned int seed = 0);
+  float evaluate(float i) const override;
+  Noise* clone() const override;
+protected:
+  float m_scale;
+  unsigned int m_numOctaves;
+  float m_octavePersistence;
+  float m_octaveScale;
+  bool m_renormalize;
+  unsigned int m_seed;
+};

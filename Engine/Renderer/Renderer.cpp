@@ -13,6 +13,9 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include <array>
 #include "glFunctions.hpp"
+#include "RenderBuffer.hpp"
+#include "ShaderProgram.hpp"
+#include "Sampler.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
@@ -31,32 +34,32 @@ using Vertices = std::vector<Vertex_PCU>;
 
 Renderer::Renderer() {
 	loadIdentity();
-  m_textures["$"] = new Texture();
+  mTextures["$"] = new Texture();
 }
 
 Renderer::~Renderer() {
-  for (const auto& kv : m_fonts) {
+  for (const auto& kv : mFonts) {
     delete kv.second;
   }
 
-	for (const auto& kv: m_textures) {
+	for (const auto& kv: mTextures) {
 		delete kv.second;
 	}
 
   //QA: when to do the shutdown
-  wglMakeCurrent(m_hdc, nullptr);
+  wglMakeCurrent(mHdc, nullptr);
 
-  ::wglDeleteContext(m_glContext);
-  ::ReleaseDC(m_glWnd, m_hdc);
+  ::wglDeleteContext(mGlContext);
+  ::ReleaseDC(mGlWnd, mHdc);
 
-  m_glContext = nullptr;
-  m_hdc = nullptr;
-  m_glWnd = nullptr;
+  mGlContext = nullptr;
+  mHdc = nullptr;
+  mGlWnd = nullptr;
 
 }
 
 void Renderer::afterFrame() {
-	SwapBuffers(m_hdc);
+	SwapBuffers(mHdc);
 }
 
 void Renderer::beforeFrame() {
@@ -66,7 +69,7 @@ void Renderer::beforeFrame() {
 
 void Renderer::drawLine(const Vector2& start, const Vector2& end, 
 						const Rgba& startColor, const Rgba& endColor, float lineThickness) {
-  bindTexutre(m_textures.at("$"));
+  bindTexutre(mTextures.at("$"));
   Vertex_PCU verts[2] = {
     { start, startColor, {0,0}},
     { end, endColor, {0,1}}
@@ -252,9 +255,9 @@ bool Renderer::init(HWND hwnd) {
   bindGLFunctions();
 
   // set the globals
-  m_glWnd = hwnd;
-  m_hdc = hdc;
-  m_glContext = real_context;
+  mGlWnd = hwnd;
+  mHdc = hdc;
+  mGlContext = real_context;
 
   postInit();
 
@@ -263,18 +266,22 @@ bool Renderer::init(HWND hwnd) {
 
 void Renderer::postInit() {
   // default_vao is a GLuint member variable
-  glGenVertexArrays(1, &m_defaultVao);
-  glBindVertexArray(m_defaultVao);
+  glGenVertexArrays(1, &mDefaultVao);
+  glBindVertexArray(mDefaultVao);
 
-  m_defaultShaderProgram = createOrGetShaderProgram("@default");
-  m_currentShaderProgram = m_defaultShaderProgram;
+  mDefaultShaderProgram = createOrGetShaderProgram("@default");
+  mCurrentShaderProgram = mDefaultShaderProgram;
+
+  mDefaultSampler = new Sampler();
 }
 
 void Renderer::setOrtho2D(const Vector2& bottomLeft, const Vector2& topRight) {
   loadIdentity();
-//	glOrtho(bottomLeft.x, topRight.x, bottomLeft.y, topRight.y, 0.f, 1.f);
-  UNIMPLEMENTED();
-  //glOrtho(0.f, SCREEN_WIDTH, 0.f, SCREEN_HEIGHT, 0.f, 1.f);
+  mProjection = mat4::makeOrtho2D(bottomLeft, topRight);
+}
+
+void Renderer::setProjection(const mat4& projection) {
+  mProjection = projection;
 }
 
 void Renderer::pushMatrix() {
@@ -293,8 +300,8 @@ void Renderer::traslate2D(const Vector2& translation) {
 }
 
 void Renderer::useShaderProgram(ShaderProgram* program) {
-  m_currentShaderProgram = program == nullptr ? m_shaderPrograms.at("@default"): program;
-  ENSURES(m_currentShaderProgram != nullptr);
+  mCurrentShaderProgram = program == nullptr ? mShaderPrograms.at("@default"): program;
+  ENSURES(mCurrentShaderProgram != nullptr);
 }
 
 void Renderer::setAddtiveBlending() {
@@ -310,7 +317,7 @@ void Renderer::resetAlphaBlending() {
 bool Renderer::reloadShaderProgram() {
   bool success = true;
 
-  for(auto& kv: m_shaderPrograms) {
+  for(auto& kv: mShaderPrograms) {
     success = success & kv.second->fromFile(kv.first.c_str());
   }
 
@@ -319,9 +326,9 @@ bool Renderer::reloadShaderProgram() {
 
 bool Renderer::reloadShaderProgram(const char* nameWithPath) {
   std::string name = std::string(nameWithPath);
-  auto it = m_shaderPrograms.find(name);
+  auto it = mShaderPrograms.find(name);
 
-  EXPECTS(it != m_shaderPrograms.end());
+  EXPECTS(it != mShaderPrograms.end());
 
   return it->second->fromFile(nameWithPath);
 }
@@ -471,9 +478,9 @@ void Renderer::loadIdentity() {
 }
 
 void Renderer::drawAABB2(const AABB2& bounds, const Rgba& color, bool filled) {
-  if(filled) drawTexturedAABB2(bounds, *m_textures.at("$"), { 0,1 }, { 1,0 }, color);
+  if(filled) drawTexturedAABB2(bounds, *mTextures.at("$"), { 0,1 }, { 1,0 }, color);
   else {
-    bindTexutre(m_textures.at("$"));  
+    bindTexutre(mTextures.at("$"));  
     auto vertices = bounds.vertices();
     Vertex_PCU verts[4] = {
       {
@@ -524,14 +531,16 @@ void Renderer::drawCircle(const Vector2& center, float radius, const Rgba& color
 
 void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, int numVerts, DrawPrimitive drawPrimitive) {
   // first, copy the memory to the buffer
-  m_tempRenderBuffer.copyToGpu(sizeof(Vertex_PCU) * numVerts, vertices);
+  mTempRenderBuffer.copyToGpu(sizeof(Vertex_PCU) * numVerts, vertices);
+  
+  //--------------------------bind position---------------------------------
 
   // Describe the buffer - first, figure out where the shader is expecting
   // position to be.
-  GLint posBind = glGetAttribLocation(m_currentShaderProgram->programHandle, "POSITION");
+  GLint posBind = glGetAttribLocation(mCurrentShaderProgram->programHandle, "POSITION");
 
   // Next, bind the buffer we want to use; 
-  glBindBuffer(GL_ARRAY_BUFFER, m_tempRenderBuffer.handle);
+  glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle);
 
   // next, bind where position is in our buffer to that location; 
   if (posBind >= 0) {
@@ -546,9 +555,32 @@ void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, int numVerts, DrawP
                           sizeof(Vertex_PCU),              // stride (how far between each vertex)
                           (GLvoid*)offsetof(Vertex_PCU, position)); // From the start of a vertex, where is this data?
   }
+  //--------------------------bind UV---------------------------------
+
+  GLint uvBind = glGetAttribLocation(mCurrentShaderProgram->programHandle, "UV");
+  glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle);
+
+  if (uvBind >= 0) {
+    glEnableVertexAttribArray(uvBind);
+    glVertexAttribPointer(uvBind,
+                          2,                           
+                          GL_FLOAT,                    
+                          GL_FALSE,                   
+                          sizeof(Vector2),
+                          (GLvoid*)offsetof(Vertex_PCU, uvs));
+  }
+
 
   // Now that it is described and bound, draw using our program
-  glUseProgram(m_currentShaderProgram->programHandle);
+  glUseProgram(mCurrentShaderProgram->programHandle);
+
+  GLint loc = glGetUniformLocation(mCurrentShaderProgram->programHandle, "PROJECTION");
+  if (loc >= 0) {
+    // you "may" need to use GL_TRUE, depending on your matrix layout
+    // and whether you prefer to multiply left or right;
+    // acts on the currently bound program (glUseProgram)
+    glUniformMatrix4fv(loc, 1, GL_TRUE, (GLfloat*)&mProjection);
+  }
   glDrawArrays(g_openGlPrimitiveTypes[drawPrimitive], 0, numVerts);
 
 }
@@ -568,23 +600,23 @@ BitmapFont* Renderer::createOrGetBitmapFont(const char* bitmapFontName, const ch
 }
 
 BitmapFont* Renderer::createOrGetBitmapFont(const char* fontNameWithPath) {
-  auto kv = m_fonts.find(fontNameWithPath);
-  if (kv != m_fonts.end()) {
+  auto kv = mFonts.find(fontNameWithPath);
+  if (kv != mFonts.end()) {
     return kv->second;
   }
 
   Texture* fontTex = createOrGetTexture(fontNameWithPath);
   BitmapFont* font = new BitmapFont(fontNameWithPath, *(new SpriteSheet(*fontTex, 16, 16)));
-  m_fonts[fontNameWithPath] = font;
+  mFonts[fontNameWithPath] = font;
 
   return font;
 }
 
 Texture* Renderer::createOrGetTexture(const std::string& filePath) {
-	auto it = m_textures.find(filePath);
-	if (it == m_textures.end()) {
+	auto it = mTextures.find(filePath);
+	if (it == mTextures.end()) {
 		Texture* texture = new Texture(filePath);
-		m_textures[filePath] = texture;
+		mTextures[filePath] = texture;
 		return texture;
 	}
 	return it->second;
@@ -592,16 +624,16 @@ Texture* Renderer::createOrGetTexture(const std::string& filePath) {
 
 ShaderProgram* Renderer::createOrGetShaderProgram(const char* nameWithPath) {
   std::string name = std::string(nameWithPath);
-  auto it = m_shaderPrograms.find(name);
-  if (it != m_shaderPrograms.end()) return it->second;
+  auto it = mShaderPrograms.find(name);
+  if (it != mShaderPrograms.end()) return it->second;
 
   ShaderProgram* program = new ShaderProgram();
-  bool success = program->fromFile(nameWithPath);
+  bool success = program->fromFile(nameWithPath, "TEST_ON_FLAG;COLOR_FLAG=1");
 
   if (!success) {
     program->fromFile("@invalid");
   };
   
-  m_shaderPrograms[name] = program;
+  mShaderPrograms[name] = program;
   return program;
 }

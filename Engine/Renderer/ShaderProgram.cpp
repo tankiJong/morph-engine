@@ -6,18 +6,29 @@
 
 static const char* defaultVertexShader 
 = R"(#version 420 core
+
+uniform mat4 PROJECTION;
 in vec3 POSITION;
+in vec2 UV;
+out vec2 passUV;
+
 void main( void )
 {
-   gl_Position = vec4( POSITION, 1 ); 
+  vec4 local_pos = vec4( POSITION, 1 ); 
+  vec4 clip_pos = PROJECTION * local_pos; 
+  passUV = UV;
+  gl_Position = clip_pos;
 })";
 
 static const char* defaultFragmentShader = 
 R"(#version 420 core
+
+in vec2 passUV; 
 out vec4 outColor; 
+
 void main( void )
 {
-   outColor = vec4( 1, 0, 0, 1 ); 
+   outColor = vec4( passUV, 1, 1 ); 
 })";
 
 static const char* invalidFragmentShader =
@@ -35,7 +46,7 @@ bool ShaderProgram::fromFile(const char* relativePath, const char* defineArgs) {
     if(vs == NULL || fs == NULL) {
       return false;
     }
-    programHandle = createAndLinkProgram(vs, fs);
+    programHandle = createAndLinkProgram(vs, fs, programHandle);
     glDeleteShader(vs);
     glDeleteShader(fs);
 
@@ -46,7 +57,7 @@ bool ShaderProgram::fromFile(const char* relativePath, const char* defineArgs) {
     GLuint vs = loadShader(defaultVertexShader, GL_VERTEX_SHADER, defineArgs);
     GLuint fs = loadShader(invalidFragmentShader, GL_FRAGMENT_SHADER, defineArgs);
 
-    programHandle = createAndLinkProgram(vs, fs);
+    programHandle = createAndLinkProgram(vs, fs, programHandle);
     glDeleteShader(vs);
     glDeleteShader(fs);
 
@@ -67,17 +78,20 @@ bool ShaderProgram::fromFile(const char* relativePath, const char* defineArgs) {
   if(vs == NULL || fs == NULL) {
     return false;
   }
-  programHandle = createAndLinkProgram(vs, fs);
+  programHandle = createAndLinkProgram(vs, fs, programHandle);
   glDeleteShader(vs);
   glDeleteShader(fs);
 
   return (programHandle != NULL);
 }
 
-GLuint ShaderProgram::createAndLinkProgram(GLuint vs, GLuint fs) {
+GLuint ShaderProgram::createAndLinkProgram(GLuint vs, GLuint fs, GLuint handle) {
   // credate the program handle - how you will reference
   // this program within OpenGL, like a texture handle
-  GLuint programId = glCreateProgram();
+  GLuint programId = handle;
+  if(programId == 0) {
+    programId = glCreateProgram();
+  }
   EXPECTS(programId != 0);
 
   // Attach the shaders you want to use
@@ -143,7 +157,7 @@ GLuint ShaderProgram::loadShader(const char* rawShader, GLenum type, const char*
   GLint shaderLength = (GLint)strlen(rawShader);
 
   Blob shaderStr = injectDefine(rawShader, shaderLength, defineArgs);
-  shaderLength = (GLint)shaderStr.size;
+  shaderLength = (GLint)shaderStr.size();
 
   glShaderSource(shaderId, 1, (GLchar**)&shaderStr, &shaderLength);
   glCompileShader(shaderId);
@@ -171,10 +185,10 @@ GLuint ShaderProgram::loadShader(const Blob& rawShader, GLenum type, const char*
   // You can add multiple strings to a shader – they will 
   // be concatenated together to form the actual source object.
 
-  Blob shaderStr = injectDefine(rawShader, rawShader.size, defineArgs);
-  GLint shaderLength = (GLint)shaderStr.size;
+  Blob shaderStr = injectDefine(rawShader, rawShader.size(), defineArgs);
+  GLint shaderLength = (GLint)shaderStr.size();
 
-  glShaderSource(shaderId, 1, (GLchar**)shaderStr, &shaderLength);
+  glShaderSource(shaderId, 1, (GLchar**)&shaderStr, &shaderLength);
   glCompileShader(shaderId);
 
   // Check status
@@ -216,7 +230,7 @@ Blob ShaderProgram::injectDefine(const char* buffer, size_t size, const char* de
 
   for(auto& def: defs) {
     injected[offect] = '\0';
-    strcat_s(injected, sizeof(injected), "#define "); 
+    strcat_s(injected, blockSize, "#define ");
     offect += 8; // length of "#define "
 
     const char* q = def.c_str();

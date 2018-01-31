@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-Blob fileToBuffer(const char * nameWithFullPath) {
+Blob fileToBuffer(const char* nameWithFullPath) {
   FILE* fp = nullptr;
   fopen_s(&fp, nameWithFullPath, "r");
   if(fp == nullptr) {

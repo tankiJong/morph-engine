@@ -34,18 +34,23 @@ PFNGLCREATEPROGRAMPROC           glCreateProgram           = nullptr;
 PFNGLCOMPILESHADERPROC           glCompileShader           = nullptr;
 PFNGLDELETEBUFFERSPROC           glDeleteBuffers           = nullptr;
 PFNGLDELETEPROGRAMPROC           glDeleteProgram           = nullptr;
+PFNGLDELETESAMPLERSPROC          glDeleteSamplers          = nullptr;
 PFNGLDELETESHADERPROC            glDeleteShader            = nullptr;
 PFNGLDETACHSHADERPROC            glDetachShader            = nullptr;
 PFNGLDRAWARRAYSPROC              glDrawArrays              = nullptr;
 PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray = nullptr;
 PFNGLGENBUFFERSPROC              glGenBuffers              = nullptr;
+PFNGLGENSAMPLERSPROC             glGenSamplers             = nullptr;
 PFNGLGENVERTEXARRAYSPROC         glGenVertexArrays         = nullptr;
 PFNGLGETATTRIBLOCATIONPROC       glGetAttribLocation       = nullptr;
 PFNGLGETPROGRAMIVPROC            glGetProgramiv            = nullptr;
 PFNGLGETSHADERINFOLOGPROC        glGetShaderInfoLog        = nullptr;
 PFNGLGETSHADERIVPROC             glGetShaderiv             = nullptr;
+PFNGLGETUNIFORMLOCATIONPROC      glGetUniformLocation      = nullptr;
 PFNGLLINKPROGRAMPROC             glLinkProgram             = nullptr;
+PFNGLSAMPLERPARAMETERIPROC       glSamplerParameteri       = nullptr;
 PFNGLSHADERSOURCEPROC            glShaderSource            = nullptr;
+PFNGLUNIFORMMATRIX4FVPROC        glUniformMatrix4fv        = nullptr;
 PFNGLUSEPROGRAMPROC              glUseProgram              = nullptr;
 PFNGLVERTEXATTRIBPOINTERPROC     glVertexAttribPointer     = nullptr;
 
@@ -58,6 +63,7 @@ void bindNewWGLFunctions() {
 void bindGLFunctions() {
   wglGetTypedProcAddress( &glAttachShader, "glAttachShader" );
   GL_BIND_FUNCTION(glBindBuffer);
+  GL_BIND_FUNCTION(glBindVertexArray);
   GL_BIND_FUNCTION(glBufferData);
   GL_BIND_FUNCTION(glClear);
   GL_BIND_FUNCTION(glCreateShader);
@@ -65,20 +71,24 @@ void bindGLFunctions() {
   GL_BIND_FUNCTION(glCompileShader);
   GL_BIND_FUNCTION(glDeleteBuffers);
   GL_BIND_FUNCTION(glDeleteProgram);
+  GL_BIND_FUNCTION(glDeleteSamplers);
   GL_BIND_FUNCTION(glDeleteShader);
   GL_BIND_FUNCTION(glDetachShader);
   GL_BIND_FUNCTION(glDrawArrays);
   GL_BIND_FUNCTION(glEnableVertexAttribArray);
   GL_BIND_FUNCTION(glGenBuffers);
+  GL_BIND_FUNCTION(glGenSamplers);
+  GL_BIND_FUNCTION(glGenVertexArrays);
   GL_BIND_FUNCTION(glGetAttribLocation);
   GL_BIND_FUNCTION(glGetProgramiv);
   GL_BIND_FUNCTION(glGetShaderInfoLog);
   GL_BIND_FUNCTION(glGetShaderiv);
+  GL_BIND_FUNCTION(glGetUniformLocation);
   GL_BIND_FUNCTION(glLinkProgram);
+  GL_BIND_FUNCTION(glSamplerParameteri);
   GL_BIND_FUNCTION(glShaderSource);
+  GL_BIND_FUNCTION(glUniformMatrix4fv);
   GL_BIND_FUNCTION(glUseProgram);
   GL_BIND_FUNCTION(glVertexAttribPointer);
   GL_BIND_FUNCTION(glClearColor);
-  GL_BIND_FUNCTION(glGenVertexArrays);
-  GL_BIND_FUNCTION(glBindVertexArray);
 }

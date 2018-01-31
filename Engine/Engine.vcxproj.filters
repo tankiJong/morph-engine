@@ -49,6 +49,21 @@
     <Filter Include="File">
       <UniqueIdentifier>{8b6df7c6-a558-41d7-98e7-6f8caaf38b68}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ThirdParty\yaml-cpp\node">
+      <UniqueIdentifier>{d07e2844-dc4b-467a-a4ca-5ed85d1bd3df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\yaml-cpp\node\detail">
+      <UniqueIdentifier>{df0b84ee-02cb-48c7-8495-e6ad3e3f4b7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{065b07b7-9fc3-4b9f-b8db-a54f1d2cb14d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Debug">
+      <UniqueIdentifier>{3b3ab295-91a8-4e8d-b786-17e009e9614c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Debug\Console">
+      <UniqueIdentifier>{4db2c1bd-f3f1-41dd-a2a4-b887e46bae6a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\Vector2.cpp">
@@ -126,9 +141,6 @@
     <ClCompile Include="Math\Vector3.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Matrix44.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\SpriteAnimSet.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
@@ -164,6 +176,30 @@
     </ClCompile>
     <ClCompile Include="File\Blob.cpp">
       <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ShaderStage.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="File\DataSource.cpp">
+      <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Window.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\mat4.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Sampler.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="File\Path.cpp">
+      <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\Console\Console.cpp">
+      <Filter>Debug\Console</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\Console\Command.cpp">
+      <Filter>Debug\Console</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -272,9 +308,6 @@
     <ClInclude Include="Math\Vector3.hpp">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Matrix44.hpp">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\SpriteAnimSet.hpp">
       <Filter>Renderer</Filter>
     </ClInclude>
@@ -376,6 +409,96 @@
     </ClInclude>
     <ClInclude Include="File\Blob.hpp">
       <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\ShaderStage.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="File\DataSource.hpp">
+      <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\contrib\anchordict.h">
+      <Filter>ThirdParty\yaml-cpp\contrib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\contrib\graphbuilder.h">
+      <Filter>ThirdParty\yaml-cpp\contrib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\convert.h">
+      <Filter>ThirdParty\yaml-cpp\node</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\emit.h">
+      <Filter>ThirdParty\yaml-cpp\node</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\impl.h">
+      <Filter>ThirdParty\yaml-cpp\node</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\iterator.h">
+      <Filter>ThirdParty\yaml-cpp\node</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\node.h">
+      <Filter>ThirdParty\yaml-cpp\node</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\parse.h">
+      <Filter>ThirdParty\yaml-cpp\node</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\ptr.h">
+      <Filter>ThirdParty\yaml-cpp\node</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\type.h">
+      <Filter>ThirdParty\yaml-cpp\node</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\detail\bool_type.h">
+      <Filter>ThirdParty\yaml-cpp\node\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\detail\impl.h">
+      <Filter>ThirdParty\yaml-cpp\node\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\detail\iterator.h">
+      <Filter>ThirdParty\yaml-cpp\node\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\detail\iterator_fwd.h">
+      <Filter>ThirdParty\yaml-cpp\node\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\detail\memory.h">
+      <Filter>ThirdParty\yaml-cpp\node\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\detail\node.h">
+      <Filter>ThirdParty\yaml-cpp\node\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\detail\node_data.h">
+      <Filter>ThirdParty\yaml-cpp\node\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\detail\node_iterator.h">
+      <Filter>ThirdParty\yaml-cpp\node\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\yaml-cpp\node\detail\node_ref.h">
+      <Filter>ThirdParty\yaml-cpp\node\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\common.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\type.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Window.hpp">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Delegate.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\mat4.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Sampler.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="File\Path.hpp">
+      <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\Console\Console.hpp">
+      <Filter>Debug\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\Console\Command.hpp">
+      <Filter>Debug\Console</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
