@@ -167,3 +167,5 @@ protected:
 #define KEYBOARD_F22            0x85
 #define KEYBOARD_F23            0x86
 #define KEYBOARD_F24            0x87
+
+#define KEYBOARD_OEM_3          0xC0 // `~ key

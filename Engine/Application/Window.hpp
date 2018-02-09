@@ -3,9 +3,9 @@
 #include <vector>
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Core/common.hpp"
+#include "Engine/Math/AABB2.hpp"
 
 typedef delegate<void(uint msg, size_t wparam, size_t lparam)> WinMsgDelegate;
-
 
 class Window {
 public:
@@ -36,6 +36,7 @@ public:
   // ** EXTRAS ** //
   // void SetTitle( char const *new_title ); 
 
+  inline const aabb2& bounds() const { return mBounds; };
 private:
   Window(int width, int height, const char* windowName = "");
   Window() = default;
@@ -45,6 +46,8 @@ private:
                 // Giving us better code modularity. 
 
   std::vector<WinMsgDelegate> mHandlers;
+  aabb2 mBounds;
 public:
   static Window* getInstance();
+  static void registerWindowClass();
 };

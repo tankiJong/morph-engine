@@ -57,6 +57,11 @@ inline std::vector<T, A> parse(const char* str, const char* tokens) {
   return results;
 }
 
+template<typename T>
+inline void operator >>(const char* lhs, T& rhs) {
+  rhs = std::move<T>(parse<T>(lhs));
+}
+
 //--------------toString-------------------------------------------------------------------------
 template<typename T>
 inline std::string toString(T val) {
@@ -81,4 +86,9 @@ inline std::string toString(char val) {
 template<>
 inline std::string toString(bool val) {
   return val ? "true" : "false";
+}
+
+template<typename T>
+inline void operator >>(const T& lhs, std::string& rhs) {
+  rhs = std::move(toString(lhs));
 }

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "ThirdParty/pugixml/pugixml.hpp"
 #include "StringUtils.hpp"
-#include "ErrorWarningAssert.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 namespace xml {
   class Attribute: public pugi::xml_attribute {

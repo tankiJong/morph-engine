@@ -1,6 +1,6 @@
 #pragma once
 #include "Engine/Input/KeyState.hpp"
-#include "Engine/Math/Vector2.hpp"
+#include "Engine/Math/Vec2.hpp"
 
 struct _XINPUT_STATE;
 typedef _XINPUT_STATE XINPUT_STATE;
@@ -33,7 +33,7 @@ static constexpr float THUMB_INNER_DEADZONE_FRACTION = 5200.f / 32768.f; // 23%
 static constexpr float THUMB_OUTER_DEADZONE_FRACTION = 31000.f / 32768.f; // 90%
 
 struct XboxThumbState {
-	Vector2 position = Vector2(0.f, 0.f);
+	vec2 position = vec2(0.f, 0.f);
 	float magnitude = 0;
 	float angleDegree = 0;
 };

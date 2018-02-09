@@ -2,7 +2,8 @@
 #define DELEGATE_HPP_INCLUDED
 #pragma once
 
-// inspired from https://github.com/hioa-cs/IncludeOS
+// ref from https://github.com/hioa-cs/IncludeOS
+
 #include <type_traits>
 #include <functional>
 #include <memory>

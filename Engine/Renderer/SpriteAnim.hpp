@@ -41,7 +41,7 @@ public:
   explicit SpriteAnim(const SpriteAnimDefinition& definition);
   ~SpriteAnim();
   void update(float deltaSeconds);
-  AABB2 getCurrentTexCoords() const;	// Based on the current elapsed time
+  aabb2 getCurrentTexCoords() const;	// Based on the current elapsed time
   const Texture& getTexture() const;
   void pause();					// Starts unpaused (playing) by default
   void resume();				// Resume after pausing

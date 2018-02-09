@@ -12,8 +12,9 @@ public:
   bool isInRange(int number) const;
   int getRandomInRange() const;
   int numIntIncluded() const;
-
+  int size() const;
   void fromString(const char* data);
+  void reset();
   std::string toString() const;
 };
 bool areRangesOverlap(const IntRange& a, const IntRange& b);

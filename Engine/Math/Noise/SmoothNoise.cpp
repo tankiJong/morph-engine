@@ -3,8 +3,8 @@
 //
 #include "Engine/Math/Noise/RawNoise.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "Engine/Math/Vector2.hpp"
-#include "Engine/Math/Vector3.hpp"
+#include "Engine/Math/Vec2.hpp"
+#include "Engine/Math/vec3.hpp"
 #include "Noise.hpp"
 //#include "Engine/Math/Vector4.hpp"
 
@@ -77,12 +77,12 @@ float Compute2dFractalNoise( float posX, float posY, float scale, unsigned int n
 	float totalAmplitude = 0.f;
 	float currentAmplitude = 1.f;
 	float invScale = (1.f / scale);
-	Vector2 currentPos( posX * invScale, posY * invScale );
+	vec2 currentPos( posX * invScale, posY * invScale );
 
 	for( unsigned int octaveNum = 0; octaveNum < numOctaves; ++ octaveNum )
 	{
 		// Determine noise values at nearby integer "grid point" positions
-		Vector2 cellMins( floorf( currentPos.x ), floorf( currentPos.y ) );
+		vec2 cellMins( floorf( currentPos.x ), floorf( currentPos.y ) );
 		int indexWestX = (int) cellMins.x;
 		int indexSouthY = (int) cellMins.y;
 		int indexEastX = indexWestX + 1;
@@ -93,7 +93,7 @@ float Compute2dFractalNoise( float posX, float posY, float scale, unsigned int n
 		float valueNorthEast = Get2dNoiseZeroToOne( indexEastX, indexNorthY, seed );
 
 		// Do a smoothed (nonlinear) weighted average of nearby grid point values
-		Vector2 displacementFromMins = currentPos - cellMins;
+		vec2 displacementFromMins = currentPos - cellMins;
 		float weightEast  = smoothStep3( displacementFromMins.x );
 		float weightNorth = smoothStep3( displacementFromMins.y );
 		float weightWest  = 1.f - weightEast;
@@ -136,12 +136,12 @@ float Compute3dFractalNoise( float posX, float posY, float posZ, float scale, un
 	float totalAmplitude = 0.f;
 	float currentAmplitude = 1.f;
 	float invScale = (1.f / scale);
-	Vector3 currentPos( posX * invScale, posY * invScale, posZ * invScale );
+	vec3 currentPos( posX * invScale, posY * invScale, posZ * invScale );
 
 	for( unsigned int octaveNum = 0; octaveNum < numOctaves; ++ octaveNum )
 	{
 		// Determine noise values at nearby integer "grid point" positions
-		Vector3 cellMins( floorf( currentPos.x ), floorf( currentPos.y ), floorf( currentPos.z ) );
+		vec3 cellMins( floorf( currentPos.x ), floorf( currentPos.y ), floorf( currentPos.z ) );
 		int indexWestX  = (int) cellMins.x;
 		int indexSouthY = (int) cellMins.y;
 		int indexBelowZ = (int) cellMins.z;
@@ -160,7 +160,7 @@ float Compute3dFractalNoise( float posX, float posY, float posZ, float scale, un
 		float belowNorthEast = Get3dNoiseZeroToOne( indexEastX, indexNorthY, indexBelowZ, seed );
 
 		// Do a smoothed (nonlinear) weighted average of nearby grid point values
-		Vector3 displacementFromMins = currentPos - cellMins;
+		vec3 displacementFromMins = currentPos - cellMins;
 
 		float weightEast  = smoothStep3( displacementFromMins.x );
 		float weightNorth = smoothStep3( displacementFromMins.y );
@@ -367,29 +367,29 @@ float Compute1dPerlinNoise( float position, float scale, unsigned int numOctaves
 float Compute2dPerlinNoise( float posX, float posY, float scale, unsigned int numOctaves, float octavePersistence, float octaveScale, bool renormalize, unsigned int seed )
 {
 	const float OCTAVE_OFFSET = 0.636764989593174f; // Translation/bias to add to each octave
-	const Vector2 gradients[ 8 ] = // Normalized unit vectors in 8 quarter-cardinal directions
+	const vec2 gradients[ 8 ] = // Normalized unit vectors in 8 quarter-cardinal directions
 	{
-		Vector2( +0.923879533f, +0.382683432f ), //  22.5 degrees (ENE)
-		Vector2( +0.382683432f, +0.923879533f ), //  67.5 degrees (NNE)
-		Vector2( -0.382683432f, +0.923879533f ), // 112.5 degrees (NNW)
-		Vector2( -0.923879533f, +0.382683432f ), // 157.5 degrees (WNW)
-		Vector2( -0.923879533f, -0.382683432f ), // 202.5 degrees (WSW)
-		Vector2( -0.382683432f, -0.923879533f ), // 247.5 degrees (SSW)
-		Vector2( +0.382683432f, -0.923879533f ), // 292.5 degrees (SSE)
-		Vector2( +0.923879533f, -0.382683432f )	 // 337.5 degrees (ESE)
+		vec2( +0.923879533f, +0.382683432f ), //  22.5 degrees (ENE)
+		vec2( +0.382683432f, +0.923879533f ), //  67.5 degrees (NNE)
+		vec2( -0.382683432f, +0.923879533f ), // 112.5 degrees (NNW)
+		vec2( -0.923879533f, +0.382683432f ), // 157.5 degrees (WNW)
+		vec2( -0.923879533f, -0.382683432f ), // 202.5 degrees (WSW)
+		vec2( -0.382683432f, -0.923879533f ), // 247.5 degrees (SSW)
+		vec2( +0.382683432f, -0.923879533f ), // 292.5 degrees (SSE)
+		vec2( +0.923879533f, -0.382683432f )	 // 337.5 degrees (ESE)
 	};
 
 	float totalNoise = 0.f;
 	float totalAmplitude = 0.f;
 	float currentAmplitude = 1.f;
 	float invScale = (1.f / scale);
-	Vector2 currentPos( posX * invScale, posY * invScale );
+	vec2 currentPos( posX * invScale, posY * invScale );
 
 	for( unsigned int octaveNum = 0; octaveNum < numOctaves; ++ octaveNum )
 	{
 		// Determine random unit "gradient vectors" for surrounding corners
-		Vector2 cellMins( floorf( currentPos.x ), floorf( currentPos.y ) );
-		Vector2 cellMaxs( cellMins.x + 1.f, cellMins.y + 1.f );
+		vec2 cellMins( floorf( currentPos.x ), floorf( currentPos.y ) );
+		vec2 cellMaxs( cellMins.x + 1.f, cellMins.y + 1.f );
 		int indexWestX  = (int) cellMins.x;
 		int indexSouthY = (int) cellMins.y;
 		int indexEastX  = indexWestX  + 1;
@@ -400,16 +400,16 @@ float Compute2dPerlinNoise( float posX, float posY, float scale, unsigned int nu
 		unsigned int noiseNW = Get2dNoiseUint( indexWestX, indexNorthY, seed );
 		unsigned int noiseNE = Get2dNoiseUint( indexEastX, indexNorthY, seed );
 
-		const Vector2& gradientSW = gradients[ noiseSW & 0x00000007 ];
-		const Vector2& gradientSE = gradients[ noiseSE & 0x00000007 ];
-		const Vector2& gradientNW = gradients[ noiseNW & 0x00000007 ];
-		const Vector2& gradientNE = gradients[ noiseNE & 0x00000007 ];
+		const vec2& gradientSW = gradients[ noiseSW & 0x00000007 ];
+		const vec2& gradientSE = gradients[ noiseSE & 0x00000007 ];
+		const vec2& gradientNW = gradients[ noiseNW & 0x00000007 ];
+		const vec2& gradientNE = gradients[ noiseNE & 0x00000007 ];
 
 		// Dot each corner's gradient with displacement from corner to position
-		Vector2 displacementFromSW( currentPos.x - cellMins.x, currentPos.y - cellMins.y );
-		Vector2 displacementFromSE( currentPos.x - cellMaxs.x, currentPos.y - cellMins.y );
-		Vector2 displacementFromNW( currentPos.x - cellMins.x, currentPos.y - cellMaxs.y );
-		Vector2 displacementFromNE( currentPos.x - cellMaxs.x, currentPos.y - cellMaxs.y );
+		vec2 displacementFromSW( currentPos.x - cellMins.x, currentPos.y - cellMins.y );
+		vec2 displacementFromSE( currentPos.x - cellMaxs.x, currentPos.y - cellMins.y );
+		vec2 displacementFromNW( currentPos.x - cellMins.x, currentPos.y - cellMaxs.y );
+		vec2 displacementFromNE( currentPos.x - cellMaxs.x, currentPos.y - cellMaxs.y );
 
 		float dotSouthWest = dotProduct( gradientSW, displacementFromSW );
 		float dotSouthEast = dotProduct( gradientSE, displacementFromSE );
@@ -459,29 +459,29 @@ float Compute3dPerlinNoise( float posX, float posY, float posZ, float scale, uns
 {
 	const float OCTAVE_OFFSET = 0.636764989593174f; // Translation/bias to add to each octave
 
-	const Vector3 gradients[ 8 ] = // Traditional "12 edges" requires modulus and isn't any better.
+	const vec3 gradients[ 8 ] = // Traditional "12 edges" requires modulus and isn't any better.
 	{
-		Vector3( +fSQRT_3_OVER_3, +fSQRT_3_OVER_3, +fSQRT_3_OVER_3 ), // Normalized unit 3D vectors
-		Vector3( -fSQRT_3_OVER_3, +fSQRT_3_OVER_3, +fSQRT_3_OVER_3 ), //  pointing toward cube
-		Vector3( +fSQRT_3_OVER_3, -fSQRT_3_OVER_3, +fSQRT_3_OVER_3 ), //  corners, so components
-		Vector3( -fSQRT_3_OVER_3, -fSQRT_3_OVER_3, +fSQRT_3_OVER_3 ), //  are all sqrt(3)/3, i.e.
-		Vector3( +fSQRT_3_OVER_3, +fSQRT_3_OVER_3, -fSQRT_3_OVER_3 ), // 0.5773502691896257645091f.
-		Vector3( -fSQRT_3_OVER_3, +fSQRT_3_OVER_3, -fSQRT_3_OVER_3 ), // These are slightly better
-		Vector3( +fSQRT_3_OVER_3, -fSQRT_3_OVER_3, -fSQRT_3_OVER_3 ), // than axes (1,0,0) and much
-		Vector3( -fSQRT_3_OVER_3, -fSQRT_3_OVER_3, -fSQRT_3_OVER_3 )  // faster than edges (1,1,0).
+		vec3( +fSQRT_3_OVER_3, +fSQRT_3_OVER_3, +fSQRT_3_OVER_3 ), // Normalized unit 3D vectors
+		vec3( -fSQRT_3_OVER_3, +fSQRT_3_OVER_3, +fSQRT_3_OVER_3 ), //  pointing toward cube
+		vec3( +fSQRT_3_OVER_3, -fSQRT_3_OVER_3, +fSQRT_3_OVER_3 ), //  corners, so components
+		vec3( -fSQRT_3_OVER_3, -fSQRT_3_OVER_3, +fSQRT_3_OVER_3 ), //  are all sqrt(3)/3, i.e.
+		vec3( +fSQRT_3_OVER_3, +fSQRT_3_OVER_3, -fSQRT_3_OVER_3 ), // 0.5773502691896257645091f.
+		vec3( -fSQRT_3_OVER_3, +fSQRT_3_OVER_3, -fSQRT_3_OVER_3 ), // These are slightly better
+		vec3( +fSQRT_3_OVER_3, -fSQRT_3_OVER_3, -fSQRT_3_OVER_3 ), // than axes (1,0,0) and much
+		vec3( -fSQRT_3_OVER_3, -fSQRT_3_OVER_3, -fSQRT_3_OVER_3 )  // faster than edges (1,1,0).
 	};
 
 	float totalNoise = 0.f;
 	float totalAmplitude = 0.f;
 	float currentAmplitude = 1.f;
 	float invScale = (1.f / scale);
-	Vector3 currentPos( posX * invScale, posY * invScale, posZ * invScale );
+	vec3 currentPos( posX * invScale, posY * invScale, posZ * invScale );
 
 	for( unsigned int octaveNum = 0; octaveNum < numOctaves; ++ octaveNum )
 	{
 		// Determine random unit "gradient vectors" for surrounding corners
-		Vector3 cellMins( floorf( currentPos.x ), floorf( currentPos.y ), floorf( currentPos.z ) );
-		Vector3 cellMaxs( cellMins.x + 1.f, cellMins.y + 1.f, cellMins.z + 1.f );
+		vec3 cellMins( floorf( currentPos.x ), floorf( currentPos.y ), floorf( currentPos.z ) );
+		vec3 cellMaxs( cellMins.x + 1.f, cellMins.y + 1.f, cellMins.z + 1.f );
 		int indexWestX  = (int) cellMins.x;
 		int indexSouthY = (int) cellMins.y;
 		int indexBelowZ = (int) cellMins.z;
@@ -498,24 +498,24 @@ float Compute3dPerlinNoise( float posX, float posY, float posZ, float scale, uns
 		unsigned int noiseAboveNW = Get3dNoiseUint( indexWestX, indexNorthY, indexAboveZ, seed );
 		unsigned int noiseAboveNE = Get3dNoiseUint( indexEastX, indexNorthY, indexAboveZ, seed );
 
-		Vector3 gradientBelowSW = gradients[ noiseBelowSW & 0x00000007 ];
-		Vector3 gradientBelowSE = gradients[ noiseBelowSE & 0x00000007 ];
-		Vector3 gradientBelowNW = gradients[ noiseBelowNW & 0x00000007 ];
-		Vector3 gradientBelowNE = gradients[ noiseBelowNE & 0x00000007 ];
-		Vector3 gradientAboveSW = gradients[ noiseAboveSW & 0x00000007 ];
-		Vector3 gradientAboveSE = gradients[ noiseAboveSE & 0x00000007 ];
-		Vector3 gradientAboveNW = gradients[ noiseAboveNW & 0x00000007 ];
-		Vector3 gradientAboveNE = gradients[ noiseAboveNE & 0x00000007 ];
+		vec3 gradientBelowSW = gradients[ noiseBelowSW & 0x00000007 ];
+		vec3 gradientBelowSE = gradients[ noiseBelowSE & 0x00000007 ];
+		vec3 gradientBelowNW = gradients[ noiseBelowNW & 0x00000007 ];
+		vec3 gradientBelowNE = gradients[ noiseBelowNE & 0x00000007 ];
+		vec3 gradientAboveSW = gradients[ noiseAboveSW & 0x00000007 ];
+		vec3 gradientAboveSE = gradients[ noiseAboveSE & 0x00000007 ];
+		vec3 gradientAboveNW = gradients[ noiseAboveNW & 0x00000007 ];
+		vec3 gradientAboveNE = gradients[ noiseAboveNE & 0x00000007 ];
 
 		// Dot each corner's gradient with displacement from corner to position
-		Vector3 displacementFromBelowSW( currentPos.x - cellMins.x, currentPos.y - cellMins.y, currentPos.z - cellMins.z );
-		Vector3 displacementFromBelowSE( currentPos.x - cellMaxs.x, currentPos.y - cellMins.y, currentPos.z - cellMins.z );
-		Vector3 displacementFromBelowNW( currentPos.x - cellMins.x, currentPos.y - cellMaxs.y, currentPos.z - cellMins.z );
-		Vector3 displacementFromBelowNE( currentPos.x - cellMaxs.x, currentPos.y - cellMaxs.y, currentPos.z - cellMins.z );
-		Vector3 displacementFromAboveSW( currentPos.x - cellMins.x, currentPos.y - cellMins.y, currentPos.z - cellMaxs.z );
-		Vector3 displacementFromAboveSE( currentPos.x - cellMaxs.x, currentPos.y - cellMins.y, currentPos.z - cellMaxs.z );
-		Vector3 displacementFromAboveNW( currentPos.x - cellMins.x, currentPos.y - cellMaxs.y, currentPos.z - cellMaxs.z );
-		Vector3 displacementFromAboveNE( currentPos.x - cellMaxs.x, currentPos.y - cellMaxs.y, currentPos.z - cellMaxs.z );
+		vec3 displacementFromBelowSW( currentPos.x - cellMins.x, currentPos.y - cellMins.y, currentPos.z - cellMins.z );
+		vec3 displacementFromBelowSE( currentPos.x - cellMaxs.x, currentPos.y - cellMins.y, currentPos.z - cellMins.z );
+		vec3 displacementFromBelowNW( currentPos.x - cellMins.x, currentPos.y - cellMaxs.y, currentPos.z - cellMins.z );
+		vec3 displacementFromBelowNE( currentPos.x - cellMaxs.x, currentPos.y - cellMaxs.y, currentPos.z - cellMins.z );
+		vec3 displacementFromAboveSW( currentPos.x - cellMins.x, currentPos.y - cellMins.y, currentPos.z - cellMaxs.z );
+		vec3 displacementFromAboveSE( currentPos.x - cellMaxs.x, currentPos.y - cellMins.y, currentPos.z - cellMaxs.z );
+		vec3 displacementFromAboveNW( currentPos.x - cellMins.x, currentPos.y - cellMaxs.y, currentPos.z - cellMaxs.z );
+		vec3 displacementFromAboveNE( currentPos.x - cellMaxs.x, currentPos.y - cellMaxs.y, currentPos.z - cellMaxs.z );
 
 		float dotBelowSW = dotProduct( gradientBelowSW, displacementFromBelowSW );
 		float dotBelowSE = dotProduct( gradientBelowSE, displacementFromBelowSE );

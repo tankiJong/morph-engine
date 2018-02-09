@@ -1,6 +1,6 @@
 ﻿#include "Engine/Renderer/SpriteAnim.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
-#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include <algorithm>
 SpriteAnimDefinition::SpriteAnimDefinition(const SpriteSheet& spriteSheet, const Xml& node)
@@ -65,7 +65,7 @@ void SpriteAnim::update(float deltaSeconds) {
     }
   }
 }
-AABB2 SpriteAnim::getCurrentTexCoords() const {
+aabb2 SpriteAnim::getCurrentTexCoords() const {
   float secPerUnit = m_definition->m_durationSeconds / float(m_definition->m_frameIndexes.size());
   int curremtFrameIdx = clamp(int(floor(m_elapsedSeconds / secPerUnit)), 0, m_definition->m_frameIndexes.size() - 1);
   

@@ -3,7 +3,9 @@
 #include "glFunctions.hpp"
 
 Sampler::Sampler()
-  : mSamplerHandle(NULL) {}
+  : mSamplerHandle(NULL) {
+  create();
+}
 
 Sampler::~Sampler() {
   destroy();

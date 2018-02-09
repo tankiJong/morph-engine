@@ -1,34 +1,46 @@
 ﻿#include "ShaderProgram.hpp"
-#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/File/FileUtils.hpp"
 #include "glFunctions.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
 static const char* defaultVertexShader 
 = R"(#version 420 core
+uniform mat4 PROJECTION; 
 
-uniform mat4 PROJECTION;
 in vec3 POSITION;
-in vec2 UV;
-out vec2 passUV;
+in vec4 COLOR;       // NEW - GLSL will use a Vector4 for this; 
+in vec2 UV;         
 
-void main( void )
+out vec2 passUV; 
+out vec4 passColor;  // NEW - to use it in the pixel stage, we must pass it.
+
+void main() 
 {
-  vec4 local_pos = vec4( POSITION, 1 ); 
-  vec4 clip_pos = PROJECTION * local_pos; 
-  passUV = UV;
-  gl_Position = clip_pos;
+   vec4 local_pos = vec4( POSITION, 1 ); 
+   vec4 clip_pos = PROJECTION * local_pos; 
+
+   passColor = COLOR; // pass it on. 
+   passUV = UV; 
+   gl_Position = clip_pos; 
 })";
 
 static const char* defaultFragmentShader = 
 R"(#version 420 core
+layout(binding = 0) uniform sampler2D gTexDiffuse;
 
+in vec4 passColor; // NEW, passed color
 in vec2 passUV; 
-out vec4 outColor; 
 
-void main( void )
+out vec4 outColor; 
+  
+void main() 
 {
-   outColor = vec4( passUV, 1, 1 ); 
+   vec4 diffuse = texture( gTexDiffuse, passUV );
+   
+   // multiply is component-wise
+   // so this gets (diff.x * passColor.x, ..., diff.w * passColor.w)
+   outColor = diffuse * passColor;  
 })";
 
 static const char* invalidFragmentShader =

@@ -64,11 +64,11 @@
     <Filter Include="Debug\Console">
       <UniqueIdentifier>{4db2c1bd-f3f1-41dd-a2a4-b887e46bae6a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Tool">
+      <UniqueIdentifier>{3c76a7d3-1291-4301-90ff-f4a9e1a09f77}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Math\Vector2.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Math\MathUtils.cpp">
       <Filter>Math</Filter>
     </ClCompile>
@@ -99,17 +99,11 @@
     <ClCompile Include="..\ThirdParty\stb\stb_image.c">
       <Filter>ThirdParty\stb</Filter>
     </ClCompile>
-    <ClCompile Include="Math\IntVector2.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\SpriteSheet.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Math\IntRange.cpp">
       <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\ErrorWarningAssert.cpp">
-      <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Core\StringUtils.cpp">
       <Filter>Core</Filter>
@@ -137,9 +131,6 @@
     </ClCompile>
     <ClCompile Include="Renderer\BitmapFont.cpp">
       <Filter>Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\Vector3.cpp">
-      <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\SpriteAnimSet.cpp">
       <Filter>Renderer</Filter>
@@ -186,9 +177,6 @@
     <ClCompile Include="Application\Window.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="Math\mat4.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\Sampler.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
@@ -201,11 +189,32 @@
     <ClCompile Include="Debug\Console\Command.cpp">
       <Filter>Debug\Console</Filter>
     </ClCompile>
+    <ClCompile Include="Debug\ErrorWarningAssert.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Vec2.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Vec3.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\IntVec2.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\FrameBuffer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Camera.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Mat44.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Vec4.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Math\Vector2.hpp">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="Math\MathUtils.hpp">
       <Filter>Math</Filter>
     </ClInclude>
@@ -239,17 +248,11 @@
     <ClInclude Include="..\ThirdParty\stb\stb_image.h">
       <Filter>ThirdParty\stb</Filter>
     </ClInclude>
-    <ClInclude Include="Math\IntVector2.hpp">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\SpriteSheet.hpp">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Math\IntRange.hpp">
       <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\ErrorWarningAssert.hpp">
-      <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\StringUtils.hpp">
       <Filter>Core</Filter>
@@ -304,9 +307,6 @@
     </ClInclude>
     <ClInclude Include="Renderer\BitmapFont.hpp">
       <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Vector3.hpp">
-      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\SpriteAnimSet.hpp">
       <Filter>Renderer</Filter>
@@ -485,9 +485,6 @@
     <ClInclude Include="Core\Delegate.hpp">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Math\mat4.hpp">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\Sampler.hpp">
       <Filter>Renderer</Filter>
     </ClInclude>
@@ -499,6 +496,33 @@
     </ClInclude>
     <ClInclude Include="Debug\Console\Command.hpp">
       <Filter>Debug\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\ErrorWarningAssert.hpp">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Tool\Parser.hpp">
+      <Filter>Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Vec2.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Vec3.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\IntVec2.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\FrameBuffer.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Camera.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Mat44.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Vec4.hpp">
+      <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

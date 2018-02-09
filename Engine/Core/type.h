@@ -1,4 +1,22 @@
 #pragma once
 
-typedef unsigned size_t;
+#ifdef _WIN64
+typedef unsigned __int64 size_t;
+typedef __int64          ptrdiff_t;
+typedef __int64          intptr_t;
+#else
+typedef unsigned int     size_t;
+typedef int              ptrdiff_t;
+typedef int              intptr_t;
+#endif
+
+
+#ifndef NULL
+#ifdef __cplusplus
+#define NULL 0
+#else
+#define NULL ((void *)0)
+#endif
+#endif
+
 typedef unsigned uint;

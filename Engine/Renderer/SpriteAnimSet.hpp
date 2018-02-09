@@ -24,7 +24,7 @@ public:
   SpriteAnimSet(const SpriteAnimSetDefinition& definition);
   void play(const char* name);
   void update(float dSecond);
-  AABB2 currentTexCorrds() const;
+  aabb2 currentTexCorrds() const;
   const Texture& currentTexture() const;
 protected:
   SpriteAnim* spawnAnim(const char* name) const;

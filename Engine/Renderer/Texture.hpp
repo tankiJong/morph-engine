@@ -2,24 +2,32 @@
 // Texture.hpp
 //
 #pragma once
-#include "Engine/Math/IntVector2.hpp"
+#include "Engine/Math/IntVec2.hpp"
 #include <string>
 #include <map>
-
-
+#include "Engine/Core/common.hpp"
+#include "Engine/Core/Image.hpp"
 //---------------------------------------------------------------------------
+
+enum eTextureFormat {
+  
+};
 class Texture
 {
 	friend class Renderer; // Textures are managed by a Renderer instance
-
+  friend class FrameBuffer;
 private:
   Texture();
-	Texture( const std::string& imageFilePath ); // Use renderer->CreateOrGetTexture() instead!
-	void PopulateFromData( unsigned char* imageData, const IntVector2& texelSize, int numComponents );
-
+	Texture( const std::string& imageFilePath );
+  Texture(const Image& image);
+  void fromImage(const Image& image);
+	void PopulateFromData();
+  void setupRenderTarget(uint width, uint height, eTextureFormat format);
+  inline uint getHandle() const { return mTextureID; }
 private:
-	unsigned int								m_textureID;
-	IntVector2									m_dimensions;
+	unsigned int								mTextureID;
+  Image                       mData;
+	IntVec2									mDimensions;
 };
 
 

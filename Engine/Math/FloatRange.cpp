@@ -2,7 +2,7 @@
 
 #include "MathUtils.hpp"
 #include "Engine/Core/StringUtils.hpp"
-#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 FloatRange::FloatRange(float minInclusive, float maxInclusive)
   : min(minInclusive)

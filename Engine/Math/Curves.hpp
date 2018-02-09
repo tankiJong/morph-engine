@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "Engine/Math/Vector2.hpp"
-#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Math/Vec2.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Math/MathUtils.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,15 +48,15 @@ T evaluateCubicHermite(const T& startPos, const T& startVel, const T& endPos, co
 class CubicSpline2D {
 public:
   CubicSpline2D() {}
-  explicit CubicSpline2D(const Vector2* positionsArray, int numPoints, const Vector2* velocitiesArray = nullptr);
+  explicit CubicSpline2D(const vec2* positionsArray, int numPoints, const vec2* velocitiesArray = nullptr);
   ~CubicSpline2D() {}
 
   // Mutators
-  inline void	 appendPoint(const Vector2& position, const Vector2& velocity = Vector2::zero) {
+  inline void	 appendPoint(const vec2& position, const vec2& velocity = vec2::zero) {
     m_positions.push_back(position);
     m_velocities.push_back(velocity);
   };
-  void	 appendPoints(const Vector2* positionsArray, int numPoints, const Vector2* velocitiesArray = nullptr) {
+  void	 appendPoints(const vec2* positionsArray, int numPoints, const vec2* velocitiesArray = nullptr) {
     m_positions.insert(m_positions.end(), positionsArray, positionsArray + numPoints);
     m_velocities.reserve(m_positions.size());
     if (velocitiesArray == nullptr) {
@@ -67,7 +67,7 @@ public:
       m_velocities.insert(m_velocities.end(), velocitiesArray, velocitiesArray + numPoints);
     }
   };
-  inline void	 insertPoint(int insertBeforeIndex, const Vector2& position, const Vector2& velocity = Vector2::zero) {
+  inline void	 insertPoint(int insertBeforeIndex, const vec2& position, const vec2& velocity = vec2::zero) {
     GUARANTEE_OR_DIE(insertBeforeIndex < (int)m_positions.size(), "index out of range");
     m_positions.insert(m_positions.begin() + insertBeforeIndex, position);
     m_velocities.insert(m_velocities.begin() + insertBeforeIndex, velocity);
@@ -80,23 +80,23 @@ public:
     m_positions.clear();
     m_velocities.clear();
   };
-  inline void	 setPoint(int pointIndex, const Vector2& newPosition, const Vector2& newVelocity) {
+  inline void	 setPoint(int pointIndex, const vec2& newPosition, const vec2& newVelocity) {
     GUARANTEE_OR_DIE(pointIndex < (int)m_positions.size(), "index out of range");
 
     m_positions[pointIndex] = newPosition;
     m_velocities[pointIndex] = newVelocity;
   };
-  inline void	 setPosition(int pointIndex, const Vector2& newPosition) {
+  inline void	 setPosition(int pointIndex, const vec2& newPosition) {
     GUARANTEE_OR_DIE(pointIndex < (int)m_positions.size(), "index out of range");
     m_positions[pointIndex] = newPosition;
 
   };
-  inline void	 setVelocity(int pointIndex, const Vector2& newVelocity) {
+  inline void	 setVelocity(int pointIndex, const vec2& newVelocity) {
     GUARANTEE_OR_DIE(pointIndex < (int)m_positions.size(), "index out of range");
     m_velocities[pointIndex] = newVelocity;
   };
-  void setCardinalVelocities(float tension = 0.f, const Vector2& startVelocity = Vector2::zero,
-                             const Vector2& endVelocity = Vector2::zero) {
+  void setCardinalVelocities(float tension = 0.f, const vec2& startVelocity = vec2::zero,
+                             const vec2& endVelocity = vec2::zero) {
     m_velocities[0] = startVelocity;
     for (size_t i = 1; i < m_positions.size() - 1; i++) {
       m_velocities[i] = (m_positions[i + 1] - m_positions[i - 1]) * .5f * (1.f - tension);
@@ -106,29 +106,29 @@ public:
 
   // Accessors
   inline int   getNumPoints() const { return (int)m_positions.size(); }
-  inline const Vector2	getPosition(int pointIndex) {
+  inline const vec2	getPosition(int pointIndex) {
     return m_positions[pointIndex];
   };
-  inline const Vector2	getVelocity(int pointIndex) {
+  inline const vec2	getVelocity(int pointIndex) {
     return m_velocities[pointIndex];
   };
 
-  const std::vector<Vector2>& getPositions() const {
+  const std::vector<vec2>& getPositions() const {
     return m_positions;
   }
 
-  const std::vector<Vector2>& getVelocities() const {
+  const std::vector<vec2>& getVelocities() const {
     return m_velocities;
   }
-  int				getPositions(std::vector<Vector2>& out_positions) {
+  int				getPositions(std::vector<vec2>& out_positions) {
     out_positions = m_positions;
     return (int)m_positions.size();
   };
-  int				getVelocities(std::vector<Vector2>& out_velocities) {
+  int				getVelocities(std::vector<vec2>& out_velocities) {
     out_velocities = m_velocities;
     return (int)m_velocities.size();
   };
-  Vector2			evaluateAtCumulativeParametric(float t) const {
+  vec2			evaluateAtCumulativeParametric(float t) const {
     if (t + 1.f > (float)m_positions.size()) {
       return m_positions.back();
     }
@@ -137,7 +137,7 @@ public:
 
     return evaluateCubicHermite(m_positions[int(a)], m_velocities[int(a)], m_positions[int(b)], m_velocities[int(b)], t - a);
   };
-  Vector2			evaluateAtNormalizedParametric(float t) const {
+  vec2			evaluateAtNormalizedParametric(float t) const {
     float tick = 1.f / (m_positions.size() - 1);
 
     int index = 0;
@@ -149,8 +149,8 @@ public:
   };
 
 protected:
-  std::vector<Vector2>	m_positions;
-  std::vector<Vector2>	m_velocities;
+  std::vector<vec2>	m_positions;
+  std::vector<vec2>	m_velocities;
 };
 
 

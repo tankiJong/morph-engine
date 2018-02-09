@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include "Engine/Math/MathUtils.hpp"
-#include "Engine/Math/Vector2.hpp"
+#include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Disc2.hpp"
 #include "Engine/Math/FloatRange.hpp"
-#include "Engine/Math/IntVector2.hpp"
+#include "Engine/Math/IntVec2.hpp"
 
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/IntRange.hpp"
@@ -54,12 +54,12 @@ bool checkRandomChance(float chanceForSuccess) {
 	return rnd <= chanceForSuccess;
 }
 
-float getSquaredDistance(const Vector2& a, const Vector2& b) {
+float getSquaredDistance(const vec2& a, const vec2& b) {
 	float dx = a.x - b.x, dy = a.y - b.y;
 	return dx*dx + dy*dy;
 }
 
-float getDistance(const Vector2 & a, const Vector2 & b) {
+float getDistance(const vec2 & a, const vec2 & b) {
 	float dx = a.x - b.x, dy = a.y - b.y;
 	return sqrtf(dx*dx + dy*dy);
 }
@@ -75,9 +75,9 @@ float turnToward(float current, float goal, float maxTurnAngle) {
 	return current + angDis;
 }
 
-Vector2 reflect(const Vector2& in, const Vector2& normal) {
-  Vector2 normalDir = normal.getNormalized();
-  return in - 2.f * Vector2::dotProduct(in, normalDir) * normalDir;
+vec2 reflect(const vec2& in, const vec2& normal) {
+  vec2 normalDir = normal.getNormalized();
+  return in - 2.f * vec2::dotProduct(in, normalDir) * normalDir;
 }
 
 float getAngularDisplacement(float startDegrees, float endDegrees) {
@@ -148,11 +148,11 @@ float clampfInAbs1(float v) {
 	return clampf(v, -1.f, 1.f);
 }
 
-Vector2 clamp(const Vector2& v, Vector2 min, Vector2 max) {
+vec2 clamp(const vec2& v, vec2 min, vec2 max) {
   return { clampf(v.x, min.x, max.x), clampf(v.y, min.y, max.y) };
 }
 
-IntVector2 clamp(const IntVector2& v, IntVector2 min, IntVector2 max) {
+IntVec2 clamp(const IntVec2& v, IntVec2 min, IntVec2 max) {
   return { clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y) };
 }
 
@@ -207,11 +207,11 @@ float lerpf(float from, float to, float fraction) {
 float lerp(float from, float to, float fraction) {
   return lerpf(from, to, fraction);
 }
-const Vector2 lerp(const Vector2& from, const Vector2& to, float fraction) {
+const vec2 lerp(const vec2& from, const vec2& to, float fraction) {
   float x = lerp(from.x, to.x, fraction);
   float y = lerp(from.y, to.y, fraction);
 
-  return Vector2(x, y);
+  return vec2(x, y);
 }
 const FloatRange lerp(const FloatRange& from, const FloatRange& to, float fraction) {
   float start = lerp(from.min, to.min, fraction);
@@ -219,11 +219,11 @@ const FloatRange lerp(const FloatRange& from, const FloatRange& to, float fracti
 
   return FloatRange(start, end);
 }
-const AABB2 lerp(const AABB2& from, const AABB2& to, float fraction) {
-  Vector2 mins = lerp(from.mins, to.mins, fraction);
-  Vector2 maxs = lerp(from.maxs, to.maxs, fraction);
+const aabb2 lerp(const aabb2& from, const aabb2& to, float fraction) {
+  vec2 mins = lerp(from.mins, to.mins, fraction);
+  vec2 maxs = lerp(from.maxs, to.maxs, fraction);
 
-  return AABB2(mins, maxs);
+  return aabb2(mins, maxs);
 }
 const Disc2 lerp(const Disc2& from, const Disc2& to, float fraction) {
   auto center = lerp(from.center, to.center, fraction);
@@ -242,11 +242,11 @@ int lerp(int from, int to, float fraction) {
 unsigned char lerp(unsigned char from, unsigned char to, float fraction) {
   return (unsigned char)clamp(lerp((int)from, (int)to, fraction), 0, 255);
 }
-const IntVector2 lerp(const IntVector2& from, const IntVector2& to, float fraction) {
+const IntVec2 lerp(const IntVec2& from, const IntVec2& to, float fraction) {
   int x = lerp(from.x, to.x, fraction);
   int y = lerp(from.y, to.y, fraction);
 
-  return IntVector2(x, y);
+  return IntVec2(x, y);
 }
 const IntRange lerp(const IntRange& from, const IntRange& to, float fraction) {
   int min = lerp(from.min, to.min, fraction);

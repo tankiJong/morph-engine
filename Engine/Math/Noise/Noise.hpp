@@ -36,7 +36,7 @@ ProductNoise operator/(float lhs, const Noise& rhs);
 class ConstNoise final: public Noise {
 public:
   ConstNoise(float val): val(val) {}
-  float evaluate(float i) const override { return val; };
+  float evaluate(float) const override { return val; };
   ConstNoise* clone() const override;
 protected:
   float val;

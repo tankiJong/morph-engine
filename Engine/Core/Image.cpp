@@ -1,41 +1,46 @@
-﻿#pragma warning( push )
-#pragma warning( disable : 4456 ) 
-#pragma warning( disable : 4457 ) 
+﻿#pragma warning( push, 0 )
 #include "ThirdParty/stb/stb_image.h"
 #pragma warning( pop )  
 #include "Engine/Core/Rgba.hpp"
-#include "Engine/Math/IntVector2.hpp"
+#include "Engine/Math/IntVec2.hpp"
 #include "Image.hpp"
 
 Image::Image(const std::string& imageFilePath) {
   int numComponents = 0;
   int numComponentsRequested = 0;
 
-  unsigned char* imageData = stbi_load(imageFilePath.c_str(), &m_dimensions.x, &m_dimensions.y, &numComponents, numComponentsRequested);
-  populateFromData(imageData, m_dimensions, numComponents);
+  stbi_set_flip_vertically_on_load(true);
+  unsigned char* imageData = stbi_load(imageFilePath.c_str(), &mDimensions.x, &mDimensions.y, &numComponents, numComponentsRequested);
+  populateFromData(imageData, mDimensions, numComponents);
   stbi_image_free(imageData);
 }
 
-Rgba Image::getTexel(int x, int y) const {
-  return m_texels[x + y * m_dimensions.x];
+Image::Image(const Rgba* data, uint width, uint height)
+  : mDimensions(width, height)
+  , mTexels(data, data+width*height) {
+  
 }
 
-Rgba Image::getTexel(IntVector2 v) const {
+Rgba Image::getTexel(int x, int y) const {
+  return mTexels[x + y * mDimensions.x];
+}
+
+Rgba Image::getTexel(IntVec2 v) const {
   return getTexel(v.x, v.y);
 }
 
 void Image::setTexel(int x, int y, const Rgba& color) {
-  m_texels[x + y * m_dimensions.x] = color;
+  mTexels[x + y * mDimensions.x] = color;
 }
 
-void Image::populateFromData(unsigned char* imageData, const IntVector2& dimensions, int numComponents) {
+void Image::populateFromData(unsigned char* imageData, const IntVec2& dimensions, int numComponents) {
   if(numComponents == 4) {
     Rgba* colorData = (Rgba*)imageData;
 
     int numTexel = dimensions.x * dimensions.y;
 
     for(int i = 0; i<numTexel;i++) {
-      m_texels.push_back(Rgba(*colorData));
+      mTexels.push_back(Rgba(*colorData));
       colorData++;
     }
 
@@ -55,7 +60,7 @@ void Image::populateFromData(unsigned char* imageData, const IntVector2& dimensi
 
     // TODO: haven't do the validation
     for (int i = 0; i<numTexel; i++) {
-      m_texels.push_back(Rgba(colorData->r, colorData->g, colorData->b, 255));
+      mTexels.emplace_back(colorData->r, colorData->g, colorData->b, unsigned char(255));
       colorData++;
     }
 

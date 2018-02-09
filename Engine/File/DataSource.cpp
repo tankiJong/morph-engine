@@ -1,6 +1,6 @@
 ﻿#include "DataSource.hpp"
 #include "FileUtils.hpp"
-#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 std::unordered_map<Path, DataSourcePath> DataSourcePath::sFileOpened = {};
 DataSourcePath::DataSourcePath(DataSourcePath&& source) noexcept

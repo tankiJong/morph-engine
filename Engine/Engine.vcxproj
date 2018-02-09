@@ -217,7 +217,7 @@
       <MultiProcessorCompilation>
       </MultiProcessorCompilation>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -243,7 +243,7 @@
       <MultiProcessorCompilation>
       </MultiProcessorCompilation>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -269,7 +269,7 @@
       <MultiProcessorCompilation>
       </MultiProcessorCompilation>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -294,7 +294,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -317,7 +317,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -453,15 +453,21 @@
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Blackboard.cpp" />
     <ClCompile Include="Core\EngineCommon.cpp" />
-    <ClCompile Include="Core\ErrorWarningAssert.cpp" />
     <ClCompile Include="Core\Image.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
     <ClCompile Include="Core\StringUtils.cpp" />
     <ClCompile Include="Core\Time.cpp" />
     <ClCompile Include="Core\Xml.cpp" />
-    <ClCompile Include="Core\Yaml.cpp" />
+    <ClCompile Include="Core\Yaml.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Debug\Console\Command.cpp" />
     <ClCompile Include="Debug\Console\Console.cpp" />
+    <ClCompile Include="Debug\ErrorWarningAssert.cpp" />
     <ClCompile Include="File\Blob.cpp" />
     <ClCompile Include="File\DataSource.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -479,15 +485,24 @@
     <ClCompile Include="Math\Disc2.cpp" />
     <ClCompile Include="Math\FloatRange.cpp" />
     <ClCompile Include="Math\IntRange.cpp" />
-    <ClCompile Include="Math\IntVector2.cpp" />
+    <ClCompile Include="Math\IntVec2.cpp" />
+    <ClCompile Include="Math\Mat44.cpp" />
     <ClCompile Include="Math\MathUtils.cpp" />
-    <ClCompile Include="Math\mat4.cpp" />
-    <ClCompile Include="Math\Noise\Noise.cpp" />
+    <ClCompile Include="Math\Noise\Noise.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Math\Noise\RawNoise.cpp" />
     <ClCompile Include="Math\Noise\SmoothNoise.cpp" />
-    <ClCompile Include="Math\Vector2.cpp" />
-    <ClCompile Include="Math\Vector3.cpp" />
+    <ClCompile Include="Math\Vec2.cpp" />
+    <ClCompile Include="Math\Vec3.cpp" />
+    <ClCompile Include="Math\Vec4.cpp" />
     <ClCompile Include="Renderer\BitmapFont.cpp" />
+    <ClCompile Include="Renderer\Camera.cpp" />
+    <ClCompile Include="Renderer\FrameBuffer.cpp" />
     <ClCompile Include="Renderer\glFunctions.cpp" />
     <ClCompile Include="Renderer\RenderBuffer.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
@@ -554,7 +569,6 @@
     <ClInclude Include="Core\common.hpp" />
     <ClInclude Include="Core\Delegate.hpp" />
     <ClInclude Include="Core\EngineCommon.hpp" />
-    <ClInclude Include="Core\ErrorWarningAssert.hpp" />
     <ClInclude Include="Core\Image.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\StringUtils.hpp" />
@@ -562,9 +576,16 @@
     <ClInclude Include="Core\type.h" />
     <ClInclude Include="Core\Utils.hpp" />
     <ClInclude Include="Core\Xml.hpp" />
-    <ClInclude Include="Core\Yaml.hpp" />
+    <ClInclude Include="Core\Yaml.hpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Debug\Console\Command.hpp" />
     <ClInclude Include="Debug\Console\Console.hpp" />
+    <ClInclude Include="Debug\ErrorWarningAssert.hpp" />
     <ClInclude Include="File\Blob.hpp" />
     <ClInclude Include="File\DataSource.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -583,18 +604,27 @@
     <ClInclude Include="Math\Disc2.hpp" />
     <ClInclude Include="Math\FloatRange.hpp" />
     <ClInclude Include="Math\IntRange.hpp" />
-    <ClInclude Include="Math\IntVector2.hpp" />
+    <ClInclude Include="Math\IntVec2.hpp" />
+    <ClInclude Include="Math\Mat44.hpp" />
     <ClInclude Include="Math\MathUtils.hpp" />
-    <ClInclude Include="Math\mat4.hpp" />
-    <ClInclude Include="Math\Noise\Noise.hpp" />
+    <ClInclude Include="Math\Noise\Noise.hpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Math\Noise\RawNoise.hpp" />
     <ClInclude Include="Math\Noise\SmoothNoise.hpp" />
-    <ClInclude Include="Math\Vector2.hpp" />
-    <ClInclude Include="Math\Vector3.hpp" />
+    <ClInclude Include="Math\Vec2.hpp" />
+    <ClInclude Include="Math\Vec3.hpp" />
+    <ClInclude Include="Math\Vec4.hpp" />
     <ClInclude Include="Renderer\BitmapFont.hpp" />
+    <ClInclude Include="Renderer\Camera.hpp" />
     <ClInclude Include="Renderer\External\gl\glcorearb.h" />
     <ClInclude Include="Renderer\External\gl\glext.h" />
     <ClInclude Include="Renderer\External\gl\wglext.h" />
+    <ClInclude Include="Renderer\FrameBuffer.hpp" />
     <ClInclude Include="Renderer\glFunctions.hpp" />
     <ClInclude Include="Renderer\RenderBuffer.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
@@ -605,6 +635,7 @@
     <ClInclude Include="Renderer\SpriteAnimSet.hpp" />
     <ClInclude Include="Renderer\SpriteSheet.hpp" />
     <ClInclude Include="Renderer\Texture.hpp" />
+    <ClInclude Include="Tool\Parser.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\ThirdParty\fmod\fmod64_vc.lib" />

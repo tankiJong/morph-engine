@@ -1,21 +1,15 @@
-﻿#include "mat4.hpp"
+﻿#include "mat44.hpp"
 #include "MathUtils.hpp"
 
-struct Vector4 {
-public:
-  float x = 0, y = 0, z = 0, w = 0;
-  Vector4() {};
-  Vector4(float x, float y, float z, float w) 
-    : x(x)
-    , y(y)
-    , z(z)
-    , w(w) {}
-  inline float dot(const Vector4& v) const {
-    return x*v.x + y*v.y + z*v.z + w*v.w;
-  }
-};
 
-mat4::mat4(float ix, float jx, float kx, float tx, 
+const mat44 mat44::up = {1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1};
+
+static const mat44 up;
+
+// z,k
+static const mat44 forward;
+
+mat44::mat44(float ix, float jx, float kx, float tx, 
                    float iy, float jy, float ky, float ty, 
                    float iz, float jz, float kz, float tz, 
                    float iw, float jw, float kw, float tw)
@@ -25,10 +19,10 @@ mat4::mat4(float ix, float jx, float kx, float tx,
     tx(tx), ty(ty), tz(tz), tw(tw) {
 }
 
-mat4::mat4(const float* sixteenValuesBasisMajor) {
+mat44::mat44(const float* sixteenValuesBasisMajor) {
   set(sixteenValuesBasisMajor);
 }
-mat4::mat4(const Vector2& iBasis, const Vector2& jBasis, const Vector2& translation)
+mat44::mat44(const vec2& iBasis, const vec2& jBasis, const vec2& translation)
   : ix(iBasis.x), iy(iBasis.y), iz(0), iw(0),
     jx(jBasis.x), jy(jBasis.y), jz(0), jw(0),
     kx(0), ky(0), kz(1), kw(0),
@@ -36,36 +30,38 @@ mat4::mat4(const Vector2& iBasis, const Vector2& jBasis, const Vector2& translat
   
 }
 
-Vector2 mat4::translateTo(const Vector2& position2D) const {
+mat44::mat44(const vec4& x, const vec4& y, const vec4& z, const vec4& w): x(x), y(y), z(z), w(w) {}
+
+vec2 mat44::translateTo(const vec2& position2D) const {
   float x = ix*position2D.x + jx*position2D.y + tx;
   float y = iy*position2D.x + jy*position2D.y + ty;
   return { x,y };
 }
 
-Vector2 mat4::translate(const Vector2& displacement2D) const {
+vec2 mat44::translate(const vec2& displacement2D) const {
   float x = ix*displacement2D.x + jx*displacement2D.y;
   float y = iy*displacement2D.x + jy*displacement2D.y;
   return { x,y };
 }
 
-void mat4::setIdentity() {
+void mat44::setIdentity() {
   ix = 1, iy = 0, iz = 0, iw = 0,
   jx = 0, jy = 1, jz = 0, jw = 0,
   kx = 0, ky = 0, kz = 1, kw = 0,
   tx = 0, ty = 0, tz = 0, tw = 1;
 }
-void mat4::set(const float* sixteenValuesBasisMajor) {
+void mat44::set(const float* sixteenValuesBasisMajor) {
   memcpy(this, sixteenValuesBasisMajor, sizeof(float) * 16);
 }
 
-mat4& mat4::prepend(const mat4& matrixToPrepend) {
-  Vector4
+mat44& mat44::prepend(const mat44& matrixToPrepend) {
+  vec4
     i(ix, iy, iz, iw),
     j(jx, jy, jz, jw),
     k(kx, ky, kz, kw),
     t(tx, ty, tz, tw);
 
-  Vector4
+  vec4
     px(matrixToPrepend.ix, matrixToPrepend.jx, matrixToPrepend.kx, matrixToPrepend.tx),
     py(matrixToPrepend.iy, matrixToPrepend.jy, matrixToPrepend.ky, matrixToPrepend.ty),
     pz(matrixToPrepend.iz, matrixToPrepend.jz, matrixToPrepend.kz, matrixToPrepend.tz),
@@ -79,34 +75,34 @@ mat4& mat4::prepend(const mat4& matrixToPrepend) {
   return *this;
 }
 
-mat4& mat4::append(const mat4& matrixToAppend) {
-  mat4 temp = matrixToAppend;
+mat44& mat44::append(const mat44& matrixToAppend) {
+  mat44 temp = matrixToAppend;
   temp.prepend(*this);
   *this = temp;
   return *this;
 }
 
-mat4& mat4::rotate2D(float rotationDegreesAboutZ) {
+mat44& mat44::rotate2D(float rotationDegreesAboutZ) {
   append(makeRotation2D(rotationDegreesAboutZ));
   return *this;
 }
 
-mat4& mat4::translate2D(const Vector2& translation) {
+mat44& mat44::translate2D(const vec2& translation) {
   append(makeTranslation2D(translation));
   return *this;
 }
 
-mat4& mat4::scale2D(float scaleXY) {
+mat44& mat44::scale2D(float scaleXY) {
   append(makeScale2D(scaleXY));
   return *this;
 }
 
-mat4& mat4::scale2D(float scaleX, float scaleY) {
+mat44& mat44::scale2D(float scaleX, float scaleY) {
   append(makeScale2D(scaleX, scaleY));
   return *this;
 }
 
-mat4 mat4::makeRotation2D(float rotationDegreesAboutZ) {
+mat44 mat44::makeRotation2D(float rotationDegreesAboutZ) {
   float cosdeg = cosDegrees(rotationDegreesAboutZ), sindeg = sinDegrees(rotationDegreesAboutZ);
   return {
     cosdeg, -sindeg, 0, 0,
@@ -116,7 +112,7 @@ mat4 mat4::makeRotation2D(float rotationDegreesAboutZ) {
   };
 }
 
-mat4 mat4::makeTranslation2D(const Vector2& translation) {
+mat44 mat44::makeTranslation2D(const vec2& translation) {
   return {
     1, 0, 0, translation.x,
     0, 1, 0, translation.y,
@@ -124,10 +120,10 @@ mat4 mat4::makeTranslation2D(const Vector2& translation) {
     0, 0, 0, 1
   };
 }
-mat4 mat4::makeScale2D(float scaleXY) {
+mat44 mat44::makeScale2D(float scaleXY) {
   return makeScale2D(scaleXY, scaleXY);
 }
-mat4 mat4::makeScale2D(float scaleX, float scaleY) {
+mat44 mat44::makeScale2D(float scaleX, float scaleY) {
   return {
     scaleX,       0, 0, 0,
          0,  scaleY, 0, 0,
@@ -136,11 +132,11 @@ mat4 mat4::makeScale2D(float scaleX, float scaleY) {
   };
 }
 
-mat4 mat4::makeOrtho2D(const Vector2& bottomLeft, const Vector2& topRight) {
+mat44 mat44::makeOrtho2D(const vec2& bottomLeft, const vec2& topRight) {
   return makeOrtho(bottomLeft.x, topRight.x, bottomLeft.y, topRight.y, -1, 1);
 }
 
-mat4 mat4::makeOrtho(float l, float r, float b, float t, float nz, float fz) {
+mat44 mat44::makeOrtho(float l, float r, float b, float t, float nz, float fz) {
   return {
     2/(r-l), 0, 0, 0,
     0, 2/(t-b), 0, 0,

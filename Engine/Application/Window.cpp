@@ -1,5 +1,8 @@
-﻿#include "Window.hpp"
+﻿#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "Window.hpp"
+
+#define GAME_WINDOW_CLASS TEXT("Simple Window Class") 
 static Window* gWindow = nullptr; // Instance Pointer; 
 
 LRESULT CALLBACK gameWndProc(HWND hwnd,
@@ -26,19 +29,10 @@ Window::~Window() {
 }
 
 void Window::init(int width, int height, const char* name) {
+  registerWindowClass();
+
+  mBounds = { {0.f,0.f}, vec2{(float)width, (float)height} };
   float clientAspect = (float) width / (float) height;
-  // Define a window style/class
-  WNDCLASSEX windowClassDescription;
-  memset(&windowClassDescription, 0, sizeof(windowClassDescription));
-  windowClassDescription.cbSize = sizeof(windowClassDescription);
-  windowClassDescription.style = CS_OWNDC; // Redraw on move, request own Display Context
-  windowClassDescription.lpfnWndProc = static_cast<WNDPROC>(gameWndProc);
-  // Register our Windows message-handling function
-  windowClassDescription.hInstance = GetModuleHandle(NULL);
-  windowClassDescription.hIcon = NULL;
-  windowClassDescription.hCursor = NULL;
-  windowClassDescription.lpszClassName = TEXT("Simple Window Class");
-  RegisterClassEx(&windowClassDescription);
 
   // #SD1ToDo: Add support for fullscreen mode (requires different window style flags than windowed mode)
   const DWORD windowStyleFlags = WS_CAPTION | WS_BORDER | WS_THICKFRAME | WS_SYSMENU | WS_OVERLAPPED;
@@ -81,11 +75,11 @@ void Window::init(int width, int height, const char* name) {
   WCHAR windowTitle[1024];
   MultiByteToWideChar(GetACP(), 0, name, -1, windowTitle, sizeof(windowTitle) / sizeof(windowTitle[0]));
 
-  HINSTANCE applicationInstanceHandle = windowClassDescription.hInstance;
+  HINSTANCE applicationInstanceHandle = GetModuleHandle(NULL);
 
   mHwnd = CreateWindowEx(
                           windowStyleExFlags,
-                          windowClassDescription.lpszClassName,
+                          GAME_WINDOW_CLASS,
                           windowTitle,
                           windowStyleFlags,
                           windowRect.left,
@@ -120,7 +114,8 @@ void Window::init(int width, int height, const char* name) {
 }
 
 void Window::destory() {
-  // QA: what to clean
+  DestroyWindow((HWND)mHwnd);
+  UnregisterClass(GAME_WINDOW_CLASS, GetModuleHandle(NULL));
 }
 
 Window* Window::getInstance() {
@@ -129,4 +124,19 @@ Window* Window::getInstance() {
   }
 
   return gWindow;
+}
+
+void Window::registerWindowClass() {
+  // Define a window style/class
+  WNDCLASSEX windowClassDescription;
+  memset(&windowClassDescription, 0, sizeof(windowClassDescription));
+  windowClassDescription.cbSize = sizeof(windowClassDescription);
+  windowClassDescription.style = CS_OWNDC; // Redraw on move, request own Display Context
+  windowClassDescription.lpfnWndProc = static_cast<WNDPROC>(gameWndProc);
+  // Register our Windows message-handling function
+  windowClassDescription.hInstance = GetModuleHandle(NULL);
+  windowClassDescription.hIcon = NULL;
+  windowClassDescription.hCursor = NULL;
+  windowClassDescription.lpszClassName = GAME_WINDOW_CLASS;
+  RegisterClassEx(&windowClassDescription);
 }

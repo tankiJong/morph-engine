@@ -10,7 +10,7 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "BitmapFont.hpp"
 #include "SpriteSheet.hpp"
-#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 #include <array>
 #include "glFunctions.hpp"
 #include "RenderBuffer.hpp"
@@ -33,8 +33,6 @@ int g_openGlPrimitiveTypes[NUM_PRIMITIVE_TYPES] =
 using Vertices = std::vector<Vertex_PCU>;
 
 Renderer::Renderer() {
-	loadIdentity();
-  mTextures["$"] = new Texture();
 }
 
 Renderer::~Renderer() {
@@ -64,63 +62,101 @@ void Renderer::afterFrame() {
 
 void Renderer::beforeFrame() {
 //  glClearColor(1.f, 0, 0, 1);
-  glClear(GL_COLOR_BUFFER_BIT);
+  cleanScreen(Rgba::gray);
 }
 
-void Renderer::drawLine(const Vector2& start, const Vector2& end, 
+void Renderer::drawLine(const vec2& start, const vec2& end, 
 						const Rgba& startColor, const Rgba& endColor, float lineThickness) {
   bindTexutre(mTextures.at("$"));
   Vertex_PCU verts[2] = {
     { start, startColor, {0,0}},
     { end, endColor, {0,1}}
   };
-  UNIMPLEMENTED();
-//  glLineWidth(lineThickness);
+  glLineWidth(lineThickness);
   drawMeshImmediate(verts, 2, DRAW_LINES);
 }
 
-void Renderer::drawTexturedAABB2(const AABB2& bounds, 
+void Renderer::drawTexturedAABB2(const aabb2& bounds, 
 								 const Texture& texture, 
-								 const Vector2& texCoordsAtMins, 
-								 const Vector2& texCoordsAtMaxs, 
+								 const vec2& texCoordsAtMins, 
+								 const vec2& texCoordsAtMaxs, 
 								 const Rgba& tint) {
   bindTexutre(&texture);
-  Vertex_PCU verts[4] = {
+  Vertex_PCU verts[6] = {
     { bounds.mins, tint, texCoordsAtMins },
-    { Vector2{ bounds.maxs.x, bounds.mins.y }, tint, Vector2{ texCoordsAtMaxs.x, texCoordsAtMins.y } },
+    { vec2{ bounds.maxs.x, bounds.mins.y }, tint, vec2{ texCoordsAtMaxs.x, texCoordsAtMins.y } },
     { bounds.maxs, tint, texCoordsAtMaxs },
-    { Vector2{ bounds.mins.x, bounds.maxs.y }, tint, Vector2{ texCoordsAtMins.x, texCoordsAtMaxs.y } },
+    { bounds.mins, tint, texCoordsAtMins },
+    { vec2{ bounds.mins.x, bounds.maxs.y }, tint, vec2{ texCoordsAtMins.x, texCoordsAtMaxs.y } },
+    { bounds.maxs, tint, texCoordsAtMaxs },
   };
 
-  drawMeshImmediate(verts, 4, DRAW_QUADS);
+  drawMeshImmediate(verts, 6, DRAW_TRIANGES);
 }
 
-void Renderer::drawTexturedAABB2(const AABB2& bounds, const Texture& texture, 
-                                 const AABB2& texCoords, const Rgba& tint) {
+void Renderer::drawTexturedAABB2(const aabb2& bounds, const Texture& texture, 
+                                 const aabb2& texCoords, const Rgba& tint) {
   drawTexturedAABB2(bounds, texture, texCoords.mins, texCoords.maxs, tint);
 }
 
-void Renderer::drawText2D(const Vector2& drawMins, const std::string& asciiText, 
+void Renderer::drawText2D(const vec2& drawMins, const std::string& asciiText, 
                           float cellHeight, const Rgba& tint, 
                           float aspectScale, const BitmapFont* font) {
+  if(font == nullptr) {
+    font = BitmapFont::getDefaultFont();
+  }
+
   GUARANTEE_OR_DIE(font != nullptr, "no font assigned");
 
   float charWidth = font->getStringWidth(asciiText, cellHeight, aspectScale) / asciiText.length();
-  Vector2 dx(charWidth, 0.f), dy(0.f, cellHeight);
+  vec2 dx(charWidth, 0.f), dy(0.f, cellHeight);
 
   for(int i =0; i<(int)asciiText.length(); i++) {
-    Vector2 mins = drawMins + float(i) * dx;
-    AABB2 textBounds(mins, mins + dx + dy);
-    AABB2 uv = font->getUVsForGlyph(asciiText[i]);
+    vec2 mins = drawMins + float(i) * dx;
+    aabb2 textBounds(mins, mins + dx + dy);
+    aabb2 uv = font->getUVsForGlyph(asciiText[i]);
     drawTexturedAABB2(textBounds, font->m_spriteSheet.getTexture(), uv, tint);
   }
 }
 
-void Renderer::drawText2D(const Vector2& drawMins, const std::string& asciiText, float cellHeight, const BitmapFont* font, const Rgba& tint, float aspectScale) {
+void Renderer::drawText2D(const vec2& drawMins, const std::string& asciiText, float cellHeight, const BitmapFont* font, const Rgba& tint, float aspectScale) {
   drawText2D(drawMins, asciiText, cellHeight, tint, aspectScale, font);
 }
 
-void Renderer::drawTextInBox2D(const AABB2& bounds, const std::string& asciiText, float cellHeight, Vector2 aligns, TextDrawMode drawMode, const BitmapFont* font, const Rgba& tint, float aspectScale) {
+void Renderer::drawText2D(const vec2& drawMins, 
+                          const std::vector<std::string>& asciiTexts, float cellHeight, 
+                          const std::vector<Rgba>& tints, const BitmapFont* font, 
+                          float aspectScale) {
+  EXPECTS(asciiTexts.size() == tints.size());
+  if (font == nullptr) {
+    font = BitmapFont::getDefaultFont();
+  }
+
+  GUARANTEE_OR_DIE(font != nullptr, "no font assigned");
+
+  float charWidth = 0;
+  std::string t;
+  t.reserve(asciiTexts.size() * 100);
+  for(auto& asciiText: asciiTexts) {
+    t.append(asciiText);
+  }
+  charWidth += font->getStringWidth(t, cellHeight, aspectScale) / t.length();
+
+  vec2 dx(charWidth, 0.f), dy(0.f, cellHeight);
+  uint currentChIndex = 0;
+  for(uint j = 0, size = asciiTexts.size(); j < size; j++) {
+    const std::string& asciiText = asciiTexts[j];
+    const Rgba& tint = tints[j];
+    for (uint i = 0; i<asciiText.length(); i++) {
+      vec2 mins = drawMins + float(currentChIndex++) * dx;
+      aabb2 textBounds(mins, mins + dx + dy);
+      aabb2 uv = font->getUVsForGlyph(asciiText[i]);
+      drawTexturedAABB2(textBounds, font->m_spriteSheet.getTexture(), uv, tint);
+    }
+  }
+}
+
+void Renderer::drawTextInBox2D(const aabb2& bounds, const std::string& asciiText, float cellHeight, vec2 aligns, TextDrawMode drawMode, const BitmapFont* font, const Rgba& tint, float aspectScale) {
   auto texts = split(asciiText.c_str(), "\n");
   std::vector<std::string>* toDraw = nullptr;
   std::vector<std::string> blocks = {};
@@ -211,9 +247,9 @@ STEP_DRAW:
   float blockWidth = font->getStringWidth(longest, cellHeight);
   float blockHeight = cellHeight * toDraw->size();
 
-  Vector2 anchor(bounds.mins.x, bounds.maxs.y);
+  vec2 anchor(bounds.mins.x, bounds.maxs.y);
 
-  Vector2 padding = bounds.getDimensions() - Vector2(blockWidth, blockHeight);
+  vec2 padding = bounds.getDimensions() - vec2(blockWidth, blockHeight);
   padding.x *= aligns.x;
   padding.y *= -aligns.y;
 
@@ -265,6 +301,9 @@ bool Renderer::init(HWND hwnd) {
 }
 
 void Renderer::postInit() {
+  GL_CHECK_ERROR();
+
+  mTextures["$"] = new Texture();
   // default_vao is a GLuint member variable
   glGenVertexArrays(1, &mDefaultVao);
   glBindVertexArray(mDefaultVao);
@@ -273,14 +312,16 @@ void Renderer::postInit() {
   mCurrentShaderProgram = mDefaultShaderProgram;
 
   mDefaultSampler = new Sampler();
+
+  mCurrentTexture = createOrGetTexture("$");
 }
 
-void Renderer::setOrtho2D(const Vector2& bottomLeft, const Vector2& topRight) {
+void Renderer::setOrtho2D(const vec2& bottomLeft, const vec2& topRight) {
   loadIdentity();
-  mProjection = mat4::makeOrtho2D(bottomLeft, topRight);
+  mProjection = mat44::makeOrtho2D(bottomLeft, topRight);
 }
 
-void Renderer::setProjection(const mat4& projection) {
+void Renderer::setProjection(const mat44& projection) {
   mProjection = projection;
 }
 
@@ -294,7 +335,7 @@ void Renderer::popMatrix() {
   UNIMPLEMENTED();
 }
 
-void Renderer::traslate2D(const Vector2& translation) {
+void Renderer::traslate2D(const vec2& translation) {
 //	glTranslatef(translation.x, translation.y, 0);
   UNIMPLEMENTED();
 }
@@ -305,13 +346,12 @@ void Renderer::useShaderProgram(ShaderProgram* program) {
 }
 
 void Renderer::setAddtiveBlending() {
-//  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-  UNIMPLEMENTED();
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
 
 void Renderer::resetAlphaBlending() {
-//  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  UNIMPLEMENTED();
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 bool Renderer::reloadShaderProgram() {
@@ -336,14 +376,19 @@ bool Renderer::reloadShaderProgram(const char* nameWithPath) {
 void Renderer::bindTexutre(const Texture* texture) {
   if (texture == nullptr) {
 //    glDisable(GL_TEXTURE_2D);
-    UNIMPLEMENTED();
+//    UNIMPLEMENTED();
     return;
   }
 //  glEnable(GL_TEXTURE_2D);
-  UNIMPLEMENTED();
-  //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-//  glBindTexture(GL_TEXTURE_2D, texture->m_textureID);
-  UNIMPLEMENTED();
+//  UNIMPLEMENTED();
+  mCurrentTexture = texture;
+
+  resetAlphaBlending();
+//  UNIMPLEMENTED();
+}
+
+void Renderer::setTexture(const char* path) {
+  bindTexutre(createOrGetTexture(path));
 }
 
 HGLRC Renderer::createRealRenderContext(HDC hdc, int major, int minor) {
@@ -477,39 +522,27 @@ void Renderer::loadIdentity() {
   UNIMPLEMENTED();
 }
 
-void Renderer::drawAABB2(const AABB2& bounds, const Rgba& color, bool filled) {
+void Renderer::drawAABB2(const aabb2& bounds, const Rgba& color, bool filled) {
   if(filled) drawTexturedAABB2(bounds, *mTextures.at("$"), { 0,1 }, { 1,0 }, color);
   else {
     bindTexutre(mTextures.at("$"));  
     auto vertices = bounds.vertices();
-    Vertex_PCU verts[4] = {
-      {
-        Vector3(vertices[0]),
-        color,
-        Vector2{ 0,0 }
-      },{
-        Vector3(vertices[1]),
-        color,
-        Vector2{ 0,0 }
-      },{
-        Vector3(vertices[2]),
-        color,
-        Vector2{ 0,0 }
-      },{
-        Vector3(vertices[3]),
-        color,
-        Vector2{ 0,0 }
-      } };
+    Vertex_PCU verts[6] = {
+      { vec3(vertices[0]), color, vec2{ 0,0 } },
+      { vec3(vertices[1]), color,vec2{ 0,0 } },
+      { vec3(vertices[2]), color,vec2{ 0,0 } },
+      { vec3(vertices[3]), color, vec2{ 0,0 } }
+    };
     drawMeshImmediate(verts, 4, DRAW_LINE_LOOP);
   }
 }
 
-void Renderer::drawCircle(const Vector2& center, float radius, const Rgba& color, bool filled) {
+void Renderer::drawCircle(const vec2& center, float radius, const Rgba& color, bool filled) {
   Vertices verts;
   verts.reserve(21);
 
   if(filled) {
-    verts.emplace_back(center, color, Vector2::zero);
+    verts.emplace_back(center, color, vec2::zero);
   }
 
   for(int ii = 0; ii < 20; ii++) {
@@ -518,13 +551,13 @@ void Renderer::drawCircle(const Vector2& center, float radius, const Rgba& color
     float x = radius * cosf(theta);//calculate the x component 
     float y = radius * sinf(theta);//calculate the y component 
 
-    verts.emplace_back(Vector2{ x + center.x, y + center.y }, color, Vector2::zero);
+    verts.emplace_back(vec2{ x + center.x, y + center.y }, color, vec2::zero);
   }
 
   if(!filled) {
     drawMeshImmediate(verts.data(), verts.size(), DRAW_LINE_LOOP);
   } else {
-    verts.emplace_back(Vector2{ radius + center.x, center.y }, color, Vector2::zero);
+    verts.emplace_back(vec2{ radius + center.x, center.y }, color, vec2::zero);
     drawMeshImmediate(verts.data(), verts.size(), DRAW_TRIANGLE_FAN);
   }
 }
@@ -566,10 +599,38 @@ void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, int numVerts, DrawP
                           2,                           
                           GL_FLOAT,                    
                           GL_FALSE,                   
-                          sizeof(Vector2),
+                          sizeof(Vertex_PCU),
                           (GLvoid*)offsetof(Vertex_PCU, uvs));
   }
 
+  //-------------------------Texture---------------------------------
+  uint textureIndex = 0U; // to see how they tie together
+
+                          // Bind the sampler;
+  glBindSampler(textureIndex, mDefaultSampler->getHandle());
+
+  // Bind the texture
+  glActiveTexture(GL_TEXTURE0 + textureIndex);
+  glBindTexture(GL_TEXTURE_2D, mCurrentTexture->getHandle());
+
+  //-------------------------Color-----------------------------------
+  // Next, bind the buffer we want to use;
+  glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle);
+
+  // next, bind where position is in our buffer to that location;
+  GLint bind = glGetAttribLocation(mCurrentShaderProgram->programHandle, "COLOR");
+  if (bind >= 0) {
+    // enable this location
+    glEnableVertexAttribArray(bind);
+
+    // describe the data
+    glVertexAttribPointer(bind, // where?
+                          4,                           // how many (RGBA is 4 unsigned chars)
+                          GL_UNSIGNED_BYTE,            // type? (RGBA is 4 unsigned chars)
+                          GL_TRUE,                     // Normalize components, maps 0-255 to 0-1.
+                          sizeof(Vertex_PCU),              // stride (how far between each vertex)
+                          (GLvoid*)offsetof(Vertex_PCU, color)); // From the start of a vertex, where is this data?
+  }
 
   // Now that it is described and bound, draw using our program
   glUseProgram(mCurrentShaderProgram->programHandle);
@@ -587,11 +648,10 @@ void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, int numVerts, DrawP
 
 void Renderer::cleanScreen(const Rgba& color) {
 	float r = 0, g = 0 , b = 0, a = 1;
-	color.getAsFloats(r, g, b, a);
-  UNIMPLEMENTED();
+  color.getAsFloats(r, g, b, a);
 
-//  glClearColor(r,g,b,a);
-//	glClear(GL_COLOR_BUFFER_BIT);// TODO: move to renderer
+  glClearColor(r,g,b,a);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 BitmapFont* Renderer::createOrGetBitmapFont(const char* bitmapFontName, const char* path) {

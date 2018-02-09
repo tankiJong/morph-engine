@@ -77,7 +77,7 @@ void XboxController::updateThumbs(const XINPUT_STATE& xboxControllerState) {
 							  , 0.f, 1.f);
 		m_thumbStates[XOBX_THUMB_LEFT].magnitude = clampf01(magnitude);
 		m_thumbStates[XOBX_THUMB_LEFT].angleDegree = theta;
-		m_thumbStates[XOBX_THUMB_LEFT].position = Vector2(cosDegrees(theta) * magnitude, sinDegrees(theta) * magnitude);
+		m_thumbStates[XOBX_THUMB_LEFT].position = vec2(cosDegrees(theta) * magnitude, sinDegrees(theta) * magnitude);
 	} {
 		// Right
 		float x = (float) xboxControllerState.Gamepad.sThumbRX,
@@ -93,7 +93,7 @@ void XboxController::updateThumbs(const XINPUT_STATE& xboxControllerState) {
 							  , 0.f, 1.f);
 		m_thumbStates[XOBX_THUMB_RIGHT].magnitude = clampf01(magnitude);
 		m_thumbStates[XOBX_THUMB_RIGHT].angleDegree = theta;
-		m_thumbStates[XOBX_THUMB_RIGHT].position = Vector2(cosDegrees(theta) * magnitude, sinDegrees(theta) * magnitude);
+		m_thumbStates[XOBX_THUMB_RIGHT].position = vec2(cosDegrees(theta) * magnitude, sinDegrees(theta) * magnitude);
 	}
 	
 }

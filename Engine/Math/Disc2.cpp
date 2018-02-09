@@ -10,12 +10,12 @@ Disc2::Disc2(float initialX, float initialY, float initialRadius)
 	 : center(initialX, initialY)
      , radius(initialRadius) {}
 
-Disc2::Disc2(const Vector2 & initialCenter, float initialRadius)
+Disc2::Disc2(const vec2 & initialCenter, float initialRadius)
      : center(initialCenter)
      , radius(initialRadius) {}
 
 void Disc2::stretchToIncludePoint(float x, float y) {
-	const float squaredDis = getSquaredDistance(Vector2(x, y), center);
+	const float squaredDis = getSquaredDistance(vec2(x, y), center);
 	if ( squaredDis <= radius*radius) {
 		return;
 	}
@@ -23,7 +23,7 @@ void Disc2::stretchToIncludePoint(float x, float y) {
 	radius = sqrtf(squaredDis);
 }
 
-void Disc2::stretchToIncludePoint(const Vector2 & point) {
+void Disc2::stretchToIncludePoint(const vec2 & point) {
 	stretchToIncludePoint(point.x, point.y);
 }
 
@@ -31,35 +31,35 @@ void Disc2::addPaddingToRadius(float paddingRadius) {
 	radius += paddingRadius;
 }
 
-void Disc2::translate(const Vector2 & translation) {
+void Disc2::translate(const vec2 & translation) {
 	center += translation;
 }
 
 void Disc2::translate(float translationX, float translationY) {
-	center += Vector2(translationX, translationY);
+	center += vec2(translationX, translationY);
 }
 
 bool Disc2::isPointInside(float x, float y) const {
-	return getSquaredDistance(center, Vector2(x, y)) < radius*radius;
+	return getSquaredDistance(center, vec2(x, y)) < radius*radius;
 }
 
-bool Disc2::isPointInside(const Vector2 & point) const {
+bool Disc2::isPointInside(const vec2 & point) const {
 	return isPointInside(point.x, point.y);
 }
 
-void Disc2::operator+=(const Vector2 & translation) {
+void Disc2::operator+=(const vec2 & translation) {
 	translate(translation);
 }
 
-void Disc2::operator-=(const Vector2 & antiTranslation) {
+void Disc2::operator-=(const vec2 & antiTranslation) {
 	translate(antiTranslation*(-1.f));
 }
 
-Disc2 Disc2::operator+(const Vector2 & translation) const {
+Disc2 Disc2::operator+(const vec2 & translation) const {
 	return Disc2(center + translation, radius);
 }
 
-Disc2 Disc2::operator-(const Vector2 & antiTranslation) const {
+Disc2 Disc2::operator-(const vec2 & antiTranslation) const {
 	return Disc2(center - antiTranslation, radius);
 }
 
@@ -71,7 +71,7 @@ bool areDiscsOverlap(const Disc2& a, const Disc2& b)
 	else return 1;
 }
 
-bool areDiscsOverlap(const Vector2 & aCenter, float aRadius, const Vector2 & bCenter, float bRadius)
+bool areDiscsOverlap(const vec2 & aCenter, float aRadius, const vec2 & bCenter, float bRadius)
 {
 	float radius = aRadius + bRadius;
 	return getSquaredDistance(aCenter, bCenter) < radius * radius;

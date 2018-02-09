@@ -1,7 +1,7 @@
 ﻿#include "IntRange.hpp"
 #include "MathUtils.hpp"
 #include "Engine/Core/StringUtils.hpp"
-#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 IntRange::IntRange()
   : min(0)
@@ -32,12 +32,21 @@ int IntRange::numIntIncluded() const {
   return max - min + 1;
 }
 
+int IntRange::size() const {
+  return max - min;
+}
+
 void IntRange::fromString(const char* data) {
   auto raw = split(data, "~");
   GUARANTEE_OR_DIE(raw.size() == 2 || raw.size() == 1, "illegal input string to parse");
 
   min = parse<int>(raw[0]);
   max = parse<int>(raw[raw.size() - 1]);
+}
+
+void IntRange::reset() {
+  min = 0;
+  max = 0;
 }
 
 std::string IntRange::toString() const {

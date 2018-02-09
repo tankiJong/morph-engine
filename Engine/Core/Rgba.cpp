@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/Core/StringUtils.hpp"
-#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Math/MathUtils.hpp"
 
 const Rgba Rgba::white = Rgba(255, 255, 255);
@@ -11,6 +11,7 @@ const Rgba Rgba::red   = Rgba(255, 0  , 0  );
 const Rgba Rgba::yellow= Rgba(255, 255, 0  );
 const Rgba Rgba::cyan  = Rgba(0  , 255, 255);
 const Rgba Rgba::blue  = Rgba(0  , 0  , 255);
+const Rgba Rgba::gray  = Rgba(128, 128, 128);
 
 const Rgba Rgba::transparent = Rgba(255, 255, 255, 0);
 
@@ -132,6 +133,14 @@ float HueToRGB(float v1, float v2, float vH) {
   return v1;
 }
 
+
+/**
+ * \brief 
+ * \param h Hue [0, 360]
+ * \param s Saturation [0,1]
+ * \param l Value [0,1]
+ * \return corresponding Rgba value from HSL space
+ */
 Rgba hsl(float h, float s, float l) {
   unsigned char r = 0;
   unsigned char g = 0;
@@ -152,5 +161,10 @@ Rgba hsl(float h, float s, float l) {
   }
 
   return Rgba(r, g, b);
+}
+
+Rgba hue(unsigned char hh) {
+  float h = (float)hh / 255.f * 360.f;
+  return hsl(h, 1.f, .5f);
 }
 

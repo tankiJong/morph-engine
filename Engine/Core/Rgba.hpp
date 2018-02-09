@@ -29,6 +29,7 @@ public:
   const static Rgba yellow;
   const static Rgba transparent;
   const static Rgba blue;
+  const static Rgba gray;
 public:
 	unsigned char r = 255;
 	unsigned char g = 255;
@@ -37,3 +38,4 @@ public:
 };
 
 Rgba hsl(float h, float s, float l);
+Rgba hue(unsigned char h);

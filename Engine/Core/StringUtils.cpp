@@ -1,6 +1,6 @@
 #include "Engine/Core/StringUtils.hpp"
 #include <stdarg.h>
-#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 //-----------------------------------------------------------------------------------------------
 const int STRINGF_STACK_LOCAL_TEMP_LENGTH = 2048;
@@ -43,7 +43,7 @@ const std::string Stringf( const int maxLength, const char* format, ... )
 
 std::vector<std::string> split(const char* data, const char* delimiters) {
   // TODO: better way to split string
-  char raw[(unsigned char)-1];
+  char raw[0x7ffff];
   strcpy_s(raw, data);
   std::vector<std::string> vals;
 

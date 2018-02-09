@@ -5,12 +5,12 @@
 
 constexpr float fSQRT_3_OVER_3 = 0.577350269f;
 class FloatRange;
-class AABB2;
-class IntVector2;
+class aabb2;
+class IntVec2;
 class IntRange;
 class Rgba;
 typedef int int32_t;
-class Vector2;
+class vec2;
 class Disc2;
 
 float convertRadiansToDegrees (float radians);
@@ -19,14 +19,14 @@ float cosDegrees (float degrees);
 float sinDegrees (float degrees);
 float atan2Degree(float y, float x);
 
-float getSquaredDistance(const Vector2& a, const Vector2& b);
-float getDistance(const Vector2& a, const Vector2& b);
+float getSquaredDistance(const vec2& a, const vec2& b);
+float getDistance(const vec2& a, const vec2& b);
 float getAngularDisplacement(float startDegrees, float endDegrees);
 
 // it should work for all different scales, no matter degree or radian or whatever
 // maxTurnAngle should not be negative
 float turnToward(float current, float goal, float maxTurnAngle);
-Vector2 reflect(const Vector2& in, const Vector2& normal);
+vec2 reflect(const vec2& in, const vec2& normal);
 
 float getRandomf01();
 float getRandomf(float minInclusive, float maxInclusive);
@@ -48,8 +48,8 @@ int clamp(int v, int min, int max);
 float clampf(float v, float min, float max);
 float clampf01(float v);
 float clampfInAbs1(float v);
-Vector2 clamp(const Vector2& v, Vector2 min, Vector2 max);
-IntVector2 clamp(const IntVector2& v, IntVector2 min, IntVector2 max);
+vec2 clamp(const vec2& v, vec2 min, vec2 max);
+IntVec2 clamp(const IntVec2& v, IntVec2 min, IntVec2 max);
 
 float getFraction(float v, float start, float end);
 
@@ -73,14 +73,14 @@ T lerp(const T& from, const T& to, float fraction) {
   return from * (1.f - fraction) + to * fraction;
 };
 float lerp(float from, float to, float fraction);
-const Vector2 lerp(const Vector2& from, const Vector2& to, float fraction);
+const vec2 lerp(const vec2& from, const vec2& to, float fraction);
 const FloatRange lerp(const FloatRange& from, const FloatRange& to, float fraction);
-const AABB2 lerp(const AABB2& from, const AABB2& to, float fraction);
+const aabb2 lerp(const aabb2& from, const aabb2& to, float fraction);
 const Disc2 lerp(const Disc2& from, const Disc2& to, float fraction);
 
 int lerp(int from, int to, float fraction);
 unsigned char lerp(unsigned char from, unsigned char to, float fraction);
-const IntVector2 lerp(const IntVector2& from, const IntVector2& to, float fraction);
+const IntVec2 lerp(const IntVec2& from, const IntVec2& to, float fraction);
 const IntRange lerp(const IntRange& from, const IntRange& to, float fraction);
 const Rgba lerp(const Rgba& from, const Rgba& to, float fraction);
 
