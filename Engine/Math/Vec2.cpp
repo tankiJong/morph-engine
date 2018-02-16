@@ -1,5 +1,5 @@
 
-#include "IntVec2.hpp"
+#include "Ivec2.hpp"
 #include <initializer_list>
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/MathUtils.hpp"
@@ -17,15 +17,11 @@ vec2::vec2 (const vec2& copy)
     : x (copy.x)
     , y (copy.y) {}
 
-vec2::vec2(const IntVec2& copyFrom)
+vec2::vec2(const ivec2& copyFrom)
     : x((float)copyFrom.x)
     , y((float)copyFrom.y) {
   
 }
-
-vec2::vec2(const vec3& copyFrom) 
-  : x(copyFrom.x)
-  , y(copyFrom.y) {}
 
 //-----------------------------------------------------------------------------------------------
 vec2::vec2 (float initialX, float initialY)

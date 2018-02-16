@@ -2,7 +2,7 @@
 #include <vector>
 #include "Engine/Core/common.hpp"
 #include "Engine/Core/Rgba.hpp"
-class IntVec2;
+#include "Engine/Math/Ivec2.hpp"
 
 class Image {
 public:
@@ -10,15 +10,15 @@ public:
   Image(const std::string& imageFilePath);
   Image(const Rgba* data, uint width, uint height);
   Rgba getTexel(int x, int y) const; // (0,0) is top-left
-  Rgba getTexel(IntVec2 v) const;
+  Rgba getTexel(ivec2 v) const;
   void setTexel(int x, int y, const Rgba& color);
-  void populateFromData(unsigned char* imageData, const IntVec2& dimensions, int numComponents);
+  void populateFromData(unsigned char* imageData, const ivec2& dimensions, int numComponents);
 
-  inline IntVec2 dimension() const { return mDimensions; }
+  inline ivec2 dimension() const { return mDimensions; }
   inline Rgba* data() { return mTexels.data(); }
   inline const Rgba* data() const { return mTexels.data(); }
 
 private:
-  IntVec2 mDimensions;
+  ivec2 mDimensions;
   std::vector<Rgba> mTexels;
 };

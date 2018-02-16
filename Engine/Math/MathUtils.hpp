@@ -6,7 +6,7 @@
 constexpr float fSQRT_3_OVER_3 = 0.577350269f;
 class FloatRange;
 class aabb2;
-class IntVec2;
+class ivec2;
 class IntRange;
 class Rgba;
 typedef int int32_t;
@@ -49,7 +49,7 @@ float clampf(float v, float min, float max);
 float clampf01(float v);
 float clampfInAbs1(float v);
 vec2 clamp(const vec2& v, vec2 min, vec2 max);
-IntVec2 clamp(const IntVec2& v, IntVec2 min, IntVec2 max);
+ivec2 clamp(const ivec2& v, ivec2 min, ivec2 max);
 
 float getFraction(float v, float start, float end);
 
@@ -80,7 +80,7 @@ const Disc2 lerp(const Disc2& from, const Disc2& to, float fraction);
 
 int lerp(int from, int to, float fraction);
 unsigned char lerp(unsigned char from, unsigned char to, float fraction);
-const IntVec2 lerp(const IntVec2& from, const IntVec2& to, float fraction);
+const ivec2 lerp(const ivec2& from, const ivec2& to, float fraction);
 const IntRange lerp(const IntRange& from, const IntRange& to, float fraction);
 const Rgba lerp(const Rgba& from, const Rgba& to, float fraction);
 

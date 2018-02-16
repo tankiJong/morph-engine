@@ -2,7 +2,7 @@
 // Texture.hpp
 //
 #pragma once
-#include "Engine/Math/IntVec2.hpp"
+#include "Engine/Math/Ivec2.hpp"
 #include <string>
 #include <map>
 #include "Engine/Core/common.hpp"
@@ -10,7 +10,8 @@
 //---------------------------------------------------------------------------
 
 enum eTextureFormat {
-  
+  TEXTURE_FORMAT_RGBA8, // default color format
+  TEXTURE_FORMAT_D24S8,
 };
 class Texture
 {
@@ -22,12 +23,13 @@ private:
   Texture(const Image& image);
   void fromImage(const Image& image);
 	void PopulateFromData();
-  void setupRenderTarget(uint width, uint height, eTextureFormat format);
+  bool setupRenderTarget(uint width, uint height, eTextureFormat format);
   inline uint getHandle() const { return mTextureID; }
 private:
 	unsigned int								mTextureID;
   Image                       mData;
-	IntVec2									mDimensions;
+	ivec2									mDimensions;
+  eTextureFormat mFormat;
 };
 
 

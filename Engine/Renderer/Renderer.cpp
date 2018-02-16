@@ -1,5 +1,5 @@
-#include <windows.h>
-
+//#include <windows.h>
+//
 #include <map>
 #include <string>
 
@@ -16,9 +16,13 @@
 #include "RenderBuffer.hpp"
 #include "ShaderProgram.hpp"
 #include "Sampler.hpp"
+#include "Engine/Application/Window.hpp"
+#include "FrameBuffer.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
+#undef near
+#undef far
 
 int g_openGlPrimitiveTypes[NUM_PRIMITIVE_TYPES] =
 {
@@ -28,6 +32,17 @@ int g_openGlPrimitiveTypes[NUM_PRIMITIVE_TYPES] =
   GL_TRIANGLES,		// called PRIMITIVE_TRIANGES	in our engine
   GL_TRIANGLE_FAN,
   GL_QUADS			// called PRIMITIVE_QUADS		in our engine
+};
+
+uint g_openGLCompare[NUM_COMPARE] = {
+  GL_NEVER,
+  GL_LESS,
+  GL_LEQUAL,
+  GL_GREATER,
+  GL_GEQUAL,
+  GL_EQUAL,
+  GL_NOTEQUAL,
+  GL_ALWAYS,
 };
 
 using Vertices = std::vector<Vertex_PCU>;
@@ -53,10 +68,21 @@ Renderer::~Renderer() {
   mGlContext = nullptr;
   mHdc = nullptr;
   mGlWnd = nullptr;
+  
+  delete mCurrentShaderProgram;
+  delete mDefaultShaderProgram;
+  delete mCurrentCamera       ;
+  delete mDefaultCamera       ;
+  delete mDefaultSampler      ;
+  delete mDefaultDepthTarget  ;
+  delete mDefaultColorTarget  ;
 
 }
 
 void Renderer::afterFrame() {
+  // copies the default camera's framebuffer to the "null" framebuffer, 
+  // also known as the back buffer.
+  copyFrameBuffer(nullptr, mDefaultCamera->mFrameBuffer);
 	SwapBuffers(mHdc);
 }
 
@@ -65,7 +91,7 @@ void Renderer::beforeFrame() {
   cleanScreen(Rgba::gray);
 }
 
-void Renderer::drawLine(const vec2& start, const vec2& end, 
+void Renderer::drawLine(const vec3& start, const vec3& end, 
 						const Rgba& startColor, const Rgba& endColor, float lineThickness) {
   bindTexutre(mTextures.at("$"));
   Vertex_PCU verts[2] = {
@@ -303,7 +329,7 @@ bool Renderer::init(HWND hwnd) {
 void Renderer::postInit() {
   GL_CHECK_ERROR();
 
-  mTextures["$"] = new Texture();
+  mTextures["$"] = new Texture(Image(&Rgba::white, 1,1));
   // default_vao is a GLuint member variable
   glGenVertexArrays(1, &mDefaultVao);
   glBindVertexArray(mDefaultVao);
@@ -314,15 +340,35 @@ void Renderer::postInit() {
   mDefaultSampler = new Sampler();
 
   mCurrentTexture = createOrGetTexture("$");
+
+  aabb2 bounds = Window::getInstance()->bounds();
+
+
+  // create our output textures
+  mDefaultColorTarget = createRenderTarget(bounds.width(), bounds.height());
+  mDefaultDepthTarget = createRenderTarget(bounds.width(), bounds.height(),
+                                              TEXTURE_FORMAT_D24S8);
+
+  // setup the initial camera
+  mDefaultCamera = new Camera();
+  mDefaultCamera->setColorTarget(mDefaultColorTarget);
+  mDefaultCamera->setDepthStencilTarget(mDefaultDepthTarget);
+
+  // set our default camera to be our current camera
+  setCamera(nullptr);
 }
 
 void Renderer::setOrtho2D(const vec2& bottomLeft, const vec2& topRight) {
-  loadIdentity();
-  mProjection = mat44::makeOrtho2D(bottomLeft, topRight);
+  mCurrentCamera->mProjMatrix = mat44::makeOrtho2D(bottomLeft, topRight);
+}
+
+
+void Renderer::setOrtho(float width, float height, float near, float far) {
+  mCurrentCamera->mProjMatrix = mat44::makeOrtho(width, height, near, far);
 }
 
 void Renderer::setProjection(const mat44& projection) {
-  mProjection = projection;
+  mCurrentCamera->mProjMatrix = projection;
 }
 
 void Renderer::pushMatrix() {
@@ -345,8 +391,31 @@ void Renderer::useShaderProgram(ShaderProgram* program) {
   ENSURES(mCurrentShaderProgram != nullptr);
 }
 
+void Renderer::clearDepth(float depth) {
+  glClearDepthf(depth);
+  glClear(GL_DEPTH_BUFFER_BIT);
+}
+
+void Renderer::enableDepth(eCompare compare, bool shouldWrite) {
+  // enable/disable the dest
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(g_openGLCompare[compare]);
+
+  // enable/disable write
+  glDepthMask(shouldWrite ? GL_TRUE : GL_FALSE);
+}
+
 void Renderer::setAddtiveBlending() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+}
+
+void Renderer::setCamera(Camera* camera) {
+  if (camera == nullptr) {
+    camera = mDefaultCamera;
+  }
+
+  camera->finalize(); // make sure the framebuffer is finished being setup; 
+  mCurrentCamera = camera;
 }
 
 void Renderer::resetAlphaBlending() {
@@ -517,6 +586,55 @@ void Renderer::swapBuffers(HDC ctx) {
 	SwapBuffers(ctx);
 }
 
+bool Renderer::copyFrameBuffer(FrameBuffer* dest, FrameBuffer* src) {
+  // we need at least the src.
+  if (src == nullptr) {
+    return false;
+  }
+
+  // Get the handles - NULL refers to the "default" or back buffer FBO
+  GLuint src_fbo = src->mHandle;
+  GLuint dst_fbo = NULL;
+  if (dest != nullptr) {
+    dst_fbo = dest->mHandle;
+  }
+
+  // can't copy onto ourselves
+  if (dst_fbo == src_fbo) {
+    return false;
+  }
+  GL_CHECK_ERROR();
+
+  // the GL_READ_FRAMEBUFFER is where we copy from
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, src_fbo);
+
+  // what are we copying to?
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dst_fbo);
+
+  // blit it over - get teh size
+  // (we'll assume dst matches for now - but to be safe,
+  // you should get dst_width and dst_height using either
+  // dst or the window depending if dst was nullptr or not
+  uint width = src->width();
+  uint height = src->height();
+
+  // Copy it over
+  glBlitFramebuffer(0, 0, // src start pixel
+                    width, height,        // src size
+                    0, 0,                 // dst start pixel
+                    width, height,        // dst size
+                    GL_COLOR_BUFFER_BIT,  // what are we copying (just colour)
+                    GL_NEAREST);         // resize filtering rule (in case src/dst don't match)
+
+                                         // Make sure it succeeded
+
+  // cleanup after ourselves
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, NULL);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, NULL);
+
+  return GLSucceeded();
+}
+
 void Renderer::loadIdentity() {
 //	glLoadIdentity();
   UNIMPLEMENTED();
@@ -562,7 +680,86 @@ void Renderer::drawCircle(const vec2& center, float radius, const Rgba& color, b
   }
 }
 
-void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, int numVerts, DrawPrimitive drawPrimitive) {
+void Renderer::drawCube(const vec3& bottomCenter, const vec3& dimension, 
+                        const Rgba& color, 
+                        rect uvTop, rect uvSide, rect uvBottom) {
+  float dx = dimension.x * .5f, dy = dimension.y * .5f, dz = dimension.z * .5f;
+  std::array<vec3, 8> vertices = {
+    bottomCenter + vec3{ -dx, 2.f * dy, -dz },
+    bottomCenter + vec3{  dx, 2.f * dy, -dz },
+    bottomCenter + vec3{  dx, 2.f * dy,  dz },
+    bottomCenter + vec3{ -dx, 2.f * dy,  dz },
+
+    bottomCenter + vec3{ -dx, 0, -dz },
+    bottomCenter + vec3{  dx, 0, -dz },
+    bottomCenter + vec3{  dx, 0,  dz },
+    bottomCenter + vec3{ -dx, 0,  dz }
+  };
+
+  { // top
+    auto uvs = uvTop.vertices();
+    std::array<Vertex_PCU, 6> mesh = {
+      Vertex_PCU(vertices[0], color, uvs[0]),
+      Vertex_PCU(vertices[1], color, uvs[1]),
+      Vertex_PCU(vertices[2], color, uvs[2]),
+
+      Vertex_PCU(vertices[0], color, uvs[0]),
+      Vertex_PCU(vertices[2], color, uvs[2]),
+      Vertex_PCU(vertices[3], color, uvs[3]),
+    };
+
+    drawMeshImmediate(mesh, DRAW_TRIANGES);
+  }
+
+  { // bottom
+    auto uvs = uvBottom.vertices();
+    std::array<Vertex_PCU, 6> mesh = {
+      Vertex_PCU(vertices[4], color, uvs[0]),
+      Vertex_PCU(vertices[5], color, uvs[1]),
+      Vertex_PCU(vertices[6], color, uvs[2]),
+
+      Vertex_PCU(vertices[4], color, uvs[0]),
+      Vertex_PCU(vertices[6], color, uvs[2]),
+      Vertex_PCU(vertices[7], color, uvs[3]),
+    };
+
+    drawMeshImmediate(mesh, DRAW_TRIANGES);
+  }
+
+  // four sides
+    auto uvs = uvSide.vertices();
+  {
+    std::array<uint, 6> indices = { 4, 5, 1, 4, 1,0 };
+    for(uint i = 0; i<3; i++) {
+      std::array<Vertex_PCU, 6> mesh = {
+        Vertex_PCU(vertices[(indices[0] + i)%8], color, uvs[0]),
+        Vertex_PCU(vertices[(indices[1] + i)%8], color, uvs[1]),
+        Vertex_PCU(vertices[(indices[2] + i)%8], color, uvs[2]),
+        Vertex_PCU(vertices[(indices[3] + i)%8], color, uvs[0]),
+        Vertex_PCU(vertices[(indices[4] + i)%8], color, uvs[2]),
+        Vertex_PCU(vertices[(indices[5] + i)%8], color, uvs[3]),
+      };
+
+      drawMeshImmediate(mesh, DRAW_TRIANGES);
+    }
+  }
+
+  {
+    std::array<uint, 6> indices = { 7, 4, 0, 7, 0, 3 };
+    std::array<Vertex_PCU, 6> mesh = {
+      Vertex_PCU(vertices[indices[0]], color, uvs[0]),
+      Vertex_PCU(vertices[indices[1]], color, uvs[1]),
+      Vertex_PCU(vertices[indices[2]], color, uvs[2]),
+      Vertex_PCU(vertices[indices[3]], color, uvs[0]),
+      Vertex_PCU(vertices[indices[4]], color, uvs[2]),
+      Vertex_PCU(vertices[indices[5]], color, uvs[3]),
+    };
+
+    drawMeshImmediate(mesh, DRAW_TRIANGES);
+  }
+}
+
+void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, DrawPrimitive drawPrimitive) {
   // first, copy the memory to the buffer
   mTempRenderBuffer.copyToGpu(sizeof(Vertex_PCU) * numVerts, vertices);
   
@@ -635,13 +832,20 @@ void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, int numVerts, DrawP
   // Now that it is described and bound, draw using our program
   glUseProgram(mCurrentShaderProgram->programHandle);
 
+  //-----------------------Matrix------------------------------------
   GLint loc = glGetUniformLocation(mCurrentShaderProgram->programHandle, "PROJECTION");
   if (loc >= 0) {
     // you "may" need to use GL_TRUE, depending on your matrix layout
     // and whether you prefer to multiply left or right;
     // acts on the currently bound program (glUseProgram)
-    glUniformMatrix4fv(loc, 1, GL_TRUE, (GLfloat*)&mProjection);
+    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mProjMatrix);
   }
+
+  loc = glGetUniformLocation(mCurrentShaderProgram->programHandle, "VIEW");
+  if (loc >= 0) {
+    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mViewMatrix);
+  }
+  glBindFramebuffer(GL_FRAMEBUFFER, mCurrentCamera->getFrameBufferHandle());
   glDrawArrays(g_openGlPrimitiveTypes[drawPrimitive], 0, numVerts);
 
 }
@@ -682,6 +886,12 @@ Texture* Renderer::createOrGetTexture(const std::string& filePath) {
 	return it->second;
 }
 
+Texture* Renderer::createRenderTarget(uint width, uint height, eTextureFormat fmt) {
+  Texture *tex = new Texture();
+  tex->setupRenderTarget(width, height, fmt);
+  return tex;
+}
+
 ShaderProgram* Renderer::createOrGetShaderProgram(const char* nameWithPath) {
   std::string name = std::string(nameWithPath);
   auto it = mShaderPrograms.find(name);
@@ -697,3 +907,5 @@ ShaderProgram* Renderer::createOrGetShaderProgram(const char* nameWithPath) {
   mShaderPrograms[name] = program;
   return program;
 }
+
+

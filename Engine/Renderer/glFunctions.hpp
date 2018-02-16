@@ -62,6 +62,7 @@ extern PFNGLCLEARBUFFERIVPROC                               glClearBufferiv;
 extern PFNGLCLEARBUFFERUIVPROC                              glClearBufferuiv;
 extern PFNGLCLEARCOLORPROC                                  glClearColor;
 extern PFNGLCLEARDEPTHPROC                                  glClearDepth;
+extern PFNGLCLEARDEPTHFPROC                                 glClearDepthf;
 extern PFNGLCLEARSTENCILPROC                                glClearStencil;
 extern PFNGLDRAWBUFFERPROC                                  glDrawBuffer;
 extern PFNGLFINISHPROC                                      glFinish;

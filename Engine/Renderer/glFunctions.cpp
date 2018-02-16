@@ -71,6 +71,7 @@ PFNGLCLEARBUFFERIVPROC                               glClearBufferiv            
 PFNGLCLEARBUFFERUIVPROC                              glClearBufferuiv                              = nullptr;
 PFNGLCLEARCOLORPROC                                  glClearColor                                  = nullptr;
 PFNGLCLEARDEPTHPROC                                  glClearDepth                                  = nullptr;
+PFNGLCLEARDEPTHFPROC                                 glClearDepthf                                 = nullptr;
 PFNGLCLEARSTENCILPROC                                glClearStencil                                = nullptr;
 PFNGLDRAWBUFFERPROC                                  glDrawBuffer                                  = nullptr;
 PFNGLFINISHPROC                                      glFinish                                      = nullptr;
@@ -522,6 +523,7 @@ void bindGLFunctions() {
   GL_BIND_FUNCTION(glClearBufferuiv);
   GL_BIND_FUNCTION(glClearColor);
   GL_BIND_FUNCTION(glClearDepth);
+  GL_BIND_FUNCTION(glClearDepthf);
   GL_BIND_FUNCTION(glClearStencil);
   GL_BIND_FUNCTION(glDrawBuffer);
   GL_BIND_FUNCTION(glFinish);

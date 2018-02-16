@@ -3,6 +3,13 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 
+
+const vec3 vec3::right(1, 0, 0);
+const vec3 vec3::up(0, 1, 0);
+const vec3 vec3::forward(0, 0, 1);
+const vec3 vec3::zero(0, 0, 0);
+const vec3 vec3::one(1, 1, 1);
+
 vec3::vec3(float x, float y, float z)
   : x(x)
   , y(y)
@@ -13,11 +20,11 @@ vec3::vec3(const vec2& vec)
   , y(vec.y)
   , z(0) {}
 
-vec3::vec3(std::initializer_list<float> list) {
-  auto begin = list.begin();
-  x = *begin++;
-  y = *begin;
-}
+vec3::vec3(const vec2& vec, float z)
+  : x(vec.x)
+  , y(vec.y)
+  , z(z) {}
+
 vec3::vec3(const vec3& vec) 
   : x(vec.x)
   , y(vec.y)
@@ -103,6 +110,20 @@ vec3 vec3::normalized() const {
 float vec3::dot(const vec3& another) const {
   return dot(*this, another);
 }
+
+vec3 vec3::cross(const vec3& c) const {
+  const vec3& b = *this;
+  return {
+    b.y * c.z - b.z * c.y,
+    b.z * c.x - b.x * c.z,
+    b.x * c.y - b.y * c.x,
+  };
+}
+
 float vec3::dot(const vec3& a, const vec3& b) {
   return a.x*b.x + a.y*b.y + a.z*b.z;
+}
+
+vec3 operator*(float lhs, const vec3& rhs) {
+  return rhs * lhs;
 }

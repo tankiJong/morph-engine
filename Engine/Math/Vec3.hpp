@@ -14,9 +14,9 @@ public:
   float z = 0;
   vec3() {}
   ~vec3() {}
-  explicit vec3(float x, float y, float z);
+  vec3(float x, float y, float z);
   explicit vec3(const vec2& vec); // have to cast by intention
-  vec3(std::initializer_list<float>);
+  vec3(const vec2& vec, float z); // have to cast by intention
   vec3(const vec3& vec);
   vec3(const char* str);
 
@@ -41,9 +41,22 @@ public:
   float normalizeAndGetMagnitude();
   vec3 normalized() const;
   float dot(const vec3& another) const;
+  vec3 cross(const vec3& another) const;
   static float dot(const vec3& a, const vec3& b);
 
+
+  // x, i
+  const static vec3 right;
+
+  // y, j
+  const static vec3 up;
+
+  // z, k
+  const static vec3 forward;
+
   static const vec3 zero;
+  static const vec3 one;
 };
 
 
+vec3 operator*(float lhs, const vec3& rhs);

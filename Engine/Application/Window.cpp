@@ -31,9 +31,8 @@ Window::~Window() {
 void Window::init(int width, int height, const char* name) {
   registerWindowClass();
 
-  mBounds = { {0.f,0.f}, vec2{(float)width, (float)height} };
   float clientAspect = (float) width / (float) height;
-
+  mSize = { width, height };
   // #SD1ToDo: Add support for fullscreen mode (requires different window style flags than windowed mode)
   const DWORD windowStyleFlags = WS_CAPTION | WS_BORDER | WS_THICKFRAME | WS_SYSMENU | WS_OVERLAPPED;
   const DWORD windowStyleExFlags = WS_EX_APPWINDOW;
@@ -67,6 +66,8 @@ void Window::init(int width, int height, const char* name) {
   clientRect.right = clientRect.left + (int) clientWidth;
   clientRect.top = (int) clientMarginY;
   clientRect.bottom = clientRect.top + (int) clientHeight;
+
+  mBounds = { {0.f,0.f}, vec2{clientWidth, clientHeight } };
 
   // Calculate the outer dimensions of the physical window, including frame et. al.
   RECT windowRect = clientRect;

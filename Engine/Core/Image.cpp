@@ -2,7 +2,7 @@
 #include "ThirdParty/stb/stb_image.h"
 #pragma warning( pop )  
 #include "Engine/Core/Rgba.hpp"
-#include "Engine/Math/IntVec2.hpp"
+#include "Engine/Math/Ivec2.hpp"
 #include "Image.hpp"
 
 Image::Image(const std::string& imageFilePath) {
@@ -25,7 +25,7 @@ Rgba Image::getTexel(int x, int y) const {
   return mTexels[x + y * mDimensions.x];
 }
 
-Rgba Image::getTexel(IntVec2 v) const {
+Rgba Image::getTexel(ivec2 v) const {
   return getTexel(v.x, v.y);
 }
 
@@ -33,7 +33,7 @@ void Image::setTexel(int x, int y, const Rgba& color) {
   mTexels[x + y * mDimensions.x] = color;
 }
 
-void Image::populateFromData(unsigned char* imageData, const IntVec2& dimensions, int numComponents) {
+void Image::populateFromData(unsigned char* imageData, const ivec2& dimensions, int numComponents) {
   if(numComponents == 4) {
     Rgba* colorData = (Rgba*)imageData;
 

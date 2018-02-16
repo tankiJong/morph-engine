@@ -198,9 +198,6 @@
     <ClCompile Include="Math\Vec3.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="Math\IntVec2.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\FrameBuffer.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
@@ -211,6 +208,15 @@
       <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="Math\Vec4.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Rect.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Ivec2.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\ray3.cpp">
       <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>
@@ -509,9 +515,6 @@
     <ClInclude Include="Math\Vec3.hpp">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="Math\IntVec2.hpp">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\FrameBuffer.hpp">
       <Filter>Renderer</Filter>
     </ClInclude>
@@ -522,6 +525,15 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Vec4.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Rect.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Ivec2.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\ray3.hpp">
       <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>

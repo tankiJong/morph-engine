@@ -4,6 +4,7 @@
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Core/common.hpp"
 #include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/Ivec2.hpp"
 
 typedef delegate<void(uint msg, size_t wparam, size_t lparam)> WinMsgDelegate;
 
@@ -36,7 +37,8 @@ public:
   // ** EXTRAS ** //
   // void SetTitle( char const *new_title ); 
 
-  inline const aabb2& bounds() const { return mBounds; };
+  inline const aabb2& bounds() const { return mBounds; }
+  inline const vec2&  size() const { return mSize; }
 private:
   Window(int width, int height, const char* windowName = "");
   Window() = default;
@@ -47,6 +49,7 @@ private:
 
   std::vector<WinMsgDelegate> mHandlers;
   aabb2 mBounds;
+  ivec2 mSize;
 public:
   static Window* getInstance();
   static void registerWindowClass();

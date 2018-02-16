@@ -1,14 +1,18 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
+#include "Vec3.hpp"
 
 struct vec4 {
 public:
   union {
     struct {
-      float x = 0, y = 0, z = 0, w = 0;
+      float x, y, z, w;
     };
     struct {
       float r, g, b, a;
+    };
+    struct {
+      float i,j,k,t;
     };
     float data[4];
   };
@@ -22,12 +26,18 @@ public:
     return x * v.x + y * v.y + z * v.z + w * v.w;
   }
 
+  explicit vec4(const vec3& copy);
+  vec4(const vec3& xyz, float w);
+
+  bool operator==(const vec4& rhs) const;
   // x, i
-  static vec4 right;
+  const static vec4 right;
 
   // y, j
-  static vec4 top;
+  const static vec4 up;
 
   // z, k
-  static vec4 forward;
+  const static vec4 forward;
+
+  const static vec4 zero;
 };

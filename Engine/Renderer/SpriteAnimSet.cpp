@@ -1,5 +1,5 @@
 ﻿#include "Engine/Debug/ErrorWarningAssert.hpp"
-#include "Engine/Math/IntVec2.hpp"
+#include "Engine/Math/Ivec2.hpp"
 #include "Engine/Core/Xml.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
 #include "Engine/Renderer/SpriteAnim.hpp"
@@ -9,7 +9,7 @@
 SpriteAnimSetDefinition::SpriteAnimSetDefinition(const Xml& node, Renderer& render) {
   GUARANTEE_OR_DIE(node.name() == "SpriteAnimSet", "xml node tag name unmatched");
 
-  IntVec2 layout = node.attribute("spriteLayout", IntVec2::zero);
+  ivec2 layout = node.attribute("spriteLayout", ivec2::zero);
   m_defaultAnimName = node.attribute("default", m_defaultAnimName);
   m_spriteSheet = new SpriteSheet(*render.createOrGetTexture(node["spriteSheet"]), layout.x, layout.y);
 

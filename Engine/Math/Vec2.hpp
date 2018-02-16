@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-class IntVec2;
+class ivec2;
 class vec3;
 namespace std {
   template< typename T >
@@ -15,8 +15,7 @@ public:
   ~vec2() {} // destructor: do nothing (for speed)
   vec2() {} // default constructor: do nothing (for speed)
   vec2(const vec2& copyFrom); // copy constructor (from another vec2)
-  vec2(const IntVec2& copyFrom); // convert from IntVec2)
-  vec2(const vec3& copyFrom);   // need explicit convertion to use as vector3
+  vec2(const ivec2& copyFrom); // convert from ivec2)
   vec2(float initialX, float initialY);
   vec2(const char* str);
   void fromString(const char* data);

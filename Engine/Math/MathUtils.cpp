@@ -3,7 +3,7 @@
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Disc2.hpp"
 #include "Engine/Math/FloatRange.hpp"
-#include "Engine/Math/IntVec2.hpp"
+#include "Engine/Math/Ivec2.hpp"
 
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/IntRange.hpp"
@@ -152,7 +152,7 @@ vec2 clamp(const vec2& v, vec2 min, vec2 max) {
   return { clampf(v.x, min.x, max.x), clampf(v.y, min.y, max.y) };
 }
 
-IntVec2 clamp(const IntVec2& v, IntVec2 min, IntVec2 max) {
+ivec2 clamp(const ivec2& v, ivec2 min, ivec2 max) {
   return { clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y) };
 }
 
@@ -242,11 +242,11 @@ int lerp(int from, int to, float fraction) {
 unsigned char lerp(unsigned char from, unsigned char to, float fraction) {
   return (unsigned char)clamp(lerp((int)from, (int)to, fraction), 0, 255);
 }
-const IntVec2 lerp(const IntVec2& from, const IntVec2& to, float fraction) {
+const ivec2 lerp(const ivec2& from, const ivec2& to, float fraction) {
   int x = lerp(from.x, to.x, fraction);
   int y = lerp(from.y, to.y, fraction);
 
-  return IntVec2(x, y);
+  return ivec2(x, y);
 }
 const IntRange lerp(const IntRange& from, const IntRange& to, float fraction) {
   int min = lerp(from.min, to.min, fraction);
