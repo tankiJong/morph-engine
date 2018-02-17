@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "Engine/Math/AABB2.hpp"
-#include "Engine/Math/IntRange.hpp"
+#include "Engine/Math/Primitives/AABB2.hpp"
+#include "Engine/Math/Primitives/IntRange.hpp"
 #include "Engine/Core/Xml.hpp"
 
 class Texture;

@@ -5,6 +5,10 @@ const vec4 vec4::up     (0, 1, 0, 0);
 const vec4 vec4::forward(0, 0, 1, 0);
 const vec4 vec4::zero   (0, 0, 0, 0);
 
+vec3 vec4::xyz() const {
+  return { x,y,z };
+}
+
 vec4::vec4(const vec3& copy) 
   : x(copy.x)
   , y(copy.y)

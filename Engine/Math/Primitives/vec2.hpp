@@ -3,6 +3,7 @@
 
 class ivec2;
 class vec3;
+class uvec2;
 namespace std {
   template< typename T >
   class initializer_list;
@@ -15,17 +16,21 @@ public:
   ~vec2() {} // destructor: do nothing (for speed)
   vec2() {} // default constructor: do nothing (for speed)
   vec2(const vec2& copyFrom); // copy constructor (from another vec2)
-  vec2(const ivec2& copyFrom); // convert from ivec2)
+  explicit vec2(const ivec2& copyFrom); // convert from ivec2)
+  explicit vec2(const uvec2& copyFrom); // convert from ivec2)
   vec2(float initialX, float initialY);
   vec2(const char* str);
   void fromString(const char* data);
   std::string toString() const;
 
   // Operators
-  const vec2 operator+(const vec2& vecToAdd) const; // vec2 + vec2
-  const vec2 operator-(const vec2& vecToSubtract) const; // vec2 - vec2
-  const vec2 operator*(float uniformScale) const; // vec2 * float
-  const vec2 operator/(float inverseScale) const; // vec2 / float
+  vec2 operator+(const vec2& vecToAdd) const; // vec2 + vec2
+  vec2 operator-(const vec2& vecToSubtract) const; // vec2 - vec2
+  vec2 operator-() const;
+  vec2 operator*(float uniformScale) const; // vec2 * float
+  vec2 operator/(float inverseScale) const; // vec2 / float
+  vec2 operator*(const vec2& rhs) const; // component wise multiply
+  vec2 operator/(const vec2& rhs) const; // component wise divide
   void operator=(const vec3& copyFrom); // vec2 = vec3
   void operator+=(const vec2& vecToAdd); // vec2 += vec2
   void operator-=(const vec2& vecToSubtract); // vec2 -= vec2
@@ -52,6 +57,7 @@ public: // NOTE: this is one of the few cases where we break both the "m_" namin
   float x = 0;
   float y = 0;
   static const vec2 zero;
+  static const vec2 one;
   static const vec2 top;
   static const vec2 down;
   static const vec2 left;

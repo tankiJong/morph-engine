@@ -6,7 +6,7 @@
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/Renderer/Texture.hpp"
-#include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/Primitives/AABB2.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "BitmapFont.hpp"
 #include "SpriteSheet.hpp"
@@ -345,8 +345,8 @@ void Renderer::postInit() {
 
 
   // create our output textures
-  mDefaultColorTarget = createRenderTarget(bounds.width(), bounds.height());
-  mDefaultDepthTarget = createRenderTarget(bounds.width(), bounds.height(),
+  mDefaultColorTarget = createRenderTarget((uint)bounds.width(), (uint)bounds.height());
+  mDefaultDepthTarget = createRenderTarget((uint)bounds.width(), (uint)bounds.height(),
                                               TEXTURE_FORMAT_D24S8);
 
   // setup the initial camera

@@ -1,12 +1,14 @@
 
 #include "Ivec2.hpp"
 #include <initializer_list>
-#include "Engine/Math/Vec2.hpp"
+#include "Engine/Math/Primitives/vec2.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "Engine/Math/vec3.hpp"
+#include "Engine/Math/Primitives/vec3.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Engine/Math/Primitives/uvec2.hpp"
 
+const vec2 vec2::one(1.f, 1.f);
 const vec2 vec2::zero(0.f, 0.f);
 const vec2 vec2::top(0.f, 1.f);
 const vec2 vec2::down(0.f, -1.f);
@@ -22,6 +24,13 @@ vec2::vec2(const ivec2& copyFrom)
     , y((float)copyFrom.y) {
   
 }
+
+vec2::vec2(const uvec2& copyFrom)
+  : x((float)copyFrom.x)
+  , y((float)copyFrom.y) {
+
+}
+
 
 //-----------------------------------------------------------------------------------------------
 vec2::vec2 (float initialX, float initialY)
@@ -45,26 +54,36 @@ std::string vec2::toString() const {
 }
 
 //-----------------------------------------------------------------------------------------------
-const vec2 vec2::operator + (const vec2& vecToAdd) const {
+vec2 vec2::operator + (const vec2& vecToAdd) const {
     return vec2 (this->x + vecToAdd.x, this->y + vecToAdd.y);
 }
 
 
 //-----------------------------------------------------------------------------------------------
-const vec2 vec2::operator-(const vec2& vecToSubtract) const {
+vec2 vec2::operator-(const vec2& vecToSubtract) const {
     return vec2 (this->x - vecToSubtract.x, this->y - vecToSubtract.y);
 }
 
+vec2 vec2::operator-() const {
+  return { -x, -y };
+}
 
 //-----------------------------------------------------------------------------------------------
-const vec2 vec2::operator*(float uniformScale) const {
+vec2 vec2::operator*(float uniformScale) const {
     return vec2 (this->x*uniformScale, this->y*uniformScale);
 }
 
 
 //-----------------------------------------------------------------------------------------------
-const vec2 vec2::operator/(float inverseScale) const {
+vec2 vec2::operator/(float inverseScale) const {
     return vec2 (this->x*(1.f / inverseScale), this->y*(1.f / inverseScale));
+}
+
+vec2 vec2::operator*(const vec2& rhs) const {
+  return { rhs.x*x, rhs.y*y };
+}
+vec2 vec2::operator/(const vec2& rhs) const {
+  return { x/rhs.x, y/rhs.y };
 }
 
 void vec2::operator=(const vec3& copyFrom) {

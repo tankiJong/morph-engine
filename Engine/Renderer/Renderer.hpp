@@ -3,12 +3,12 @@
 #include <map>
 #include <vector>
 
-#include "Engine/Math/Vec2.hpp"
+#include "Engine/Math/Primitives/vec2.hpp"
 #include "Engine/Core/Rgba.hpp"
-#include "Engine/Math/vec3.hpp"
+#include "Engine/Math/Primitives/vec3.hpp"
 
-#include "Engine/Math/mat44.hpp"
-#include "Engine/Math/Rect.hpp"
+#include "Engine/Math/Primitives/mat44.hpp"
+#include "Engine/Math/Primitives/Rect.hpp"
 #include "RenderBuffer.hpp"
 #include "Camera.hpp"
 

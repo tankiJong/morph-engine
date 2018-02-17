@@ -1,6 +1,6 @@
 ﻿#include "BitmapFont.hpp"
 
-#include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/Primitives/AABB2.hpp"
 
 BitmapFont* gDefaultFont = nullptr;
 aabb2 BitmapFont::getUVsForGlyph(int glyphUnicode) const {

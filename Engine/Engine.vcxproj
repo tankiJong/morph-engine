@@ -485,13 +485,7 @@
     <ClCompile Include="File\Path.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Input\XboxController.cpp" />
-    <ClCompile Include="Math\AABB2.cpp" />
     <ClCompile Include="Math\Curves.cpp" />
-    <ClCompile Include="Math\Disc2.cpp" />
-    <ClCompile Include="Math\FloatRange.cpp" />
-    <ClCompile Include="Math\IntRange.cpp" />
-    <ClCompile Include="Math\Ivec2.cpp" />
-    <ClCompile Include="Math\Mat44.cpp" />
     <ClCompile Include="Math\MathUtils.cpp" />
     <ClCompile Include="Math\Noise\Noise.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -502,11 +496,19 @@
     </ClCompile>
     <ClCompile Include="Math\Noise\RawNoise.cpp" />
     <ClCompile Include="Math\Noise\SmoothNoise.cpp" />
-    <ClCompile Include="Math\ray3.cpp" />
-    <ClCompile Include="Math\Rect.cpp" />
-    <ClCompile Include="Math\Vec2.cpp" />
-    <ClCompile Include="Math\Vec3.cpp" />
-    <ClCompile Include="Math\Vec4.cpp" />
+    <ClCompile Include="Math\Primitives\AABB2.cpp" />
+    <ClCompile Include="Math\Primitives\Disc2.cpp" />
+    <ClCompile Include="Math\Primitives\FloatRange.cpp" />
+    <ClCompile Include="Math\Primitives\IntRange.cpp" />
+    <ClCompile Include="Math\Primitives\ivec2.cpp" />
+    <ClCompile Include="Math\Primitives\ivec3.cpp" />
+    <ClCompile Include="Math\Primitives\mat44.cpp" />
+    <ClCompile Include="Math\Primitives\rect.cpp" />
+    <ClCompile Include="Math\Primitives\uvec2.cpp" />
+    <ClCompile Include="Math\Primitives\uvec3.cpp" />
+    <ClCompile Include="Math\Primitives\vec2.cpp" />
+    <ClCompile Include="Math\Primitives\vec3.cpp" />
+    <ClCompile Include="Math\Primitives\vec4.cpp" />
     <ClCompile Include="Renderer\BitmapFont.cpp" />
     <ClCompile Include="Renderer\Camera.cpp" />
     <ClCompile Include="Renderer\FrameBuffer.cpp" />
@@ -606,13 +608,7 @@
     <ClInclude Include="Input\Input.hpp" />
     <ClInclude Include="Input\KeyState.hpp" />
     <ClInclude Include="Input\XboxController.hpp" />
-    <ClInclude Include="Math\AABB2.hpp" />
     <ClInclude Include="Math\Curves.hpp" />
-    <ClInclude Include="Math\Disc2.hpp" />
-    <ClInclude Include="Math\FloatRange.hpp" />
-    <ClInclude Include="Math\IntRange.hpp" />
-    <ClInclude Include="Math\Ivec2.hpp" />
-    <ClInclude Include="Math\Mat44.hpp" />
     <ClInclude Include="Math\MathUtils.hpp" />
     <ClInclude Include="Math\Noise\Noise.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -623,11 +619,19 @@
     </ClInclude>
     <ClInclude Include="Math\Noise\RawNoise.hpp" />
     <ClInclude Include="Math\Noise\SmoothNoise.hpp" />
-    <ClInclude Include="Math\ray3.hpp" />
-    <ClInclude Include="Math\Rect.hpp" />
-    <ClInclude Include="Math\Vec2.hpp" />
-    <ClInclude Include="Math\Vec3.hpp" />
-    <ClInclude Include="Math\Vec4.hpp" />
+    <ClInclude Include="Math\Primitives\AABB2.hpp" />
+    <ClInclude Include="Math\Primitives\Disc2.hpp" />
+    <ClInclude Include="Math\Primitives\FloatRange.hpp" />
+    <ClInclude Include="Math\Primitives\IntRange.hpp" />
+    <ClInclude Include="Math\Primitives\ivec2.hpp" />
+    <ClInclude Include="Math\Primitives\ivec3.hpp" />
+    <ClInclude Include="Math\Primitives\mat44.hpp" />
+    <ClInclude Include="Math\Primitives\rect.hpp" />
+    <ClInclude Include="Math\Primitives\uvec2.hpp" />
+    <ClInclude Include="Math\Primitives\uvec3.hpp" />
+    <ClInclude Include="Math\Primitives\vec2.hpp" />
+    <ClInclude Include="Math\Primitives\vec3.hpp" />
+    <ClInclude Include="Math\Primitives\vec4.hpp" />
     <ClInclude Include="Renderer\BitmapFont.hpp" />
     <ClInclude Include="Renderer\Camera.hpp" />
     <ClInclude Include="Renderer\External\gl\glcorearb.h" />

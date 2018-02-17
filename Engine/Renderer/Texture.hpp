@@ -2,7 +2,7 @@
 // Texture.hpp
 //
 #pragma once
-#include "Engine/Math/Ivec2.hpp"
+#include "Engine/Math/Primitives/ivec2.hpp"
 #include <string>
 #include <map>
 #include "Engine/Core/common.hpp"

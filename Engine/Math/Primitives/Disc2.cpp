@@ -1,5 +1,5 @@
-#include "Engine\Math\Disc2.hpp"
-#include "Engine\Math\MathUtils.hpp"
+#include "Engine/Math/Primitives/Disc2.hpp"
+#include "Engine/Math/MathUtils.hpp"
 
 Disc2::Disc2(const Disc2 & copyFrom) {
 	center = copyFrom.center;

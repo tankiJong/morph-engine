@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <string>
+#include "ivec3.hpp"
 
 namespace std {
   template< typename T >
@@ -16,6 +17,7 @@ public:
   ~vec3() {}
   vec3(float x, float y, float z);
   explicit vec3(const vec2& vec); // have to cast by intention
+  explicit vec3(const ivec3 castFrom);
   vec3(const vec2& vec, float z); // have to cast by intention
   vec3(const vec3& vec);
   vec3(const char* str);
@@ -42,6 +44,7 @@ public:
   vec3 normalized() const;
   float dot(const vec3& another) const;
   vec3 cross(const vec3& another) const;
+  vec2 xy() const;
   static float dot(const vec3& a, const vec3& b);
 
 

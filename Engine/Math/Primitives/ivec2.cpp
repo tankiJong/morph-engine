@@ -1,7 +1,8 @@
 #include "Ivec2.hpp"
-#include "Engine/Math/Vec2.hpp"
+#include "Engine/Math/Primitives/vec2.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Uvec2.hpp"
 const ivec2 ivec2::zero = ivec2(0, 0);
 const ivec2 ivec2::top = ivec2(0, 1);
 const ivec2 ivec2::down = ivec2(0, -1);
@@ -24,10 +25,9 @@ ivec2::ivec2(const vec2& castFrom)
   , y((int)castFrom.y) {
 }
 
-ivec2::ivec2(std::initializer_list<int> list) 
-  : x(*list.begin())
-  , y(*(list.begin() + 1)) {
-}
+ivec2::ivec2(const uvec2& castFrom): x((int)castFrom.x), y((int)castFrom.y) {}
+
+
 
 //-----------------------------------------------------------------------------------------------
 const ivec2 ivec2::operator + (const ivec2& vecToAdd) const {
@@ -35,7 +35,7 @@ const ivec2 ivec2::operator + (const ivec2& vecToAdd) const {
 }
 
 const vec2 ivec2::operator+(const vec2& vecToAdd) const {
-  return vecToAdd + *this;
+  return vecToAdd + vec2(*this);
 }
 
 //-----------------------------------------------------------------------------------------------

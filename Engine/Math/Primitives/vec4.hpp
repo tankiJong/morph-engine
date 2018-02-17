@@ -14,9 +14,11 @@ public:
     struct {
       float i,j,k,t;
     };
+
     float data[4];
   };
-  vec4() {};
+  vec4() {}
+  vec3 xyz() const;;
   vec4(float x, float y, float z, float w)
     : x(x)
     , y(y)

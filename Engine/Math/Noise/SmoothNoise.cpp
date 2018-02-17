@@ -3,10 +3,10 @@
 //
 #include "Engine/Math/Noise/RawNoise.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "Engine/Math/Vec2.hpp"
-#include "Engine/Math/vec3.hpp"
+#include "Engine/Math/Primitives/vec2.hpp"
+#include "Engine/Math/Primitives/vec3.hpp"
 #include "Noise.hpp"
-//#include "Engine/Math/Vector4.hpp"
+//#include "Engine/Math/Primitives/Vector4.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // For all fractal (and Perlin) noise functions, the following internal naming conventions

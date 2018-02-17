@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Math/Vec2.hpp"
+#include "Engine/Math/Primitives/vec2.hpp"
 
 class aabb2 {
 public:

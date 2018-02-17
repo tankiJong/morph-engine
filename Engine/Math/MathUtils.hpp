@@ -55,6 +55,23 @@ float getFraction(float v, float start, float end);
 
 float rangeMapf(float v, float inStart, float inEnd, float outStart, float outEnd);
 
+template<typename T>
+T rangeMap(const T& v, const T& inStart, const T& inEnd, const T& outStart, const T& outEnd) {
+  if (inStart == inEnd) {
+    return (outStart + outEnd) * 0.5f;
+  }
+
+  vec2 inRange = inEnd - inStart,
+    outRange = outEnd - outStart,
+    inFromStart = v - inStart,
+    fractionInRange = inFromStart / inRange;
+
+  vec2 outFromStart = fractionInRange * outRange;
+
+  return outFromStart + outStart;
+};
+
+
 //-------------------------- interpolation --------------------------------------------------
 
 float	smoothStart2(float t); // 2nd-degree smooth start (a.k.a. “quadratic ease in”)
@@ -72,6 +89,7 @@ template<typename T>
 T lerp(const T& from, const T& to, float fraction) {
   return from * (1.f - fraction) + to * fraction;
 };
+
 float lerp(float from, float to, float fraction);
 const vec2 lerp(const vec2& from, const vec2& to, float fraction);
 const FloatRange lerp(const FloatRange& from, const FloatRange& to, float fraction);

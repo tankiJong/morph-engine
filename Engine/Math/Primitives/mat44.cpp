@@ -1,6 +1,7 @@
 ﻿#include "mat44.hpp"
-#include "MathUtils.hpp"
+#include "Engine/Math/MathUtils.hpp"
 #include "Vec3.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 const mat44 mat44::identity;
 const mat44 mat44::right     { vec4::right, vec4::zero, vec4::zero, vec4::zero };
@@ -147,6 +148,11 @@ mat44 mat44::transpose() const {
     kx, ky, kz, kw,
     tx, ty, tz, tw,
   };
+}
+
+mat44 mat44::inverse() const {
+  UNIMPLEMENTED();
+  return mat44();
 }
 
 mat44 mat44::makeRotation2D(float rotationDegreesAboutZ) {

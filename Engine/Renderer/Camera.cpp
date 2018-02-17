@@ -1,6 +1,7 @@
 ﻿#include "Camera.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "FrameBuffer.hpp"
+#include "Engine/Math/Curves.hpp"
 
 Camera::Camera() {
     mFrameBuffer = new FrameBuffer();
@@ -49,4 +50,37 @@ void Camera::finalize() {
 
 uint Camera::getFrameBufferHandle() {
   return mFrameBuffer->mHandle;
+}
+
+vec3 Camera::screenToWorld(uvec2 pixel, float distanceFromCamera) {
+  vec2 s = vec2(pixel);
+  float w = mFrameBuffer->width();
+  float h = mFrameBuffer->height();
+
+  vec2 ndcXY = rangeMap(s, vec2(0, h), vec2(w, 0), -vec2::one, vec2::one);
+
+  vec4 clip = mProjMatrix * vec4(0, 0, distanceFromCamera, 1);
+  vec3 ndc = clip.xyz() / clip.w;
+  ndc = vec3(ndcXY, ndc.z);
+
+  clip = vec4(ndc, 1);
+
+  mat44 vp = mProjMatrix * mViewMatrix;
+  DEBUGBREAK;
+  // unfinished
+  mat44 vpInverse = vp.inverse();
+
+  vec4 world = vpInverse * clip;
+
+  return world.xyz() / world.w;
+}
+
+uvec2 Camera::worldToScreen(vec3 position) {
+  mat44 vp = mProjMatrix * mViewMatrix;
+  vec4 clip = vp * vec4(position, 1);
+  vec3 ndc = clip.xyz() / clip.w;
+  float w = mFrameBuffer->width();
+  float h = mFrameBuffer->height();
+  vec2 s = rangeMap(ndc.xy(), -vec2::one, vec2::one, { 0,h }, { w,0 });
+  return uvec2(s);
 }

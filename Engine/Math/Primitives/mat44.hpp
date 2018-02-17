@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "Engine/Math/Vec2.hpp"
-#include "Engine/Math/Vec4.hpp"
+#include "Engine//Math/Primitives/vec2.hpp"
+#include "Engine//Math/Primitives/vec4.hpp"
 class mat44 {
 public:
   union {
@@ -54,7 +54,10 @@ public:
   mat44 operator*(const mat44& rhs) const;
   vec4 operator*(const vec4& rhs) const;
   bool operator==(const mat44& rhs) const;
+
   mat44 transpose() const;
+  mat44 inverse() const;
+  
   // Producers
   static mat44 makeRotation2D(float rotationDegreesAboutZ);
   static mat44 makeTranslation2D(const vec2& translation);

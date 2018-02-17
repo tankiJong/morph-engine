@@ -1,5 +1,5 @@
 ﻿#include "Engine/Debug/ErrorWarningAssert.hpp"
-#include "Engine/Math/Ivec2.hpp"
+#include "Engine/Math/Primitives/ivec2.hpp"
 #include "Engine/Core/Xml.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
 #include "Engine/Renderer/SpriteAnim.hpp"

@@ -1,5 +1,5 @@
 ﻿#include "IntRange.hpp"
-#include "MathUtils.hpp"
+#include "Engine/Math/MathUtils.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 

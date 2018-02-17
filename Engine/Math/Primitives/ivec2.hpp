@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 
+class uvec2;
 class vec2;
 class ivec2 {
 public:
@@ -8,9 +9,9 @@ public:
 	~ivec2() {};
 	// Construction/Destruction
 	ivec2(const ivec2& copyFrom);						// copy constructor (from another vec2)
-	explicit ivec2(int initialX, int initialY);		// explicit constructor (from x, y)
+	ivec2(int initialX, int initialY);		// explicit constructor (from x, y)
   explicit ivec2(const vec2& castFrom);
-  ivec2(std::initializer_list<int> list);
+  explicit ivec2(const uvec2& castFrom);
 
 															// Operators
 	const ivec2 operator+(const ivec2& vecToAdd) const;		// vec2 + vec2

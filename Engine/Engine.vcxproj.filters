@@ -67,15 +67,12 @@
     <Filter Include="Tool">
       <UniqueIdentifier>{3c76a7d3-1291-4301-90ff-f4a9e1a09f77}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Math\Primitives">
+      <UniqueIdentifier>{61183449-a585-49e8-af76-28a2a3568fd7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\Disc2.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\AABB2.cpp">
       <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="Core\Rgba.cpp">
@@ -102,9 +99,6 @@
     <ClCompile Include="Renderer\SpriteSheet.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Math\IntRange.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Core\StringUtils.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -113,9 +107,6 @@
     </ClCompile>
     <ClCompile Include="..\ThirdParty\pugixml\pugixml.cpp">
       <Filter>ThirdParty\pugixml</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\FloatRange.cpp">
-      <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="Core\Blackboard.cpp">
       <Filter>Core</Filter>
@@ -192,42 +183,54 @@
     <ClCompile Include="Debug\ErrorWarningAssert.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Vec2.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\Vec3.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\FrameBuffer.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Camera.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Mat44.cpp">
-      <Filter>Math</Filter>
+    <ClCompile Include="Math\Primitives\AABB2.cpp">
+      <Filter>Math\Primitives</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Vec4.cpp">
-      <Filter>Math</Filter>
+    <ClCompile Include="Math\Primitives\Disc2.cpp">
+      <Filter>Math\Primitives</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Rect.cpp">
-      <Filter>Math</Filter>
+    <ClCompile Include="Math\Primitives\FloatRange.cpp">
+      <Filter>Math\Primitives</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Ivec2.cpp">
-      <Filter>Math</Filter>
+    <ClCompile Include="Math\Primitives\IntRange.cpp">
+      <Filter>Math\Primitives</Filter>
     </ClCompile>
-    <ClCompile Include="Math\ray3.cpp">
-      <Filter>Math</Filter>
+    <ClCompile Include="Math\Primitives\ivec2.cpp">
+      <Filter>Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\ivec3.cpp">
+      <Filter>Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\mat44.cpp">
+      <Filter>Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\rect.cpp">
+      <Filter>Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\uvec2.cpp">
+      <Filter>Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\uvec3.cpp">
+      <Filter>Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\vec2.cpp">
+      <Filter>Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\vec3.cpp">
+      <Filter>Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\vec4.cpp">
+      <Filter>Math\Primitives</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
-      <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Disc2.hpp">
-      <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\AABB2.hpp">
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Core\Rgba.hpp">
@@ -256,9 +259,6 @@
     </ClInclude>
     <ClInclude Include="Renderer\SpriteSheet.hpp">
       <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\IntRange.hpp">
-      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Core\StringUtils.hpp">
       <Filter>Core</Filter>
@@ -295,9 +295,6 @@
     </ClInclude>
     <ClInclude Include="..\ThirdParty\pugixml\pugixml.hpp">
       <Filter>ThirdParty\pugixml</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\FloatRange.hpp">
-      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="Core\Blackboard.hpp">
       <Filter>Core</Filter>
@@ -509,32 +506,50 @@
     <ClInclude Include="Tool\Parser.hpp">
       <Filter>Tool</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Vec2.hpp">
-      <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Vec3.hpp">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\FrameBuffer.hpp">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Camera.hpp">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Mat44.hpp">
-      <Filter>Math</Filter>
+    <ClInclude Include="Math\Primitives\AABB2.hpp">
+      <Filter>Math\Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Vec4.hpp">
-      <Filter>Math</Filter>
+    <ClInclude Include="Math\Primitives\Disc2.hpp">
+      <Filter>Math\Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Rect.hpp">
-      <Filter>Math</Filter>
+    <ClInclude Include="Math\Primitives\FloatRange.hpp">
+      <Filter>Math\Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Ivec2.hpp">
-      <Filter>Math</Filter>
+    <ClInclude Include="Math\Primitives\IntRange.hpp">
+      <Filter>Math\Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="Math\ray3.hpp">
-      <Filter>Math</Filter>
+    <ClInclude Include="Math\Primitives\ivec2.hpp">
+      <Filter>Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\ivec3.hpp">
+      <Filter>Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\mat44.hpp">
+      <Filter>Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\rect.hpp">
+      <Filter>Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\uvec2.hpp">
+      <Filter>Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\uvec3.hpp">
+      <Filter>Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\vec2.hpp">
+      <Filter>Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\vec3.hpp">
+      <Filter>Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\vec4.hpp">
+      <Filter>Math\Primitives</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

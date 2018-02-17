@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/Primitives/AABB2.hpp"
 #include "Engine/Renderer/SpriteAnim.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include <array>

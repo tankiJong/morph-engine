@@ -1,6 +1,6 @@
 #pragma once
 #include "Engine/Input/KeyState.hpp"
-#include "Engine/Math/Vec2.hpp"
+#include "Engine/Math/Primitives/vec2.hpp"
 
 struct _XINPUT_STATE;
 typedef _XINPUT_STATE XINPUT_STATE;

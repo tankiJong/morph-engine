@@ -1,5 +1,5 @@
 ﻿#include "vec3.hpp"
-#include "Engine/Math/Vec2.hpp"
+#include "Engine//Math/Primitives/vec2.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 
@@ -19,6 +19,11 @@ vec3::vec3(const vec2& vec)
   : x(vec.x)
   , y(vec.y)
   , z(0) {}
+
+vec3::vec3(const ivec3 castFrom)
+  : x(float(castFrom.x))
+  , y(float(castFrom.y)) 
+  , z(float(castFrom.z)) {}
 
 vec3::vec3(const vec2& vec, float z)
   : x(vec.x)
@@ -118,6 +123,10 @@ vec3 vec3::cross(const vec3& c) const {
     b.z * c.x - b.x * c.z,
     b.x * c.y - b.y * c.x,
   };
+}
+
+vec2 vec3::xy() const {
+  return { x,y };
 }
 
 float vec3::dot(const vec3& a, const vec3& b) {

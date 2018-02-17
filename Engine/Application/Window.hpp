@@ -3,8 +3,8 @@
 #include <vector>
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Core/common.hpp"
-#include "Engine/Math/AABB2.hpp"
-#include "Engine/Math/Ivec2.hpp"
+#include "Engine/Math/Primitives/AABB2.hpp"
+#include "Engine/Math/Primitives/ivec2.hpp"
 
 typedef delegate<void(uint msg, size_t wparam, size_t lparam)> WinMsgDelegate;
 
@@ -38,7 +38,7 @@ public:
   // void SetTitle( char const *new_title ); 
 
   inline const aabb2& bounds() const { return mBounds; }
-  inline const vec2&  size() const { return mSize; }
+  inline const ivec2&  size() const { return mSize; }
 private:
   Window(int width, int height, const char* windowName = "");
   Window() = default;

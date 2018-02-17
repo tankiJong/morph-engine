@@ -2,15 +2,20 @@
 #include "ThirdParty/stb/stb_image.h"
 #pragma warning( pop )  
 #include "Engine/Core/Rgba.hpp"
-#include "Engine/Math/Ivec2.hpp"
+#include "Engine/Math/Primitives/uvec2.hpp"
 #include "Image.hpp"
+#include "Engine/Math/Primitives/Ivec2.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 Image::Image(const std::string& imageFilePath) {
   int numComponents = 0;
   int numComponentsRequested = 0;
 
   stbi_set_flip_vertically_on_load(true);
-  unsigned char* imageData = stbi_load(imageFilePath.c_str(), &mDimensions.x, &mDimensions.y, &numComponents, numComponentsRequested);
+  ivec2 dimension(mDimensions);
+  unsigned char* imageData = stbi_load(imageFilePath.c_str(), &dimension.x, &dimension.y, &numComponents, numComponentsRequested);
+  mDimensions.x = dimension.x;
+  mDimensions.y = dimension.y;
   populateFromData(imageData, mDimensions, numComponents);
   stbi_image_free(imageData);
 }
@@ -25,7 +30,7 @@ Rgba Image::getTexel(int x, int y) const {
   return mTexels[x + y * mDimensions.x];
 }
 
-Rgba Image::getTexel(ivec2 v) const {
+Rgba Image::getTexel(uvec2 v) const {
   return getTexel(v.x, v.y);
 }
 
@@ -33,7 +38,7 @@ void Image::setTexel(int x, int y, const Rgba& color) {
   mTexels[x + y * mDimensions.x] = color;
 }
 
-void Image::populateFromData(unsigned char* imageData, const ivec2& dimensions, int numComponents) {
+void Image::populateFromData(unsigned char* imageData, const uvec2& dimensions, int numComponents) {
   if(numComponents == 4) {
     Rgba* colorData = (Rgba*)imageData;
 
@@ -66,4 +71,9 @@ void Image::populateFromData(unsigned char* imageData, const ivec2& dimensions, 
 
     return;
   }
+}
+
+Rgba& Image::operator()(uint x, uint y) {
+  EXPECTS(x * y <= mDimensions.x * mDimensions.y);
+  return mTexels[x + y * mDimensions.x];
 }

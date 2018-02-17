@@ -1,12 +1,12 @@
 #include <stdlib.h>
 #include "Engine/Math/MathUtils.hpp"
-#include "Engine/Math/Vec2.hpp"
-#include "Engine/Math/Disc2.hpp"
-#include "Engine/Math/FloatRange.hpp"
-#include "Engine/Math/Ivec2.hpp"
+#include "Engine/Math/Primitives/vec2.hpp"
+#include "Engine/Math/Primitives/Disc2.hpp"
+#include "Engine/Math/Primitives/FloatRange.hpp"
+#include "Engine/Math/Primitives/ivec2.hpp"
 
-#include "Engine/Math/AABB2.hpp"
-#include "Engine/Math/IntRange.hpp"
+#include "Engine/Math/Primitives/AABB2.hpp"
+#include "Engine/Math/Primitives/IntRange.hpp"
 #include "Engine/Core/Rgba.hpp"
 
 //-----------------------------------------------------------------------------------------------

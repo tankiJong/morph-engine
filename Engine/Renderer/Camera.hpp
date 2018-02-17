@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Texture.hpp"
-#include "Engine/Math/Mat44.hpp"
-#include "Engine/Math/Vec3.hpp"
+#include "Engine/Math/Primitives/Mat44.hpp"
+#include "Engine/Math/Primitives/vec3.hpp"
 
 class Camera {
   friend class Renderer;
@@ -24,6 +24,9 @@ public:
   void finalize();
 
   uint getFrameBufferHandle();
+
+  vec3 screenToWorld(uvec2 pixel, float distanceFromCamera);
+  uvec2 worldToScreen(vec3 position);
 public:
   // default all to identiy
   mat44 mCameraMatrix;  // where is the camera?
