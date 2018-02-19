@@ -210,9 +210,6 @@
     <ClCompile Include="Math\Primitives\mat44.cpp">
       <Filter>Math\Primitives</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Primitives\rect.cpp">
-      <Filter>Math\Primitives</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Primitives\uvec2.cpp">
       <Filter>Math\Primitives</Filter>
     </ClCompile>
@@ -226,6 +223,9 @@
       <Filter>Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\vec4.cpp">
+      <Filter>Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\rect2.cpp">
       <Filter>Math\Primitives</Filter>
     </ClCompile>
   </ItemGroup>
@@ -533,9 +533,6 @@
     <ClInclude Include="Math\Primitives\mat44.hpp">
       <Filter>Math\Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Primitives\rect.hpp">
-      <Filter>Math\Primitives</Filter>
-    </ClInclude>
     <ClInclude Include="Math\Primitives\uvec2.hpp">
       <Filter>Math\Primitives</Filter>
     </ClInclude>
@@ -549,6 +546,9 @@
       <Filter>Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\vec4.hpp">
+      <Filter>Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\rect2.hpp">
       <Filter>Math\Primitives</Filter>
     </ClInclude>
   </ItemGroup>

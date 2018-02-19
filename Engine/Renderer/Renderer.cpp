@@ -405,6 +405,10 @@ void Renderer::enableDepth(eCompare compare, bool shouldWrite) {
   glDepthMask(shouldWrite ? GL_TRUE : GL_FALSE);
 }
 
+void Renderer::disableDepth() {
+  enableDepth(COMPARE_ALWAYS, false);
+}
+
 void Renderer::setAddtiveBlending() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
@@ -682,7 +686,7 @@ void Renderer::drawCircle(const vec2& center, float radius, const Rgba& color, b
 
 void Renderer::drawCube(const vec3& bottomCenter, const vec3& dimension, 
                         const Rgba& color, 
-                        rect uvTop, rect uvSide, rect uvBottom) {
+                        rect2 uvTop, rect2 uvSide, rect2 uvBottom) {
   float dx = dimension.x * .5f, dy = dimension.y * .5f, dz = dimension.z * .5f;
   std::array<vec3, 8> vertices = {
     bottomCenter + vec3{ -dx, 2.f * dy, -dz },

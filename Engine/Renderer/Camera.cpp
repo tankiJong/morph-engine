@@ -54,8 +54,8 @@ uint Camera::getFrameBufferHandle() {
 
 vec3 Camera::screenToWorld(uvec2 pixel, float distanceFromCamera) {
   vec2 s = vec2(pixel);
-  float w = mFrameBuffer->width();
-  float h = mFrameBuffer->height();
+  float w = (float)mFrameBuffer->width();
+  float h = (float)mFrameBuffer->height();
 
   vec2 ndcXY = rangeMap(s, vec2(0, h), vec2(w, 0), -vec2::one, vec2::one);
 

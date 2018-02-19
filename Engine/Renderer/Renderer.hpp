@@ -8,7 +8,7 @@
 #include "Engine/Math/Primitives/vec3.hpp"
 
 #include "Engine/Math/Primitives/mat44.hpp"
-#include "Engine/Math/Primitives/Rect.hpp"
+#include "Engine/Math/Primitives/rect2.hpp"
 #include "RenderBuffer.hpp"
 #include "Camera.hpp"
 
@@ -104,7 +104,7 @@ public:
   void drawCircle(const vec2& center, float radius, const Rgba& color, bool filled = false);
   void drawCube(const vec3& bottomCenter, const vec3& dimension, 
                 const Rgba& color = Rgba::white, 
-                rect uvTop = rect::zero_one, rect uvSide = rect::zero_one, rect uvBottom = rect::zero_one);
+                rect2 uvTop = rect2::zero_one, rect2 uvSide = rect2::zero_one, rect2 uvBottom = rect2::zero_one);
   void drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, DrawPrimitive drawPrimitive);
   template<size_t N>
   inline void drawMeshImmediate(const std::array<Vertex_PCU, N>& vertices, DrawPrimitive drawPrimitive) {
@@ -155,6 +155,7 @@ public:
   void useShaderProgram(ShaderProgram* program);
   void clearDepth(float depth = 1.f);
   void enableDepth(eCompare compare, bool shouldWrite);
+  void disableDepth();
   static HGLRC createRealRenderContext(HDC hdc, int major, int minor);
   static HGLRC createOldRenderContext(HDC hdc);
 protected:

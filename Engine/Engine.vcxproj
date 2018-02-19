@@ -503,7 +503,7 @@
     <ClCompile Include="Math\Primitives\ivec2.cpp" />
     <ClCompile Include="Math\Primitives\ivec3.cpp" />
     <ClCompile Include="Math\Primitives\mat44.cpp" />
-    <ClCompile Include="Math\Primitives\rect.cpp" />
+    <ClCompile Include="Math\Primitives\rect2.cpp" />
     <ClCompile Include="Math\Primitives\uvec2.cpp" />
     <ClCompile Include="Math\Primitives\uvec3.cpp" />
     <ClCompile Include="Math\Primitives\vec2.cpp" />
@@ -626,7 +626,7 @@
     <ClInclude Include="Math\Primitives\ivec2.hpp" />
     <ClInclude Include="Math\Primitives\ivec3.hpp" />
     <ClInclude Include="Math\Primitives\mat44.hpp" />
-    <ClInclude Include="Math\Primitives\rect.hpp" />
+    <ClInclude Include="Math\Primitives\rect2.hpp" />
     <ClInclude Include="Math\Primitives\uvec2.hpp" />
     <ClInclude Include="Math\Primitives\uvec3.hpp" />
     <ClInclude Include="Math\Primitives\vec2.hpp" />
