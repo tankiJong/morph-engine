@@ -71,7 +71,6 @@ Renderer::~Renderer() {
   
   delete mCurrentShaderProgram;
   delete mDefaultShaderProgram;
-  delete mCurrentCamera       ;
   delete mDefaultCamera       ;
   delete mDefaultSampler      ;
   delete mDefaultDepthTarget  ;
@@ -88,7 +87,6 @@ void Renderer::afterFrame() {
 
 void Renderer::beforeFrame() {
 //  glClearColor(1.f, 0, 0, 1);
-  cleanScreen(Rgba::gray);
 }
 
 void Renderer::drawLine(const vec3& start, const vec3& end, 
@@ -100,6 +98,10 @@ void Renderer::drawLine(const vec3& start, const vec3& end,
   };
   glLineWidth(lineThickness);
   drawMeshImmediate(verts, 2, DRAW_LINES);
+}
+
+void Renderer::drawSprite(const vec3 position, const Sprite& sprite) {
+  
 }
 
 void Renderer::drawTexturedAABB2(const aabb2& bounds, 
@@ -448,16 +450,11 @@ bool Renderer::reloadShaderProgram(const char* nameWithPath) {
 
 void Renderer::bindTexutre(const Texture* texture) {
   if (texture == nullptr) {
-//    glDisable(GL_TEXTURE_2D);
-//    UNIMPLEMENTED();
-    return;
+    texture = createOrGetTexture("$");
   }
-//  glEnable(GL_TEXTURE_2D);
-//  UNIMPLEMENTED();
   mCurrentTexture = texture;
 
   resetAlphaBlending();
-//  UNIMPLEMENTED();
 }
 
 void Renderer::setTexture(const char* path) {
@@ -579,6 +576,28 @@ HGLRC Renderer::createOldRenderContext(HDC hdc) {
 void Renderer::rotate2D(float degree) {
 //	glRotatef(degree, 0.f, 0.f, 1);
   UNIMPLEMENTED();
+}
+
+Image Renderer::screenShot() {
+  int x = mDefaultColorTarget->mDimensions.x, y = mDefaultColorTarget->mDimensions.y;
+  Rgba* data = new Rgba[x * y];
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, mDefaultCamera->getFrameBufferHandle());
+  GL_CHECK_ERROR();
+  glReadBuffer(GL_COLOR_ATTACHMENT0);
+  GL_CHECK_ERROR();
+
+  glReadPixels(0, 0, x, y, GL_RGBA, GL_UNSIGNED_BYTE, data);
+  GL_CHECK_ERROR();
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, NULL);
+  GL_CHECK_ERROR();
+
+  Image img(data, (uint)x, (uint)y);
+
+  delete []data;
+
+  return img;
 }
 
 void Renderer::scale2D(float ratioX, float ratioY, float ratioZ) {
@@ -859,7 +878,7 @@ void Renderer::cleanScreen(const Rgba& color) {
   color.getAsFloats(r, g, b, a);
 
   glClearColor(r,g,b,a);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 BitmapFont* Renderer::createOrGetBitmapFont(const char* bitmapFontName, const char* path) {

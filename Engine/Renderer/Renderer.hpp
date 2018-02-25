@@ -26,6 +26,7 @@ class ShaderProgram;
 class RenderBuffer;
 class Sampler;
 class FrameBuffer;
+class Sprite;
 
 struct Vertex_PCU {
   Vertex_PCU() {}
@@ -88,7 +89,7 @@ public:
 
   void afterFrame();
   void beforeFrame();
-  void bindTexutre(const Texture* texture);
+  void bindTexutre(const Texture* texture = nullptr);
   void setTexture(const char* path);
   void cleanScreen(const Rgba& color);
   BitmapFont* createOrGetBitmapFont(const char* bitmapFontName, const char* path);
@@ -114,6 +115,7 @@ public:
                 const Rgba& startColor, const Rgba& endColor,
                 float lineThickness = 1.f);
 
+  void drawSprite(const vec3 position, const Sprite& sprite);
   void drawTexturedAABB2(const aabb2& bounds, const Texture& texture,
                          const vec2& texCoordsAtMins, const vec2& texCoordsAtMaxs, const Rgba& tint);
   void drawTexturedAABB2(const aabb2& bounds, const Texture& texture,
@@ -145,6 +147,7 @@ public:
   bool reloadShaderProgram();
   bool reloadShaderProgram(const char* nameWithPath);
   void rotate2D(float degree);
+  Image screenShot();
   void setAddtiveBlending();
   void setCamera(Camera* camera);
   void scale2D(float ratioX, float ratioY, float ratioZ = 1.f);
@@ -171,15 +174,15 @@ protected:
   ShaderProgram* mCurrentShaderProgram = nullptr;
   ShaderProgram* mDefaultShaderProgram = nullptr;
   Camera* mCurrentCamera = nullptr;
-  Camera* mDefaultCamera = nullptr;
+  owner<Camera*> mDefaultCamera = nullptr;
   unsigned mDefaultVao;
-  Sampler* mDefaultSampler = nullptr;
+  owner<Sampler*> mDefaultSampler = nullptr;
   const Texture* mCurrentTexture = nullptr;
-  Texture* mDefaultDepthTarget = nullptr;
-  Texture* mDefaultColorTarget = nullptr;
+  owner<Texture*> mDefaultDepthTarget = nullptr;
+  owner<Texture*> mDefaultColorTarget = nullptr;
 private:
 
-  HWND mGlWnd = nullptr;
-  HDC mHdc = nullptr;
-  HGLRC mGlContext = nullptr;
+  owner<HWND> mGlWnd = nullptr;
+  owner<HDC> mHdc = nullptr;
+  owner<HGLRC> mGlContext = nullptr;
 };

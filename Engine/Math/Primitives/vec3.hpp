@@ -28,6 +28,7 @@ public:
   // Operators
   const vec3 operator+(const vec3& vecToAdd) const; // vec3 + vec3
   const vec3 operator-(const vec3& vecToSubtract) const; // vec3 - vec3
+  const vec3 operator-() const; // vec3 - vec3
   const vec3 operator*(float uniformScale) const; // vec3 * float
   const vec3 operator/(float inverseScale) const; // vec3 / float
   void operator+=(const vec3& vecToAdd); // vec3 += vec3
@@ -45,6 +46,7 @@ public:
   float dot(const vec3& another) const;
   vec3 cross(const vec3& another) const;
   vec2 xy() const;
+  vec2 xz() const;
   static float dot(const vec3& a, const vec3& b);
 
 
@@ -63,3 +65,5 @@ public:
 
 
 vec3 operator*(float lhs, const vec3& rhs);
+
+vec3 fromSpherical(float r, float thetaDeg, float phiDeg);

@@ -228,6 +228,9 @@
     <ClCompile Include="Math\Primitives\rect2.cpp">
       <Filter>Math\Primitives</Filter>
     </ClCompile>
+    <ClCompile Include="..\ThirdParty\stb\stb_image_write.c">
+      <Filter>ThirdParty\stb</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -550,6 +553,9 @@
     </ClInclude>
     <ClInclude Include="Math\Primitives\rect2.hpp">
       <Filter>Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\stb\stb_image_write.h">
+      <Filter>ThirdParty\stb</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

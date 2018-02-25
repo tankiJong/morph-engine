@@ -1,5 +1,6 @@
 ﻿#pragma warning( push, 0 )
 #include "ThirdParty/stb/stb_image.h"
+#include "ThirdParty/stb/stb_image_write.h"
 #pragma warning( pop )  
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/Math/Primitives/uvec2.hpp"
@@ -76,4 +77,9 @@ void Image::populateFromData(unsigned char* imageData, const uvec2& dimensions, 
 Rgba& Image::operator()(uint x, uint y) {
   EXPECTS(x * y <= mDimensions.x * mDimensions.y);
   return mTexels[x + y * mDimensions.x];
+}
+
+bool Image::save(const char* path) {
+  stbi_flip_vertically_on_write(1);
+  return stbi_write_bmp(path, (int)mDimensions.x, (int)mDimensions.y, 4, mTexels.data()) == 0;
 }

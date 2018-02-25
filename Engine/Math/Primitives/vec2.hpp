@@ -53,7 +53,7 @@ public:
   static float angle(const vec2& a, const vec2& b);
   friend const vec2 operator*(float uniformScale, const vec2& vecToScale); // float * vec2
 
-public: // NOTE: this is one of the few cases where we break both the "m_" naming rule AND the avoid-public-members rule
+public:
   float x = 0;
   float y = 0;
   static const vec2 zero;

@@ -3,7 +3,9 @@
 #include "Texture.hpp"
 #include "Engine/Math/Primitives/Mat44.hpp"
 #include "Engine/Math/Primitives/vec3.hpp"
+#include "FrameBuffer.hpp"
 
+class aabb2;
 class Camera {
   friend class Renderer;
 public:
@@ -27,6 +29,12 @@ public:
 
   vec3 screenToWorld(uvec2 pixel, float distanceFromCamera);
   uvec2 worldToScreen(vec3 position);
+
+  inline vec3 right() const { return mCameraMatrix.i.xyz(); };
+  vec3 up() const { return mCameraMatrix.j.xyz(); };
+  vec3 forward() const { return mCameraMatrix.k.xyz(); };
+  inline uint width() const { return mFrameBuffer->width(); }
+  inline uint height() const { return mFrameBuffer->height(); }
 public:
   // default all to identiy
   mat44 mCameraMatrix;  // where is the camera?

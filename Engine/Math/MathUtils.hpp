@@ -44,6 +44,7 @@ float dotProduct(const VectorType& a, const VectorType& b) {
 int rounding(float in);
 float roundingf(float in);
 
+int ceiling(float in);
 int clamp(int v, int min, int max);
 float clampf(float v, float min, float max);
 float clampf01(float v);

@@ -112,8 +112,23 @@ int rounding(float in) {
 	}
 }
 
+
+
 float roundingf(float in) {
 	return (float)rounding(in);
+}
+
+int ceiling(float in) {
+  int inInt = (int)in;
+
+  float reminder = in - (float)inInt;
+
+  if (reminder == 0.f) return inInt;
+
+  if (in > 0.f) return inInt + 1;
+  if (in < 0.f) return inInt - 1;
+
+  return 0;
 }
 
 int clamp(int v, int min, int max) {

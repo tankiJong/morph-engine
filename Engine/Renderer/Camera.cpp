@@ -79,8 +79,8 @@ uvec2 Camera::worldToScreen(vec3 position) {
   mat44 vp = mProjMatrix * mViewMatrix;
   vec4 clip = vp * vec4(position, 1);
   vec3 ndc = clip.xyz() / clip.w;
-  float w = mFrameBuffer->width();
-  float h = mFrameBuffer->height();
+  float w = (float)mFrameBuffer->width();
+  float h = (float)mFrameBuffer->height();
   vec2 s = rangeMap(ndc.xy(), -vec2::one, vec2::one, { 0,h }, { w,0 });
   return uvec2(s);
 }

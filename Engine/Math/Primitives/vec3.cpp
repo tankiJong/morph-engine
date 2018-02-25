@@ -2,7 +2,7 @@
 #include "Engine//Math/Primitives/vec2.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
-
+#include "Engine/Math/MathUtils.hpp"
 
 const vec3 vec3::right(1, 0, 0);
 const vec3 vec3::up(0, 1, 0);
@@ -54,6 +54,11 @@ const vec3 vec3::operator+(const vec3& vecToAdd) const {
 const vec3 vec3::operator-(const vec3& vecToSubtract) const {
   return { x - vecToSubtract.x, y - vecToSubtract.y, z - vecToSubtract.z };
 }
+
+const vec3 vec3::operator-() const {
+  return { -x, -y, -z };
+}
+
 const vec3 vec3::operator*(float uniformScale) const {
   return { x * uniformScale, y * uniformScale, z * uniformScale };
 }
@@ -129,10 +134,23 @@ vec2 vec3::xy() const {
   return { x,y };
 }
 
+vec2 vec3::xz() const {
+  return { x,z };
+}
+
 float vec3::dot(const vec3& a, const vec3& b) {
   return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
 vec3 operator*(float lhs, const vec3& rhs) {
   return rhs * lhs;
+}
+
+vec3 fromSpherical(float r, float thetaDeg, float phiDeg) {
+  
+  return {
+    r*sinDegrees(thetaDeg)*cosDegrees(phiDeg),
+    r*sinDegrees(phiDeg),
+    r*cosDegrees(thetaDeg)*cosDegrees(phiDeg),
+  };
 }

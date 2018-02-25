@@ -7,8 +7,8 @@ public:
   uint mHandle;
 
   // TODO: maybe change ownership
-  owner<Texture*> mColorTarget;
-  owner<Texture*> mDepthTarget;
+  Texture* mColorTarget;
+  Texture* mDepthTarget;
   FrameBuffer();
   ~FrameBuffer();
 
