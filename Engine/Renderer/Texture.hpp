@@ -25,6 +25,7 @@ private:
 	void PopulateFromData();
   bool setupRenderTarget(uint width, uint height, eTextureFormat format);
   inline uint getHandle() const { return mTextureID; }
+  Texture* clone() const;
 private:
 	unsigned int								mTextureID;
   Image                       mData;

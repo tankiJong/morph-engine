@@ -70,6 +70,9 @@
     <Filter Include="Math\Primitives">
       <UniqueIdentifier>{61183449-a585-49e8-af76-28a2a3568fd7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Misc">
+      <UniqueIdentifier>{4e94cd7d-4d60-4162-bb5f-b5bca35f78ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -230,6 +233,10 @@
     </ClCompile>
     <ClCompile Include="..\ThirdParty\stb\stb_image_write.c">
       <Filter>ThirdParty\stb</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Sprite.cpp" />
+    <ClCompile Include="Core\Misc\Uuid.cpp">
+      <Filter>Core\Misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -556,6 +563,10 @@
     </ClInclude>
     <ClInclude Include="..\ThirdParty\stb\stb_image_write.h">
       <Filter>ThirdParty\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Sprite.hpp" />
+    <ClInclude Include="Core\Misc\Uuid.hpp">
+      <Filter>Core\Misc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

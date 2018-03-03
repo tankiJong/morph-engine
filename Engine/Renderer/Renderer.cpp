@@ -89,9 +89,22 @@ void Renderer::beforeFrame() {
 //  glClearColor(1.f, 0, 0, 1);
 }
 
+void Renderer::bindTexture(uint i, const Texture* texture) {
+  if (texture == nullptr) {
+    texture = createOrGetTexture("$");
+  }
+
+  glBindSampler(i, mDefaultSampler->getHandle());
+
+  // Bind the texture
+  glActiveTexture(GL_TEXTURE0 + i);
+  glBindTexture(GL_TEXTURE_2D, texture->getHandle());
+  mCurrentTexture[i] = texture;
+}
+
 void Renderer::drawLine(const vec3& start, const vec3& end, 
 						const Rgba& startColor, const Rgba& endColor, float lineThickness) {
-  bindTexutre(mTextures.at("$"));
+  bindTexture(mTextures.at("$"));
   Vertex_PCU verts[2] = {
     { start, startColor, {0,0}},
     { end, endColor, {0,1}}
@@ -101,7 +114,7 @@ void Renderer::drawLine(const vec3& start, const vec3& end,
 }
 
 void Renderer::drawSprite(const vec3 position, const Sprite& sprite) {
-  
+
 }
 
 void Renderer::drawTexturedAABB2(const aabb2& bounds, 
@@ -109,7 +122,7 @@ void Renderer::drawTexturedAABB2(const aabb2& bounds,
 								 const vec2& texCoordsAtMins, 
 								 const vec2& texCoordsAtMaxs, 
 								 const Rgba& tint) {
-  bindTexutre(&texture);
+  bindTexture(&texture);
   Vertex_PCU verts[6] = {
     { bounds.mins, tint, texCoordsAtMins },
     { vec2{ bounds.maxs.x, bounds.mins.y }, tint, vec2{ texCoordsAtMaxs.x, texCoordsAtMins.y } },
@@ -341,7 +354,7 @@ void Renderer::postInit() {
 
   mDefaultSampler = new Sampler();
 
-  mCurrentTexture = createOrGetTexture("$");
+  setTexture("$");
 
   aabb2 bounds = Window::getInstance()->bounds();
 
@@ -448,17 +461,16 @@ bool Renderer::reloadShaderProgram(const char* nameWithPath) {
   return it->second->fromFile(nameWithPath);
 }
 
-void Renderer::bindTexutre(const Texture* texture) {
-  if (texture == nullptr) {
-    texture = createOrGetTexture("$");
-  }
-  mCurrentTexture = texture;
+void Renderer::bindTexture(const Texture* texture) {
+  bindTexture(0, texture);
+}
 
-  resetAlphaBlending();
+void Renderer::bindSampler(Sampler* sampler) {
+  mDefaultSampler = sampler;
 }
 
 void Renderer::setTexture(const char* path) {
-  bindTexutre(createOrGetTexture(path));
+  bindTexture(createOrGetTexture(path));
 }
 
 HGLRC Renderer::createRealRenderContext(HDC hdc, int major, int minor) {
@@ -666,7 +678,7 @@ void Renderer::loadIdentity() {
 void Renderer::drawAABB2(const aabb2& bounds, const Rgba& color, bool filled) {
   if(filled) drawTexturedAABB2(bounds, *mTextures.at("$"), { 0,1 }, { 1,0 }, color);
   else {
-    bindTexutre(mTextures.at("$"));  
+    bindTexture(mTextures.at("$"));  
     auto vertices = bounds.vertices();
     Vertex_PCU verts[6] = {
       { vec3(vertices[0]), color, vec2{ 0,0 } },
@@ -824,14 +836,7 @@ void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, Dr
   }
 
   //-------------------------Texture---------------------------------
-  uint textureIndex = 0U; // to see how they tie together
-
-                          // Bind the sampler;
-  glBindSampler(textureIndex, mDefaultSampler->getHandle());
-
-  // Bind the texture
-  glActiveTexture(GL_TEXTURE0 + textureIndex);
-  glBindTexture(GL_TEXTURE_2D, mCurrentTexture->getHandle());
+  // bind in bindTexture
 
   //-------------------------Color-----------------------------------
   // Next, bind the buffer we want to use;
@@ -879,6 +884,21 @@ void Renderer::cleanScreen(const Rgba& color) {
 
   glClearColor(r,g,b,a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+bool Renderer::copyTexture(Texture* from, Texture* to) {
+  static FrameBuffer src, dst;
+
+  src.setColorTarget(from);
+  src.finalize();
+
+  if(to == nullptr) {
+    return copyFrameBuffer(nullptr, &src);
+  }
+
+  dst.setColorTarget(to);
+  dst.finalize();
+  return copyFrameBuffer(&dst, &src);
 }
 
 BitmapFont* Renderer::createOrGetBitmapFont(const char* bitmapFontName, const char* path) {
@@ -929,6 +949,33 @@ ShaderProgram* Renderer::createOrGetShaderProgram(const char* nameWithPath) {
   
   mShaderPrograms[name] = program;
   return program;
+}
+
+bool Renderer::applyEffect(ShaderProgram* program) {
+  if(mEffectTarget == nullptr) {
+    mEffectTarget = mDefaultColorTarget;
+    if(mEffectScratch == nullptr) {
+      mEffectScratch = mEffectTarget->clone();
+    }
+  }
+
+  if(mEffectCamera == nullptr) {
+    mEffectCamera = new Camera();
+  }
+
+  mEffectCamera->setColorTarget(mEffectScratch);
+
+  setCamera(mEffectCamera);
+
+  useShaderProgram(program);
+
+  bindTexture(0, mEffectTarget);
+  bindTexture(0, mDefaultDepthTarget);
+
+  drawAABB2({ {-1.f, -1.f}, {1.f, 1.f} }, Rgba::white);
+
+
+  return copyTexture(mEffectTarget, mDefaultColorTarget);
 }
 
 

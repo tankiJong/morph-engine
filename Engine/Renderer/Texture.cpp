@@ -122,3 +122,11 @@ bool Texture::setupRenderTarget(uint width, uint height, eTextureFormat format) 
   return true;
 }
 
+Texture* Texture::clone() const {
+  Texture* tex = new Texture();
+  tex->mData = mData;
+  tex->setupRenderTarget(mDimensions.x, mDimensions.y, mFormat);
+
+  return tex;
+}
+

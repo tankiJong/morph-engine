@@ -11,6 +11,7 @@
 #include "Engine/Math/Primitives/rect2.hpp"
 #include "RenderBuffer.hpp"
 #include "Camera.hpp"
+#include <array>
 
 struct HDC__;
 struct HGLRC__;
@@ -88,10 +89,14 @@ public:
   ~Renderer();
 
   void afterFrame();
+  bool applyEffect(ShaderProgram* program);
   void beforeFrame();
-  void bindTexutre(const Texture* texture = nullptr);
+  void bindTexture(uint i, const Texture* texture = nullptr);
+  void bindTexture(const Texture* texture = nullptr);
+  void bindSampler(Sampler* sampler);
   void setTexture(const char* path);
   void cleanScreen(const Rgba& color);
+  bool copyTexture(Texture* from, Texture* to = nullptr);
   BitmapFont* createOrGetBitmapFont(const char* bitmapFontName, const char* path);
   BitmapFont* createOrGetBitmapFont(const char* fontNameWithPath);
   Texture* createOrGetTexture(const std::string& filePath);
@@ -169,17 +174,20 @@ protected:
   std::map<std::string, BitmapFont*> mFonts = {};
   std::map<std::string, ShaderProgram*> mShaderPrograms = {};
 
-  // QA:...
   RenderBuffer mTempRenderBuffer;
   ShaderProgram* mCurrentShaderProgram = nullptr;
   ShaderProgram* mDefaultShaderProgram = nullptr;
   Camera* mCurrentCamera = nullptr;
   owner<Camera*> mDefaultCamera = nullptr;
+  owner<Camera*> mEffectCamera = nullptr;
   unsigned mDefaultVao;
   owner<Sampler*> mDefaultSampler = nullptr;
-  const Texture* mCurrentTexture = nullptr;
+  std::array<const Texture*, 64u> mCurrentTexture{ nullptr };
   owner<Texture*> mDefaultDepthTarget = nullptr;
   owner<Texture*> mDefaultColorTarget = nullptr;
+  owner<Texture*> mEffectTarget = nullptr;
+  owner<Texture*> mEffectScratch = nullptr;
+
 private:
 
   owner<HWND> mGlWnd = nullptr;

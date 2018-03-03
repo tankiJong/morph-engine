@@ -3,11 +3,38 @@
 //	
 
 //-----------------------------------------------------------------------------------------------
-#include "Engine/Core/Time.hpp"
+#include "Engine/Core/Time/Time.hpp"
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "Game/Gameplay/Encounter.hpp"
+
+Time::Time() {
+  memset(this, 0, sizeof(Time));
+}
+
+Time& Time::operator+=(const Time& rhs) {
+  second += rhs.second;
+  hpc += rhs.hpc;
+  millisecond += rhs.millisecond;
+  return *this;
+}
 
 
+struct TimeSystem {
+  TimeSystem() {
+    LARGE_INTEGER li;
+    QueryPerformanceFrequency(&li);
+    mFrequency = *(uint64_t*)&li;
+    mSecondsPerCount = 1.0 / (double)mFrequency;
+  }
+
+public:
+  uint64_t mFrequency;
+  double mSecondsPerCount;
+};
+
+
+static TimeSystem g_timeSystem;
 //-----------------------------------------------------------------------------------------------
 double InitializeTime( LARGE_INTEGER& out_initialTime )
 {
@@ -29,6 +56,26 @@ double GetCurrentTimeSeconds()
 
 	double currentSeconds = static_cast< double >( elapsedCountsSinceInitialTime ) * secondsPerCount;
 	return currentSeconds;
+}
+
+uint64_t __fastcall GetPerformanceCounter() {
+  LARGE_INTEGER li;
+  QueryPerformanceCounter(&li);
+
+  return *(uint64_t*)&li;
+}
+
+double PerformanceCountToSecond(uint64_t count) {
+  return (double)count * g_timeSystem.mSecondsPerCount;
+}
+
+ProfileLogScope::ProfileLogScope(const char* tag) {
+  mTag = tag;
+  mStartHPC = GetPerformanceCounter();
+}
+ProfileLogScope::~ProfileLogScope() {
+  uint64_t elapsed = GetPerformanceCounter() - mStartHPC;
+  DebuggerPrintf("[ %s ] took %f seconds.", mTag, PerformanceCountToSecond(elapsed));
 }
 
 

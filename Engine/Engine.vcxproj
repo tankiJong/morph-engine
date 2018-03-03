@@ -460,6 +460,7 @@
     <ClCompile Include="Core\Blackboard.cpp" />
     <ClCompile Include="Core\EngineCommon.cpp" />
     <ClCompile Include="Core\Image.cpp" />
+    <ClCompile Include="Core\Misc\Uuid.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
     <ClCompile Include="Core\StringUtils.cpp" />
     <ClCompile Include="Core\Time.cpp" />
@@ -582,6 +583,7 @@
     <ClInclude Include="Core\Delegate.hpp" />
     <ClInclude Include="Core\EngineCommon.hpp" />
     <ClInclude Include="Core\Image.hpp" />
+    <ClInclude Include="Core\Misc\Uuid.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\StringUtils.hpp" />
     <ClInclude Include="Core\Time.hpp" />
