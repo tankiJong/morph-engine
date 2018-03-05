@@ -160,7 +160,7 @@ public:
   void setOrtho(float width, float height, float near, float far);
   void setProjection(const mat44& projection);
   void traslate2D(const vec2& translation);
-  void useShaderProgram(ShaderProgram* program);
+  void useShaderProgram(ShaderProgram* program = nullptr);
   void clearDepth(float depth = 1.f);
   void enableDepth(eCompare compare, bool shouldWrite);
   void disableDepth();

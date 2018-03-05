@@ -622,6 +622,8 @@ void Renderer::swapBuffers(HDC ctx) {
 }
 
 bool Renderer::copyFrameBuffer(FrameBuffer* dest, FrameBuffer* src) {
+  GL_CHECK_ERROR();
+
   // we need at least the src.
   if (src == nullptr) {
     return false;

@@ -20,7 +20,7 @@ public:
 
   template<typename ...Valty>
   Countdown& emplace_push(Valty ...valty) {
-    Countdown& cd = emplace_back(valty);
+    Countdown& cd = emplace_back(valty...);
     std::push_heap(begin(), end(), SwComp);
     return cd;
   }
@@ -142,8 +142,10 @@ bool destoryWatch(Stopwatch& target) {
   for(auto it = gStopwatch.begin(); it != gStopwatch.end(); it++) {
     if(&(*it) == &target) {
       gStopwatch.erase(it);
+      return true;
     }
   }
+  return false;
 }
 
 Countdown& createCountdown(double duration) {

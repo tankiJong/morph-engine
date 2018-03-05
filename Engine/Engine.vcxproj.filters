@@ -73,6 +73,9 @@
     <Filter Include="Core\Misc">
       <UniqueIdentifier>{4e94cd7d-4d60-4162-bb5f-b5bca35f78ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Time">
+      <UniqueIdentifier>{b0d60807-4c40-44e9-9165-35e7334c1258}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -89,9 +92,6 @@
     </ClCompile>
     <ClCompile Include="Input\XboxController.cpp">
       <Filter>Input</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Time.cpp">
-      <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Texture.cpp">
       <Filter>Renderer</Filter>
@@ -238,6 +238,12 @@
     <ClCompile Include="Core\Misc\Uuid.cpp">
       <Filter>Core\Misc</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Time\Time.cpp">
+      <Filter>Core\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Time\Clock.cpp">
+      <Filter>Core\Time</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -257,9 +263,6 @@
     </ClInclude>
     <ClInclude Include="Input\XboxController.hpp">
       <Filter>Input</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Time.hpp">
-      <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Texture.hpp">
       <Filter>Renderer</Filter>
@@ -567,6 +570,12 @@
     <ClInclude Include="Renderer\Sprite.hpp" />
     <ClInclude Include="Core\Misc\Uuid.hpp">
       <Filter>Core\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Time\Time.hpp">
+      <Filter>Core\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Time\Clock.hpp">
+      <Filter>Core\Time</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

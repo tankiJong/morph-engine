@@ -6,7 +6,7 @@
 
 class Clock {
 public:
-
+  friend class Stopwatch;
   
   /**
    * \brief create a master clock
@@ -25,7 +25,7 @@ public:
 
 
 protected:
-  Clock(Clock* parent = nullptr);
+  Clock(Clock* parent);
   void addChild(Clock* clock);
   float scale = 1.f;
   bool isPaused = false;
@@ -38,23 +38,23 @@ protected:
 class Stopwatch {
   friend class Clock;
   friend Stopwatch& createWatch();
-
 public:
   inline void pause() { isPaused = true; };
   inline void resume() { isPaused = false; }
-protected:
   Stopwatch();
+protected:
   void elapse();
   Time currentTime;
   Time startTime;
-  bool isPaused;
+  bool isPaused = false;
 };
 
+// add delegate callback for countdown
 class Countdown: public Stopwatch {
-  friend class CountdownHeap;
+  friend class CdHeap;
   friend Countdown& createCountdown(double duration);
 public:
-  float duration = 0;
+  double duration = 0;
   inline bool isFinished() const { return currentTime.second - startTime.second >= duration; }
   Countdown(double dura);
 };
