@@ -6,11 +6,10 @@ class Texture;
 
 class Sprite {
 public:
-protected:
-  Texture* mTexture = nullptr;
-  aabb2    mUV;
-  vec2     mDimension;
-  vec2     mPivot = vec2(.5f, .5f);
+  Texture* texture = nullptr;
+  aabb2    uv;
+  vec2     dimension;
+  vec2     pivot = vec2(.5f, .5f);
   
   aabb2 bounds() const;
 };

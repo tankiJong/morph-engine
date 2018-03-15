@@ -1,6 +1,6 @@
 ﻿#include "Sprite.hpp"
 aabb2 Sprite::bounds() const {
-  vec2 bottomLeft = mDimension * mPivot;
+  vec2 bottomleft = - dimension * pivot;
 
-  return { bottomLeft, bottomLeft + mDimension };
+  return { bottomleft, bottomleft + dimension };
 }
