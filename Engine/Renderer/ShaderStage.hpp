@@ -1,29 +1,15 @@
 ﻿#pragma once
 #include <string>
-#include <vector>
-#include "Engine/Core/common.hpp"
 #include <tuple>
-#include "Engine/File/Path.hpp"
+#include <vector>
 #include <set>
-
+#include "Engine/Core/common.hpp"
+#include "Engine/File/Path.hpp"
+#include "Engine/Renderer/type.h"
 namespace std {
   template<typename T>
   class optional;
 }
-
-enum eShaderType {
-  SHADER_TYPE_VERTEX,
-  SHADER_TYPE_FRAGMENT,
-  NUM_SHADER_TYPE,
-};
-
-enum eShaderStageState {
-  STAGE_READY,
-  STAGE_PREPROCESSED,
-  STAGE_PREPROCESS_FAILED,
-  STAGE_COMPILE_FAILED,
-  NUM_STAGE_STATE,
-};
 
 class ShaderStage {
 public:

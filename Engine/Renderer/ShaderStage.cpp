@@ -69,23 +69,35 @@ bool consumeComment(const char*& c) {
   return true;
 }
 
-bool consumeInlineComment(const char*& c) {
+uint consumeInlineComment(const char*& c) {
   EXPECTS(isInlineCommentBegin(c));
 
+  uint offset = 0;
   while(!isInlineCommentEnd(c)) {
     if(isTermination(c)) {
       ERROR_RECOVERABLE("Preprocessing shader file failed, get '\0', expect '*/' for inline comment");
-      return false;
+      return offset;
     }
-    ++c;
+    if(isReturn(c)) {
+      consumeReturn(c);
+      offset++;
+    } else {
+      ++c;
+    }
   }
 
   c += 2;
-  return true;
+
+  return offset;
 }
 
-bool passWhitespaceAndComment(const char*& c) {
+/*
+* \return the line offset, eg 1 means new *c is on the next line
+*/
+uint passWhitespaceAndComment(const char*& c) {
+  uint offset = 0;
   while(true) {
+    if (isTermination(c)) return offset;
     consumeWhitespace(c);
     
     if (isComment(c)) {
@@ -94,15 +106,76 @@ bool passWhitespaceAndComment(const char*& c) {
     }
 
     if (isInlineCommentBegin(c)) {
-      bool success = consumeInlineComment(c);
-      if(!success) return false;
+      uint lineoffset = 0;
+      offset += consumeInlineComment(c);
       continue;
     }
 
     break;
   }
 
-  return true;
+  return offset;
+}
+
+/*
+* \return the line offset, eg 1 means new *c is on the next line
+*/
+uint passWhitespaceAndInlineComment(const char*& c) {
+  uint offset = 0;
+  while (true) {
+    if (isTermination(c)) return offset;
+
+    consumeWhitespace(c);
+
+    if (isInlineCommentBegin(c)) {
+      uint lineoffset = 0;
+      offset += consumeInlineComment(c);
+      continue;
+    }
+
+    break;
+  }
+
+  return offset;
+}
+
+/*
+ * the input c is any actual code content
+ * * if get // first, pass until \n, *c would be either the symbol after \n
+ * * if get /* first return *c would be / (start of the inlineComment)
+ * * if get \n first, *c would be the symbol after \n
+ * * if get \0 first, *c would be \0
+ * \return the line offset, eg 1 means new *c is on the next line
+ */
+uint passCodeTillLineEndOrInlineComment(const char*& c) {
+  while(true) {
+    //  //
+    if (isComment(c)) {
+      while(true) {
+        if (isTermination(c)) return 0;
+        if(isReturn(c)) {
+          c++;
+          return 1;
+        }
+        c++;
+      }
+    }
+
+    //  /*
+    if (isInlineCommentBegin(c)) return 0;
+
+
+    //  \n
+    if (isReturn(c)) {
+      c++;
+      return 1;
+    }
+
+    //  \0
+    if (isTermination(c)) return 0;
+
+    c++;
+  }
 }
 
 bool consumeVersion (const char*& c, uint& version) {
@@ -131,23 +204,33 @@ bool consumeVersion (const char*& c, uint& version) {
   return true;
 }
 
-bool isIncludeLine(const std::string& line, std::string* includePath = nullptr) {
+
+/**
+ * \brief assumption: the input *c is an actuall symbol not part of the whitspace or comment, so bascially it should be actual code content
+ * if return false, c will be the thing according to @passCodeTillLineEndOrInlineComment
+ * if return true,  c will be the symbol after the end of line
+ */
+bool tryInclude(const char*& c, uint& out_lineOffset, std::string* includePath = nullptr) {
   constexpr uint INCLUDE_KEY_LEN = 7;
-  const char* c = line.c_str();
 
   const char* pathStart = nullptr;
-  passWhitespaceAndComment(c);
-  if (isTermination(c)) return false;
 
+  out_lineOffset = 0;
   // #
-  if (*c != '#') return false;
+  if (*c != '#') {
+    out_lineOffset += passCodeTillLineEndOrInlineComment(c);
+    return false;
+  };
   c++;
 
   // include
-  if (strncmp(c, "include", INCLUDE_KEY_LEN)) return false;
+  if (strncmp(c, "include", INCLUDE_KEY_LEN)) {
+    out_lineOffset += passCodeTillLineEndOrInlineComment(c);
+    return false;
+  }
   c += INCLUDE_KEY_LEN;
 
-  passWhitespaceAndComment(c);
+  out_lineOffset += passWhitespaceAndInlineComment(c);
   if (isTermination(c)) return false;
 
   // < or "
@@ -161,25 +244,38 @@ bool isIncludeLine(const std::string& line, std::string* includePath = nullptr) 
     case '<':
       quoteEnd = '>';
       break;
-    default:
+    default: {
+      out_lineOffset += passCodeTillLineEndOrInlineComment(c);
       return false;
+    }
   }
 
   c++;
 
   pathStart = c;
 
-  while(!isTermination(c) && *c != quoteEnd) {
+  while(*c != quoteEnd) {
+    if (isTermination(c)) {
+      return false; // change line or EOF before end of the include
+    }
+
+    if(isReturn(c)) {
+      out_lineOffset++;
+      consumeReturn(c);
+      return false;
+    }
+
     c++;
   }
-  if (isTermination(c)) return false; // #incliude <xxx\0
 
   ENSURES(*c == quoteEnd);
+
 
   if(includePath) {
     *includePath = std::string(pathStart, c);
   }
 
+  c++;
   return true;
 };
 
@@ -263,6 +359,8 @@ bool ShaderStage::parse(std::string& source) {
 
   mShaderString = head;
   mShaderString.append(body);
+
+  return success;
 }
 
 std::optional<std::tuple<std::string, std::string, uint>> ShaderStage::parseDirectives(std::string& source) {
@@ -276,7 +374,7 @@ std::optional<std::tuple<std::string, std::string, uint>> ShaderStage::parseDire
   ENSURES(isReturn(begin) || isTermination(begin));
 
   uint line = 1;
-  for(const char* i = source.data(); i != begin+1; ++i) {
+  for(const char* i = source.data(); i != begin; ++i) {
     if (*i == '\n') line++;
   }
 
@@ -308,35 +406,45 @@ bool ShaderStage::parseBody(const Path& currentFile, std::string& body, uint cur
 
   std::stringstream output;
 
-  std::string line;
 
   output << makelineDirective(mVersion, currentLine, currentFile);
 
-  while(std::getline(input, line)) {
+  const char* c = body.data();
+  while(!isTermination(c)) {
+    const char* parseStart = c;
+
+    currentLine += passWhitespaceAndComment(c);
+
+    if(parseStart != c) {
+      output << std::string(parseStart, c);
+    }
+
+    parseStart = c;
     std::string includePath;
-    if(isIncludeLine(line, &includePath)) {
-      
+    uint lineoffset = 0;
+    bool isInclude = tryInclude(c, lineoffset, &includePath);
+    currentLine += lineoffset;
+    if(isInclude) {
       if(includedFiles.count(includePath) == 0) {
         Blob f = fileToBuffer(includePath.c_str());
 
-        if (f.size() == 0) {
+        if(f.size() == 0) {
           ERROR_RECOVERABLE("Include file with empty content, possibly file does not exist")
           return false;
         }
 
         std::string includeFile(f.as<char*>());
         includedFiles.insert(includePath);
-        bool success = parseBody(includePath, includeFile, 1, includedFiles);
+        bool success = parseBody(includePath, includeFile, 0, includedFiles);
 
-//        if(!success) return false;
+        //        if(!success) return false;
 
-        output << includeFile;
+        output << includeFile << '\n';
         output << makelineDirective(mVersion, currentLine, currentFile);
       }
     } else {
-      output<< line << '\n';
+      output << std::string(parseStart, c);
     }
-    currentLine++;
   }
 
   body = std::move(output.str());
