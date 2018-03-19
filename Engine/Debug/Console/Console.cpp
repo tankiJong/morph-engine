@@ -333,10 +333,10 @@ void Console::render() const {
   static constexpr float inputBoxHeight = LINE_HEIGHT;
   const aabb2& screenBounds = Window::getInstance()->bounds();
   mRenderer->setCamera(mCamera);
-  mRenderer->clearDepth(1.0f);
   mRenderer->enableDepth(COMPARE_ALWAYS, false);
   // ###### draw background
   
+  mRenderer->bindTexture();
   // input box
   mRenderer->drawAABB2({ screenBounds.mins, 
                         { screenBounds.maxs.x, inputBoxHeight } },
@@ -357,6 +357,9 @@ void Console::render() const {
     vec2 selectionTopRight = selectionBottomLeft + vec2{ mSelection.size() * chWidth + WORD_PADDING, inputBoxHeight };
     mRenderer->drawAABB2({ selectionBottomLeft, selectionTopRight }, Rgba::red);
   }
+
+
+  mRenderer->bindTexture(0, &font->getTexture());
 
   // ###### draw input
   std::string inputText = mInputStream;

@@ -48,8 +48,8 @@ public:
 static CdHeap gCountdown;
 std::list<Stopwatch> gStopwatch;
 
-void Clock::createChild() {
-  new Clock(this);
+Clock* Clock::createChild() {
+  return new Clock(this);
 }
 
 Clock::Clock(Clock* parent) {
@@ -75,14 +75,16 @@ void Clock::beginFrame() {
   uint64_t elapsed = current - mLastFrameHPC;
   
   stepClock(elapsed);
+
+  mLastFrameHPC = current;
 }
 
 void Clock::stepClock(uint64_t elapsed) {
   frameCount++;
-  if (isPaused) {
+  if (paused) {
     elapsed = 0;
   } else {
-    elapsed = (uint64_t)((double)elapsed*scale);
+    elapsed = (uint64_t)((double)elapsed*mScale);
   }
 
   if(this == &gMainClock) {

@@ -1,5 +1,4 @@
 #pragma once
-
 #ifdef _WIN64
 typedef unsigned __int64 size_t;
 typedef __int64          ptrdiff_t;
@@ -20,3 +19,4 @@ typedef int              intptr_t;
 #endif
 
 typedef unsigned uint;
+

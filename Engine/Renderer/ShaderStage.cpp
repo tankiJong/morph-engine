@@ -406,7 +406,10 @@ bool ShaderStage::parseBody(const Path& currentFile, std::string& body, uint cur
 
   std::stringstream output;
 
+  Path workingDir = fs::current_path();
 
+  Path absDir = fs::absolute(currentFile);;
+  fs::current_path(absDir.parent_path());
   output << makelineDirective(mVersion, currentLine, currentFile);
 
   const char* c = body.data();
@@ -426,6 +429,7 @@ bool ShaderStage::parseBody(const Path& currentFile, std::string& body, uint cur
     currentLine += lineoffset;
     if(isInclude) {
       if(includedFiles.count(includePath) == 0) {
+//        Path absPath = fs::canonical(includePath);
         Blob f = fileToBuffer(includePath.c_str());
 
         if(f.size() == 0) {
@@ -449,6 +453,7 @@ bool ShaderStage::parseBody(const Path& currentFile, std::string& body, uint cur
 
   body = std::move(output.str());
 
+  fs::current_path(workingDir);
   return true;
 }
 

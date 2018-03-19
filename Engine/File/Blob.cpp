@@ -5,6 +5,8 @@ Blob::~Blob() {
 }
 
 Blob::Blob(Blob&& source) noexcept {
+  free(buffer);
+
   buffer = source.buffer;
   dataSize = source.dataSize;
   bufferSize = source.bufferSize;
@@ -23,9 +25,14 @@ Blob Blob::clone() const {
 }
 
 Blob& Blob::operator=(Blob&& other) noexcept {
+
+  free(buffer);
   buffer = other.buffer;
   dataSize = other.dataSize;
   bufferSize = other.bufferSize;
 
+  other.buffer = malloc(0);
+  other.dataSize = 0;
+  other.bufferSize = 0;
   return *this;
 }

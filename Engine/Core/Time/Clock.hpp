@@ -2,7 +2,8 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Core/Time/Time.hpp"
 #include <vector>
-
+#include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Game/Gameplay/EncounterState.hpp"
 
 class Clock {
 public:
@@ -17,21 +18,23 @@ public:
   void reset();
   void beginFrame();
   void stepClock(uint64_t elapsed);
-  void createChild();
+  Clock* createChild();
+  inline void pause() { paused = !paused; }
+  inline void scale(float s = 1.f) { EXPECTS(s > 0);  mScale = s; }
 public:
   Time frame;
   Time total;
+  bool paused = false;
   std::vector<Clock*> mChildren;
 
 
 protected:
   Clock(Clock* parent);
   void addChild(Clock* clock);
-  float scale = 1.f;
-  bool isPaused = false;
+  float mScale = 1.f;
   Clock* mParent = nullptr;
-  uint frameCount;
-  uint64_t mLastFrameHPC;
+  uint frameCount = 0u;
+  uint64_t mLastFrameHPC = 0u;
 };
 
 

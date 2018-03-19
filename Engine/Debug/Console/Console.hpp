@@ -32,13 +32,13 @@ class Console {
     CommandDef() = default;
   };
 
+
+public:
   enum Severity {
     DEBUG_INFO,
     DEBUG_WARN,
     DEBUG_ERROR,
   };
-
-public:
   static bool isOpen() { return getInstance()->mIsOpened; };
   static Console* getInstance();
   static void log(const std::string& msg, Severity level);
