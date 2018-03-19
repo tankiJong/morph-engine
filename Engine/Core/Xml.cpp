@@ -6,7 +6,7 @@ using namespace pugi;
 Xml::Xml(const char* path) {
   xml_document* doc = new xml_document();
   doc->load_file(path);
-  m_node = doc->first_child();
+  m_node = *doc;
   m_document = doc;
   m_isRoot = true;
 }
@@ -14,7 +14,7 @@ Xml::Xml(const char* path) {
 Xml::Xml(const char* content, size_t size) {
   xml_document* doc = new xml_document();
   doc->load_buffer(content, size);
-  m_node = doc->first_child();
+  m_node = *doc;
   m_document = doc;
 }
   
@@ -32,6 +32,8 @@ std::string Xml::name() const {
 std::string Xml::value() const {
   return m_node.value();
 }
+
+
 Xml Xml::parent() const {
   return { m_node.parent(), m_document };
 }
@@ -82,6 +84,10 @@ bool Xml::save(const char* path) const {
 
 void Xml::save(std::ostream& stream) const {
   m_document->save(stream);
+}
+
+xml::Text Xml::text() const {
+  return m_node.text();
 }
 
 void Xml::print(std::ostream& stream) const {

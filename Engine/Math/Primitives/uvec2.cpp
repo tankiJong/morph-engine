@@ -1,6 +1,7 @@
 ﻿#include "uvec2.hpp"
 #include "vec2.hpp"
 #include "ivec2.hpp"
+#include "Game/Utils/Resource.hpp"
 
 const uvec2 uvec2::zero(0u, 0u);
 const uvec2 uvec2::top(0u, 1u);
@@ -30,4 +31,12 @@ bool uvec2::operator==(const uvec2& rhs) const {
 
 bool uvec2::operator!=(const uvec2& rhs) const {
   return !(rhs == *this);
+}
+
+void uvec2::fromString(const char* data) {
+  auto raw = split(data, " ,");
+  GUARANTEE_OR_DIE(raw.size() == 2, "illegal input string to parse");
+
+  x = parse<uint>(raw[0]);
+  y = parse<uint>(raw[1]);
 }

@@ -9,9 +9,12 @@
 
 #include "Engine/Math/Primitives/mat44.hpp"
 #include "Engine/Math/Primitives/rect2.hpp"
+#include "Engine/Renderer/type.h"
 #include "RenderBuffer.hpp"
 #include "Camera.hpp"
 #include <array>
+
+#include "UniformBuffer.hpp"
 
 struct HDC__;
 struct HGLRC__;
@@ -29,48 +32,6 @@ class Sampler;
 class FrameBuffer;
 class Sprite;
 
-struct Vertex_PCU {
-  Vertex_PCU() {}
-  Vertex_PCU(const vec3& pos, const Rgba& col, const vec2& uvs) : position(pos), color(col), uvs(uvs) {}
-  Vertex_PCU(const vec2& pos, const Rgba& col, const vec2& uvs) : position(pos), color(col), uvs(uvs) {}
-  vec3 position;
-  Rgba color;
-  vec2 uvs;
-};
-
-enum eCompare {
-  COMPARE_NEVER,       // GL_NEVER
-  COMPARE_LESS,        // GL_LESS
-  COMPARE_LEQUAL,      // GL_LEQUAL
-  COMPARE_GREATER,     // GL_GREATER
-  COMPARE_GEQUAL,      // GL_GEQUAL
-  COMPARE_EQUAL,       // GL_EQUAL
-  COMPARE_NOT_EQUAL,   // GL_NOTEQUAL
-  COMPARE_ALWAYS,      // GL_ALWAYS
-  NUM_COMPARE,
-};
-
-enum DrawPrimitive {
-  DRAW_UNKNOWN = -1,
-  DRAW_POINTS,
-  // in OpenGL, for example, this becomes GL_POINTS
-  DRAW_LINES,
-  // in OpenGL, for example, this becomes GL_LINES
-  DRAW_LINE_LOOP,
-  DRAW_TRIANGES,
-  // in OpenGL, for example, this becomes GL_TRIANGLES
-  DRAW_TRIANGLE_FAN,
-  DRAW_QUADS,
-  // in OpenGL, for example, this becomes GL_QUADS
-  NUM_PRIMITIVE_TYPES
-};
-
-enum TextDrawMode {
-  TEXT_DRAW_OVERRUN,
-  TEXT_DRAW_SHRINK_TO_FIT,
-  TEXT_DRAW_WORD_WRAP,
-  NUM_TEXT_DRAW_MODE
-};
 
 /*
  * +y
@@ -95,7 +56,9 @@ public:
   void bindTexture(const Texture* texture = nullptr);
   void bindSampler(Sampler* sampler);
   void setTexture(const char* path);
+  void setTexture(uint i, const char* path);
   void cleanScreen(const Rgba& color);
+  void clearDepth(float depth = 1.f);
   bool copyTexture(Texture* from, Texture* to = nullptr);
   BitmapFont* createOrGetBitmapFont(const char* bitmapFontName, const char* path);
   BitmapFont* createOrGetBitmapFont(const char* fontNameWithPath);
@@ -106,21 +69,22 @@ public:
     return createRenderTarget(width, height, TEXTURE_FORMAT_D24S8);
   }
   ShaderProgram* createOrGetShaderProgram(const char* nameWithPath);
+  void disableDepth();
   void drawAABB2(const aabb2& bounds, const Rgba& color, bool filled = true);
   void drawCircle(const vec2& center, float radius, const Rgba& color, bool filled = false);
   void drawCube(const vec3& bottomCenter, const vec3& dimension, 
                 const Rgba& color = Rgba::white, 
                 rect2 uvTop = rect2::zero_one, rect2 uvSide = rect2::zero_one, rect2 uvBottom = rect2::zero_one);
-  void drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, DrawPrimitive drawPrimitive);
+  void drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, eDrawPrimitive drawPrimitive);
   template<size_t N>
-  inline void drawMeshImmediate(const std::array<Vertex_PCU, N>& vertices, DrawPrimitive drawPrimitive) {
+  inline void drawMeshImmediate(const std::array<Vertex_PCU, N>& vertices, eDrawPrimitive drawPrimitive) {
     this->drawMeshImmediate(vertices.data(), N, drawPrimitive);
   }
   void drawLine(const vec3& start, const vec3& end,
                 const Rgba& startColor, const Rgba& endColor,
                 float lineThickness = 1.f);
 
-  void drawSprite(const vec3 position, const Sprite& sprite);
+  void drawSprite(const vec3& position, const Sprite& sprite, mat44 orientation);
   void drawTexturedAABB2(const aabb2& bounds, const Texture& texture,
                          const vec2& texCoordsAtMins, const vec2& texCoordsAtMaxs, const Rgba& tint);
   void drawTexturedAABB2(const aabb2& bounds, const Texture& texture,
@@ -138,10 +102,13 @@ public:
                   float cellHeight, const std::vector<Rgba>& tints, const BitmapFont* font = nullptr, float aspectScale = 1.f);
 
   void drawTextInBox2D(const aabb2& bounds, const std::string& asciiText, float cellHeight,
-                       vec2 aligns = vec2::zero, TextDrawMode drawMode = TEXT_DRAW_OVERRUN,
+                       vec2 aligns = vec2::zero, eTextDrawMode drawMode = TEXT_DRAW_OVERRUN,
                        const BitmapFont* font = nullptr, const Rgba& tint = Rgba::white, float aspectScale = 1.f);
+
+  void enableDepth(eCompare compare, bool shouldWrite);
   inline Texture* getDefaultColorTarget() { return mDefaultColorTarget; }
   inline Texture* getDefaultDepthTarget() { return mDefaultDepthTarget; }
+  inline Camera* getCurrentCarmara() { return mCurrentCamera; }
   bool init(HWND hwnd);
 
   void loadIdentity();
@@ -159,11 +126,10 @@ public:
   void setOrtho2D(const vec2& bottomLeft, const vec2& topRight);
   void setOrtho(float width, float height, float near, float far);
   void setProjection(const mat44& projection);
+  void setSampler(uint i, Sampler* sampler = nullptr);
   void traslate2D(const vec2& translation);
+  void updateTime(float gameDeltaSec, float sysDeltaSec);
   void useShaderProgram(ShaderProgram* program = nullptr);
-  void clearDepth(float depth = 1.f);
-  void enableDepth(eCompare compare, bool shouldWrite);
-  void disableDepth();
   static HGLRC createRealRenderContext(HDC hdc, int major, int minor);
   static HGLRC createOldRenderContext(HDC hdc);
 protected:
@@ -175,6 +141,7 @@ protected:
   std::map<std::string, ShaderProgram*> mShaderPrograms = {};
 
   RenderBuffer mTempRenderBuffer;
+  UniformBuffer mUniformTime;
   ShaderProgram* mCurrentShaderProgram = nullptr;
   ShaderProgram* mDefaultShaderProgram = nullptr;
   Camera* mCurrentCamera = nullptr;

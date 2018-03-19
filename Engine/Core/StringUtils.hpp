@@ -3,7 +3,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-
+#include "Engine/Core/type.h"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 //-----------------------------------------------------------------------------------------------
 const std::string Stringf( const char* format, ... );
 const std::string Stringf( const int maxLength, const char* format, ... );
@@ -36,6 +37,15 @@ inline unsigned char parse(const char* str) {
   int val = atoi(str);
 
   return unsigned char(val);
+}
+
+template<>
+inline uint parse(const char* str) {
+  char* end;
+  uint val = strtol(str, &end, 10);
+  ENSURES(*end == '\0');
+
+  return val;
 }
 
 template<>

@@ -2,21 +2,21 @@
 // Texture.hpp
 //
 #pragma once
-#include "Engine/Math/Primitives/ivec2.hpp"
-#include <string>
 #include <map>
+#include <string>
+#include "Engine/Math/Primitives/ivec2.hpp"
 #include "Engine/Core/common.hpp"
 #include "Engine/Core/Image.hpp"
+#include "Engine/Renderer/type.h"
 //---------------------------------------------------------------------------
 
-enum eTextureFormat {
-  TEXTURE_FORMAT_RGBA8, // default color format
-  TEXTURE_FORMAT_D24S8,
-};
+
 class Texture
 {
 	friend class Renderer; // Textures are managed by a Renderer instance
   friend class FrameBuffer;
+public:
+  inline ivec2 dimension() const { return mDimensions; };
 private:
   Texture();
 	Texture( const std::string& imageFilePath );
@@ -27,9 +27,9 @@ private:
   inline uint getHandle() const { return mTextureID; }
   Texture* clone() const;
 private:
-	unsigned int								mTextureID;
-  Image                       mData;
-	ivec2									mDimensions;
+	unsigned int	 mTextureID;
+  Image          mData;
+	ivec2					 mDimensions;
   eTextureFormat mFormat;
 };
 

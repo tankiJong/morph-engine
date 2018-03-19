@@ -155,6 +155,18 @@ mat44 mat44::inverse() const {
   return mat44();
 }
 
+mat44 mat44::makeRotation(float x, float y, float z) {
+  float cx = cosDegrees(x), cy = cosDegrees(y), cz = cosDegrees(z);
+  float sx = sinDegrees(x), sy = sinDegrees(y), sz = sinDegrees(z);
+
+  return {
+    cx*cy, cx*sy*sz - sx*cz, cx*sy*cz + sx*sz, 0,
+    sx*cy, sx*sy*sz + cx*cz, sx*sy*cz - cx*sz, 0,
+    -sy,   cy*sz,            cy*cz,            0,
+    0,     0,                0,                1
+  };
+}
+
 mat44 mat44::makeRotation2D(float rotationDegreesAboutZ) {
   float cosdeg = cosDegrees(rotationDegreesAboutZ), sindeg = sinDegrees(rotationDegreesAboutZ);
   return {

@@ -57,9 +57,9 @@ void aabb2::translate(float translationX, float translationY) {
 std::array<vec2, 4> aabb2::vertices() const {
   return {
     mins,
-    {mins.x, maxs.y},
-    maxs,
     {maxs.x, mins.y},
+    maxs,
+    {mins.x, maxs.y},
   };
 }
 

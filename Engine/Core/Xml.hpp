@@ -4,11 +4,20 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 
 namespace xml {
-  class Attribute: public pugi::xml_attribute {
+  class Attribute: protected pugi::xml_attribute {
   public:
-    Attribute(const pugi::xml_attribute& attr) : pugi::xml_attribute(attr) {};
+    Attribute(const pugi::xml_attribute& attr): pugi::xml_attribute(attr) {};
+
+    template<typename T>
+    T as() {
+      return parse<T>(value());
+    }
 
     operator std::string() const {
+      return value();
+    }
+
+    operator std::string_view() const {
       return value();
     }
 
@@ -26,6 +35,20 @@ namespace xml {
     Attribute& operator=(const char* val) {
       this->set_value(val);
       return *this;
+    }
+  };
+
+  class Text: protected pugi::xml_text {
+  public:
+    Text(const pugi::xml_text& text): pugi::xml_text(text) {}
+
+    operator std::string() const {
+      return get();
+    }
+
+    template<typename T>
+    T as() {
+      return parse<T>(get());
     }
   };
 }
@@ -49,6 +72,7 @@ public:
   Xml            selectNode(const char* xpath) const;
   bool           save(const char* path)  const;
   void           save(std::ostream&  stream) const;
+  xml::Text      text() const;
   void           print(std::ostream& stream) const;
 
   template<typename T>
@@ -93,9 +117,16 @@ public:
       std::invoke(fn, attr.name(), attr.value());
     }
   }
+  operator bool() const {
+    return bool(m_node);
+  }
 
+  bool operator !() const {
+    return m_node.operator!();
+  }
   const xml::Attribute operator[](const char* attribute) const;
   xml::Attribute operator[] (const char* attribute);
+
 protected:
   Xml(const pugi::xml_node& xmlNode, pugi::xml_document* doc, bool isRoot = false);
   pugi::xml_node m_node;
@@ -115,14 +146,14 @@ inline T parseXmlAttribute(const Xml& ele, const char* attributeName, const T& d
 template<>
 inline std::string parseXmlAttribute(const Xml& ele, const char* attributeName, const std::string& defaultValue) {
   std::string raw = ele[attributeName];
-  return (raw.length() == 0) ? defaultValue : raw;
+  return (raw.length() == 0) ? defaultValue : std::string(raw);
 }
 
 template<typename T, typename A>
 inline std::vector<T, A> parseXmlAttribute(const Xml& ele, const char* attributeName, const std::vector<T, A>& defaultValue) {
   std::string raw = ele[attributeName];
 
-  return (raw.length() == 0) ? defaultValue : parse<T, A>(raw.c_str(), " ,");
+  return (raw.length() == 0) ? defaultValue : parse<T, A>(raw.data(), " ,");
 }
 
 

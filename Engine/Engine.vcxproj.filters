@@ -76,6 +76,9 @@
     <Filter Include="Core\Time">
       <UniqueIdentifier>{b0d60807-4c40-44e9-9165-35e7334c1258}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ThirdParty\gsl">
+      <UniqueIdentifier>{5d7d5f30-fdb7-4c58-b005-c0d3fca3db2f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -234,7 +237,6 @@
     <ClCompile Include="..\ThirdParty\stb\stb_image_write.c">
       <Filter>ThirdParty\stb</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Sprite.cpp" />
     <ClCompile Include="Core\Misc\Uuid.cpp">
       <Filter>Core\Misc</Filter>
     </ClCompile>
@@ -243,6 +245,12 @@
     </ClCompile>
     <ClCompile Include="Core\Time\Clock.cpp">
       <Filter>Core\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\UniformBuffer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Sprite.cpp">
+      <Filter>Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -567,7 +575,6 @@
     <ClInclude Include="..\ThirdParty\stb\stb_image_write.h">
       <Filter>ThirdParty\stb</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Sprite.hpp" />
     <ClInclude Include="Core\Misc\Uuid.hpp">
       <Filter>Core\Misc</Filter>
     </ClInclude>
@@ -576,6 +583,15 @@
     </ClInclude>
     <ClInclude Include="Core\Time\Clock.hpp">
       <Filter>Core\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\UniformBuffer.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\type.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Sprite.hpp">
+      <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -599,5 +615,37 @@
     <None Include="Renderer\Shader\passthrough.vs">
       <Filter>Renderer\Shader</Filter>
     </None>
+    <None Include="..\ThirdParty\gsl\gsl">
+      <Filter>ThirdParty\gsl</Filter>
+    </None>
+    <None Include="..\ThirdParty\gsl\gsl_algorithm">
+      <Filter>ThirdParty\gsl</Filter>
+    </None>
+    <None Include="..\ThirdParty\gsl\gsl_assert">
+      <Filter>ThirdParty\gsl</Filter>
+    </None>
+    <None Include="..\ThirdParty\gsl\gsl_byte">
+      <Filter>ThirdParty\gsl</Filter>
+    </None>
+    <None Include="..\ThirdParty\gsl\gsl_util">
+      <Filter>ThirdParty\gsl</Filter>
+    </None>
+    <None Include="..\ThirdParty\gsl\multi_span">
+      <Filter>ThirdParty\gsl</Filter>
+    </None>
+    <None Include="..\ThirdParty\gsl\pointers">
+      <Filter>ThirdParty\gsl</Filter>
+    </None>
+    <None Include="..\ThirdParty\gsl\span">
+      <Filter>ThirdParty\gsl</Filter>
+    </None>
+    <None Include="..\ThirdParty\gsl\string_span">
+      <Filter>ThirdParty\gsl</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\ThirdParty\gsl\GSL.natvis">
+      <Filter>ThirdParty\gsl</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>

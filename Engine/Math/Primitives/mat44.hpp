@@ -57,8 +57,9 @@ public:
 
   mat44 transpose() const;
   mat44 inverse() const;
-  
+
   // Producers
+  static mat44 makeRotation(float x, float y, float z);
   static mat44 makeRotation2D(float rotationDegreesAboutZ);
   static mat44 makeTranslation2D(const vec2& translation);
   static mat44 makeTranslation(const vec3& translation);

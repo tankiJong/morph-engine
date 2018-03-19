@@ -219,6 +219,8 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -246,6 +248,8 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -273,6 +277,8 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -299,6 +305,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -323,6 +331,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -526,6 +536,7 @@
     <ClCompile Include="Renderer\SpriteAnimSet.cpp" />
     <ClCompile Include="Renderer\SpriteSheet.cpp" />
     <ClCompile Include="Renderer\Texture.cpp" />
+    <ClCompile Include="Renderer\UniformBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ThirdParty\fmod\fmod.h" />
@@ -656,6 +667,8 @@
     <ClInclude Include="Renderer\SpriteAnimSet.hpp" />
     <ClInclude Include="Renderer\SpriteSheet.hpp" />
     <ClInclude Include="Renderer\Texture.hpp" />
+    <ClInclude Include="Renderer\type.h" />
+    <ClInclude Include="Renderer\UniformBuffer.hpp" />
     <ClInclude Include="Tool\Parser.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -667,8 +680,20 @@
     <Text Include="..\..\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\ThirdParty\gsl\gsl" />
+    <None Include="..\ThirdParty\gsl\gsl_algorithm" />
+    <None Include="..\ThirdParty\gsl\gsl_assert" />
+    <None Include="..\ThirdParty\gsl\gsl_byte" />
+    <None Include="..\ThirdParty\gsl\gsl_util" />
+    <None Include="..\ThirdParty\gsl\multi_span" />
+    <None Include="..\ThirdParty\gsl\pointers" />
+    <None Include="..\ThirdParty\gsl\span" />
+    <None Include="..\ThirdParty\gsl\string_span" />
     <None Include="Renderer\Shader\passthrough.fs" />
     <None Include="Renderer\Shader\passthrough.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\ThirdParty\gsl\GSL.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

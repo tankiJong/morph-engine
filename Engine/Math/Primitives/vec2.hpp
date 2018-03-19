@@ -40,6 +40,7 @@ public:
   bool operator==(const vec2& compare) const; // vec2 == vec2
   bool operator!=(const vec2& compare) const; // vec2 != vec2
 
+  float magnitude() const;
   float getLength() const;
   float getLengthSquared() const; // faster than GetLength() since it skips the sqrtf()
   float normalizeAndGetLength(); // set my new length to 1.0f; keep my direction

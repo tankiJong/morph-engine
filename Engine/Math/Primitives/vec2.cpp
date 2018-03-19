@@ -191,6 +191,10 @@ bool vec2::operator!=(const vec2& compare) const {
     return x != compare.x || y != compare.y;
 }
 
+float vec2::magnitude() const {
+  return sqrtf(x*x + y * y);
+}
+
 float vec2::getLength() const {
 	return sqrtf(x*x + y*y);
 }

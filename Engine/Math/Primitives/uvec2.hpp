@@ -14,10 +14,15 @@ public:
 
   bool operator==(const uvec2& rhs) const;
   bool operator!=(const uvec2& rhs) const;
+
+  void fromString(const char* data);
+
   static const uvec2 zero;
 
   static const uvec2 top;
   static const uvec2 down;
   static const uvec2 left;
   static const uvec2 right;
+
+  
 };

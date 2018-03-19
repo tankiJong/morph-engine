@@ -18,6 +18,7 @@
 #include "Sampler.hpp"
 #include "Engine/Application/Window.hpp"
 #include "FrameBuffer.hpp"
+#include "Sprite.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
@@ -86,7 +87,11 @@ void Renderer::afterFrame() {
 }
 
 void Renderer::beforeFrame() {
-//  glClearColor(1.f, 0, 0, 1);
+
+  mUniformTime.putGpu();
+  glBindBufferBase(GL_UNIFORM_BUFFER, UNIFORM_TIME, mUniformTime.handle());
+  GL_CHECK_ERROR();
+
 }
 
 void Renderer::bindTexture(uint i, const Texture* texture) {
@@ -94,12 +99,14 @@ void Renderer::bindTexture(uint i, const Texture* texture) {
     texture = createOrGetTexture("$");
   }
 
+  if (mCurrentTexture[i] == texture) return;
+
   glBindSampler(i, mDefaultSampler->getHandle());
 
   // Bind the texture
+  mCurrentTexture[i] = texture;
   glActiveTexture(GL_TEXTURE0 + i);
   glBindTexture(GL_TEXTURE_2D, texture->getHandle());
-  mCurrentTexture[i] = texture;
 }
 
 void Renderer::drawLine(const vec3& start, const vec3& end, 
@@ -113,8 +120,33 @@ void Renderer::drawLine(const vec3& start, const vec3& end,
   drawMeshImmediate(verts, 2, DRAW_LINES);
 }
 
-void Renderer::drawSprite(const vec3 position, const Sprite& sprite) {
+void Renderer::drawSprite(const vec3& position, const Sprite& sprite, mat44 orientation) {
+  std::array<vec2, 4> bounds = sprite.bounds().vertices();
+  std::array<vec2, 4> uvs = sprite.uv.vertices();
+  // 0 1 2 0 2 3
+  std::array<Vertex_PCU, 6> mesh= {
+    Vertex_PCU{
+      bounds[0], Rgba::white,  uvs[0]
+    }, Vertex_PCU{
+      bounds[1], Rgba::white,  uvs[1]
+    }, Vertex_PCU{
+      bounds[2], Rgba::white,  uvs[2]
+    }, Vertex_PCU{
+      bounds[0], Rgba::white,  uvs[0]
+    }, Vertex_PCU{
+      bounds[2], Rgba::white,  uvs[2]
+    }, Vertex_PCU{
+      bounds[3], Rgba::white,  uvs[3]
+    }
+  };
 
+  for(Vertex_PCU& m: mesh) {
+    m.position = (orientation * vec4(m.position, 1)).xyz();
+    m.position += position;
+  }
+
+  bindTexture(sprite.texture);
+  drawMeshImmediate(mesh.data(), 6, DRAW_TRIANGES);
 }
 
 void Renderer::drawTexturedAABB2(const aabb2& bounds, 
@@ -197,7 +229,7 @@ void Renderer::drawText2D(const vec2& drawMins,
   }
 }
 
-void Renderer::drawTextInBox2D(const aabb2& bounds, const std::string& asciiText, float cellHeight, vec2 aligns, TextDrawMode drawMode, const BitmapFont* font, const Rgba& tint, float aspectScale) {
+void Renderer::drawTextInBox2D(const aabb2& bounds, const std::string& asciiText, float cellHeight, vec2 aligns, eTextDrawMode drawMode, const BitmapFont* font, const Rgba& tint, float aspectScale) {
   auto texts = split(asciiText.c_str(), "\n");
   std::vector<std::string>* toDraw = nullptr;
   std::vector<std::string> blocks = {};
@@ -358,7 +390,6 @@ void Renderer::postInit() {
 
   aabb2 bounds = Window::getInstance()->bounds();
 
-
   // create our output textures
   mDefaultColorTarget = createRenderTarget((uint)bounds.width(), (uint)bounds.height());
   mDefaultDepthTarget = createRenderTarget((uint)bounds.width(), (uint)bounds.height(),
@@ -371,6 +402,8 @@ void Renderer::postInit() {
 
   // set our default camera to be our current camera
   setCamera(nullptr);
+
+  mUniformTime.set(uniform_time_t());
 }
 
 void Renderer::setOrtho2D(const vec2& bottomLeft, const vec2& topRight) {
@@ -386,6 +419,10 @@ void Renderer::setProjection(const mat44& projection) {
   mCurrentCamera->mProjMatrix = projection;
 }
 
+void Renderer::setSampler(uint i, Sampler* sampler) {
+  glBindSampler(i, sampler->getHandle());
+}
+
 void Renderer::pushMatrix() {
 //	glPushMatrix();
   UNIMPLEMENTED();
@@ -399,6 +436,15 @@ void Renderer::popMatrix() {
 void Renderer::traslate2D(const vec2& translation) {
 //	glTranslatef(translation.x, translation.y, 0);
   UNIMPLEMENTED();
+}
+
+void Renderer::updateTime(float gameDeltaSec, float sysDeltaSec) {
+  uniform_time_t* t = mUniformTime.as<uniform_time_t>();
+
+  t->gameDeltaSeconds = gameDeltaSec;
+  t->gameSeconds += gameDeltaSec;
+  t->sysDeltaSeconds = sysDeltaSec;
+  t->sysSeconds += sysDeltaSec;
 }
 
 void Renderer::useShaderProgram(ShaderProgram* program) {
@@ -471,6 +517,10 @@ void Renderer::bindSampler(Sampler* sampler) {
 
 void Renderer::setTexture(const char* path) {
   bindTexture(createOrGetTexture(path));
+}
+
+void Renderer::setTexture(uint i, const char* path) {
+  bindTexture(i, createOrGetTexture(path));
 }
 
 HGLRC Renderer::createRealRenderContext(HDC hdc, int major, int minor) {
@@ -678,9 +728,18 @@ void Renderer::loadIdentity() {
 }
 
 void Renderer::drawAABB2(const aabb2& bounds, const Rgba& color, bool filled) {
-  if(filled) drawTexturedAABB2(bounds, *mTextures.at("$"), { 0,1 }, { 1,0 }, color);
-  else {
-    bindTexture(mTextures.at("$"));  
+  if (filled) {
+    Vertex_PCU verts[6] = {
+      { bounds.mins, color, vec2::zero },
+      { vec2{ bounds.maxs.x, bounds.mins.y }, color, vec2::right },
+      { bounds.maxs, color, vec2::one },
+
+      { bounds.mins, color, vec2::zero },
+      { bounds.maxs, color, vec2::one },
+      { vec2{ bounds.mins.x, bounds.maxs.y }, color, vec2::top },
+    };
+    drawMeshImmediate(verts, 6, DRAW_TRIANGES);
+  } else {
     auto vertices = bounds.vertices();
     Vertex_PCU verts[6] = {
       { vec3(vertices[0]), color, vec2{ 0,0 } },
@@ -796,7 +855,7 @@ void Renderer::drawCube(const vec3& bottomCenter, const vec3& dimension,
   }
 }
 
-void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, DrawPrimitive drawPrimitive) {
+void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, eDrawPrimitive drawPrimitive) {
   // first, copy the memory to the buffer
   mTempRenderBuffer.copyToGpu(sizeof(Vertex_PCU) * numVerts, vertices);
   
@@ -972,12 +1031,11 @@ bool Renderer::applyEffect(ShaderProgram* program) {
   useShaderProgram(program);
 
   bindTexture(0, mEffectTarget);
-  bindTexture(0, mDefaultDepthTarget);
+  
+  bindTexture(1, mDefaultDepthTarget);
 
   drawAABB2({ {-1.f, -1.f}, {1.f, 1.f} }, Rgba::white);
+  GL_CHECK_ERROR();
 
-
-  return copyTexture(mEffectTarget, mDefaultColorTarget);
+  return copyTexture(mEffectScratch, mDefaultColorTarget);
 }
-
-
