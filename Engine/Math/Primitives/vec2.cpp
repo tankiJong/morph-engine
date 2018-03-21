@@ -226,6 +226,14 @@ float vec2::getOrientationDegrees() const {
 	return convertRadiansToDegrees(atan2f(y, x));
 }
 
+float vec2::manhattan() const {
+  return abs(x) + abs(y);
+}
+
+float vec2::manhattan(const vec2& rhs) const {
+  return (*this - rhs).manhattan();
+}
+
 float vec2::dot(const vec2& another) const {
   return dotProduct(*this, another);
 }

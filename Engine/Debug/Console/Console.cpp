@@ -16,7 +16,7 @@
 #define WM_KEYUP                0x0101
 #define JUST_KEYDOWN_STATE      0x80000000
 
-static const Rgba DEFAULT_TEXT_COLOR = Rgba::white;
+static const Rgba& DEFAULT_TEXT_COLOR = Rgba::white;
 static Console* gConsole = nullptr;
 
 static auto colorCode = 

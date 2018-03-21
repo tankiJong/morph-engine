@@ -25,6 +25,10 @@ uvec2 uvec2::operator+(const uvec2& rhs) const {
   return { x + rhs.x, y + rhs.y };
 }
 
+uvec2 uvec2::operator-(const uvec2& rhs) const {
+  return { x - rhs.x, y - rhs.y };
+}
+
 bool uvec2::operator==(const uvec2& rhs) const {
   return x == rhs.x && y == rhs.y;
 }
@@ -39,4 +43,13 @@ void uvec2::fromString(const char* data) {
 
   x = parse<uint>(raw[0]);
   y = parse<uint>(raw[1]);
+}
+
+uint uvec2::manhattan() const {
+  return x + y;
+}
+
+uint uvec2::manhattan(const uvec2& rhs) const {
+  return std::max(x, rhs.x) - std::min(x, rhs.x)
+       + std::max(y, rhs.y) - std::min(y, rhs.y);
 }

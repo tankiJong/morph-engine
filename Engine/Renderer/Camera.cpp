@@ -44,6 +44,10 @@ void Camera::setProjectionOrtho(float width, float height, float near, float far
   mProjMatrix = mat44::makeOrtho(width, height, near, far);
 }
 
+void Camera::setProjectionPrespective(float fovDeg, float width, float height, float near, float far) {
+  mProjMatrix = mat44::makePerspective(fovDeg, width, height, near, far);
+}
+
 void Camera::finalize() {
   mFrameBuffer->finalize();
 }
@@ -75,6 +79,7 @@ vec3 Camera::screenToWorld(uvec2 pixel, float distanceFromCamera) {
   return world.xyz() / world.w;
 }
 
+// in screen space, top-right is (0,0), bottom-right is (w,h)
 uvec2 Camera::worldToScreen(vec3 position) {
   mat44 vp = mProjMatrix * mViewMatrix;
   vec4 clip = vp * vec4(position, 1);

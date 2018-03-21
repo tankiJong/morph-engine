@@ -33,6 +33,10 @@ float atan2Degree(float y, float x) {
 	return convertRadiansToDegrees(atan2f(y, x));
 }
 
+float tanDegree(float degrees) {
+  return tanf(convertDegreesToRadians(degrees));
+}
+
 float getRandomf01() {
 	return (float)rand() / (float)RAND_MAX;
 }

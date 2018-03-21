@@ -22,6 +22,7 @@ public:
   // projection settings
   void setProjection(const mat44& proj);
   void setProjectionOrtho(float width, float height, float near, float far);
+  void setProjectionPrespective(float fovDeg, float width, float height, float near, float far);
 
   void finalize();
 

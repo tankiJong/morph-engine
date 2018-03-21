@@ -113,6 +113,15 @@ float vec3::normalizeAndGetMagnitude() {
   z *= revLen;
   return len;
 }
+
+float vec3::manhattan() const {
+  return abs(x) + abs(y) + abs(z);
+}
+
+float vec3::manhattan(const vec3& rhs) const {
+  return (*this - rhs).manhattan();
+}
+
 vec3 vec3::normalized() const {
   float reverseLen = 1.f / magnitude();
   return { x * reverseLen, y * reverseLen, z * reverseLen };

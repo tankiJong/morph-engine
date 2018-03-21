@@ -42,9 +42,13 @@ public:
   float magnitude() const;
   float magnitudeSquared() const;
   float normalizeAndGetMagnitude();
+
+  float manhattan() const;
+  float manhattan(const vec3& rhs) const;
+
   vec3 normalized() const;
-  float dot(const vec3& another) const;
-  vec3 cross(const vec3& another) const;
+  float dot(const vec3& rhs) const;
+  vec3 cross(const vec3& rhs) const;
   vec2 xy() const;
   vec2 xz() const;
   static float dot(const vec3& a, const vec3& b);

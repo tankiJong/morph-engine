@@ -68,7 +68,8 @@ public:
   static mat44 makeOrtho2D(const vec2& bottomLeft, const vec2& topRight);
   static mat44 makeOrtho(float l, float r, float b, float t, float nz, float fz);
   static mat44 makeOrtho(float width, float height, float near, float far);
-
+  static mat44 makePerspective(float fovDeg, float aspect, float nz, float fz);
+  static mat44 makePerspective(float fovDeg, float width, float height, float nz, float fz);
 
 public:
   // x,i

@@ -141,7 +141,7 @@ void Renderer::drawSprite(const vec3& position, const Sprite& sprite, mat44 orie
   };
 
   for(Vertex_PCU& m: mesh) {
-    m.position = (orientation * vec4(m.position, 1)).xyz();
+    m.position = (orientation * vec4(m.position, 0)).xyz();
     m.position += position;
   }
 

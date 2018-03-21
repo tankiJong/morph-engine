@@ -11,12 +11,16 @@ public:
   explicit uvec2(const vec2& castFrom);
   explicit uvec2(const ivec2& castFrom);
   uvec2 operator+(const uvec2& rhs) const;
+  uvec2 operator-(const uvec2& rhs) const;
 
   bool operator==(const uvec2& rhs) const;
   bool operator!=(const uvec2& rhs) const;
 
   void fromString(const char* data);
 
+  uint manhattan() const;
+
+  uint manhattan(const uvec2& rhs) const;
   static const uvec2 zero;
 
   static const uvec2 top;

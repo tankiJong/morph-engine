@@ -18,7 +18,7 @@ float convertDegreesToRadians (float degrees);
 float cosDegrees (float degrees);
 float sinDegrees (float degrees);
 float atan2Degree(float y, float x);
-
+float tanDegree(float degrees);
 float getSquaredDistance(const vec2& a, const vec2& b);
 float getDistance(const vec2& a, const vec2& b);
 float getAngularDisplacement(float startDegrees, float endDegrees);
