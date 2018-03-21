@@ -5,7 +5,7 @@
 #include <optional>
 #include "Engine/File/Path.hpp"
 #include <sstream>
-#include "Engine/File/FileUtils.hpp"
+#include "Engine/File/Utils.hpp"
 #include <set>
 #include "glFunctions.hpp"
 
@@ -106,7 +106,6 @@ uint passWhitespaceAndComment(const char*& c) {
     }
 
     if (isInlineCommentBegin(c)) {
-      uint lineoffset = 0;
       offset += consumeInlineComment(c);
       continue;
     }
@@ -128,7 +127,6 @@ uint passWhitespaceAndInlineComment(const char*& c) {
     consumeWhitespace(c);
 
     if (isInlineCommentBegin(c)) {
-      uint lineoffset = 0;
       offset += consumeInlineComment(c);
       continue;
     }
@@ -315,6 +313,7 @@ bool ShaderStage::setFromString(eShaderType type, std::string source) {
     return false;
   }
   mStatus = STAGE_PREPROCESSED;
+  return true;
 }
 
 bool ShaderStage::setFromFile(eShaderType type, const char* path) {
@@ -378,7 +377,7 @@ std::optional<std::tuple<std::string, std::string, uint>> ShaderStage::parseDire
     if (*i == '\n') line++;
   }
 
-  size_t len = begin - source.data() + 1;
+  size_t len = begin - source.data();
   std::string first(source.data(), len); // from begin to the end of #version line, include \n
   std::string rest(source.data() + len, source.length() - len); // the rest
   
@@ -388,12 +387,12 @@ std::optional<std::tuple<std::string, std::string, uint>> ShaderStage::parseDire
 
 
   for(const auto& def: mDefineDirectives) {
-    first += "#define " + def.first;
+    first += "\n#define " + def.first;
     if(!def.second.empty()) {
       first += " " + def.second;
     }
-    first += "\n";
   }
+  first += "\n";
 
   first += makelineDirective(mVersion, line, mPath.c_str());
 
@@ -402,14 +401,15 @@ std::optional<std::tuple<std::string, std::string, uint>> ShaderStage::parseDire
 
 
 bool ShaderStage::parseBody(const Path& currentFile, std::string& body, uint currentLine, std::set<Path>& includedFiles) {
+  static std::vector<fs::path> includeDirectory{ fs::workingPath() };
+
   std::istringstream input(body);
 
   std::stringstream output;
 
-  Path workingDir = fs::current_path();
 
   Path absDir = fs::absolute(currentFile);;
-  fs::current_path(absDir.parent_path());
+  includeDirectory.push_back(absDir.parent_path());
   output << makelineDirective(mVersion, currentLine, currentFile);
 
   const char* c = body.data();
@@ -430,7 +430,11 @@ bool ShaderStage::parseBody(const Path& currentFile, std::string& body, uint cur
     if(isInclude) {
       if(includedFiles.count(includePath) == 0) {
 //        Path absPath = fs::canonical(includePath);
-        Blob f = fileToBuffer(includePath.c_str());
+        Blob f;
+        for(auto it = includeDirectory.rbegin(), rn = includeDirectory.rend(); it != rn; ++it) {
+          f = fileToBuffer((*it / includePath).string().c_str());
+          if (f.size() != 0) break;
+        }
 
         if(f.size() == 0) {
           ERROR_RECOVERABLE("Include file with empty content, possibly file does not exist")
@@ -441,7 +445,7 @@ bool ShaderStage::parseBody(const Path& currentFile, std::string& body, uint cur
         includedFiles.insert(includePath);
         bool success = parseBody(includePath, includeFile, 0, includedFiles);
 
-        //        if(!success) return false;
+        if(!success) return false;
 
         output << includeFile << '\n';
         output << makelineDirective(mVersion, currentLine, currentFile);
@@ -453,7 +457,7 @@ bool ShaderStage::parseBody(const Path& currentFile, std::string& body, uint cur
 
   body = std::move(output.str());
 
-  fs::current_path(workingDir);
+  includeDirectory.pop_back();
   return true;
 }
 

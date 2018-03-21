@@ -159,9 +159,6 @@
     <ClCompile Include="Renderer\RenderBuffer.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="File\FileUtils.cpp">
-      <Filter>File</Filter>
-    </ClCompile>
     <ClCompile Include="File\Blob.cpp">
       <Filter>File</Filter>
     </ClCompile>
@@ -251,6 +248,12 @@
     </ClCompile>
     <ClCompile Include="Renderer\Sprite.cpp">
       <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="File\Utils.cpp">
+      <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="File\FileSystem.cpp">
+      <Filter>File</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -428,9 +431,6 @@
     <ClInclude Include="Renderer\RenderBuffer.hpp">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="File\FileUtils.hpp">
-      <Filter>File</Filter>
-    </ClInclude>
     <ClInclude Include="File\Blob.hpp">
       <Filter>File</Filter>
     </ClInclude>
@@ -592,6 +592,12 @@
     </ClInclude>
     <ClInclude Include="Renderer\Sprite.hpp">
       <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="File\Utils.hpp">
+      <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="File\FileSystem.hpp">
+      <Filter>File</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
