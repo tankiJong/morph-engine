@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "ThirdParty/pugixml/pugixml.hpp"
-#include "StringUtils.hpp"
+#include "Engine/Core/StringUtils.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 
 namespace xml {

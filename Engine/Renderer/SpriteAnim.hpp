@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "Engine/Math/Primitives/AABB2.hpp"
-#include "Engine/Math/Primitives/IntRange.hpp"
-#include "Engine/Core/Xml.hpp"
+#include "Engine/Persistence/xml.hpp"
 
 class Texture;
 enum SpriteAnimMode {

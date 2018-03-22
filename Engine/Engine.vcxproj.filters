@@ -79,6 +79,12 @@
     <Filter Include="ThirdParty\gsl">
       <UniqueIdentifier>{5d7d5f30-fdb7-4c58-b005-c0d3fca3db2f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Persistence">
+      <UniqueIdentifier>{2d06a7aa-f679-44d5-9469-11ebc5c3a063}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\nlohmann-json">
+      <UniqueIdentifier>{fe7226f5-3749-4d39-8de6-810f5eb76bc5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -120,9 +126,6 @@
     <ClCompile Include="Core\EngineCommon.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Xml.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Core\Image.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -146,9 +149,6 @@
     </ClCompile>
     <ClCompile Include="Math\Noise\Noise.cpp">
       <Filter>Math\Noise</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\Yaml.cpp">
-      <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\glFunctions.cpp">
       <Filter>Renderer</Filter>
@@ -255,6 +255,21 @@
     <ClCompile Include="File\FileSystem.cpp">
       <Filter>File</Filter>
     </ClCompile>
+    <ClCompile Include="Debug\Draw.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Persistence\json.cpp">
+      <Filter>Persistence</Filter>
+    </ClCompile>
+    <ClCompile Include="Persistence\xml.cpp">
+      <Filter>Persistence</Filter>
+    </ClCompile>
+    <ClCompile Include="Persistence\yaml.cpp">
+      <Filter>Persistence</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Font.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -324,9 +339,6 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\EngineCommon.hpp">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Xml.hpp">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\Image.hpp">
@@ -409,9 +421,6 @@
     </ClInclude>
     <ClInclude Include="..\ThirdParty\yaml-cpp\yaml.h">
       <Filter>ThirdParty\yaml-cpp</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Yaml.hpp">
-      <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\External\gl\glcorearb.h">
       <Filter>Renderer\External\gl</Filter>
@@ -598,6 +607,27 @@
     </ClInclude>
     <ClInclude Include="File\FileSystem.hpp">
       <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\Draw.hpp">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\nlohmann-json\json.hpp">
+      <Filter>ThirdParty\nlohmann-json</Filter>
+    </ClInclude>
+    <ClInclude Include="Persistence\json.hpp">
+      <Filter>Persistence</Filter>
+    </ClInclude>
+    <ClInclude Include="Persistence\xml.hpp">
+      <Filter>Persistence</Filter>
+    </ClInclude>
+    <ClInclude Include="Persistence\yaml.hpp">
+      <Filter>Persistence</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Font.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Persistence\json.forward.hpp">
+      <Filter>Persistence</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

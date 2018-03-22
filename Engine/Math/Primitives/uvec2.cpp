@@ -1,8 +1,7 @@
 ﻿#include "uvec2.hpp"
 #include "vec2.hpp"
 #include "ivec2.hpp"
-#include "Game/Utils/Resource.hpp"
-
+#include "Engine/Core/StringUtils.hpp"
 const uvec2 uvec2::zero(0u, 0u);
 const uvec2 uvec2::top(0u, 1u);
 const uvec2 uvec2::down(0u, uint(-1));

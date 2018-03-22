@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class Yaml {
+class yaml {
 public:
   
 };

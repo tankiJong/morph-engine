@@ -3,7 +3,6 @@
 #include "Engine/Core/Time/Time.hpp"
 #include <vector>
 #include "Engine/Debug/ErrorWarningAssert.hpp"
-#include "Game/Gameplay/EncounterState.hpp"
 
 class Clock {
 public:

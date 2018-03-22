@@ -1,6 +1,7 @@
 ﻿#include "FileSystem.hpp"
 #include "Utils.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
+#include <fstream>
 
 void FileSystem::mount(const fs::path& virtualDir, const fs::path& physicalPath) {
   Expects(fs::isDirectory(physicalPath));
@@ -54,6 +55,43 @@ std::vector<fs::path> FileSystem::map(const fs::path& virtualPath) {
     
     return paths;
   }
+}
+
+std::optional<Blob> FileSystem::asBuffer(const fs::path& file) {
+  auto paths = map(file);
+  uint i = 0;
+  for(uint size = paths.size(); i<size; ++i) {
+    if (fs::exists(paths[i])) break;
+  }
+
+  if (i == paths.size()) return {};
+
+  std::ifstream f(paths[i], std::ios::binary | std::ios::ate);
+
+  std::streamsize size = f.tellg();
+
+  if (size == -1) {
+    return {};
+  }
+  f.seekg(0, std::ios::beg);
+
+  char* buffer = new char[(uint)size + 1];
+
+  if (f.read(buffer, size)) {
+    buffer[size] = 0;
+    return Blob(buffer, (uint)size + 1);
+  } else {
+    return {};
+  }
+}
+
+static FileSystem* gInstance = nullptr;
+FileSystem& FileSystem::Get() {
+  if(!gInstance) {
+    gInstance = new FileSystem();
+  }
+
+  return *gInstance;
 }
 
 

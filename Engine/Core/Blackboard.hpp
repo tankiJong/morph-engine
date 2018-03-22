@@ -2,7 +2,7 @@
 #include <string>
 #include <map>
 #include "Engine/Core/StringUtils.hpp"
-#include "Engine/Core/Xml.hpp"
+#include "Engine/Persistence/xml.hpp"
 
 class Xml;
 class Blackboard {

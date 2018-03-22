@@ -318,7 +318,10 @@ bool ShaderStage::setFromString(eShaderType type, std::string source) {
 
 bool ShaderStage::setFromFile(eShaderType type, const char* path) {
   mPath = path;
-  std::string file(fileToBuffer(path).as<char*>());
+  Blob f = fileToBuffer(path);
+
+  if (f.size() == 0) return false;
+  std::string file(f.as<char*>());
   return setFromString(type, file);
 }
 

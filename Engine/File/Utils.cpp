@@ -12,6 +12,9 @@ Blob fileToBuffer(const char* nameWithFullPath) {
 
   std::streamsize size = file.tellg();
 
+  if(size == -1) {
+    return Blob();
+  }
   file.seekg(0, std::ios::beg);
 
   char* buffer = new char[(uint)size + 1];

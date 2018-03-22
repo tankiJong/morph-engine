@@ -4,9 +4,9 @@
 
 //-----------------------------------------------------------------------------------------------
 #include "Engine/Core/Time/Time.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "Game/Gameplay/Encounter.hpp"
 
 Time::Time() {
   memset(this, 0, sizeof(Time));
