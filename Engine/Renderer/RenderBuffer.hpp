@@ -2,14 +2,15 @@
 #include "Engine/Core/common.hpp"
 
 class RenderBuffer {
-  friend class Renderer;
 public:
   ~RenderBuffer();
   RenderBuffer() = default;
   bool copyToGpu(size_t byteCount, const void* data);
-
-  uint handle = 0;
-  size_t bufferSize = 0;
+  inline uint handle() const { return mHandle; }
+  inline size_t size() const { return mBufferSize; }
+protected:
+  uint mHandle = 0;
+  size_t mBufferSize = 0;
 };
 
  

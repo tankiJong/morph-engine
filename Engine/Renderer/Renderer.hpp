@@ -16,6 +16,7 @@
 
 #include "UniformBuffer.hpp"
 
+class Mesh;
 struct HDC__;
 struct HGLRC__;
 struct HWND__;
@@ -75,6 +76,7 @@ public:
   void drawCube(const vec3& bottomCenter, const vec3& dimension, 
                 const Rgba& color = Rgba::white, 
                 rect2 uvTop = rect2::zero_one, rect2 uvSide = rect2::zero_one, rect2 uvBottom = rect2::zero_one);
+  void drawMeshImmediate(const Mesh& mesh);
   void drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, eDrawPrimitive drawPrimitive);
   template<size_t N>
   inline void drawMeshImmediate(const std::array<Vertex_PCU, N>& vertices, eDrawPrimitive drawPrimitive) {

@@ -85,6 +85,9 @@
     <Filter Include="ThirdParty\nlohmann-json">
       <UniqueIdentifier>{fe7226f5-3749-4d39-8de6-810f5eb76bc5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Renderer\Geometry">
+      <UniqueIdentifier>{76d417b5-9f03-4dc0-bf60-a310f5722d8d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -269,6 +272,27 @@
     </ClCompile>
     <ClCompile Include="Renderer\Font.cpp">
       <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Resource.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Geometry\Mesh.cpp">
+      <Filter>Renderer\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Geometry\VertexBuffer.cpp">
+      <Filter>Renderer\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Geometry\IndexBuffer.cpp">
+      <Filter>Renderer\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Geometry\Vertex.cpp">
+      <Filter>Renderer\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Geometry\Mesher.cpp">
+      <Filter>Renderer\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Gradient.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -628,6 +652,30 @@
     </ClInclude>
     <ClInclude Include="Persistence\json.forward.hpp">
       <Filter>Persistence</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Resource.hpp">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Geometry\Mesh.hpp">
+      <Filter>Renderer\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Geometry\VertexBuffer.hpp">
+      <Filter>Renderer\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Geometry\IndexBuffer.hpp">
+      <Filter>Renderer\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Geometry\Vertex.hpp">
+      <Filter>Renderer\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Geometry\Mesher.hpp">
+      <Filter>Renderer\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Geometry\type.h">
+      <Filter>Renderer\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Gradient.hpp">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

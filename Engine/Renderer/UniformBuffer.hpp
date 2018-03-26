@@ -58,7 +58,7 @@ public:
   }
 
 public:
-  inline uint handle() const { return mRenderBuffer.handle; };
+  inline uint handle() const { return mRenderBuffer.handle(); };
 
 public:
   // render buffer backing this constant buffer (gpu memory

@@ -19,6 +19,7 @@
 #include "Engine/Application/Window.hpp"
 #include "FrameBuffer.hpp"
 #include "Sprite.hpp"
+#include "Geometry/Mesh.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
@@ -855,6 +856,57 @@ void Renderer::drawCube(const vec3& bottomCenter, const vec3& dimension,
   }
 }
 
+void Renderer::drawMeshImmediate(const Mesh& mesh) {
+  GL_CHECK_ERROR();
+  glBindBuffer(GL_ARRAY_BUFFER, mesh.vertices().handle());
+
+  // position
+  GLint posBind = glGetAttribLocation(mCurrentShaderProgram->programHandle, "POSITION");
+  if(posBind >= 0) {
+    glEnableVertexAttribArray(posBind);
+
+    glVertexAttribPointer(posBind, 3, GL_FLOAT, GL_FALSE, mesh.vertices().vertexStride, (GLvoid*)offsetof(Vertex_PCU, position));
+  }
+
+  // color
+  GLint colorBind = glGetAttribLocation(mCurrentShaderProgram->programHandle, "COLOR");
+  if(colorBind >= 0) {
+    glEnableVertexAttribArray(colorBind);
+    glVertexAttribPointer(colorBind, 3, GL_UNSIGNED_BYTE, GL_TRUE, mesh.vertices().vertexStride, (GLvoid*)offsetof(Vertex_PCU, color));
+  }
+
+  // uv
+  GLint uvBind = glGetAttribLocation(mCurrentShaderProgram->programHandle, "UV");
+  if(uvBind >= 0) {
+    glEnableVertexAttribArray(uvBind);
+    glVertexAttribPointer(uvBind, 2, GL_FLOAT, GL_FALSE, mesh.vertices().vertexStride, (GLvoid*)offsetof(Vertex_PCU, uvs));
+  }
+  glUseProgram(mCurrentShaderProgram->programHandle);
+  
+  GLint loc = glGetUniformLocation(mCurrentShaderProgram->programHandle, "PROJECTION");
+  if (loc >= 0) {
+    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mProjMatrix);
+  }
+
+  loc = glGetUniformLocation(mCurrentShaderProgram->programHandle, "VIEW");
+  if (loc >= 0) {
+    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mViewMatrix);
+  }
+
+  const draw_instr_t& ins = mesh.instruction();
+
+
+  glBindFramebuffer(GL_FRAMEBUFFER, mCurrentCamera->getFrameBufferHandle());
+
+  if(ins.useIndices) {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.indices().handle());
+    glDrawElements(g_openGlPrimitiveTypes[ins.prim], ins.elementCount, GL_UNSIGNED_INT, 0);
+  } else {
+    glDrawArrays(g_openGlPrimitiveTypes[ins.prim], ins.startIndex, ins.elementCount);
+  }
+
+}
+
 void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, eDrawPrimitive drawPrimitive) {
   // first, copy the memory to the buffer
   mTempRenderBuffer.copyToGpu(sizeof(Vertex_PCU) * numVerts, vertices);
@@ -866,7 +918,7 @@ void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, eD
   GLint posBind = glGetAttribLocation(mCurrentShaderProgram->programHandle, "POSITION");
 
   // Next, bind the buffer we want to use; 
-  glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle);
+  glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle());
 
   // next, bind where position is in our buffer to that location; 
   if (posBind >= 0) {
@@ -884,7 +936,7 @@ void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, eD
   //--------------------------bind UV---------------------------------
 
   GLint uvBind = glGetAttribLocation(mCurrentShaderProgram->programHandle, "UV");
-  glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle);
+  glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle());
 
   if (uvBind >= 0) {
     glEnableVertexAttribArray(uvBind);
@@ -901,7 +953,7 @@ void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, eD
 
   //-------------------------Color-----------------------------------
   // Next, bind the buffer we want to use;
-  glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle);
+  glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle());
 
   // next, bind where position is in our buffer to that location;
   GLint bind = glGetAttribLocation(mCurrentShaderProgram->programHandle, "COLOR");

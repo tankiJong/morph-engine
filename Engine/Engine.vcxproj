@@ -469,8 +469,10 @@
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Blackboard.cpp" />
     <ClCompile Include="Core\EngineCommon.cpp" />
+    <ClCompile Include="Core\Gradient.cpp" />
     <ClCompile Include="Core\Image.cpp" />
     <ClCompile Include="Core\Misc\Uuid.cpp" />
+    <ClCompile Include="Core\Resource.cpp" />
     <ClCompile Include="Core\Rgba.cpp" />
     <ClCompile Include="Core\StringUtils.cpp" />
     <ClCompile Include="Core\Time\Clock.cpp" />
@@ -523,6 +525,11 @@
     <ClCompile Include="Renderer\Camera.cpp" />
     <ClCompile Include="Renderer\Font.cpp" />
     <ClCompile Include="Renderer\FrameBuffer.cpp" />
+    <ClCompile Include="Renderer\Geometry\IndexBuffer.cpp" />
+    <ClCompile Include="Renderer\Geometry\Mesh.cpp" />
+    <ClCompile Include="Renderer\Geometry\Mesher.cpp" />
+    <ClCompile Include="Renderer\Geometry\Vertex.cpp" />
+    <ClCompile Include="Renderer\Geometry\VertexBuffer.cpp" />
     <ClCompile Include="Renderer\glFunctions.cpp" />
     <ClCompile Include="Renderer\RenderBuffer.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
@@ -593,8 +600,10 @@
     <ClInclude Include="Core\common.hpp" />
     <ClInclude Include="Core\Delegate.hpp" />
     <ClInclude Include="Core\EngineCommon.hpp" />
+    <ClInclude Include="Core\Gradient.hpp" />
     <ClInclude Include="Core\Image.hpp" />
     <ClInclude Include="Core\Misc\Uuid.hpp" />
+    <ClInclude Include="Core\Resource.hpp" />
     <ClInclude Include="Core\Rgba.hpp" />
     <ClInclude Include="Core\StringUtils.hpp" />
     <ClInclude Include="Core\Time\Clock.hpp" />
@@ -654,6 +663,12 @@
     <ClInclude Include="Renderer\External\gl\wglext.h" />
     <ClInclude Include="Renderer\Font.hpp" />
     <ClInclude Include="Renderer\FrameBuffer.hpp" />
+    <ClInclude Include="Renderer\Geometry\IndexBuffer.hpp" />
+    <ClInclude Include="Renderer\Geometry\Mesh.hpp" />
+    <ClInclude Include="Renderer\Geometry\Mesher.hpp" />
+    <ClInclude Include="Renderer\Geometry\type.h" />
+    <ClInclude Include="Renderer\Geometry\Vertex.hpp" />
+    <ClInclude Include="Renderer\Geometry\VertexBuffer.hpp" />
     <ClInclude Include="Renderer\glFunctions.hpp" />
     <ClInclude Include="Renderer\RenderBuffer.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
