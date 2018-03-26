@@ -25,7 +25,7 @@ bind(one_of("123456789"), [](char c, parse_input_t rest) {
     (one_of("0123456789"), c - '0',
      [](unsigned char result, char c1) -> unsigned char { return result * 10u + (c1 - '0'); })(rest);
 
-  return (result->first == 0) ? DEFAULT_TEXT_COLOR : hue(result->first);
+  return (result->first == 0) ? DEFAULT_TEXT_COLOR : Hue(result->first);
 });
 
 // only support font color control code for now
@@ -451,7 +451,7 @@ bool Console::exec() {
   return flag;
 }
 
-Console* Console::getInstance() {
+Console* Console::get() {
   if(gConsole == nullptr) {
     gConsole = new Console();
   }

@@ -1,6 +1,5 @@
 
-#include "Ivec2.hpp"
-#include <initializer_list>
+#include "ivec2.hpp"
 #include "Engine/Math/Primitives/vec2.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Primitives/vec3.hpp"

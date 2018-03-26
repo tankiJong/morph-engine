@@ -151,6 +151,14 @@ float vec3::dot(const vec3& a, const vec3& b) {
   return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
+vec3 vec3::fromSpherical(float r, float thetaDeg, float phiDeg) {
+  return {
+    r*sinDegrees(thetaDeg)*cosDegrees(phiDeg),
+    r*sinDegrees(phiDeg),
+    r*cosDegrees(thetaDeg)*cosDegrees(phiDeg),
+  };
+}
+
 vec3 operator*(float lhs, const vec3& rhs) {
   return rhs * lhs;
 }

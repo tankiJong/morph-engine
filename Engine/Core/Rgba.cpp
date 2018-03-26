@@ -76,6 +76,10 @@ void Rgba::fromRgbString(const char* data) {
   }
 }
 
+Rgba Rgba::operator*(float rhs) const {
+  return rhs * (*this);
+}
+
 void Rgba::fromHexString(const char* data) {
   // FFAABBFF
   // 01234567
@@ -133,6 +137,14 @@ float HueToRGB(float v1, float v2, float vH) {
   return v1;
 }
 
+Rgba operator*(float lhs, const Rgba& rhs) {
+  float _r = (float)rhs.r * lhs;
+  float _g = (float)rhs.g * lhs;
+  float _b = (float)rhs.b * lhs;
+  float _a = (float)rhs.a * lhs;
+
+  return Rgba{ unsigned char(_r), unsigned char(_g), unsigned char(_b), unsigned char(_a) };
+}
 
 /**
  * \brief 
@@ -141,7 +153,7 @@ float HueToRGB(float v1, float v2, float vH) {
  * \param l Value [0,1]
  * \return corresponding Rgba value from HSL space
  */
-Rgba hsl(float h, float s, float l) {
+Rgba Hsl(float h, float s, float l) {
   unsigned char r = 0;
   unsigned char g = 0;
   unsigned char b = 0;
@@ -163,8 +175,17 @@ Rgba hsl(float h, float s, float l) {
   return Rgba(r, g, b);
 }
 
-Rgba hue(unsigned char hh) {
+Rgba Hue(unsigned char hh) {
   float h = (float)hh / 255.f * 360.f;
-  return hsl(h, 1.f, .5f);
+  return Hsl(h, 1.f, .5f);
 }
 
+template<>
+Rgba lerp(const Rgba& from, const Rgba& to, float t) {
+  float r = (float)from.r * (1 - t) + (float)to.r;
+  float g = (float)from.g * (1 - t) + (float)to.g;
+  float b = (float)from.b * (1 - t) + (float)to.b;
+  float a = (float)from.a * (1 - t) + (float)to.a;
+
+  return Rgba(unsigned char(r), unsigned char(g), unsigned char(b), unsigned char(a));
+}

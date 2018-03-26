@@ -62,12 +62,12 @@ T rangeMap(const T& v, const T& inStart, const T& inEnd, const T& outStart, cons
     return (outStart + outEnd) * 0.5f;
   }
 
-  vec2 inRange = inEnd - inStart,
+  T inRange = inEnd - inStart,
     outRange = outEnd - outStart,
     inFromStart = v - inStart,
     fractionInRange = inFromStart / inRange;
 
-  vec2 outFromStart = fractionInRange * outRange;
+  T outFromStart = fractionInRange * outRange;
 
   return outFromStart + outStart;
 };

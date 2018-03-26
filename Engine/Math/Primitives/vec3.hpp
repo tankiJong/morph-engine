@@ -52,7 +52,7 @@ public:
   vec2 xy() const;
   vec2 xz() const;
   static float dot(const vec3& a, const vec3& b);
-
+  static vec3 fromSpherical(float r, float thetaDeg, float phiDeg);
 
   // x, i
   const static vec3 right;

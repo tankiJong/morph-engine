@@ -3,9 +3,9 @@
 
 class Rgba {
 public:
-	Rgba() {};
-	~Rgba() {};
-	Rgba(unsigned char redByte, unsigned char greenByte,
+	Rgba() = default;;
+	~Rgba() = default;;
+	explicit Rgba(unsigned char redByte, unsigned char greenByte,
 						unsigned char blueByte, unsigned char alphaByte = 255);
 	void setByBytes(unsigned char redByte, unsigned char greenByte,
 						  unsigned char blueByte, unsigned char alphaByte = 255);
@@ -21,6 +21,8 @@ public:
   void fromString(const char* data);
   void fromHexString(const char* data);
   void fromRgbString(const char* data);
+  Rgba operator*(float rhs) const;
+  friend Rgba operator*(float, const Rgba&);
   std::string toString(bool withAlpha = true);
   const static Rgba white;
   const static Rgba red;
@@ -37,5 +39,7 @@ public:
 	unsigned char a = 255;
 };
 
-Rgba hsl(float h, float s, float l);
-Rgba hue(unsigned char h);
+Rgba operator*(float lhs, const Rgba& rhs);
+Rgba Hsl(float h, float s, float l);
+Rgba Hue(unsigned char h);
+
