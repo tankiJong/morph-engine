@@ -15,6 +15,7 @@
 
 # Visual Studio Files
 Debug
+!Engine/Debug
 Release
 *.suo
 *.csproj.user

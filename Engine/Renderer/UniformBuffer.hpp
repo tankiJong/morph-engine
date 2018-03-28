@@ -77,7 +77,6 @@ public:
     // Excercise - convenience constructor, 
     // will create a constant buffer for a specific struct, 
     // initializing to the structs contents; 
-    UNIMPLEMENTED_RETURN(nullptr);
 
     UniformBuffer* buffer = new UniformBuffer();
 

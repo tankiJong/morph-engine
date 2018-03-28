@@ -15,6 +15,8 @@ vec3::vec3(float x, float y, float z)
   , y(y)
   , z(z) {}
 
+vec3::vec3(float v) : x(v), y(v), z(v) {}
+
 vec3::vec3(const vec2& vec)
   : x(vec.x)
   , y(vec.y)
@@ -163,11 +165,17 @@ vec3 operator*(float lhs, const vec3& rhs) {
   return rhs * lhs;
 }
 
+/**
+ * \brief 
+ * \param r 
+ * \param thetaDeg [0, 360], rotation about Y axis
+ * \param phiDeg  [-90, 90], xz plane is 0, up+, down-
+ */
 vec3 fromSpherical(float r, float thetaDeg, float phiDeg) {
   
   return {
-    r*sinDegrees(thetaDeg)*cosDegrees(phiDeg),
+    r*cosDegrees(phiDeg)*cosDegrees(thetaDeg),
     r*sinDegrees(phiDeg),
-    r*cosDegrees(thetaDeg)*cosDegrees(phiDeg),
+    r*cosDegrees(phiDeg)*sinDegrees(thetaDeg),
   };
 }

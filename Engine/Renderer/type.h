@@ -21,12 +21,8 @@ enum eDrawPrimitive {
   // in OpenGL, for example, this becomes GL_POINTS
   DRAW_LINES,
   // in OpenGL, for example, this becomes GL_LINES
-  DRAW_LINE_LOOP,
   DRAW_TRIANGES,
   // in OpenGL, for example, this becomes GL_TRIANGLES
-  DRAW_TRIANGLE_FAN,
-  DRAW_QUADS,
-  // in OpenGL, for example, this becomes GL_QUADS
   NUM_PRIMITIVE_TYPES
 };
 
@@ -60,7 +56,7 @@ enum eUniformUnit {
   UNIFORM_TIME = 1,
   UNIFORM_TRANSFORM,
   UNIFORM_CAMERA,
-  UNIFORM_DELTATIME,
+  UNiFORM_USER_1
 };
 // ---------------------- STRUCT -----------------------------
 

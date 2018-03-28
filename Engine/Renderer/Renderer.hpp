@@ -76,7 +76,7 @@ public:
   void drawCube(const vec3& bottomCenter, const vec3& dimension, 
                 const Rgba& color = Rgba::white, 
                 rect2 uvTop = rect2::zero_one, rect2 uvSide = rect2::zero_one, rect2 uvBottom = rect2::zero_one);
-  void drawMeshImmediate(const Mesh& mesh);
+  void drawMesh(const Mesh& mesh);
   void drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, eDrawPrimitive drawPrimitive);
   template<size_t N>
   inline void drawMeshImmediate(const std::array<Vertex_PCU, N>& vertices, eDrawPrimitive drawPrimitive) {
@@ -129,6 +129,7 @@ public:
   void setOrtho(float width, float height, float near, float far);
   void setProjection(const mat44& projection);
   void setSampler(uint i, Sampler* sampler = nullptr);
+  void setUniform(eUniformUnit slot, UniformBuffer& ubo);
   void traslate2D(const vec2& translation);
   void updateTime(float gameDeltaSec, float sysDeltaSec);
   void useShaderProgram(ShaderProgram* program = nullptr);

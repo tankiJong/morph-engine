@@ -8,9 +8,10 @@
 const Rgba Rgba::white = Rgba(255, 255, 255);
 const Rgba Rgba::black = Rgba(0  , 0  , 0  );
 const Rgba Rgba::red   = Rgba(255, 0  , 0  );
+const Rgba Rgba::green = Rgba(0  , 255, 0  );
+const Rgba Rgba::blue  = Rgba(0  , 0  , 255);
 const Rgba Rgba::yellow= Rgba(255, 255, 0  );
 const Rgba Rgba::cyan  = Rgba(0  , 255, 255);
-const Rgba Rgba::blue  = Rgba(0  , 0  , 255);
 const Rgba Rgba::gray  = Rgba(128, 128, 128);
 
 const Rgba Rgba::transparent = Rgba(255, 255, 255, 0);
@@ -182,6 +183,7 @@ Rgba Hue(unsigned char hh) {
 
 template<>
 Rgba lerp(const Rgba& from, const Rgba& to, float t) {
+  TODO("use hue to lerp color");
   float r = (float)from.r * (1 - t) + (float)to.r;
   float g = (float)from.g * (1 - t) + (float)to.g;
   float b = (float)from.b * (1 - t) + (float)to.b;

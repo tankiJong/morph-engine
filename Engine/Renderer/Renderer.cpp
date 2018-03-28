@@ -28,12 +28,9 @@
 
 int g_openGlPrimitiveTypes[NUM_PRIMITIVE_TYPES] =
 {
-  GL_POINTS,			// called PRIMITIVE_POINTS		in our engine
-  GL_LINES,			// called PRIMITIVE_LINES		in our engine
-  GL_LINE_LOOP,
-  GL_TRIANGLES,		// called PRIMITIVE_TRIANGES	in our engine
-  GL_TRIANGLE_FAN,
-  GL_QUADS			// called PRIMITIVE_QUADS		in our engine
+  GL_POINTS,
+  GL_LINES,
+  GL_TRIANGLES,
 };
 
 uint g_openGLCompare[NUM_COMPARE] = {
@@ -424,6 +421,11 @@ void Renderer::setSampler(uint i, Sampler* sampler) {
   glBindSampler(i, sampler->getHandle());
 }
 
+void Renderer::setUniform(eUniformUnit slot, UniformBuffer& ubo) {
+  ubo.putGpu();
+  glBindBufferBase(GL_UNIFORM_BUFFER, slot, ubo.handle());
+}
+
 void Renderer::pushMatrix() {
 //	glPushMatrix();
   UNIMPLEMENTED();
@@ -742,13 +744,16 @@ void Renderer::drawAABB2(const aabb2& bounds, const Rgba& color, bool filled) {
     drawMeshImmediate(verts, 6, DRAW_TRIANGES);
   } else {
     auto vertices = bounds.vertices();
-    Vertex_PCU verts[6] = {
+    Vertex_PCU verts[8] = {
       { vec3(vertices[0]), color, vec2{ 0,0 } },
       { vec3(vertices[1]), color,vec2{ 0,0 } },
+      { vec3(vertices[1]), color,vec2{ 0,0 } },
       { vec3(vertices[2]), color,vec2{ 0,0 } },
-      { vec3(vertices[3]), color, vec2{ 0,0 } }
+      { vec3(vertices[2]), color,vec2{ 0,0 } },
+      { vec3(vertices[3]), color, vec2{ 0,0 } },
+      { vec3(vertices[0]), color, vec2{ 0,0 } },
     };
-    drawMeshImmediate(verts, 4, DRAW_LINE_LOOP);
+    drawMeshImmediate(verts, 4, DRAW_LINES);
   }
 }
 
@@ -769,11 +774,12 @@ void Renderer::drawCircle(const vec2& center, float radius, const Rgba& color, b
     verts.emplace_back(vec2{ x + center.x, y + center.y }, color, vec2::zero);
   }
 
-  if(!filled) {
-    drawMeshImmediate(verts.data(), verts.size(), DRAW_LINE_LOOP);
-  } else {
     verts.emplace_back(vec2{ radius + center.x, center.y }, color, vec2::zero);
-    drawMeshImmediate(verts.data(), verts.size(), DRAW_TRIANGLE_FAN);
+  if(!filled) {
+    drawMeshImmediate(verts.data(), verts.size(), DRAW_LINES);
+  } else {
+    UNIMPLEMENTED();
+    ERROR_AND_DIE("unimplemented");
   }
 }
 
@@ -856,7 +862,7 @@ void Renderer::drawCube(const vec3& bottomCenter, const vec3& dimension,
   }
 }
 
-void Renderer::drawMeshImmediate(const Mesh& mesh) {
+void Renderer::drawMesh(const Mesh& mesh) {
   GL_CHECK_ERROR();
   glBindBuffer(GL_ARRAY_BUFFER, mesh.vertices().handle());
 

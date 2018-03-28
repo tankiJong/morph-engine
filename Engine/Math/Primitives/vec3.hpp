@@ -16,6 +16,7 @@ public:
   vec3() {}
   ~vec3() {}
   vec3(float x, float y, float z);
+  explicit vec3(float v);
   explicit vec3(const vec2& vec); // have to cast by intention
   explicit vec3(const ivec3 castFrom);
   vec3(const vec2& vec, float z); // have to cast by intention
