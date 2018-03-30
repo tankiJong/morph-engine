@@ -112,23 +112,24 @@ protected:
   Input* mInput = nullptr;
 
   // input state control
+  std::string mAutoCompleteText;
   std::string mInputStream;
-  uint mCursorPosition;
   IntRange mSelection;
-  bool mIsSelecting = false ;
   Rgba mFontColor;
-  bool mDrawCursor;
+  uint mCursorPosition = 0;
+  bool mIsSelecting = false ;
+  bool mDrawCursor = true;
   float mCursorFlashSec = 0.f;
   uint mLineNumberAtBottom = 0;
   uint mTotalLineLogCanRender = 0;
   uint mAutoCompleteIndex = 0;
-  std::string mAutoCompleteText;
+
   // display window content
   std::deque<std::string> mLogStream;
 
-  uint mNumCurrentCommand = 0;
   std::array<owner<CommandDef*>, MAX_COMMAND_COUNT> mlegalCommands;
   std::vector<std::string> mCommandLog;
+  uint mNumCurrentCommand = 0;
   uint mNextCommandLogIndex = 0;
   Camera* mCamera = nullptr;
 private:

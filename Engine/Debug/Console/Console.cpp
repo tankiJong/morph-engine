@@ -10,6 +10,7 @@
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Tool/Parser.hpp"
 #include "Engine/Renderer/Camera.hpp"
+#include "Engine/Debug/Draw.hpp"
 
 #define WM_CHAR                 0x0102
 #define WM_KEYDOWN              0x0100
@@ -35,7 +36,8 @@ static auto getColor = fmap(colorCode, colorString);
 
 static auto stringContent = many<std::string>( except_of(R"(")") | R"(\")"_P , "", [](auto a, auto b) { return a.append(b); });
 
-void consumeConsoleText(std::string& in, const delegate<void(const std::string&, const Rgba&)> fn) {
+template<typename F>
+void consumeConsoleText(std::string& in, F&& fn) {
 
   Rgba currentColor = DEFAULT_TEXT_COLOR;
   while(in.length() > 0) {
@@ -326,6 +328,28 @@ void Console::hookInBuiltInCommand() {
     }
     return flag;
   });
+
+  hook("debug_draw", "[enable] 1/0", "enable/disable the debug_draw(time will still elapse).", [](Command& command) {
+    int a = command.arg<0, int>();
+    if(a == 0) {
+      Debug::toggleDebugRender(false);
+      log("disable debug renderer.", DEBUG_INFO);
+      return true;
+    }
+
+    if (a == 1) {
+      Debug::toggleDebugRender(true);
+      log("enable debug renderer.", DEBUG_INFO);
+      return true;
+    }
+
+    return false;
+  });
+
+  hook("debug_draw_clear", "[]", "enable/disable the debug_draw(time will still elapse).", [](Command& command) {
+    Debug::clear();
+    return true;
+  });
   
 }
 
@@ -333,6 +357,8 @@ void Console::render() const {
   static constexpr float inputBoxHeight = LINE_HEIGHT;
   const aabb2& screenBounds = Window::getInstance()->bounds();
   mRenderer->setCamera(mCamera);
+  mRenderer->useShaderProgram();
+  mRenderer->resetAlphaBlending();
   mRenderer->enableDepth(COMPARE_ALWAYS, false);
   // ###### draw background
   
@@ -412,7 +438,7 @@ void Console::render() const {
 }
 
 bool Console::exec(const std::string& cmd) {
-  if (cmd.size() == 0) return true;
+  if (cmd.empty()) return true;
 
   if(mNextCommandLogIndex != uint(-1)) {
     mCommandLog.push_back(cmd);
@@ -510,6 +536,11 @@ Console::~Console() {
   for(uint i = 0; i < mNumCurrentCommand; i++) {
     delete mlegalCommands[i];
     mlegalCommands[i] = nullptr;
+  }
+
+  if(mCamera) {
+    delete mCamera;
+    mCamera = nullptr;
   }
 }
 

@@ -2,6 +2,7 @@
 #include "Mesh.hpp"
 #include "gsl/span"
 Mesher& Mesher::begin(eDrawPrimitive prim, bool useIndices) {
+  GUARANTEE_OR_DIE(isDrawing == false, "Call begin before previous end get called.");
   mIns.prim = prim;
   mIns.useIndices = useIndices;
 
@@ -16,6 +17,7 @@ Mesher& Mesher::begin(eDrawPrimitive prim, bool useIndices) {
 }
 
 void Mesher::end() {
+  GUARANTEE_OR_DIE(isDrawing, "Call end without calling begin before");
   uint end;
 
   if(mIns.useIndices) {
@@ -30,6 +32,7 @@ void Mesher::end() {
 void Mesher::clear() {
   mVertices.clear();
   mIndices.clear();
+  mIns = draw_instr_t();
 }
 Mesher& Mesher::color(const Rgba& c) {
   mStamp.color = c;
@@ -161,6 +164,50 @@ Mesher& Mesher::quad(uint a, uint b, uint c, uint d) {
     default: 
       ERROR_AND_DIE("unsupported primitive");
   }
+
+  return *this;
+}
+
+Mesher& Mesher::quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d) {
+  uint start =
+  uv({ 0,0 })
+    .vertex3f(a);
+
+  uv({ 1,0 })
+    .vertex3f(b);
+
+  uv({ 1,1 })
+    .vertex3f(c);
+
+  uv({ 0,1 })
+    .vertex3f(d);
+  quad(start + 0, start + 1, start + 2, start + 3);
+
+  return *this;
+}
+
+Mesher& Mesher::cube(const vec3& center, const vec3& dimension) {
+  vec3 bottomCenter = center - vec3::up * dimension.y * .5f;
+  float dx = dimension.x * .5f, dy = dimension.y * .5f, dz = dimension.z * .5f;
+
+  std::array<vec3, 8> vertices = {
+    bottomCenter + vec3{ -dx, 2.f * dy, -dz },
+    bottomCenter + vec3{ dx, 2.f * dy, -dz },
+    bottomCenter + vec3{ dx, 2.f * dy,  dz },
+    bottomCenter + vec3{ -dx, 2.f * dy,  dz },
+
+    bottomCenter + vec3{ -dx, 0, -dz },
+    bottomCenter + vec3{ dx, 0, -dz },
+    bottomCenter + vec3{ dx, 0,  dz },
+    bottomCenter + vec3{ -dx, 0,  dz }
+  };
+
+  quad(vertices[0], vertices[1], vertices[2], vertices[3]);
+  quad(vertices[4], vertices[5], vertices[6], vertices[7]);
+  quad(vertices[4], vertices[5], vertices[1], vertices[0]);
+  quad(vertices[5], vertices[6], vertices[2], vertices[1]);
+  quad(vertices[6], vertices[7], vertices[3], vertices[2]);
+  quad(vertices[7], vertices[4], vertices[0], vertices[3]);
 
   return *this;
 }

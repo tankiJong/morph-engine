@@ -1,4 +1,5 @@
 ﻿#include "Font.hpp"
+#include <utility>
 #include "Engine/Persistence/json.hpp"
 #include "Engine/File/FileSystem.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
@@ -6,30 +7,126 @@
 
 Glyph::Glyph(uint id, const vec2& offset, const aabb2& uv, float w, float h)
   : id(id)
-  , offset(offset)
   , uv(uv)
+  , mOffset(offset)
   , mDimension(w, h) {}
 
-Font::Face::Face(uint code, int glyphIndex, float advance)
+Font::Face::Face(uint code, const Glyph* glyph, float advance)
   : code(code)
-  , glyph(glyphIndex)
-  , mAdvance(advance) {}
+  , mAdvance(advance)
+  , mGlyph(glyph) {}
 
-void Font::addFace(uint code, int glyphIndex, float advance) {
-  if (mFaces.size() <= code) mFaces.resize(code + 1);
-
-  mFaces.emplace(mFaces.begin() + code, code, glyphIndex, advance);
+aabb2 Font::Face::uv() const {
+  return mGlyph ? mGlyph->uv : aabb2();
 }
 
+float Font::Face::kerning(uint previous, float size) const {
+  if (previous == 0u || mKernings.empty()) return 0.f;
+  
+  uint start = 0u;
+  uint end = mKernings.size() - 1u;
+
+  uint i = (end - start) / 2u;
+
+  while (mKernings[i].previousCode != previous) {
+    if(mKernings[i].previousCode < previous) {
+      start = i;
+    } else {
+      end = i;
+    }
+
+    const uint ii = (end - start) / 2u;
+    if (i == ii) break;
+    i = ii;
+  }
+
+  return mKernings[i].previousCode == previous ? mKernings[i].offeset(size) : 0.f;
+}
+
+vec2 Font::Face::offset(float size) const {
+  return mGlyph ? mGlyph->offset(size) : vec2::zero;
+}
+
+Font::Face::Kerning::Kerning(uint previous, float offset): previousCode(previous), mOffset(offset) {}
+
+Font::Font(std::string name, span<const Texture*> textures, std::vector<Glyph>&& glyphs)
+  : mName(std::move(name))
+  , mGlyphs(glyphs) {
+  for(int i = 0; i < textures.size(); i++) {
+    mTextures[i] = textures[i];
+  }
+}
+
+void Font::addFace(uint code, uint glyphIndex, float advance) {
+  if (mFaces.size() <= code) mFaces.resize(code + 1);
+
+  mFaces[code] = Face( code, &mGlyphs.at(glyphIndex), advance);
+}
+
+void Font::addFace(uint code, float advance) {
+  if (mFaces.size() <= code) mFaces.resize(code + 1);
+
+  mFaces[code] = Face(code, nullptr, advance);
+}
+
+float Font::advance(std::string_view text, float size, float aspectScale) {
+  // move forward one by one
+  if (text.empty()) return 0;
+  auto it = text.begin();
+  float totalAd = advance(0, *it, size, aspectScale);
+  while(it != text.end() - 1) {
+    float ad = advance(*it, *(++it), size, aspectScale);
+    totalAd += ad;
+  }
+
+  return totalAd;
+}
+
+float Font::advance(char previous, char c, float size, float aspectScale) {
+  Face& f = mFaces[c];
+  float advance = f.advance(size);
+  float kerning = f.kerning(previous, size);
+  return (advance + kerning) * aspectScale;
+}
+
+/**
+ * \brief the relative box related to the base point
+ */
+aabb2 Font::bounds(char c, char previous, float size, float aspectScale) const {
+  const Face& f = mFaces[c];
+  vec2 mins;
+  vec2 xyOffset = f.offset(size);
+  mins.x += xyOffset.x;
+  vec2 maxs = mins + f.size(size);
+
+  float distanceToLineTop = (maxs.y - mins.y) - ascender(size);
+  float offsetY = distanceToLineTop - xyOffset.y;
+
+  mins.y += offsetY; 
+  maxs.y += offsetY;
+
+  return { mins, maxs };
+}
+
+aabb2 Font::bounds(char c, float size, float aspectScale) const {
+  return bounds(c, '\0', size, aspectScale);
+}
+
+aabb2 Font::uv(char c) {
+  return mFaces[c].uv();
+}
 
 void from_json(const json& j, Glyph& g) {
   g.texIndex = j.at("texture");
-  g.offset = vec2(j.at("offset_x").get<float>(), j.at("offset_y").get<float>());
+  g.mOffset = vec2(j.at("offset_x").get<float>(), j.at("offset_y").get<float>());
   g.dimension().x = j.at("width");
   g.dimension().y = j.at("height");
 
-  vec2 mins(j.at("uv_x").get<float>(), j.at("uv_y").get<float>());
-  vec2 maxs(j.at("uv_width").get<float>(), j.at("uv_height").get<float>());
+  vec2 topLeft(j.at("uv_x").get<float>(), j.at("uv_y").get<float>());
+  vec2 size(j.at("uv_width").get<float>(), j.at("uv_height").get<float>());
+
+  g.uv.mins = topLeft - vec2(0, size.y);
+  g.uv.maxs = g.uv.mins + size;
 }
 
 Font* fromJson(const fs::path& path) {
@@ -50,11 +147,13 @@ Font* fromJson(const fs::path& path) {
   EXPECTS(glyphsNode.is_array());
 
   float size = meta.at("size");
-  std::vector<Glyph> glyphs(glyphsNode.size());
+  std::vector<Glyph> glyphs;
+  glyphs.reserve(glyphsNode.size());
   for(auto& glyph: glyphsNode) {
     glyphs.push_back(glyph.get<Glyph>());
     Glyph& g = glyphs.back();
-    g.offset /= size;
+    g.id = glyphs.size() - 1u;
+    g.mOffset /= size;
     g.dimension() /= size;
 
   }
@@ -68,11 +167,39 @@ Font* fromJson(const fs::path& path) {
   // the code expects the element at the end is with the biggest index
   auto& faces = meta.at("faces");
   EXPECTS(faces.is_object());
-  for (json::reverse_iterator kv = faces.rbegin(); kv < faces.rend(); ++kv) {
+
+  for (auto kv = faces.rbegin(); kv != faces.rend(); ++kv) {
     uint code = parse<uint>(kv.key());
     float advance = kv.value().at("advance");
-    uint index = kv.value().at("glyph");
-    font->addFace(code, index, advance);
+
+    auto g = kv.value().find("glyph");
+    if(g != kv.value().end()) {
+      uint index = *g;
+      font->addFace(code, index, advance / size);
+    } else {
+      font->addFace(code, advance /size);
+    }
   }
 
+  auto& kernings = meta.at("kernings");
+  EXPECTS(kernings.is_array());
+
+  if (kernings.empty()) return font;
+
+  for(auto k = kernings.begin(); k != kernings.end(); ++k) {
+    uint first = k->at("first");
+    uint second = k->at("second");
+    float offset = k->at("offset");
+    offset /= size;
+
+    font->mFaces[second].mKernings.emplace_back(first, offset);
+  }
+
+  for(auto& face: font->mFaces) {
+    std::sort(face.mKernings.begin(), face.mKernings.end(), [](Font::Face::Kerning& a, Font::Face::Kerning& b) {
+      return a.previousCode < b.previousCode;
+    });
+  }
+
+  return font;
 }

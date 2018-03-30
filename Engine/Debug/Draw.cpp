@@ -3,9 +3,6 @@
 #include "Engine/Core/Gradient.hpp"
 #include "Engine/Renderer/Geometry/Mesher.hpp"
 #include "Engine/Renderer/Renderer.hpp"
-#include "Game/GameCommon.hpp"
-#include "Engine/Renderer/glFunctions.hpp"
-#include "Engine/Math/Curves.hpp"
 
 Renderer* gRenderer = nullptr;
 Camera* gCamera = nullptr;
@@ -17,9 +14,10 @@ Gradient gDecayColor;
 ShaderProgram* gShaderProg = nullptr;
 Mesher gDebugMesher;
 
+bool gEnabled = true;
 struct Debug::DebugDrawMeta {
   Debug::DrawHandle handle;
-  Mesh* mesh = nullptr;
+  owner<Mesh*> mesh = nullptr;
   float duration;
   Debug::eDebugDrawDepthMode depthMode;
   Gradient decayColor;
@@ -41,6 +39,10 @@ struct Debug::DebugDrawMeta {
 
   void terminate() {
     endSec = clock->total.second;
+  }
+
+  ~DebugDrawMeta() {
+    delete mesh;
   }
 };
 
@@ -78,6 +80,21 @@ void Debug::setDecayColor(const Rgba& from, const Rgba& to) {
   gDecayColor.add(from, 0.f).add(to, 1.f);
 }
 
+void Debug::clear() {
+  for(auto& dc: gDebugDrawCalls) {
+    delete dc;
+  }
+  gDebugDrawCalls.clear();
+}
+
+void Debug::toggleDebugRender(bool isEnabled) {
+  gEnabled = isEnabled;
+}
+
+void Debug::toggleDebugRender() {
+  gEnabled = !gEnabled;
+}
+
 template<typename F>
 Debug::DrawHandle* drawMeta(float duration, const Clock* clockOverride, F&& f) {
   static_assert(std::is_invocable_v<F, Mesher>);
@@ -96,12 +113,13 @@ Debug::DrawHandle* drawMeta(float duration, const Clock* clockOverride, F&& f) {
 }
 
 void Debug::drawNow() {
+  if(!gEnabled) return;
   static UniformBuffer* tintUniform = UniformBuffer::For(vec4::zero);
   // will change to material later
   if(!gShaderProg) {
-    gShaderProg = g_theRenderer->createOrGetShaderProgram("Data/debug");
+    gShaderProg = gRenderer->createOrGetShaderProgram("Data/debug");
   }
-  g_theRenderer->useShaderProgram(gShaderProg);
+  gRenderer->useShaderProgram(gShaderProg);
   for(uint i = 0; i < gDebugDrawCalls.size(); ++i) {
     DebugDrawMeta*& comp = gDebugDrawCalls[i];
 
@@ -118,11 +136,9 @@ void Debug::drawNow() {
 
     tintUniform->set(colf);
 
-    g_theRenderer->setUniform(UNiFORM_USER_1, *tintUniform);
+    gRenderer->setUniform(UNiFORM_USER_1, *tintUniform);
     gRenderer->setCamera(comp->cam);
     gRenderer->drawMesh(*comp->mesh);
-    GL_CHECK_ERROR();
-
   }
 }
 
@@ -245,7 +261,7 @@ const Debug::DrawHandle* Debug::drawSphere(const vec3& center, float size, uint 
   });
 }
 
-const Debug::DrawHandle* Debug::drawCube(const vec3& center, const vec3& dimension, float duration, const Rgba& cl,
+const Debug::DrawHandle* Debug::drawCube(const vec3& center, const vec3& dimension, bool framed, float duration, const Rgba& cl,
   const Clock* clockOverride) {
 
   return drawMeta(duration, clockOverride, [&](Mesher& mesher) {
@@ -265,7 +281,7 @@ const Debug::DrawHandle* Debug::drawCube(const vec3& center, const vec3& dimensi
       bottomCenter + vec3{ -dx, 0,  dz }
     };
 
-    mesher.begin(DRAW_TRIANGES);
+    mesher.begin(framed ? DRAW_LINES : DRAW_TRIANGES);
     
     mesher.vertex3f(vertices);
 
@@ -281,9 +297,9 @@ const Debug::DrawHandle* Debug::drawCube(const vec3& center, const vec3& dimensi
   
 }
 
-const Debug::DrawHandle* Debug::drawCube(const vec3& center, float size, float duration, const Rgba& cl,
+const Debug::DrawHandle* Debug::drawCube(const vec3& center, float size, bool framed, float duration, const Rgba& cl,
   const Clock* clockOverride) {
-  return drawCube(center, vec3(size), duration, cl, clockOverride);
+  return drawCube(center, vec3(size), framed, duration, cl, clockOverride);
 }
 
 const Debug::DrawHandle* Debug::drawBasis(const vec3& position, const vec3& i, const vec3& j, const vec3& k,

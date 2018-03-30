@@ -731,5 +731,8 @@
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis">
       <Filter>ThirdParty\gsl</Filter>
     </Natvis>
+    <Natvis Include="..\ThirdParty\nlohmann-json\nlohmann_json.natvis">
+      <Filter>ThirdParty\nlohmann-json</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>

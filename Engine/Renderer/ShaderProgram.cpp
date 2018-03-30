@@ -14,14 +14,18 @@ in vec2 UV;
 
 out vec2 passUV; 
 out vec4 passColor;  // NEW - to use it in the pixel stage, we must pass it.
+out vec3 passPos;
+out vec4 ViewMat;
 
 void main() 
 {
    vec4 local_pos = vec4( POSITION, 1 ); 
-   vec4 clip_pos = VIEW * PROJECTION * local_pos; 
+   vec4 clip_pos = PROJECTION * VIEW * local_pos; 
 
    passColor = COLOR; // pass it on. 
    passUV = UV; 
+   passPos = clip_pos.xyz;
+   ViewMat = PROJECTION * VIEW * vec4(0);
    gl_Position = clip_pos; 
 })";
 
@@ -31,7 +35,7 @@ layout(binding = 0) uniform sampler2D gTexDiffuse;
 
 in vec4 passColor; // NEW, passed color
 in vec2 passUV; 
-
+in vec3 passPos;
 out vec4 outColor; 
   
 void main() 
@@ -40,7 +44,7 @@ void main()
    
    // multiply is component-wise
    // so this gets (diff.x * passColor.x, ..., diff.w * passColor.w)
-   outColor = diffuse * passColor * vec4(passUV, 0, 1);  
+   outColor = diffuse * passColor;  
 })";
 
 static const char* invalidFragmentShader =

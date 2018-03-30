@@ -9,6 +9,7 @@
 class Renderer;
 class Texture;
 class Clock;
+class Font;
 namespace Debug {
   enum eDebugDrawDepthMode {
     DEBUG_DEPTH_DEFAULT,
@@ -77,9 +78,9 @@ namespace Debug {
   const DrawHandle* drawSphere(const vec3& center, uint levelX = 10u, uint levelY = 10u, float size = 1.f,
                   const Rgba& color = Rgba::white, const Clock* clockoverride = nullptr);
 
-  const DrawHandle* drawCube(const vec3& center, const vec3& dimension, float duration = INF,
+  const DrawHandle* drawCube(const vec3& center, const vec3& dimension, bool framed = true, float duration = INF,
                 const Rgba& cl = Rgba::white, const Clock* clockOverride = nullptr);
-  const DrawHandle* drawCube(const vec3& center, float size, float duration = INF,
+  const DrawHandle* drawCube(const vec3& center, float size, bool framed = true, float duration = INF,
                 const Rgba& cl = Rgba::white, const Clock* clockOverride = nullptr);
 
   const DrawHandle* drawBasis(const vec3& position = vec3::zero, const vec3& i = vec3::right, const vec3& j = vec3::up, const vec3& k = vec3::forward, float duration = INF, Clock* clockOverride = nullptr);
@@ -87,10 +88,12 @@ namespace Debug {
   const DrawHandle* drawGrid(const vec3& center, const vec3& normal, float size, float unitSize, float duration = INF,
                 const Rgba& cl = Rgba::white, const Clock* clockOverride = nullptr);
 
-  const DrawHandle* drawText(std::string_view text, const vec3& bottomLeft, const vec3& direction = vec3::right, const vec3& normal = -vec3::forward, float duration = INF,
-                const Rgba& cl = Rgba::white, const Clock* clockOverride = nullptr);
-  const DrawHandle* drawText(std::string_view text, const vec3& bottomLeft, float duration, const vec3& direction = vec3::right, const vec3& normal = -vec3::forward,
-                const Rgba& cl = Rgba::white, const Clock* clockOverride = nullptr);
+  const DrawHandle* drawText(std::string_view text, const vec3& bottomLeft, 
+                             const vec3& direction = vec3::right, const vec3& up = vec3::up, Font* font = nullptr, float duration = INF, 
+                             const Rgba& cl = Rgba::white, const Clock* clockOverride = nullptr);
+  const DrawHandle* drawText(std::string_view text, const vec3& bottomLeft, float duration, 
+                             const vec3& direction = vec3::right, const vec3& up = vec3::up, Font* font = nullptr, 
+                             const Rgba& cl = Rgba::white, const Clock* clockOverride = nullptr);
 
   // Tag always facing to the camera
   const DrawHandle* drawTag(std::string_view text, const vec3& bottomLeft, float duration = INF,

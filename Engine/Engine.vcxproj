@@ -707,6 +707,7 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis" />
+    <Natvis Include="..\ThirdParty\nlohmann-json\nlohmann_json.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

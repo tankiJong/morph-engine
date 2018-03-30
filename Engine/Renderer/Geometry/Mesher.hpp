@@ -24,6 +24,8 @@ public:
   Mesher& sphere(const vec3& center, float size, uint levelX = 10u, uint levelY = 10u);
   Mesher& triangle(uint a, uint b, uint c);
   Mesher& quad(uint a, uint b, uint c, uint d);
+  Mesher& quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d);
+  Mesher& cube(const vec3& center, const vec3& dimension);
   owner<Mesh*> createMesh();
 
 protected:

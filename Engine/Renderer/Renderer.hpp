@@ -5,7 +5,6 @@
 
 #include "Engine/Math/Primitives/vec2.hpp"
 #include "Engine/Core/Rgba.hpp"
-#include "Engine/Math/Primitives/vec3.hpp"
 
 #include "Engine/Math/Primitives/mat44.hpp"
 #include "Engine/Math/Primitives/rect2.hpp"

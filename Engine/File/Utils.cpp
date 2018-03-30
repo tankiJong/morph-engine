@@ -43,6 +43,10 @@ fs::path fs::absolute(const path& path, const Path& base) {
   return sfs::absolute(path, base);
 }
 
+bool fs::exists(const path& file) {
+  return sfs::exists(file);
+}
+
 bool fs::isDirectory(const path& path) {
   return is_directory(path);
 }
