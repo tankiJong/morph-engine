@@ -1,4 +1,5 @@
 ﻿#include "glFunctions.hpp"
+#include "type.h"
 
 extern HMODULE gGlLibrary = nullptr;
 
@@ -919,3 +920,46 @@ void bindGLFunctions() {
   GL_BIND_FUNCTION(glSamplerParameteriv);
   GL_BIND_FUNCTION(glGetProgramPipelineiv);
 }
+
+//enum eDataDeclType {
+//  MP_FLOAT = 0,
+//  MP_BYTE,
+//  MP_NUM_DATA_DECL_TYPE,
+//};
+
+#define GLEnumType(eEnumType) GL##eEnumType
+
+
+extern uint xx[3];
+
+uint xx[3] = {
+  1,
+};
+#define DeclGLTypeMapFn(NUM, eEnumType) extern uint GLEnumType(eEnumType)[NUM];\
+                                template<> \
+                                uint toGlType(eEnumType e) { \
+                                  return GLEnumType(eEnumType)[e];\
+                                }\
+                                uint GLEnumType(eEnumType)[NUM] = 
+
+
+DeclGLTypeMapFn(NUM_DATA_DECL_TYPE, eDataDeclType) {
+  GL_FLOAT,
+  GL_BYTE,
+};
+DeclGLTypeMapFn(NUM_PRIMITIVE_TYPES, eDrawPrimitive) {
+  GL_POINTS,
+  GL_LINES,
+  GL_TRIANGLES,
+};
+
+DeclGLTypeMapFn(NUM_COMPARE, eCompare) {
+  GL_NEVER,
+  GL_LESS,
+  GL_LEQUAL,
+  GL_GREATER,
+  GL_GEQUAL,
+  GL_EQUAL,
+  GL_NOTEQUAL,
+  GL_ALWAYS,
+};

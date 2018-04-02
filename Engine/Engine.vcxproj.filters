@@ -294,6 +294,12 @@
     <ClCompile Include="Core\Gradient.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Math\Transform.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Geometry\VertexLayout.cpp">
+      <Filter>Renderer\Geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -676,6 +682,12 @@
     </ClInclude>
     <ClInclude Include="Core\Gradient.hpp">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Transform.hpp">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Geometry\VertexLayout.hpp">
+      <Filter>Renderer\Geometry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

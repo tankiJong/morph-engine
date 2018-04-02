@@ -95,8 +95,8 @@ bool ShaderProgram::fromFile(const char* relativePath, const char* defineArgs) {
   for(auto& stage: stages) {
     stage.compile();
   }
-  GLuint vs = stages[SHADER_TYPE_VERTEX].handle();
-  GLuint fs = stages[SHADER_TYPE_FRAGMENT].handle();
+  uint vs = stages[SHADER_TYPE_VERTEX].handle();
+  uint fs = stages[SHADER_TYPE_FRAGMENT].handle();
 
   if (vs == NULL || fs == NULL) {
     return false;
@@ -111,10 +111,10 @@ bool ShaderProgram::fromFile(const char* relativePath, const char* defineArgs) {
   return (programHandle != NULL);
 }
 
-GLuint ShaderProgram::createAndLinkProgram(GLuint vs, GLuint fs, GLuint handle) {
+uint ShaderProgram::createAndLinkProgram(uint vs, uint fs, uint handle) {
   // credate the program handle - how you will reference
   // this program within OpenGL, like a texture handle
-  GLuint programId = handle;
+  uint programId = handle;
   if(programId == 0) {
     programId = glCreateProgram();
   }
@@ -151,7 +151,7 @@ GLuint ShaderProgram::createAndLinkProgram(GLuint vs, GLuint fs, GLuint handle) 
 
 }
 
-void ShaderProgram::logProgramError(GLuint programId) {
+void ShaderProgram::logProgramError(uint programId) {
   // figure out how large the buffer needs to be
   GLint length = 0;
   glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &length);
@@ -173,12 +173,12 @@ void ShaderProgram::logProgramError(GLuint programId) {
 
 }
 
-//GLuint ShaderProgram::loadShader(const char* rawShader, GLenum type, const char* defineArgs) {
+//uint ShaderProgram::loadShader(const char* rawShader, GLenum type, const char* defineArgs) {
 //  
 //  EXPECTS(rawShader != nullptr);
 //
 //  // Create a shader
-//  GLuint shaderId = glCreateShader(type);
+//  uint shaderId = glCreateShader(type);
 //  EXPECTS(shaderId != NULL);
 //
 //  // Bind source to it, and compile
@@ -205,10 +205,10 @@ void ShaderProgram::logProgramError(GLuint programId) {
 //
 //}
 //
-//GLuint ShaderProgram::loadShader(const Blob& rawShader, GLenum type, const char* defineArgs) {
+//uint ShaderProgram::loadShader(const Blob& rawShader, GLenum type, const char* defineArgs) {
 //
 //  // Create a shader
-//  GLuint shaderId = glCreateShader(type);
+//  uint shaderId = glCreateShader(type);
 //  EXPECTS(shaderId != NULL);
 //
 //  // Bind source to it, and compile

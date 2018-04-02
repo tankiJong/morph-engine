@@ -14,6 +14,8 @@ const vec2 vec2::down(0.f, -1.f);
 const vec2 vec2::left(-1.f, 0.f);
 const vec2 vec2::right(1.f, 0.f);
 //-----------------------------------------------------------------------------------------------
+vec2::vec2(float v) :x(v), y(v) {}
+
 vec2::vec2 (const vec2& copy)
     : x (copy.x)
     , y (copy.y) {}

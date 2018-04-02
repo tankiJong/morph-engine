@@ -22,7 +22,9 @@ namespace Debug {
     friend struct DebugDrawMeta;
     uint id = NULL;
     inline static uint _id = 0;
+    
   public:
+    bool terminate() const;
     inline static uint next() {
       return ++_id;
     }
@@ -35,6 +37,7 @@ namespace Debug {
   void setDuration(float time);
   void setDepth(eDebugDrawDepthMode depthMode);
   void setDecayColor(const Rgba& from, const Rgba& to);
+  void setDecayColor(const Rgba& color);
   void clear();
   void toggleDebugRender(bool isEnabled);
   void toggleDebugRender();
@@ -85,8 +88,9 @@ namespace Debug {
 
   const DrawHandle* drawBasis(const vec3& position = vec3::zero, const vec3& i = vec3::right, const vec3& j = vec3::up, const vec3& k = vec3::forward, float duration = INF, Clock* clockOverride = nullptr);
 
-  const DrawHandle* drawGrid(const vec3& center, const vec3& normal, float size, float unitSize, float duration = INF,
-                const Rgba& cl = Rgba::white, const Clock* clockOverride = nullptr);
+  const DrawHandle* drawGrid(const vec3& center = vec3::zero, const vec3& right =  vec3::right, const vec3 forward = vec3::forward, 
+                             float unitSize = 1.f, float limit = 10.f, float duration = INF,
+                             const Rgba& cl = Rgba::white, const Clock* clockOverride = nullptr);
 
   const DrawHandle* drawText(std::string_view text, const vec3& bottomLeft, 
                              const vec3& direction = vec3::right, const vec3& up = vec3::up, Font* font = nullptr, float duration = INF, 

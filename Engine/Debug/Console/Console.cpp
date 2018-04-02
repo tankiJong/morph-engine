@@ -346,7 +346,7 @@ void Console::hookInBuiltInCommand() {
     return false;
   });
 
-  hook("debug_draw_clear", "[]", "enable/disable the debug_draw(time will still elapse).", [](Command& command) {
+  hook("debug_draw_clear", "[]", "enable/disable the debug_draw(time will still elapse).", [](Command&) {
     Debug::clear();
     return true;
   });

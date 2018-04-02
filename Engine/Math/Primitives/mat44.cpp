@@ -151,18 +151,52 @@ mat44 mat44::transpose() const {
 }
 
 mat44 mat44::inverse() const {
-  UNIMPLEMENTED();
+  ERROR_AND_DIE("unimplemented");
   return mat44();
 }
 
-// change to (c)ZXY
+Eular mat44::eular() const {
+  vec3 ii = i.xyz().normalized();
+  vec3 jj = j.xyz().normalized();
+  vec3 kk = k.xyz().normalized();
+
+  Eular e;
+
+  e.x = asinDegrees(-jj.z);
+  // cosx = 0
+  if(jj.z == 1.f || jj.z == -1.f) {
+    e.y = 0;
+    e.z = atan2Degree(kk.y, kk.x);
+
+    return e;
+  }
+
+  e.z = atan2Degree(jj.y, jj.x);
+  e.y = atan2Degree(kk.z, ii.z);
+
+  return e;
+}
+
+vec3 mat44::scale() const {
+  return {
+    i.xyz().magnitude(),
+    j.xyz().magnitude(),
+    k.xyz().magnitude(),
+  };
+}
+
+mat44 mat44::makeRotation(const Eular& ea) {
+  return makeRotation(ea.x, ea.y, ea.z);
+}
+
+// change to (v)ZXY : Done
 mat44 mat44::makeRotation(float x, float y, float z) {
   float cx = cosDegrees(x), cy = cosDegrees(y), cz = cosDegrees(z);
   float sx = sinDegrees(x), sy = sinDegrees(y), sz = sinDegrees(z);
 
   return {
     cz*cy + sz*sx*sy,  sz*cx, sz*sx*cy - cz*sy, 0,
-    -sz*cy + cz*sz*sy, cz*cx, cz*sx*cy+sz*sy,   0,
+    -sz*cy + cz*sx*sy, cz*cx, cz*sx*cy + sz*sy, 0,
     cx*sy,               -sx, cx*cy,            0,
     0,                     0, 0,                1
   };
@@ -211,6 +245,15 @@ mat44 mat44::makeScale2D(float scaleX, float scaleY) {
          0,  scaleY, 0, 0,
          0,       0, 1, 0,
          0,       0, 0, 1
+  };
+}
+
+mat44 mat44::makeScale(float x, float y, float z) {
+  return {
+    x,  0, 0, 0,
+    0,  y, 0, 0,
+    0,  0, z, 0,
+    0,  0, 0, 1
   };
 }
 

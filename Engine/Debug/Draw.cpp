@@ -23,13 +23,13 @@ struct Debug::DebugDrawMeta {
   Gradient decayColor;
   Camera* cam = nullptr;
   const Clock* clock = nullptr;
-  float endSec = 0;
+  mutable float endSec = 0;
   DebugDrawMeta(Mesh* mesh, float duration, const Clock* clockOverride)
     : mesh(mesh), duration(duration)
     , depthMode(gDefaultDepthMode), decayColor(gDecayColor)
     , cam(gCamera), clock(clockOverride == nullptr ? gDefaultColock : clockOverride) {
     handle.id = DrawHandle::next();
-    endSec = duration == INF ? INF : clock->total.second + duration;
+    endSec = duration == INF ? INF : (float)clock->total.second + duration;
   }
 
   float progress(float current) const {
@@ -37,8 +37,8 @@ struct Debug::DebugDrawMeta {
     return duration == INF ? 0 : (current - endSec + duration) / duration;
   }
 
-  void terminate() {
-    endSec = clock->total.second;
+  void terminate() const {
+    endSec = (float)clock->total.second;
   }
 
   ~DebugDrawMeta() {
@@ -47,6 +47,17 @@ struct Debug::DebugDrawMeta {
 };
 
 std::vector<Debug::DebugDrawMeta*> gDebugDrawCalls;
+
+bool Debug::DrawHandle::terminate() const {
+  const Debug::DebugDrawMeta* meta = reinterpret_cast<const Debug::DebugDrawMeta*>(this);
+  for(DebugDrawMeta* d: gDebugDrawCalls) {
+    if (d == meta) {
+      meta->terminate();
+      return true;
+    }
+  }
+  return false;
+}
 
 void Debug::setRenderer(Renderer* renderer) {
   EXPECTS(renderer != nullptr);
@@ -78,6 +89,10 @@ void Debug::setDepth(eDebugDrawDepthMode depthMode) {
 void Debug::setDecayColor(const Rgba& from, const Rgba& to) {
   gDecayColor.clear();
   gDecayColor.add(from, 0.f).add(to, 1.f);
+}
+
+void Debug::setDecayColor(const Rgba& color) {
+  setDecayColor(color, color);
 }
 
 void Debug::clear() {
@@ -120,6 +135,7 @@ void Debug::drawNow() {
     gShaderProg = gRenderer->createOrGetShaderProgram("Data/debug");
   }
   gRenderer->useShaderProgram(gShaderProg);
+  gRenderer->enableDepth(COMPARE_LESS, false);
   for(uint i = 0; i < gDebugDrawCalls.size(); ++i) {
     DebugDrawMeta*& comp = gDebugDrawCalls[i];
 
@@ -130,13 +146,13 @@ void Debug::drawNow() {
       i--;
       continue;
     }
-    Rgba col = comp->decayColor.evaluate(comp->progress(comp->clock->total.second));
+    Rgba col = comp->decayColor.evaluate(comp->progress((float)comp->clock->total.second));
     vec4 colf;
     col.getAsFloats(colf.x, colf.y, colf.z, colf.w);
 
     tintUniform->set(colf);
 
-    gRenderer->setUniform(UNiFORM_USER_1, *tintUniform);
+    gRenderer->setUniformBuffer(UNiFORM_USER_1, *tintUniform);
     gRenderer->setCamera(comp->cam);
     gRenderer->drawMesh(*comp->mesh);
   }
@@ -184,12 +200,12 @@ const Debug::DrawHandle* Debug::drawPoint(const vec3& position, float duration, 
     mesher.begin(DRAW_LINES, false);
 
     mesher.color(color);
-    mesher.vertex3f(vec3::right);
-    mesher.vertex3f(-vec3::right);
-    mesher.vertex3f(vec3::up);
-    mesher.vertex3f(-vec3::up);
-    mesher.vertex3f(vec3::forward);
-    mesher.vertex3f(-vec3::forward);
+    mesher.vertex3f(vec3::right + position);
+    mesher.vertex3f(-vec3::right + position);
+    mesher.vertex3f(vec3::up + position);
+    mesher.vertex3f(-vec3::up + position);
+    mesher.vertex3f(vec3::forward + position);
+    mesher.vertex3f(-vec3::forward + position);
 
     mesher.end();
   });
@@ -197,11 +213,13 @@ const Debug::DrawHandle* Debug::drawPoint(const vec3& position, float duration, 
 }
 
 const Debug::DrawHandle* Debug::drawPoint(const vec3& position, const Rgba& color, float duration, const Clock* clockOverride) {
-  return drawPoint(position, gDefaultDuration, color, clockOverride);
+  return drawPoint(position, duration, color, clockOverride);
 }
 
-const Debug::DrawHandle* Debug::drawLine(const vec3& from, const vec3& to, float thickness, float duration, const Rgba& colorStart,
+const Debug::DrawHandle* Debug::drawLine(const vec3& from, const vec3& to, float /*thickness*/, float duration, const Rgba& colorStart,
   const Rgba& colorEnd, const Clock* clockOverride) {
+
+  TODO("introduce thickness when use mesh to draw line")
   return drawMeta(duration, clockOverride, [&](Mesher& mesher) {
     mesher.begin(DRAW_LINES, false);
 
@@ -326,5 +344,32 @@ const Debug::DrawHandle* Debug::drawBasis(const vec3& position, const vec3& i, c
 
   meta->decayColor = Gradient();
   return handle;
+}
+
+const Debug::DrawHandle* Debug::drawGrid(const vec3& center, const vec3& right, const vec3 forward, float unitSize,
+  float limit, float duration, const Rgba& cl, const Clock* clockOverride) {
+
+  return drawMeta(duration, clockOverride, [&](Mesher& mesher) {
+    vec3 xStart = center - right * limit, xEnd = center + right * limit;
+    vec3 yStart = center - forward * limit, yEnd = center + forward * limit;
+
+    float i = 0.f;
+    
+    mesher.begin(DRAW_LINES, false)
+          .color(cl);
+    while(i * unitSize < limit) {
+      float step = i * unitSize;
+
+      mesher
+        .line(xStart + forward * step, xEnd + forward * step)
+        .line(yStart + right * step, yEnd + right * step)
+
+        .line(xStart - forward * step, xEnd - forward * step)
+        .line(yStart - right * step, yEnd - right * step);
+
+      i++;
+    }
+    mesher.end();
+  });
 }
 

@@ -20,31 +20,14 @@
 #include "FrameBuffer.hpp"
 #include "Sprite.hpp"
 #include "Geometry/Mesh.hpp"
+#include "Geometry/Vertex.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
 #undef near
 #undef far
 
-int g_openGlPrimitiveTypes[NUM_PRIMITIVE_TYPES] =
-{
-  GL_POINTS,
-  GL_LINES,
-  GL_TRIANGLES,
-};
-
-uint g_openGLCompare[NUM_COMPARE] = {
-  GL_NEVER,
-  GL_LESS,
-  GL_LEQUAL,
-  GL_GREATER,
-  GL_GEQUAL,
-  GL_EQUAL,
-  GL_NOTEQUAL,
-  GL_ALWAYS,
-};
-
-using Vertices = std::vector<Vertex_PCU>;
+using Vertices = std::vector<vertex_pcu_t>;
 
 Renderer::Renderer() {
 }
@@ -110,7 +93,7 @@ void Renderer::bindTexture(uint i, const Texture* texture) {
 void Renderer::drawLine(const vec3& start, const vec3& end, 
 						const Rgba& startColor, const Rgba& endColor, float lineThickness) {
   bindTexture(mTextures.at("$"));
-  Vertex_PCU verts[2] = {
+  vertex_pcu_t verts[2] = {
     { start, startColor, {0,0}},
     { end, endColor, {0,1}}
   };
@@ -122,23 +105,23 @@ void Renderer::drawSprite(const vec3& position, const Sprite& sprite, mat44 orie
   std::array<vec2, 4> bounds = sprite.bounds().vertices();
   std::array<vec2, 4> uvs = sprite.uv.vertices();
   // 0 1 2 0 2 3
-  std::array<Vertex_PCU, 6> mesh= {
-    Vertex_PCU{
+  std::array<vertex_pcu_t, 6> mesh= {
+    vertex_pcu_t{
       bounds[0], Rgba::white,  uvs[0]
-    }, Vertex_PCU{
+    }, vertex_pcu_t{
       bounds[1], Rgba::white,  uvs[1]
-    }, Vertex_PCU{
+    }, vertex_pcu_t{
       bounds[2], Rgba::white,  uvs[2]
-    }, Vertex_PCU{
+    }, vertex_pcu_t{
       bounds[0], Rgba::white,  uvs[0]
-    }, Vertex_PCU{
+    }, vertex_pcu_t{
       bounds[2], Rgba::white,  uvs[2]
-    }, Vertex_PCU{
+    }, vertex_pcu_t{
       bounds[3], Rgba::white,  uvs[3]
     }
   };
 
-  for(Vertex_PCU& m: mesh) {
+  for(vertex_pcu_t& m: mesh) {
     m.position = (orientation * vec4(m.position, 0)).xyz();
     m.position += position;
   }
@@ -153,7 +136,7 @@ void Renderer::drawTexturedAABB2(const aabb2& bounds,
 								 const vec2& texCoordsAtMaxs, 
 								 const Rgba& tint) {
   bindTexture(&texture);
-  Vertex_PCU verts[6] = {
+  vertex_pcu_t verts[6] = {
     { bounds.mins, tint, texCoordsAtMins },
     { vec2{ bounds.maxs.x, bounds.mins.y }, tint, vec2{ texCoordsAtMaxs.x, texCoordsAtMins.y } },
     { bounds.maxs, tint, texCoordsAtMaxs },
@@ -421,7 +404,7 @@ void Renderer::setSampler(uint i, Sampler* sampler) {
   glBindSampler(i, sampler->getHandle());
 }
 
-void Renderer::setUniform(eUniformUnit slot, UniformBuffer& ubo) {
+void Renderer::setUniformBuffer(eUniformUnit slot, UniformBuffer& ubo) {
   ubo.putGpu();
   glBindBufferBase(GL_UNIFORM_BUFFER, slot, ubo.handle());
 }
@@ -463,7 +446,7 @@ void Renderer::clearDepth(float depth) {
 void Renderer::enableDepth(eCompare compare, bool shouldWrite) {
   // enable/disable the dest
   glEnable(GL_DEPTH_TEST);
-  glDepthFunc(g_openGLCompare[compare]);
+  glDepthFunc(toGlType(compare));
 
   // enable/disable write
   glDepthMask(shouldWrite ? GL_TRUE : GL_FALSE);
@@ -732,7 +715,7 @@ void Renderer::loadIdentity() {
 
 void Renderer::drawAABB2(const aabb2& bounds, const Rgba& color, bool filled) {
   if (filled) {
-    Vertex_PCU verts[6] = {
+    vertex_pcu_t verts[6] = {
       { bounds.mins, color, vec2::zero },
       { vec2{ bounds.maxs.x, bounds.mins.y }, color, vec2::right },
       { bounds.maxs, color, vec2::one },
@@ -744,7 +727,7 @@ void Renderer::drawAABB2(const aabb2& bounds, const Rgba& color, bool filled) {
     drawMeshImmediate(verts, 6, DRAW_TRIANGES);
   } else {
     auto vertices = bounds.vertices();
-    Vertex_PCU verts[8] = {
+    vertex_pcu_t verts[8] = {
       { vec3(vertices[0]), color, vec2{ 0,0 } },
       { vec3(vertices[1]), color,vec2{ 0,0 } },
       { vec3(vertices[1]), color,vec2{ 0,0 } },
@@ -801,14 +784,14 @@ void Renderer::drawCube(const vec3& bottomCenter, const vec3& dimension,
 
   { // top
     auto uvs = uvTop.vertices();
-    std::array<Vertex_PCU, 6> mesh = {
-      Vertex_PCU(vertices[0], color, uvs[0]),
-      Vertex_PCU(vertices[1], color, uvs[1]),
-      Vertex_PCU(vertices[2], color, uvs[2]),
+    std::array<vertex_pcu_t, 6> mesh = {
+      vertex_pcu_t(vertices[0], color, uvs[0]),
+      vertex_pcu_t(vertices[1], color, uvs[1]),
+      vertex_pcu_t(vertices[2], color, uvs[2]),
 
-      Vertex_PCU(vertices[0], color, uvs[0]),
-      Vertex_PCU(vertices[2], color, uvs[2]),
-      Vertex_PCU(vertices[3], color, uvs[3]),
+      vertex_pcu_t(vertices[0], color, uvs[0]),
+      vertex_pcu_t(vertices[2], color, uvs[2]),
+      vertex_pcu_t(vertices[3], color, uvs[3]),
     };
 
     drawMeshImmediate(mesh, DRAW_TRIANGES);
@@ -816,14 +799,14 @@ void Renderer::drawCube(const vec3& bottomCenter, const vec3& dimension,
 
   { // bottom
     auto uvs = uvBottom.vertices();
-    std::array<Vertex_PCU, 6> mesh = {
-      Vertex_PCU(vertices[4], color, uvs[0]),
-      Vertex_PCU(vertices[5], color, uvs[1]),
-      Vertex_PCU(vertices[6], color, uvs[2]),
+    std::array<vertex_pcu_t, 6> mesh = {
+      vertex_pcu_t(vertices[4], color, uvs[0]),
+      vertex_pcu_t(vertices[5], color, uvs[1]),
+      vertex_pcu_t(vertices[6], color, uvs[2]),
 
-      Vertex_PCU(vertices[4], color, uvs[0]),
-      Vertex_PCU(vertices[6], color, uvs[2]),
-      Vertex_PCU(vertices[7], color, uvs[3]),
+      vertex_pcu_t(vertices[4], color, uvs[0]),
+      vertex_pcu_t(vertices[6], color, uvs[2]),
+      vertex_pcu_t(vertices[7], color, uvs[3]),
     };
 
     drawMeshImmediate(mesh, DRAW_TRIANGES);
@@ -834,13 +817,13 @@ void Renderer::drawCube(const vec3& bottomCenter, const vec3& dimension,
   {
     std::array<uint, 6> indices = { 4, 5, 1, 4, 1,0 };
     for(uint i = 0; i<3; i++) {
-      std::array<Vertex_PCU, 6> mesh = {
-        Vertex_PCU(vertices[(indices[0] + i)%8], color, uvs[0]),
-        Vertex_PCU(vertices[(indices[1] + i)%8], color, uvs[1]),
-        Vertex_PCU(vertices[(indices[2] + i)%8], color, uvs[2]),
-        Vertex_PCU(vertices[(indices[3] + i)%8], color, uvs[0]),
-        Vertex_PCU(vertices[(indices[4] + i)%8], color, uvs[2]),
-        Vertex_PCU(vertices[(indices[5] + i)%8], color, uvs[3]),
+      std::array<vertex_pcu_t, 6> mesh = {
+        vertex_pcu_t(vertices[(indices[0] + i)%8], color, uvs[0]),
+        vertex_pcu_t(vertices[(indices[1] + i)%8], color, uvs[1]),
+        vertex_pcu_t(vertices[(indices[2] + i)%8], color, uvs[2]),
+        vertex_pcu_t(vertices[(indices[3] + i)%8], color, uvs[0]),
+        vertex_pcu_t(vertices[(indices[4] + i)%8], color, uvs[2]),
+        vertex_pcu_t(vertices[(indices[5] + i)%8], color, uvs[3]),
       };
 
       drawMeshImmediate(mesh, DRAW_TRIANGES);
@@ -849,13 +832,13 @@ void Renderer::drawCube(const vec3& bottomCenter, const vec3& dimension,
 
   {
     std::array<uint, 6> indices = { 7, 4, 0, 7, 0, 3 };
-    std::array<Vertex_PCU, 6> mesh = {
-      Vertex_PCU(vertices[indices[0]], color, uvs[0]),
-      Vertex_PCU(vertices[indices[1]], color, uvs[1]),
-      Vertex_PCU(vertices[indices[2]], color, uvs[2]),
-      Vertex_PCU(vertices[indices[3]], color, uvs[0]),
-      Vertex_PCU(vertices[indices[4]], color, uvs[2]),
-      Vertex_PCU(vertices[indices[5]], color, uvs[3]),
+    std::array<vertex_pcu_t, 6> mesh = {
+      vertex_pcu_t(vertices[indices[0]], color, uvs[0]),
+      vertex_pcu_t(vertices[indices[1]], color, uvs[1]),
+      vertex_pcu_t(vertices[indices[2]], color, uvs[2]),
+      vertex_pcu_t(vertices[indices[3]], color, uvs[0]),
+      vertex_pcu_t(vertices[indices[4]], color, uvs[2]),
+      vertex_pcu_t(vertices[indices[5]], color, uvs[3]),
     };
 
     drawMeshImmediate(mesh, DRAW_TRIANGES);
@@ -871,21 +854,21 @@ void Renderer::drawMesh(const Mesh& mesh) {
   if(posBind >= 0) {
     glEnableVertexAttribArray(posBind);
 
-    glVertexAttribPointer(posBind, 3, GL_FLOAT, GL_FALSE, mesh.vertices().vertexStride, (GLvoid*)offsetof(Vertex_PCU, position));
+    glVertexAttribPointer(posBind, 3, GL_FLOAT, GL_FALSE, mesh.vertices().vertexStride, (GLvoid*)offsetof(vertex_pcu_t, position));
   }
 
   // color
   GLint colorBind = glGetAttribLocation(mCurrentShaderProgram->programHandle, "COLOR");
   if(colorBind >= 0) {
     glEnableVertexAttribArray(colorBind);
-    glVertexAttribPointer(colorBind, 3, GL_UNSIGNED_BYTE, GL_TRUE, mesh.vertices().vertexStride, (GLvoid*)offsetof(Vertex_PCU, color));
+    glVertexAttribPointer(colorBind, 3, GL_UNSIGNED_BYTE, GL_TRUE, mesh.vertices().vertexStride, (GLvoid*)offsetof(vertex_pcu_t, color));
   }
 
   // uv
   GLint uvBind = glGetAttribLocation(mCurrentShaderProgram->programHandle, "UV");
   if(uvBind >= 0) {
     glEnableVertexAttribArray(uvBind);
-    glVertexAttribPointer(uvBind, 2, GL_FLOAT, GL_FALSE, mesh.vertices().vertexStride, (GLvoid*)offsetof(Vertex_PCU, uvs));
+    glVertexAttribPointer(uvBind, 2, GL_FLOAT, GL_FALSE, mesh.vertices().vertexStride, (GLvoid*)offsetof(vertex_pcu_t, uvs));
   }
   glUseProgram(mCurrentShaderProgram->programHandle);
   
@@ -906,16 +889,16 @@ void Renderer::drawMesh(const Mesh& mesh) {
 
   if(ins.useIndices) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.indices().handle());
-    glDrawElements(g_openGlPrimitiveTypes[ins.prim], ins.elementCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(toGlType(ins.prim), ins.elementCount, GL_UNSIGNED_INT, 0);
   } else {
-    glDrawArrays(g_openGlPrimitiveTypes[ins.prim], ins.startIndex, ins.elementCount);
+    glDrawArrays(toGlType(ins.prim), ins.startIndex, ins.elementCount);
   }
 
 }
 
-void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, eDrawPrimitive drawPrimitive) {
+void Renderer::drawMeshImmediate(const vertex_pcu_t* vertices, size_t numVerts, eDrawPrimitive drawPrimitive) {
   // first, copy the memory to the buffer
-  mTempRenderBuffer.copyToGpu(sizeof(Vertex_PCU) * numVerts, vertices);
+  mTempRenderBuffer.copyToGpu(sizeof(vertex_pcu_t) * numVerts, vertices);
   
   //--------------------------bind position---------------------------------
 
@@ -936,8 +919,8 @@ void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, eD
                           3,                           // how many (vec3 has 3 floats)
                           GL_FLOAT,                    // type? (vec3 is 3 floats)
                           GL_FALSE,                    // Should data be normalized
-                          sizeof(Vertex_PCU),              // stride (how far between each vertex)
-                          (GLvoid*)offsetof(Vertex_PCU, position)); // From the start of a vertex, where is this data?
+                          sizeof(vertex_pcu_t),              // stride (how far between each vertex)
+                          (GLvoid*)offsetof(vertex_pcu_t, position)); // From the start of a vertex, where is this data?
   }
   //--------------------------bind UV---------------------------------
 
@@ -950,8 +933,8 @@ void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, eD
                           2,                           
                           GL_FLOAT,                    
                           GL_FALSE,                   
-                          sizeof(Vertex_PCU),
-                          (GLvoid*)offsetof(Vertex_PCU, uvs));
+                          sizeof(vertex_pcu_t),
+                          (GLvoid*)offsetof(vertex_pcu_t, uvs));
   }
 
   //-------------------------Texture---------------------------------
@@ -972,8 +955,8 @@ void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, eD
                           4,                           // how many (RGBA is 4 unsigned chars)
                           GL_UNSIGNED_BYTE,            // type? (RGBA is 4 unsigned chars)
                           GL_TRUE,                     // Normalize components, maps 0-255 to 0-1.
-                          sizeof(Vertex_PCU),              // stride (how far between each vertex)
-                          (GLvoid*)offsetof(Vertex_PCU, color)); // From the start of a vertex, where is this data?
+                          sizeof(vertex_pcu_t),              // stride (how far between each vertex)
+                          (GLvoid*)offsetof(vertex_pcu_t, color)); // From the start of a vertex, where is this data?
   }
 
   // Now that it is described and bound, draw using our program
@@ -993,7 +976,7 @@ void Renderer::drawMeshImmediate(const Vertex_PCU* vertices, size_t numVerts, eD
     glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mViewMatrix);
   }
   glBindFramebuffer(GL_FRAMEBUFFER, mCurrentCamera->getFrameBufferHandle());
-  glDrawArrays(g_openGlPrimitiveTypes[drawPrimitive], 0, numVerts);
+  glDrawArrays(toGlType(drawPrimitive), 0, numVerts);
 
 }
 

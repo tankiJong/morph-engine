@@ -106,7 +106,7 @@ Mesher& Mesher::sphere(const vec3& center, float size, uint levelX, uint levelY)
 
   for(uint j = 0; j < levelY; j++) {
     for(uint i = 0; i < levelX; i++) {
-      uint current = j * (levelX + 1) + i;
+      uint current = start + j * (levelX + 1) + i;
 //      triangle(current, current + 1, current + levelX + 1);
 //      triangle(current, current + levelX + 1, current + levelX);
       quad(current, current + 1, current + (levelX + 1)+1, current + (levelX + 1));

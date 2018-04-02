@@ -33,6 +33,7 @@ public:
   explicit mat44(const float* sixteenValuesBasisMajor); // float[16] array in order Ix, Iy...
   explicit mat44(const vec2& iBasis, const vec2& jBasis, const vec2& translation = vec2::zero);
   explicit mat44(const vec4& right, const vec4& up, const vec4& forward, const vec4& w = vec4(0,0,0,1));
+
   // Accessors
   vec2 translateTo(const vec2& position2D) const; // Written assuming z=0, w=1
   vec2 translate(const vec2& displacement2D) const; // Written assuming z=0, w=0
@@ -57,14 +58,17 @@ public:
 
   mat44 transpose() const;
   mat44 inverse() const;
-
+  Eular eular() const;
+  vec3  scale() const;
   // Producers
+  static mat44 makeRotation(const Eular& ea);
   static mat44 makeRotation(float x, float y, float z);
   static mat44 makeRotation2D(float rotationDegreesAboutZ);
   static mat44 makeTranslation2D(const vec2& translation);
   static mat44 makeTranslation(const vec3& translation);
   static mat44 makeScale2D(float scaleXY);
   static mat44 makeScale2D(float scaleX, float scaleY);
+  static mat44 makeScale(float x, float y, float z);
   static mat44 makeOrtho2D(const vec2& bottomLeft, const vec2& topRight);
   static mat44 makeOrtho(float l, float r, float b, float t, float nz, float fz);
   static mat44 makeOrtho(float width, float height, float near, float far);

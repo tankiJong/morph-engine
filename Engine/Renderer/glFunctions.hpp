@@ -1,8 +1,7 @@
 ﻿#pragma once
 #include "External/gl/glcorearb.h"
 #include "External/gl/wglext.h"
-#include "Engine/Debug/ErrorWarningAssert.hpp"
-#include "Engine/Core/StringUtils.hpp"
+#include "Engine/Core/common.hpp"
 #pragma warning( disable : 4100 ) 
 
 struct HINSTANCE__;
@@ -487,3 +486,5 @@ inline bool GLSucceeded() {
   return !GLFailed();
 }
 
+template<typename Enum>
+uint toGlType(Enum e);

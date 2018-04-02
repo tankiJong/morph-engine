@@ -92,7 +92,7 @@ float Font::advance(char previous, char c, float size, float aspectScale) {
 /**
  * \brief the relative box related to the base point
  */
-aabb2 Font::bounds(char c, char previous, float size, float aspectScale) const {
+aabb2 Font::bounds(char c, float size, float aspectScale) const {
   const Face& f = mFaces[c];
   vec2 mins;
   vec2 xyOffset = f.offset(size);
@@ -105,11 +105,10 @@ aabb2 Font::bounds(char c, char previous, float size, float aspectScale) const {
   mins.y += offsetY; 
   maxs.y += offsetY;
 
+  maxs.x = mins.x + (maxs.x - mins.x) * aspectScale;
+  
   return { mins, maxs };
-}
 
-aabb2 Font::bounds(char c, float size, float aspectScale) const {
-  return bounds(c, '\0', size, aspectScale);
 }
 
 aabb2 Font::uv(char c) {
@@ -141,7 +140,7 @@ Font* fromJson(const fs::path& path) {
   json meta = json::parse(str.begin(), str.end());
 
 
-  UNIMPLEMENTED("create texture from resource");
+  UNIMPLEMENTED();
 
   auto glyphsNode = meta.at("glyphs");
   EXPECTS(glyphsNode.is_array());
@@ -159,7 +158,7 @@ Font* fromJson(const fs::path& path) {
   }
 
   Font* font = new Font(meta.at("name").get<std::string>(), {}, std::move(glyphs));
-  UNIMPLEMENTED("set default(falloff)");
+  TODO("set default(falloff)");
   font->mLineHeight = meta.at("line_height").get<float>() / size;
   font->mAscender = meta.at("ascender").get<float>() / size;
   font->mDescender = meta.at("descender").get<float>() / size;

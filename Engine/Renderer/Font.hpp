@@ -78,7 +78,6 @@ public:
   float advance(std::string_view text, float size, float aspectScale = 1.f);
   
   // how big is the text, http://www.angelcode.com/products/bmfont/doc/render_text.html
-  aabb2 bounds(char c, char previous, float size, float aspectScale = 1.f) const;
   aabb2 bounds(char c, float size, float aspectScale = 1.f) const;
 
   aabb2 uv(char c);

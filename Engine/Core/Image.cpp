@@ -72,6 +72,18 @@ void Image::populateFromData(unsigned char* imageData, const uvec2& dimensions, 
 
     return;
   }
+
+  if(numComponents == 1) {
+    unsigned char* colorData = (unsigned char*)imageData;
+    int numTexel = dimensions.x * dimensions.y;
+    // TODO: haven't do the validation
+    for (int i = 0; i<numTexel; i++) {
+      mTexels.emplace_back(*colorData, 0, 0, unsigned char(255));
+      colorData++;
+    }
+
+    return;
+  }
 }
 
 Rgba& Image::operator()(uint x, uint y) {

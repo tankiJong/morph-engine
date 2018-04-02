@@ -58,6 +58,12 @@ enum eUniformUnit {
   UNIFORM_CAMERA,
   UNiFORM_USER_1
 };
+
+enum eDataDeclType {
+  MP_FLOAT = 0,
+  MP_BYTE,
+  NUM_DATA_DECL_TYPE,
+};
 // ---------------------- STRUCT -----------------------------
 
 struct uniform_time_t {
@@ -65,13 +71,4 @@ struct uniform_time_t {
   float gameSeconds;
   float sysDeltaSeconds;
   float sysSeconds;
-};
-
-struct Vertex_PCU {
-  Vertex_PCU() {}
-  Vertex_PCU(const vec3& pos, const Rgba& col, const vec2& uvs) : position(pos), color(col), uvs(uvs) {}
-  Vertex_PCU(const vec2& pos, const Rgba& col, const vec2& uvs) : position(pos), color(col), uvs(uvs) {}
-  vec3 position;
-  Rgba color;
-  vec2 uvs;
 };

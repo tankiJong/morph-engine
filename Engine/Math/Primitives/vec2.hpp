@@ -13,8 +13,9 @@ namespace std {
 class vec2 {
 public:
   // Construction/Destruction
-  ~vec2() {} // destructor: do nothing (for speed)
-  vec2() {} // default constructor: do nothing (for speed)
+  vec2() = default; // default constructor: do nothing (for speed)
+  ~vec2() = default; // destructor: do nothing (for speed)
+  explicit vec2(float v);
   vec2(const vec2& copyFrom); // copy constructor (from another vec2)
   explicit vec2(const ivec2& copyFrom); // convert from ivec2)
   explicit vec2(const uvec2& copyFrom); // convert from ivec2)

@@ -26,8 +26,8 @@ bool Sampler::create() {
   glSamplerParameteri(mSamplerHandle, GL_TEXTURE_WRAP_R, GL_REPEAT);
 
   // filtering; 
-  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   return true;
 }
 

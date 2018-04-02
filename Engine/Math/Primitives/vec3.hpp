@@ -2,19 +2,14 @@
 #include <string>
 #include "ivec3.hpp"
 
-namespace std {
-  template< typename T >
-  class initializer_list;
-}
-
 class vec2;
 class vec3 {
 public:
   float x = 0;
   float y = 0;
   float z = 0;
-  vec3() {}
-  ~vec3() {}
+  vec3() = default;
+  ~vec3() = default;
   vec3(float x, float y, float z);
   explicit vec3(float v);
   explicit vec3(const vec2& vec); // have to cast by intention
@@ -68,6 +63,8 @@ public:
   static const vec3 one;
 };
 
+using point3 = vec3;
+using Eular = vec3;
 
 vec3 operator*(float lhs, const vec3& rhs);
 
