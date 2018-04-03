@@ -78,7 +78,7 @@ void Image::populateFromData(unsigned char* imageData, const uvec2& dimensions, 
     int numTexel = dimensions.x * dimensions.y;
     // TODO: haven't do the validation
     for (int i = 0; i<numTexel; i++) {
-      mTexels.emplace_back(*colorData, 0, 0, unsigned char(255));
+      mTexels.emplace_back(*colorData, (unsigned char)0, (unsigned char)0, unsigned char(255));
       colorData++;
     }
 

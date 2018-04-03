@@ -5,15 +5,6 @@
 #include "Engine/Core/Rgba.hpp"
 #include "VertexLayout.hpp"
 
-//struct vertex_pcu_t {
-//  vertex_pcu_t() = default;
-//  vertex_pcu_t(const vec3& pos, const Rgba& col, const vec2& uvs) : position(pos), color(col), uvs(uvs) {}
-//  vertex_pcu_t(const vec2& pos, const Rgba& col, const vec2& uvs) : position(pos), color(col), uvs(uvs) {}
-//  vec3 position{ 0.f };
-//  Rgba color{ 255, 255, 255, 255 };
-//  vec2 uvs{ 0.f };
-//};
-
 DeclVertexType(vertex_pcu_t) {
   vec3 position{ 0.f };
   Rgba color{ 255, 255, 255, 255 };
@@ -30,5 +21,7 @@ public:
   Rgba color;
   vec2 uv;
 
-
+  template<typename VertexType>
+  VertexType as();
 };
+

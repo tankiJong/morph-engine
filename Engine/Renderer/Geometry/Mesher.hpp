@@ -3,6 +3,7 @@
 #include "Game/Game.hpp"
 #include "Vertex.hpp"
 #include "type.h"
+#include "Mesh.hpp"
 
 class Mesh;
 
@@ -26,6 +27,8 @@ public:
   Mesher& quad(uint a, uint b, uint c, uint d);
   Mesher& quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d);
   Mesher& cube(const vec3& center, const vec3& dimension);
+
+  template<typename VertexType=vertex_pcu_t>
   owner<Mesh*> createMesh();
 
 protected:
@@ -35,3 +38,18 @@ protected:
   draw_instr_t mIns;
   bool isDrawing = false;
 };
+
+template< typename VertexType >
+owner<Mesh*> Mesher::createMesh() {
+  GUARANTEE_OR_DIE(isDrawing == false, "createMesh called without calling end()");
+  VertexMesh<VertexType>* m = new VertexMesh<VertexType>();
+  m->setInstruction(mIns.prim, mIns.useIndices, mIns.startIndex, mIns.elementCount);
+
+  m->setVertices(mVertices);
+  if (mIns.useIndices) {
+    m->setIndices({ mIndices.data() + mIns.startIndex, mIndices.data() + mIns.elementCount });
+  }
+
+  return m;
+}
+

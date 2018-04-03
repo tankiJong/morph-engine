@@ -211,16 +211,3 @@ Mesher& Mesher::cube(const vec3& center, const vec3& dimension) {
 
   return *this;
 }
-
-owner<Mesh*> Mesher::createMesh() {
-  GUARANTEE_OR_DIE(isDrawing == false, "createMesh called without calling end()");
-  Mesh* m = new Mesh(sizeof(Vertex));
-  m->setInstruction(mIns.prim, mIns.useIndices, mIns.startIndex, mIns.elementCount);
-
-  m->setVertices<Vertex>(mVertices);
-  if(mIns.useIndices) {
-    m->setIndices({ mIndices.data() + mIns.startIndex, mIndices.data() + mIns.elementCount});
-  }
-
-  return m;
-}

@@ -8,6 +8,6 @@ VertexAttribute::VertexAttribute(std::string name, eDataDeclType type, uint coun
     
 }
 
-void VertexLayout::attribute(std::string name, eDataDeclType type, uint count, uint offset, bool isNormalized) {
+void VertexLayout::define(std::string name, eDataDeclType type, uint count, uint offset, bool isNormalized) {
   mAttribs.emplace_back(name, type, count, offset, isNormalized);
 }

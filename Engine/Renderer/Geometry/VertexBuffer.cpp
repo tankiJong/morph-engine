@@ -1,2 +1,4 @@
 ﻿#include "VertexBuffer.hpp"
-  VertexBuffer::VertexBuffer(uint stride): vertexStride(stride) {}
+VertexBuffer::VertexBuffer(uint stride, const VertexLayout* layout)
+  : vertexStride(stride)
+  , layout(layout){}

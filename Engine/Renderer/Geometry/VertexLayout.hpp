@@ -17,19 +17,28 @@ class VertexLayout {
 public:
   VertexLayout() = default;
   
-  void attribute(std::string name, eDataDeclType type, uint count, uint offset, bool isNormalized = true);
-protected:
-  std::vector<VertexAttribute> mAttribs;
+  void define(std::string name, eDataDeclType type, uint count, uint offset, bool isNormalized = true);
+
+  inline span<const VertexAttribute> attributes() const { return mAttribs; }
+  
+  template<typename VertexType>
+  static inline const VertexLayout* For() { return nullptr; };
 
   template<typename VertexType>
-  static inline const VertexLayout* For();
+  static inline constexpr bool Valid() { return false;}
+protected:
+  std::vector<VertexAttribute> mAttribs;
+  std::string mVertexType;
 };
 
 namespace detail {
   template<typename VertexType>
   class __VertexLayoutConstructor: public VertexLayout {
   public:
-    __VertexLayoutConstructor() { construct(); }
+    __VertexLayoutConstructor(const char* name) {
+      mVertexType = name; 
+      construct();
+    }
   protected:
     void construct();
   };
@@ -37,8 +46,9 @@ namespace detail {
 
 #define DeclVertexType( name ) \
   struct name; \
+  template<> inline constexpr bool VertexLayout::Valid<name>() { return true; } \
   template<> inline const VertexLayout* VertexLayout::For<name>() { \
-    static detail::__VertexLayoutConstructor<name> format;\
+    static detail::__VertexLayoutConstructor<name> format(#name);\
     return &format; \
   } \
   struct name

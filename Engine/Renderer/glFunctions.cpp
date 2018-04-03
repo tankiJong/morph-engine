@@ -929,29 +929,35 @@ void bindGLFunctions() {
 
 #define GLEnumType(eEnumType) GL##eEnumType
 
+#define DeclGLTypeMapFn(NUM, eEnumType) \
+  extern const uint* GLEnumType(eEnumType##_);\
+  \
+  template<> \
+  uint toGLType(eEnumType e) { \
+  return GLEnumType(eEnumType##_)[e];\
+  }\
+  constexpr uint GLEnumType(eEnumType)[NUM+1] = 
 
-extern uint xx[3];
-
-uint xx[3] = {
-  1,
-};
-#define DeclGLTypeMapFn(NUM, eEnumType) extern uint GLEnumType(eEnumType)[NUM];\
-                                template<> \
-                                uint toGlType(eEnumType e) { \
-                                  return GLEnumType(eEnumType)[e];\
-                                }\
-                                uint GLEnumType(eEnumType)[NUM] = 
+#define GLTypeMapGuard(NUM, eEnumType) \
+  const uint* GLEnumType(eEnumType##_) = GLEnumType(eEnumType);\
+  static_assert(GLEnumType(eEnumType)[NUM] == NUM, "GL type map for type "#eEnumType" does not match the enum definition")
 
 
 DeclGLTypeMapFn(NUM_DATA_DECL_TYPE, eDataDeclType) {
   GL_FLOAT,
   GL_BYTE,
+  GL_UNSIGNED_BYTE,
+  NUM_DATA_DECL_TYPE
 };
-DeclGLTypeMapFn(NUM_PRIMITIVE_TYPES, eDrawPrimitive) {
+GLTypeMapGuard(NUM_DATA_DECL_TYPE, eDataDeclType);
+
+DeclGLTypeMapFn(NUM_DATA_DECL_TYPE, eDrawPrimitive) {
   GL_POINTS,
   GL_LINES,
   GL_TRIANGLES,
+  NUM_PRIMITIVE_TYPES
 };
+GLTypeMapGuard(NUM_DATA_DECL_TYPE, eDrawPrimitive);
 
 DeclGLTypeMapFn(NUM_COMPARE, eCompare) {
   GL_NEVER,
@@ -962,4 +968,6 @@ DeclGLTypeMapFn(NUM_COMPARE, eCompare) {
   GL_EQUAL,
   GL_NOTEQUAL,
   GL_ALWAYS,
+  NUM_COMPARE
 };
+GLTypeMapGuard(NUM_COMPARE, eCompare);

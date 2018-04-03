@@ -487,4 +487,4 @@ inline bool GLSucceeded() {
 }
 
 template<typename Enum>
-uint toGlType(Enum e);
+uint toGLType(Enum e);

@@ -62,6 +62,7 @@ enum eUniformUnit {
 enum eDataDeclType {
   MP_FLOAT = 0,
   MP_BYTE,
+  MP_UBYTE,
   NUM_DATA_DECL_TYPE,
 };
 // ---------------------- STRUCT -----------------------------

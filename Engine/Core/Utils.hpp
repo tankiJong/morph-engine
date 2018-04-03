@@ -18,3 +18,20 @@ using owner = T;
 
 template <class ElementType, std::ptrdiff_t Extent = gsl::dynamic_extent>
 using span = gsl::span<ElementType, Extent>;
+
+
+struct unique {
+  inline bool operator=(const unique& rhs) const { return id() == rhs.id(); }
+protected:
+  virtual inline size_t id() const= 0;
+};
+
+template<typename T>
+struct tid : public unique {
+protected:
+  inline size_t id() const { return (size_t)&_id; }
+  static char _id;
+};
+
+template<typename T>
+char tid<T>::_id = 0;
