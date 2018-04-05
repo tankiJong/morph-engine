@@ -32,8 +32,8 @@ public:
   owner<Mesh*> createMesh();
 
 protected:
-  Vertex mStamp;
-  std::vector<Vertex> mVertices;
+  vertex_t mStamp;
+  Vertex mVertices;
   std::vector<uint> mIndices;
   draw_instr_t mIns;
   bool isDrawing = false;

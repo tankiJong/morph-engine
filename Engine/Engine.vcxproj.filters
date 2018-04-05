@@ -300,6 +300,9 @@
     <ClCompile Include="Renderer\Shader\ShaderStage.cpp">
       <Filter>Renderer\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Shader\Shader.cpp">
+      <Filter>Renderer\Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -687,6 +690,9 @@
       <Filter>Renderer\Shader</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Shader\ShaderStage.hpp">
+      <Filter>Renderer\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Shader\Shader.hpp">
       <Filter>Renderer\Shader</Filter>
     </ClInclude>
   </ItemGroup>

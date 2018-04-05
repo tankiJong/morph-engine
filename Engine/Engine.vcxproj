@@ -542,6 +542,7 @@
     <ClCompile Include="Renderer\RenderBuffer.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\Sampler.cpp" />
+    <ClCompile Include="Renderer\Shader\Shader.cpp" />
     <ClCompile Include="Renderer\Shader\ShaderProgram.cpp" />
     <ClCompile Include="Renderer\Shader\ShaderStage.cpp" />
     <ClCompile Include="Renderer\Sprite.cpp" />
@@ -683,6 +684,7 @@
     <ClInclude Include="Renderer\RenderBuffer.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
     <ClInclude Include="Renderer\Sampler.hpp" />
+    <ClInclude Include="Renderer\Shader\Shader.hpp" />
     <ClInclude Include="Renderer\Shader\ShaderProgram.hpp" />
     <ClInclude Include="Renderer\Shader\ShaderStage.hpp" />
     <ClInclude Include="Renderer\Sprite.hpp" />

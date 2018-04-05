@@ -1,9 +1,9 @@
 #include "Mesh.hpp"
 
-Mesh& Mesh::setVertices(uint stride, uint count, const void* vertices) {
-  mVertices.vertexStride = stride;
-  mVertices.vertexCount = count;
-  mVertices.copyToGpu(stride * count, vertices);
+Mesh& Mesh::setVertices(uint streamIndex, uint stride, uint count, const void* vertices) {
+  mVertices[streamIndex].vertexStride = stride;
+  mVertices[streamIndex].vertexCount = count;
+  mVertices[streamIndex].copyToGpu(stride * count, vertices);
   return *this;
 }
 
@@ -21,6 +21,16 @@ Mesh& Mesh::resetInstruction() {
   mIns.startIndex = 0;
   mIns.elementCount = mIndices.indexCount;
   return *this;
+}
+
+Mesh::Mesh(const VertexLayout* layout): mIndices(sizeof(uint)), mLayout(layout) {
+  mVertices.resize(layout->attributes().size() + 1);
+  for(const VertexAttribute& attribute: layout->attributes()) {
+    if(mVertices.size() <= attribute.streamIndex) {
+      mVertices.resize(attribute.streamIndex + 1);
+    }
+    attribute.initVertexBuffer(mVertices[attribute.streamIndex]);
+  }
 }
 
 Mesh& Mesh::setIndices(span<const uint> indices) {

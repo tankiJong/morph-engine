@@ -9,7 +9,7 @@ Mesher& Mesher::begin(eDrawPrimitive prim, bool useIndices) {
   if(useIndices) {
     mIns.startIndex = mIndices.size();
   } else {
-    mIns.startIndex = mVertices.size();
+    mIns.startIndex = mVertices.count();
   }
 
   isDrawing = true;
@@ -23,7 +23,7 @@ void Mesher::end() {
   if(mIns.useIndices) {
     end = mIndices.size();
   } else {
-    end = mVertices.size();
+    end = mVertices.count();
   }
   mIns.elementCount = end - mIns.startIndex;
   isDrawing = false;
@@ -52,16 +52,16 @@ Mesher& Mesher::uv(float u, float v) {
 
 uint Mesher::vertex3f(const vec3& pos) {
   mStamp.position = pos;
-  mVertices.push_back(mStamp);
-  return mVertices.size() - 1u;
+  mVertices.push(mStamp);
+  return mVertices.count() - 1u;
 }
 
 uint Mesher::vertex3f(span<const vec3> verts) {
-  mVertices.reserve(mVertices.size() + verts.size());
+  mVertices.reserve(mVertices.count() + verts.size());
   for(const vec3& vert: verts) {
     vertex3f(vert);
   }
-  return mVertices.size() - verts.size();
+  return mVertices.count() - verts.size();
 }
 
 uint Mesher::vertex3f(float x, float y, float z) {
@@ -69,8 +69,8 @@ uint Mesher::vertex3f(float x, float y, float z) {
   mStamp.position.y = y;
   mStamp.position.z = z;
 
-  mVertices.push_back(mStamp);
-  return mVertices.size() - 1u;
+  mVertices.push(mStamp);
+  return mVertices.count() - 1u;
 }
 
 uint Mesher::vertex2f(const vec2& pos) {
@@ -93,7 +93,7 @@ Mesher& Mesher::sphere(const vec3& center, float size, uint levelX, uint levelY)
   float dTheta = 360.f / (float)levelX;
   float dPhi = 180.f / (float)levelY;
 
-  uint start = mVertices.size();
+  uint start = mVertices.count();
 
   for (uint j = 0; j <= levelY; j++) {
     for (uint i = 0; i <= levelX; i++) {

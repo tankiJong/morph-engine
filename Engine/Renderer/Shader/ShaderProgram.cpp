@@ -6,11 +6,15 @@
 
 static const char* defaultVertexShader 
 = R"(#version 420 core
-uniform mat4 PROJECTION; 
-uniform mat4 VIEW; 
+
 in vec3 POSITION;
 in vec4 COLOR;       // NEW - GLSL will use a Vector4 for this; 
 in vec2 UV;         
+
+layout(std140, binding = 2) uniform cameraBlock {
+   mat4 PROJECTION;
+   mat4 VIEW;
+};
 
 out vec2 passUV; 
 out vec4 passColor;  // NEW - to use it in the pixel stage, we must pass it.

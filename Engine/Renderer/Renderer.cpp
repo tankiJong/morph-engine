@@ -847,17 +847,20 @@ void Renderer::drawCube(const vec3& bottomCenter, const vec3& dimension,
 
 void Renderer::drawMesh(const Mesh& mesh) {
   GL_CHECK_ERROR();
-  glBindBuffer(GL_ARRAY_BUFFER, mesh.vertices().handle());
 
-  for(const VertexAttribute& attribute: mesh.vertices().layout->attributes()) {
+  for(const VertexAttribute& attribute: mesh.layout().attributes()) {
     GLint bindIdx = glGetAttribLocation(mCurrentShaderProgram->handle(), attribute.name.c_str());
+
     if(bindIdx >= 0) {
+      const VertexBuffer& vbo = mesh.vertices(attribute.streamIndex);
+      glBindBuffer(GL_ARRAY_BUFFER, vbo.handle());
+
       glEnableVertexAttribArray(bindIdx);
       glVertexAttribPointer(bindIdx, 
                             attribute.count, 
                             toGLType(attribute.type), 
                             attribute.isNormalized ? GL_FALSE : GL_TRUE, 
-                            mesh.vertices().vertexStride, 
+                            vbo.vertexStride,
                             (GLvoid*)attribute.offset);
     }
   }
@@ -884,16 +887,21 @@ void Renderer::drawMesh(const Mesh& mesh) {
 //  }
   glUseProgram(mCurrentShaderProgram->handle());
   
-  GLint loc = glGetUniformLocation(mCurrentShaderProgram->handle(), "PROJECTION");
-  if (loc >= 0) {
-    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mProjMatrix);
-  }
+//  GLint loc = glGetUniformLocation(mCurrentShaderProgram->handle(), "PROJECTION");
+//  if (loc >= 0) {
+//    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mProjMatrix);
+//  }
+//
+//  loc = glGetUniformLocation(mCurrentShaderProgram->handle(), "VIEW");
+//  if (loc >= 0) {
+//    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mViewMatrix);
+//  }
 
-  loc = glGetUniformLocation(mCurrentShaderProgram->handle(), "VIEW");
-  if (loc >= 0) {
-    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mViewMatrix);
-  }
+  static UniformBuffer* ubo = UniformBuffer::For(mCurrentCamera->cameraBlock);
 
+  ubo->set(mCurrentCamera->cameraBlock);
+
+  setUniformBuffer(UNIFORM_CAMERA, *ubo);
   const draw_instr_t& ins = mesh.instruction();
 
 

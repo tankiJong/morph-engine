@@ -2,6 +2,8 @@
 #include "Engine/Math/Primitives/vec2.hpp"
 #include "Engine/Math/Primitives/vec3.hpp"
 #include "Engine/Core/Rgba.hpp"
+#include "Engine/Math/Primitives/mat44.hpp"
+
 // ---------------------- ENUM -----------------------------
 enum eCompare {
   COMPARE_NEVER,       // GL_NEVER
@@ -54,8 +56,8 @@ enum eTextureFormat {
 
 enum eUniformUnit {
   UNIFORM_TIME = 1,
-  UNIFORM_TRANSFORM,
   UNIFORM_CAMERA,
+  UNIFORM_TRANSFORM,
   UNiFORM_USER_1
 };
 
@@ -65,6 +67,34 @@ enum eDataDeclType {
   MP_UBYTE,
   NUM_DATA_DECL_TYPE,
 };
+
+enum eCullMode {
+  CULL_BACK,          // GL_BACK     glEnable(GL_CULL_FACE); glCullFace(GL_BACK); 
+  CULL_FRONT,         // GL_FRONT    glEnable(GL_CULL_FACE); glCullFace(GL_FRONT); 
+  CULL_NONE,          // GL_NONE     glDisable(GL_CULL_FACE)
+  NUM_CULL_MODE,
+};
+
+enum eFillMode {
+  FILL_SOLID,         // GL_FILL     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL )
+  FILL_WIRE,          // GL_LINE     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE )
+  NUM_FILL_MODE,
+};
+
+enum eWindOrder {
+  WIND_CLOCKWISE,         // GL_CW       glFrontFace( GL_CW ); 
+  WIND_COUNTER_CLOCKWISE, // GL_CCW      glFrontFace( GL_CCW ); 
+  NUM_WIND_ORDER,
+};
+
+enum eBlendOp {
+  BLEND_OP_ADD, //
+};
+
+enum eBlendFactor {
+  BLEND_F_ONE,
+  BLEND_F_ZERO,
+};
 // ---------------------- STRUCT -----------------------------
 
 struct uniform_time_t {
@@ -72,4 +102,29 @@ struct uniform_time_t {
   float gameSeconds;
   float sysDeltaSeconds;
   float sysSeconds;
+};
+
+struct camera_t {
+  mat44 projection;
+  mat44 view;
+};
+
+struct render_state {
+  // Raster State Control
+  eCullMode cullMode = CULL_BACK;      // CULL_BACK
+  eFillMode fillMode = FILL_SOLID;      // FILL_SOLID
+  eWindOrder frontFace = WIND_COUNTER_CLOCKWISE;    // WIND_COUNTER_CLOCKWISE
+
+                              // Depth State Control
+  eCompare depthMode = COMPARE_LESS;   // COMPARE_LESS
+  bool isWriteDepth = true;         // true
+
+                              // Blend
+  eBlendOp colorBlendOp = BLEND_OP_ADD;          // COMPARE_ADD
+  eBlendFactor colorSrcFactor = BLEND_F_ONE;    // BLEND_ONE
+  eBlendFactor colorDstFactor = BLEND_F_ZERO;    // BLEND_ZERO
+
+  eBlendOp alphaBlendOp = BLEND_OP_ADD;          // COMPARE_ADD
+  eBlendFactor alphaSrcFactor = BLEND_F_ONE;    // BLEND_ONE
+  eBlendFactor alphaDstFactor = BLEND_F_ZERO;    // BLEND_ONE
 };

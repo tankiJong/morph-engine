@@ -3,26 +3,33 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Renderer/type.h"
 
+class VertexBuffer;
+
 struct VertexAttribute {
+  uint streamIndex = 0;
   std::string name;
   eDataDeclType type = MP_FLOAT;
   uint count = 1;
   uint offset = 0;
   bool isNormalized = false;
+  uint offsetInVertexArray;
+  VertexAttribute(uint streamIndex, std::string name, eDataDeclType type, uint count, uint offset, bool isNormalized, uint offsetInVertexArray);
 
-  VertexAttribute(std::string name, eDataDeclType type, uint count, uint offset, bool isNormalized = true);
+  void initVertexBuffer(VertexBuffer& vbo) const;
+
+  uint stride() const;
 };
 
 class VertexLayout {
 public:
   VertexLayout() = default;
   
-  void define(std::string name, eDataDeclType type, uint count, uint offset, bool isNormalized = true);
+  void define(uint streamIndex, std::string name, eDataDeclType type, uint count, uint offset, bool isNormalized, uint offsetInVertexArray);
 
   inline span<const VertexAttribute> attributes() const { return mAttribs; }
   
   template<typename VertexType>
-  static inline const VertexLayout* For() { return nullptr; };
+  static inline const VertexLayout* For();
 
   template<typename VertexType>
   static inline constexpr bool Valid() { return false;}

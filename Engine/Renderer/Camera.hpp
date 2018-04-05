@@ -6,6 +6,7 @@
 #include "FrameBuffer.hpp"
 
 class aabb2;
+
 class Camera {
   friend class Renderer;
 public:
@@ -39,8 +40,13 @@ public:
 public:
   // default all to identiy
   mat44 mCameraMatrix;  // where is the camera?
-  mat44 mViewMatrix;    // inverse of camera (used for shader)
-  mat44 mProjMatrix;    // projection
+  union {
+    struct {
+      mat44 mProjMatrix;    // projection
+      mat44 mViewMatrix;    // inverse of camera (used for shader)
+    };
+    camera_t cameraBlock;
+  };
   owner<FrameBuffer*> mFrameBuffer;
                           // FrameBuffer m_output; // eventually
 };

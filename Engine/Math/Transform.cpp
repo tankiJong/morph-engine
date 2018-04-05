@@ -34,7 +34,9 @@ mat44 Transform::localToWorld() const {
   return mLocalTransform.localToWorld();
 }
 
-mat44 Transform::worldToLocal() const {}
+mat44 Transform::worldToLocal() const {
+  return mLocalTransform.worldToLocal();
+}
 
 void Transform::localRotate(const Eular& eular) {
   mLocalTransform.rotate(eular);

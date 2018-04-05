@@ -73,7 +73,7 @@ public:
   //------------------------------------------------------------------------
   //
   template <typename T>
-  static UniformBuffer* For(const T& v) {
+  static owner<UniformBuffer*> For(const T& v) {
     // Excercise - convenience constructor, 
     // will create a constant buffer for a specific struct, 
     // initializing to the structs contents; 

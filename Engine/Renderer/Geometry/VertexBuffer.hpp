@@ -5,11 +5,10 @@
 
 class VertexBuffer: public RenderBuffer {
 public:
-
-  VertexBuffer(uint stride, const VertexLayout* layout);
+  VertexBuffer() = default;
+  VertexBuffer(uint stride);
   uint vertexCount = 0;
   uint vertexStride = 1;
-  const VertexLayout* layout = nullptr;
   template<typename T>
   static VertexBuffer For() {
     return VertexBuffer(sizeof(T), VertexLayout::For<T>());

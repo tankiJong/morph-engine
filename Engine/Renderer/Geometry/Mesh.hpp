@@ -18,20 +18,21 @@ public:
   Mesh& setInstruction(eDrawPrimitive prim, bool useIndices, uint startIdx, uint elemCount);
   Mesh& resetInstruction();
 
-  const VertexBuffer& vertices() const { return mVertices; }
+  const VertexBuffer& vertices(uint streamIndex) const { return mVertices[streamIndex]; }
   const IndexBuffer& indices() const { return mIndices; }
   const draw_instr_t& instruction() const { return mIns; }
-
+  const VertexLayout& layout() const { return *mLayout; }
 protected:
-  Mesh(uint stride, const VertexLayout* layout): mVertices(stride, layout), mIndices(stride) {};
-  VertexBuffer mVertices;
+  Mesh(const VertexLayout* layout);
+  std::vector<VertexBuffer> mVertices;
   IndexBuffer  mIndices;
   draw_instr_t mIns;
+  const VertexLayout* mLayout = nullptr;
 
   /**
    * \brief the function is just convenient for internal use;
    */
-  Mesh& setVertices(uint stride, uint count, const void* vertices);
+  Mesh& setVertices(uint streamIndex, uint stride, uint count, const void* vertices);
 };
 
 template<typename V>
@@ -39,20 +40,14 @@ class VertexMesh: public Mesh {
   static_assert(VertexLayout::Valid<V>(), "there is no valid Vertex Type");
 public:
   using VertexType = V;
-  VertexMesh(): Mesh(sizeof(V), VertexLayout::For<V>()) {
+  VertexMesh(): Mesh(VertexLayout::For<V>()) {
   }
 
-  inline void setVertices(span<VertexType> vertices) {
-    setVertices(sizeof(VertexType), vertices.size(), vertices.data());
-  }
-
-  inline void setVertices(span<Vertex> vertices) {
-    std::vector<VertexType> vs;
-    vs.reserve(vertices.size());
-
-    for(auto i = 0; i < vertices.size(); ++i) {
-      vs.emplace_back(vertices[i].as<VertexType>());
+  void setVertices(Vertex& vertices) {
+    vertex_a_t v = vertices.vertices();
+    char** start = (char**)&v;
+    for(VertexAttribute attr: mLayout->attributes()) {
+      Mesh::setVertices(attr.streamIndex, attr.stride(), vertices.count(),  *(start + attr.offsetInVertexArray));
     }
-    Mesh::setVertices(sizeof(VertexType), vs.size(), vs.data());
   }
 };

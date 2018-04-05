@@ -32,6 +32,7 @@ class RenderBuffer;
 class Sampler;
 class FrameBuffer;
 class Sprite;
+class Shader;
 
 
 /*
@@ -58,6 +59,8 @@ public:
   void bindSampler(Sampler* sampler);
   void setTexture(const char* path);
   void setTexture(uint i, const char* path);
+  void setRenderState(const render_state& state);
+  void setShader(Shader* shader);
   void cleanScreen(const Rgba& color);
   void clearDepth(float depth = 1.f);
   bool copyTexture(Texture* from, Texture* to = nullptr);
