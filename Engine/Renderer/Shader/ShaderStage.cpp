@@ -199,6 +199,7 @@ bool consumeVersion (const char*& c, uint& version) {
   while (!isReturn(c)) {
     c++;
   };
+  consumeReturn(c);
   return true;
 }
 
@@ -373,7 +374,6 @@ std::optional<std::tuple<std::string, std::string, uint>> ShaderStage::parseDire
   }
 
   passWhitespaceAndComment(begin);
-  ENSURES(isReturn(begin) || isTermination(begin));
 
   uint line = 1;
   for(const char* i = source.data(); i != begin; ++i) {
@@ -384,6 +384,8 @@ std::optional<std::tuple<std::string, std::string, uint>> ShaderStage::parseDire
   std::string first(source.data(), len); // from begin to the end of #version line, include \n
   std::string rest(source.data() + len, source.length() - len); // the rest
   
+  if (isTermination(begin)) return std::make_tuple(first, rest, line);
+
   if (mDefineDirectives.empty()) {
     return std::make_tuple(first, rest, line);
   }
