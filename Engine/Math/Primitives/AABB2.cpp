@@ -71,19 +71,15 @@ bool aabb2::isPointInside(const vec2& point) const {
 	return isPointInside(point.x, point.y);
 }
 
-vec2 aabb2::getDimensions() const {
-	return maxs - mins;
-}
-
 vec2 aabb2::getCenter() const {
 	return 0.5f * (mins + maxs);
 }
 
 float aabb2::width() const {
-  return getDimensions().x;
+  return size().x;
 }
 float aabb2::height() const {
-  return getDimensions().y;
+  return size().y;
 }
 
 void aabb2::operator+=(const vec2& translation) {

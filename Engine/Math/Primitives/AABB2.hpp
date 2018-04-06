@@ -20,7 +20,6 @@ public:
   std::array<vec2,4> vertices() const;
 	bool isPointInside(float x, float y) const; // is “x,y” within box’s interior?
 	bool isPointInside(const vec2& point) const; // is “point” within box’s interior?
-	vec2 getDimensions() const; // return a Vector2 of ( width, height )
 	vec2 getCenter() const; // return the center position of the box
   float width() const;
   float height() const;
@@ -30,7 +29,8 @@ public:
 	aabb2 operator-(const vec2& antiTranslation) const;
   void fromString(const char* data);
   std::string toString() const;
-	vec2 mins; // like Vector2, this breaks the “no public members” and “m_” naming rules;
+  inline vec2 size() const { return maxs - mins; };
+  vec2 mins; // like Vector2, this breaks the “no public members” and “m_” naming rules;
 	vec2 maxs; // this is so low-level math primitives feel like built-in types (and are fast in Debug)
 };
 

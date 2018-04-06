@@ -34,7 +34,7 @@ struct Debug::DebugDrawMeta {
 
   float progress(float current) const {
     
-    return duration == INF ? 0 : (current - endSec + duration) / duration;
+    return (duration == INF || duration == 0)? 0 : (current - endSec + duration) / duration;
   }
 
   void terminate() const {

@@ -37,6 +37,11 @@ float Font::Face::kerning(uint previous, float size) const {
 
     const uint ii = (end - start) / 2u;
     if (i == ii) break;
+
+    if(ii == i + 1u || ii == i - 1u) {
+      if (mKernings[ii].previousCode == previous) i = ii;
+      break;
+    }
     i = ii;
   }
 
@@ -94,16 +99,10 @@ float Font::advance(char previous, char c, float size, float aspectScale) {
  */
 aabb2 Font::bounds(char c, float size, float aspectScale) const {
   const Face& f = mFaces[c];
-  vec2 mins;
+
   vec2 xyOffset = f.offset(size);
-  mins.x += xyOffset.x;
+  vec2 mins(xyOffset.x, ascender(size) + xyOffset.y - f.size(size).y);
   vec2 maxs = mins + f.size(size);
-
-  float distanceToLineTop = (maxs.y - mins.y) - ascender(size);
-  float offsetY = distanceToLineTop - xyOffset.y;
-
-  mins.y += offsetY; 
-  maxs.y += offsetY;
 
   maxs.x = mins.x + (maxs.x - mins.x) * aspectScale;
   
@@ -121,10 +120,10 @@ void from_json(const json& j, Glyph& g) {
   g.dimension().x = j.at("width");
   g.dimension().y = j.at("height");
 
-  vec2 topLeft(j.at("uv_x").get<float>(), j.at("uv_y").get<float>());
-  vec2 size(j.at("uv_width").get<float>(), j.at("uv_height").get<float>());
+  vec2 bottomLeft(j.at("tex_x").get<float>(), j.at("tex_y").get<float>());
+  vec2 size(j.at("width").get<float>(), j.at("height").get<float>());
 
-  g.uv.mins = topLeft - vec2(0, size.y);
+  g.uv.mins = bottomLeft;
   g.uv.maxs = g.uv.mins + size;
 }
 
@@ -154,6 +153,10 @@ Font* fromJson(const fs::path& path) {
     g.id = glyphs.size() - 1u;
     g.mOffset /= size;
     g.dimension() /= size;
+
+//    vec2 gsize = g.uv.size() / size;
+    g.uv.mins /= 1024.f;
+    g.uv.maxs /= 1024.f;
 
   }
 
