@@ -21,6 +21,7 @@
 #include "Sprite.hpp"
 #include "Geometry/Mesh.hpp"
 #include "Geometry/Vertex.hpp"
+#include "Engine/Renderer/Shader/Shader.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
@@ -303,7 +304,7 @@ STEP_DRAW:
 
   vec2 anchor(bounds.mins.x, bounds.maxs.y);
 
-  vec2 padding = bounds.getDimensions() - vec2(blockWidth, blockHeight);
+  vec2 padding = bounds.size() - vec2(blockWidth, blockHeight);
   padding.x *= aligns.x;
   padding.y *= -aligns.y;
 
@@ -398,6 +399,55 @@ void Renderer::setOrtho(float width, float height, float near, float far) {
 
 void Renderer::setProjection(const mat44& projection) {
   mCurrentCamera->mProjMatrix = projection;
+}
+
+void Renderer::setState(const render_state& state) {
+//  struct render_state {
+//    // Raster State Control
+//    eCullMode cullMode = CULL_BACK;      // CULL_BACK
+//    eFillMode fillMode = FILL_SOLID;      // FILL_SOLID
+//    eWindOrder frontFace = WIND_COUNTER_CLOCKWISE;    // WIND_COUNTER_CLOCKWISE
+//
+//                                                      // Depth State Control
+//    eCompare depthMode = COMPARE_LESS;   // COMPARE_LESS
+//    eFlag isWriteDepth = FLAG_TRUE;         // true
+//
+//                                            // Blend
+//    eBlendOp colorBlendOp = BLEND_OP_ADD;          // COMPARE_ADD
+//    eBlendFactor colorSrcFactor = BLEND_F_ONE;    // BLEND_ONE
+//    eBlendFactor colorDstFactor = BLEND_F_ZERO;    // BLEND_ZERO
+//
+//    eBlendOp alphaBlendOp = BLEND_OP_ADD;          // COMPARE_ADD
+//    eBlendFactor alphaSrcFactor = BLEND_F_ONE;    // BLEND_ONE
+//    eBlendFactor alphaDstFactor = BLEND_F_ZERO;    // BLEND_ONE
+//  };
+//
+  if(state.cullMode != CULL_NONE) {
+    glEnable(GL_CULL_FACE);
+    glCullFace(toGLType(state.cullMode));
+  } else {
+    glDisable(GL_CULL_FACE);
+  }
+
+  glPolygonMode(GL_FRONT_AND_BACK, toGLType(state.fillMode));
+
+  glFrontFace(toGLType(state.frontFace));
+
+  enableDepth(state.depthMode, state.isWriteDepth);
+
+  if (state.colorBlendOp == BLEND_OP_DISABLE || state.alphaBlendOp == BLEND_OP_DISABLE) {
+    glDisable(GL_BLEND);
+  }
+
+  glBlendEquationSeparate(toGLType(state.colorBlendOp), toGLType(state.alphaBlendOp));
+  glBlendFuncSeparate(toGLType(state.colorSrcFactor), toGLType(state.colorDstFactor),
+                      toGLType(state.alphaSrcFactor), toGLType(state.alphaDstFactor));
+}
+
+void Renderer::setShader(const Shader* shader) {
+  useShaderProgram(shader->prog());
+
+  setState(shader->state());
 }
 
 void Renderer::setSampler(uint i, Sampler* sampler) {

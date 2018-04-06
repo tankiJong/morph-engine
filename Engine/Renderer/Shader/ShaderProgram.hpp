@@ -5,8 +5,8 @@
 
 class Blob;
 class ShaderProgram {
-  friend class Renderer;
 public:
+  ShaderProgram() = default;
   ~ShaderProgram() = default;
   bool fromFile(const char*  relativePath, const char* defineArgs = nullptr);
   inline uint handle() const { return programHandle; }
@@ -14,6 +14,5 @@ public:
   static void logProgramError(uint programId);
 protected:
   std::array<ShaderStage, NUM_SHADER_TYPE> stages;
-  ShaderProgram() = default;
   uint programHandle = NULL;
 };

@@ -971,3 +971,43 @@ DeclGLTypeMapFn(NUM_COMPARE, eCompare) {
   NUM_COMPARE
 };
 GLTypeMapGuard(NUM_COMPARE, eCompare);
+
+DeclGLTypeMapFn(NUM_CULL_MODE, eCullMode) {
+  GL_BACK,
+  GL_FRONT,
+  0,
+  NUM_CULL_MODE,
+};
+GLTypeMapGuard(NUM_CULL_MODE, eCullMode);
+
+DeclGLTypeMapFn(NUM_FILL_MODE, eFillMode) {
+  GL_FILL,
+  GL_LINE,
+  NUM_FILL_MODE,
+};
+GLTypeMapGuard(NUM_FILL_MODE, eFillMode);
+
+DeclGLTypeMapFn(NUM_WIND_ORDER, eWindOrder) {
+  GL_CW,
+  GL_CCW,
+  NUM_WIND_ORDER,
+};
+GLTypeMapGuard(NUM_WIND_ORDER, eWindOrder);
+
+DeclGLTypeMapFn(NUM_BLEND_F, eBlendFactor) {
+  GL_ONE,
+  GL_ZERO,
+  NUM_BLEND_F,
+};
+GLTypeMapGuard(NUM_BLEND_F, eBlendFactor);
+
+
+DeclGLTypeMapFn(NUM_BLEND_OP, eBlendOp) {
+    GL_FUNC_ADD,
+    GL_FUNC_SUBTRACT,
+    GL_FUNC_REVERSE_SUBTRACT,
+    GL_MIN,
+    GL_MAX,
+    NUM_BLEND_OP,
+};
+GLTypeMapGuard(NUM_BLEND_OP, eBlendOp);

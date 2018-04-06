@@ -5,6 +5,10 @@
 #include "Engine/Math/Primitives/mat44.hpp"
 
 // ---------------------- ENUM -----------------------------
+enum eFlag {
+  FLAG_FALSE = 0,
+  FLAG_TRUE = 1,
+};
 enum eCompare {
   COMPARE_NEVER,       // GL_NEVER
   COMPARE_LESS,        // GL_LESS
@@ -88,12 +92,19 @@ enum eWindOrder {
 };
 
 enum eBlendOp {
+  BLEND_OP_DISABLE = -1,
   BLEND_OP_ADD, //
+  BLEND_OP_SUB,
+  BLEND_OP_REV_SUB,
+  BLEND_OP_MIN,
+  BLEND_OP_MAX,
+  NUM_BLEND_OP,
 };
 
 enum eBlendFactor {
   BLEND_F_ONE,
   BLEND_F_ZERO,
+  NUM_BLEND_F,
 };
 // ---------------------- STRUCT -----------------------------
 
@@ -117,7 +128,7 @@ struct render_state {
 
                               // Depth State Control
   eCompare depthMode = COMPARE_LESS;   // COMPARE_LESS
-  bool isWriteDepth = true;         // true
+  eFlag isWriteDepth = FLAG_TRUE;         // true
 
                               // Blend
   eBlendOp colorBlendOp = BLEND_OP_ADD;          // COMPARE_ADD

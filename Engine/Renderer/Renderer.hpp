@@ -59,8 +59,6 @@ public:
   void bindSampler(Sampler* sampler);
   void setTexture(const char* path);
   void setTexture(uint i, const char* path);
-  void setRenderState(const render_state& state);
-  void setShader(Shader* shader);
   void cleanScreen(const Rgba& color);
   void clearDepth(float depth = 1.f);
   bool copyTexture(Texture* from, Texture* to = nullptr);
@@ -131,6 +129,8 @@ public:
   void setOrtho2D(const vec2& bottomLeft, const vec2& topRight);
   void setOrtho(float width, float height, float near, float far);
   void setProjection(const mat44& projection);
+  void setShader(const Shader* shader);
+  void setState(const render_state& state);
   void setSampler(uint i, Sampler* sampler = nullptr);
   void setUniformBuffer(eUniformUnit slot, UniformBuffer& ubo);
   void traslate2D(const vec2& translation);
