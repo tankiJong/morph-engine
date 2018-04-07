@@ -27,6 +27,7 @@ public:
   const vec3 operator-() const; // vec3 - vec3
   const vec3 operator*(float uniformScale) const; // vec3 * float
   const vec3 operator/(float inverseScale) const; // vec3 / float
+  const vec3 operator*(const vec3& rhs) const;
   void operator+=(const vec3& vecToAdd); // vec3 += vec3
   void operator-=(const vec3& vecToSubtract); // vec3 -= vec3
   void operator*=(const float uniformScale); // vec3 *= float
@@ -64,7 +65,7 @@ public:
 };
 
 using point3 = vec3;
-using Eular = vec3;
+using Euler = vec3;
 
 vec3 operator*(float lhs, const vec3& rhs);
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "Engine/Math/Primitives/vec4.hpp"
 
 class Rgba {
 public:
@@ -16,6 +17,7 @@ public:
 	void getAsFloats(float& out_normalizedRed, float& out_normalizedGreen,
 						   float& out_normalizedBlue, float& out_normalizedAlpha) const;
 
+  vec4 normalized() const;
 	void scaleColor(float rgbScale);
 	void scaleOpacity(float alphaScale);
   void fromString(const char* data);

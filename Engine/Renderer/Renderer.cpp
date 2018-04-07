@@ -52,8 +52,7 @@ Renderer::~Renderer() {
   mHdc = nullptr;
   mGlWnd = nullptr;
   
-  delete mCurrentShaderProgram;
-  delete mDefaultShaderProgram;
+  delete mDefaultShader;
   delete mDefaultCamera       ;
   delete mDefaultSampler      ;
   delete mDefaultDepthTarget  ;
@@ -363,8 +362,9 @@ void Renderer::postInit() {
   glGenVertexArrays(1, &mDefaultVao);
   glBindVertexArray(mDefaultVao);
 
-  mDefaultShaderProgram = createOrGetShaderProgram("@default");
-  mCurrentShaderProgram = mDefaultShaderProgram;
+  mDefaultShader = new Shader();
+  mDefaultShader->prog() = createOrGetShaderProgram("@default");
+  mCurrentShader = mDefaultShader;
 
   mDefaultSampler = new Sampler();
 
@@ -445,15 +445,58 @@ void Renderer::setState(const render_state& state) {
 }
 
 void Renderer::setShader(const Shader* shader) {
-  useShaderProgram(shader->prog());
+  
+  mCurrentShader = shader == nullptr ? mDefaultShader : shader;
+  
+  glUseProgram(mCurrentShader->prog()->handle());
 
-  setState(shader->state());
+  setState(mCurrentShader->state());
 }
 
 void Renderer::setSampler(uint i, Sampler* sampler) {
   glBindSampler(i, sampler->getHandle());
 }
 
+template<>
+void Renderer::setUnifrom(const char* name, const float& value) {
+  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), name);
+  if(loc >= 0) {
+    glUniform1f(loc, value);
+  }
+}
+
+template<>
+void Renderer::setUnifrom(const char* name, const vec2& value) {
+  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), name);
+  if (loc >= 0) {
+    glUniform2fv(loc, 1, &value.x);
+  }
+}
+
+template<>
+void Renderer::setUnifrom(const char* name, const vec3& value) {
+  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), name);
+  if (loc >= 0) {
+    glUniform3fv(loc, 1, &value.x);
+  }
+}
+
+template<>
+void Renderer::setUnifrom(const char* name, const Rgba& value) {
+  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), name);
+  if (loc >= 0) {
+    vec4 scaledColor = value.normalized();
+    glUniform4fv(loc, 1, scaledColor.data);
+  }
+}
+
+template<>
+void Renderer::setUnifrom(const char* name, const vec4& value) {
+  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), name);
+  if (loc >= 0) {
+    glUniform4fv(loc, 1, value.data);
+  }
+}
 void Renderer::setUniformBuffer(eUniformUnit slot, UniformBuffer& ubo) {
   ubo.putGpu();
   glBindBufferBase(GL_UNIFORM_BUFFER, slot, ubo.handle());
@@ -484,8 +527,9 @@ void Renderer::updateTime(float gameDeltaSec, float sysDeltaSec) {
 }
 
 void Renderer::useShaderProgram(ShaderProgram* program) {
-  mCurrentShaderProgram = program == nullptr ? mShaderPrograms.at("@default"): program;
-  ENSURES(mCurrentShaderProgram != nullptr);
+  mDefaultShader->prog() = program == nullptr ? mShaderPrograms.at("@default"): program;
+
+  setShader(mDefaultShader);
 }
 
 void Renderer::clearDepth(float depth) {
@@ -899,7 +943,7 @@ void Renderer::drawMesh(const Mesh& mesh) {
   GL_CHECK_ERROR();
 
   for(const VertexAttribute& attribute: mesh.layout().attributes()) {
-    GLint bindIdx = glGetAttribLocation(mCurrentShaderProgram->handle(), attribute.name.c_str());
+    GLint bindIdx = glGetAttribLocation(mCurrentShader->prog()->handle(), attribute.name.c_str());
 
     if(bindIdx >= 0) {
       const VertexBuffer& vbo = mesh.vertices(attribute.streamIndex);
@@ -915,7 +959,7 @@ void Renderer::drawMesh(const Mesh& mesh) {
     }
   }
 //  // position
-//  GLint posBind = glGetAttribLocation(mCurrentShaderProgram->handle(), "POSITION");
+//  GLint posBind = glGetAttribLocation(mCurrentShader->prog()->handle(), "POSITION");
 //  if(posBind >= 0) {
 //    glEnableVertexAttribArray(posBind);
 //
@@ -923,26 +967,26 @@ void Renderer::drawMesh(const Mesh& mesh) {
 //  }
 //
 //  // color
-//  GLint colorBind = glGetAttribLocation(mCurrentShaderProgram->handle(), "COLOR");
+//  GLint colorBind = glGetAttribLocation(mCurrentShader->prog()->handle(), "COLOR");
 //  if(colorBind >= 0) {
 //    glEnableVertexAttribArray(colorBind);
 //    glVertexAttribPointer(colorBind, 3, GL_UNSIGNED_BYTE, GL_TRUE, mesh.vertices().vertexStride, (GLvoid*)offsetof(vertex_pcu_t, color));
 //  }
 //
 //  // uv
-//  GLint uvBind = glGetAttribLocation(mCurrentShaderProgram->handle(), "UV");
+//  GLint uvBind = glGetAttribLocation(mCurrentShader->prog()->handle(), "UV");
 //  if(uvBind >= 0) {
 //    glEnableVertexAttribArray(uvBind);
 //    glVertexAttribPointer(uvBind, 2, GL_FLOAT, GL_FALSE, mesh.vertices().vertexStride, (GLvoid*)offsetof(vertex_pcu_t, uvs));
 //  }
-  glUseProgram(mCurrentShaderProgram->handle());
+  glUseProgram(mCurrentShader->prog()->handle());
   
-//  GLint loc = glGetUniformLocation(mCurrentShaderProgram->handle(), "PROJECTION");
+//  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), "PROJECTION");
 //  if (loc >= 0) {
 //    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mProjMatrix);
 //  }
 //
-//  loc = glGetUniformLocation(mCurrentShaderProgram->handle(), "VIEW");
+//  loc = glGetUniformLocation(mCurrentShader->prog()->handle(), "VIEW");
 //  if (loc >= 0) {
 //    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mViewMatrix);
 //  }
@@ -974,7 +1018,7 @@ void Renderer::drawMeshImmediate(const vertex_pcu_t* vertices, size_t numVerts, 
 
   // Describe the buffer - first, figure out where the shader is expecting
   // position to be.
-  GLint posBind = glGetAttribLocation(mCurrentShaderProgram->handle(), "POSITION");
+  GLint posBind = glGetAttribLocation(mCurrentShader->prog()->handle(), "POSITION");
 
   // Next, bind the buffer we want to use; 
   glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle());
@@ -994,7 +1038,7 @@ void Renderer::drawMeshImmediate(const vertex_pcu_t* vertices, size_t numVerts, 
   }
   //--------------------------bind UV---------------------------------
 
-  GLint uvBind = glGetAttribLocation(mCurrentShaderProgram->handle(), "UV");
+  GLint uvBind = glGetAttribLocation(mCurrentShader->prog()->handle(), "UV");
   glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle());
 
   if (uvBind >= 0) {
@@ -1015,7 +1059,7 @@ void Renderer::drawMeshImmediate(const vertex_pcu_t* vertices, size_t numVerts, 
   glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle());
 
   // next, bind where position is in our buffer to that location;
-  GLint bind = glGetAttribLocation(mCurrentShaderProgram->handle(), "COLOR");
+  GLint bind = glGetAttribLocation(mCurrentShader->prog()->handle(), "COLOR");
   if (bind >= 0) {
     // enable this location
     glEnableVertexAttribArray(bind);
@@ -1030,10 +1074,10 @@ void Renderer::drawMeshImmediate(const vertex_pcu_t* vertices, size_t numVerts, 
   }
 
   // Now that it is described and bound, draw using our program
-  glUseProgram(mCurrentShaderProgram->handle());
+  glUseProgram(mCurrentShader->prog()->handle());
 
   //-----------------------Matrix------------------------------------
-  GLint loc = glGetUniformLocation(mCurrentShaderProgram->handle(), "PROJECTION");
+  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), "PROJECTION");
   if (loc >= 0) {
     // you "may" need to use GL_TRUE, depending on your matrix layout
     // and whether you prefer to multiply left or right;
@@ -1041,7 +1085,7 @@ void Renderer::drawMeshImmediate(const vertex_pcu_t* vertices, size_t numVerts, 
     glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mProjMatrix);
   }
 
-  loc = glGetUniformLocation(mCurrentShaderProgram->handle(), "VIEW");
+  loc = glGetUniformLocation(mCurrentShader->prog()->handle(), "VIEW");
   if (loc >= 0) {
     glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mViewMatrix);
   }

@@ -39,6 +39,11 @@ Mesher& Mesher::color(const Rgba& c) {
   return *this;
 }
 
+Mesher& Mesher::normal(const vec3& n) {
+  mStamp.normal = n;
+  return *this;
+}
+
 Mesher& Mesher::uv(const vec2& uv) {
   mStamp.uv = uv;
   return *this;
@@ -116,6 +121,18 @@ Mesher& Mesher::sphere(const vec3& center, float size, uint levelX, uint levelY)
   return *this;
 }
 
+Mesher& Mesher::triangle() {
+  uint last = mVertices.count() - 1;
+
+  if (last < 2) {
+    ERROR_RECOVERABLE("cannot construct triangle with less than 4 vertices");
+  } else {
+    triangle(last - 2, last - 1, last);
+  }
+
+  return *this;
+}
+
 Mesher& Mesher::triangle(uint a, uint b, uint c) {
   switch(mIns.prim) {
     case DRAW_POINTS:
@@ -134,6 +151,18 @@ Mesher& Mesher::triangle(uint a, uint b, uint c) {
     } break;
     default:
       ERROR_AND_DIE("unsupported primitive");
+  }
+
+  return *this;
+}
+
+Mesher& Mesher::quad() {
+  uint last = mVertices.count() - 1;
+
+  if(last < 3) {
+    ERROR_RECOVERABLE("cannot construct quad with less than 4 vertices");
+  } else {
+    quad(last - 3, last - 2, last - 1, last);
   }
 
   return *this;
@@ -211,3 +240,4 @@ Mesher& Mesher::cube(const vec3& center, const vec3& dimension) {
 
   return *this;
 }
+

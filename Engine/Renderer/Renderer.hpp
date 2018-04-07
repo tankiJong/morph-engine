@@ -132,6 +132,9 @@ public:
   void setShader(const Shader* shader);
   void setState(const render_state& state);
   void setSampler(uint i, Sampler* sampler = nullptr);
+
+  template<typename T>
+  void setUnifrom(const char* name, const T& value);
   void setUniformBuffer(eUniformUnit slot, UniformBuffer& ubo);
   void traslate2D(const vec2& translation);
   void updateTime(float gameDeltaSec, float sysDeltaSec);
@@ -148,8 +151,8 @@ protected:
 
   RenderBuffer mTempRenderBuffer;
   UniformBuffer mUniformTime;
-  ShaderProgram* mCurrentShaderProgram = nullptr;
-  ShaderProgram* mDefaultShaderProgram = nullptr;
+  const Shader* mCurrentShader = nullptr;
+  Shader* mDefaultShader = nullptr;
   Camera* mCurrentCamera = nullptr;
   owner<Camera*> mDefaultCamera = nullptr;
   owner<Camera*> mEffectCamera = nullptr;

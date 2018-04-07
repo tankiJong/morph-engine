@@ -303,6 +303,9 @@
     <ClCompile Include="Renderer\Shader\Shader.cpp">
       <Filter>Renderer\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="ObjMeshLoader.cpp">
+      <Filter>Renderer\Geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -702,9 +705,6 @@
     </Library>
     <Library Include="..\ThirdParty\fmod\fmod64_vc.lib">
       <Filter>ThirdParty\fmod</Filter>
-    </Library>
-    <Library Include="..\ThirdParty\yaml-cpp\libyaml-cppmd.lib">
-      <Filter>ThirdParty\yaml-cpp</Filter>
     </Library>
   </ItemGroup>
   <ItemGroup>

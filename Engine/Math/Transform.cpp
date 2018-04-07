@@ -6,7 +6,7 @@ const transform_t transform_t::IDENTITY = transform_t();
 transform_t::transform_t()
   : position(0.f)
   , eular(0.f)
-  , scale(0.f) {}
+  , scale(1.f) {}
 
 mat44 transform_t::localToWorld() const {
   mat44 r = mat44::makeRotation(eular.x, eular.y, eular.z);
@@ -38,7 +38,7 @@ mat44 Transform::worldToLocal() const {
   return mLocalTransform.worldToLocal();
 }
 
-void Transform::localRotate(const Eular& eular) {
+void Transform::localRotate(const Euler& eular) {
   mLocalTransform.rotate(eular);
 }
 

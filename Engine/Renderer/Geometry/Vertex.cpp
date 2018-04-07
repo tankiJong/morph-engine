@@ -16,6 +16,13 @@ DefineVertexType(vertex_pcu_t) {
 //  };
 //}
 
+DefineVertexType(vertex_lit_t) {
+  define(0, "POSITION", MP_FLOAT, 3, 0, true, offsetof(vertex_a_t, position) / sizeof(size_t));
+  define(1, "COLOR", MP_UBYTE, 4, 0, false, offsetof(vertex_a_t, color) / sizeof(size_t));
+  define(2, "UV", MP_FLOAT, 2, 0, true, offsetof(vertex_a_t, uv) / sizeof(size_t));
+  define(3, "NORMAL", MP_FLOAT, 3, 0, true, offsetof(vertex_a_t, normal) / sizeof(size_t));
+}
+
 
 Vertex::Vertex() {
   mPositions.reserve(100u);
@@ -28,7 +35,7 @@ vertex_a_t Vertex::vertices() {
   v.position = mPositions.data();
   v.uv = mUVs.data();
   v.color = mColors.data();
-
+  v.normal = mNormals.data();
   return v;
 }
 
@@ -36,7 +43,7 @@ void Vertex::push(vertex_t v) {
   mPositions.push_back(v.position);
   mColors.push_back(v.color);
   mUVs.push_back(v.uv);
-  
+  mNormals.push_back(v.normal);
   mCount++;
 }
 

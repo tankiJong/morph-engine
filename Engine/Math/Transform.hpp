@@ -5,7 +5,7 @@
 class mat44;
 struct transform_t {
   vec3 position;
-  Eular eular;
+  Euler eular;
   vec3 scale;
 
   transform_t();
@@ -19,7 +19,7 @@ struct transform_t {
 
   inline void translate(const vec3& offset) { position += offset; };
   inline void rotate(float x, float y, float z) { eular += vec3(x, y, z); };
-  inline void rotate(const Eular& e) { eular += e; };
+  inline void rotate(const Euler& e) { eular += e; };
 
   static const transform_t IDENTITY;
 };
@@ -30,7 +30,7 @@ public:
   mat44 worldToLocal() const;
 
   // mutator
-  void localRotate(const Eular& eular);
+  void localRotate(const Euler& eular);
   void localTranslate(const vec3& offset);
   void setlocalTransform(const mat44& transform);
   
@@ -39,11 +39,15 @@ public:
   inline const vec3& localPosition() const { return mLocalTransform.position; };
   inline vec3& localPosition() { return mLocalTransform.position; };
 
-  inline const Eular& localEular() const { return mLocalTransform.eular; };
-  inline Eular& localEular() { return mLocalTransform.eular; };
+  inline const Euler& localRotation() const { return mLocalTransform.eular; };
+  inline Euler& localRotation() { return mLocalTransform.eular; };
 
   inline const vec3& localScale() const { return mLocalTransform.scale; };
   inline vec3& localScale() { return mLocalTransform.scale; };
+
+  inline vec3 position() const { return mLocalTransform.position; };
+  inline Euler rotation() const { return mLocalTransform.eular; };
+  inline vec3 scale() const { return mLocalTransform.scale; };\
 
 private:
   transform_t mLocalTransform;

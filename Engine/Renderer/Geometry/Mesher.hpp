@@ -4,6 +4,7 @@
 #include "Vertex.hpp"
 #include "type.h"
 #include "Mesh.hpp"
+#include "Engine/File/Path.hpp"
 
 class Mesh;
 
@@ -13,6 +14,7 @@ public:
   void end();
   void clear();
   Mesher& color(const Rgba& c);
+  Mesher& normal(const vec3& n);
   Mesher& uv(const vec2& uv);
   Mesher& uv(float u, float v);
 
@@ -23,11 +25,14 @@ public:
 
   Mesher& line(const vec3& from, const vec3& to);
   Mesher& sphere(const vec3& center, float size, uint levelX = 10u, uint levelY = 10u);
+  Mesher& triangle();
   Mesher& triangle(uint a, uint b, uint c);
+  Mesher& quad();
   Mesher& quad(uint a, uint b, uint c, uint d);
   Mesher& quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d);
   Mesher& cube(const vec3& center, const vec3& dimension);
 
+  void obj(fs::path objFile);
   template<typename VertexType=vertex_pcu_t>
   owner<Mesh*> createMesh();
 

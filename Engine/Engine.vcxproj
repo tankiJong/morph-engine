@@ -301,8 +301,8 @@
       <AdditionalIncludeDirectories>$(SolutionDir)../../Engine/Code/;$(SolutionDir)../../Engine/Code/ThirdParty/;$(SolutionDir)Code/</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
       <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
@@ -525,6 +525,7 @@
     <ClCompile Include="Math\Primitives\vec3.cpp" />
     <ClCompile Include="Math\Primitives\vec4.cpp" />
     <ClCompile Include="Math\Transform.cpp" />
+    <ClCompile Include="ObjMeshLoader.cpp" />
     <ClCompile Include="Persistence\json.cpp" />
     <ClCompile Include="Persistence\xml.cpp" />
     <ClCompile Include="Persistence\yaml.cpp" />
@@ -699,7 +700,6 @@
   <ItemGroup>
     <Library Include="..\ThirdParty\fmod\fmod64_vc.lib" />
     <Library Include="..\ThirdParty\fmod\fmod_vc.lib" />
-    <Library Include="..\ThirdParty\yaml-cpp\libyaml-cppmd.lib" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\ReadMe.txt" />

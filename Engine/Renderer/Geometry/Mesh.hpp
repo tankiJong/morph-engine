@@ -22,6 +22,7 @@ public:
   const IndexBuffer& indices() const { return mIndices; }
   const draw_instr_t& instruction() const { return mIns; }
   const VertexLayout& layout() const { return *mLayout; }
+
 protected:
   Mesh(const VertexLayout* layout);
   std::vector<VertexBuffer> mVertices;

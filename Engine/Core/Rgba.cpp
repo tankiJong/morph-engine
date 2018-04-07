@@ -43,6 +43,15 @@ void Rgba::getAsFloats(float & out_normalizedRed, float & out_normalizedGreen, f
 	out_normalizedAlpha = 1.f / 255.f * (float)a;
 }
 
+vec4 Rgba::normalized() const {
+  return {
+    1.f / 255.f * (float)r, 
+    1.f / 255.f * (float)g, 
+    1.f / 255.f * (float)b, 
+    1.f / 255.f * (float)a, 
+  };
+}
+
 void Rgba::scaleColor(float rgbScale) {
 	float _r = r * rgbScale;
 	float _g = g * rgbScale;

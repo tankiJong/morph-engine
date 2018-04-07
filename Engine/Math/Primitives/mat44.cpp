@@ -283,12 +283,12 @@ mat44 mat44::inverse() const {
   return inver;
 }
 
-Eular mat44::eular() const {
+Euler mat44::eular() const {
   vec3 ii = i.xyz().normalized();
   vec3 jj = j.xyz().normalized();
   vec3 kk = k.xyz().normalized();
 
-  Eular e;
+  Euler e;
 
   e.x = asinDegrees(-jj.z);
   // cosx = 0
@@ -313,7 +313,7 @@ vec3 mat44::scale() const {
   };
 }
 
-mat44 mat44::makeRotation(const Eular& ea) {
+mat44 mat44::makeRotation(const Euler& ea) {
   return makeRotation(ea.x, ea.y, ea.z);
 }
 
@@ -323,11 +323,12 @@ mat44 mat44::makeRotation(float x, float y, float z) {
   float sx = sinDegrees(x), sy = sinDegrees(y), sz = sinDegrees(z);
 
   return {
-    cz*cy + sz*sx*sy,  sz*cx, sz*sx*cy - cz*sy, 0,
-    -sz*cy + cz*sx*sy, cz*cx, cz*sx*cy + sz*sy, 0,
-    cx*sy,               -sx, cx*cy,            0,
+    cz*cy - sz*sx*sy,  -sz*cx, sz*sx*cy + cz*sy, 0,
+    sz*cy + cz*sx*sy, cz*cx, -cz*sx*cy + sz*sy, 0,
+    -cx*sy,               sx, cx*cy,            0,
     0,                     0, 0,                1
   };
+
 //  return {
 //    cx*cy, cx*sy*sz - sx*cz, cx*sy*cz + sx*sz, 0,
 //    sx*cy, sx*sy*sz + cx*cz, sx*sy*cz - cx*sz, 0,

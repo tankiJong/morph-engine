@@ -29,12 +29,18 @@ struct vertex_t {
   vec3 position;
   Rgba color;
   vec2 uv;
+
+  vec3 normal;
+  vec3 tangent;
 };
 
 struct vertex_a_t {
   vec3* position;
   Rgba* color;
   vec2* uv;
+
+  vec3* normal;
+  vec3* tangent;
 };
 class Vertex {
 public:
@@ -54,5 +60,6 @@ protected:
   std::vector<vec3> mPositions;
   std::vector<Rgba> mColors;
   std::vector<vec2> mUVs;
+  std::vector<vec3> mNormals;
   uint mCount = 0;
 };

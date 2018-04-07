@@ -85,6 +85,20 @@ std::optional<Blob> FileSystem::asBuffer(const fs::path& file) {
   }
 }
 
+std::ifstream FileSystem::asStream(const fs::path& file) {
+  auto paths = map(file);
+  uint i = 0;
+  for (uint size = paths.size(); i<size; ++i) {
+    if (fs::exists(paths[i])) break;
+  }
+
+  if (i == paths.size()) return {};
+
+  std::ifstream f;
+  f.open( paths[i]);
+  return f;
+}
+
 static FileSystem* gInstance = nullptr;
 FileSystem& FileSystem::Get() {
   if(!gInstance) {

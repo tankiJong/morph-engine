@@ -4,6 +4,7 @@
 #include "Engine/Math/Primitives/Mat44.hpp"
 #include "Engine/Math/Primitives/vec3.hpp"
 #include "FrameBuffer.hpp"
+#include "Engine/Math/Transform.hpp"
 
 class aabb2;
 
@@ -32,14 +33,19 @@ public:
   vec3 screenToWorld(uvec2 pixel, float distanceFromCamera);
   uvec2 worldToScreen(vec3 position);
 
-  inline vec3 right() const { return mCameraMatrix.i.xyz(); };
-  vec3 up() const { return mCameraMatrix.j.xyz(); };
-  vec3 forward() const { return mCameraMatrix.k.xyz(); };
+  inline vec3 right() const { return (mTransform.localToWorld() * vec4(vec3::right, 0)).xyz(); };
+  vec3 up() const { return (mTransform.localToWorld() * vec4(vec3::up, 0)).xyz(); };
+  vec3 forward() const { return (mTransform.localToWorld() * vec4(vec3::forward, 0)).xyz(); };
   inline uint width() const { return mFrameBuffer->width(); }
   inline uint height() const { return mFrameBuffer->height(); }
-public:
+
+  void rotate(const Euler& eular);
+  void translate(const vec3& translation);
+
+  inline const Transform& transfrom() const { return mTransform; }
+protected:
+  Transform mTransform;
   // default all to identiy
-  mat44 mCameraMatrix;  // where is the camera?
   union {
     struct {
       mat44 mProjMatrix;    // projection
@@ -48,5 +54,4 @@ public:
     camera_t cameraBlock;
   };
   owner<FrameBuffer*> mFrameBuffer;
-                          // FrameBuffer m_output; // eventually
 };

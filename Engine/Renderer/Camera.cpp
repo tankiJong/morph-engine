@@ -4,8 +4,9 @@
 #include "Engine/Math/Curves.hpp"
 
 Camera::Camera() {
-    mFrameBuffer = new FrameBuffer();
-  }
+  mFrameBuffer = new FrameBuffer();
+  mViewMatrix = mTransform.worldToLocal();
+}
 
 Camera::~Camera() {
   delete mFrameBuffer;
@@ -32,9 +33,9 @@ void Camera::lookAt(const vec3& position, const vec3& target, const vec3& up) {
           vec4(newUp, 0), 
           vec4(forward, 0));
 
-  mCameraMatrix = t * r;
-
   mViewMatrix = r.transpose() * mat44::makeTranslation((-1.f*position));
+
+  mTransform.setlocalTransform(t * r);
 }
 void Camera::setProjection(const mat44& proj) {
   mProjMatrix = proj;
@@ -88,4 +89,16 @@ uvec2 Camera::worldToScreen(vec3 position) {
   float h = (float)mFrameBuffer->height();
   vec2 s = rangeMap(ndc.xy(), -vec2::one, vec2::one, { 0,h }, { w,0 });
   return uvec2(s);
+}
+
+void Camera::rotate(const Euler& eular) {
+  mTransform.localRotate(eular);
+
+  mViewMatrix = mTransform.worldToLocal();
+}
+
+void Camera::translate(const vec3& translation) {
+  mTransform.localTranslate(translation);
+
+  mViewMatrix = mTransform.worldToLocal();
 }

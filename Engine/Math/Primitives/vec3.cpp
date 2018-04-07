@@ -68,6 +68,11 @@ const vec3 vec3::operator/(float inverseScale) const {
   float uniformScale = 1.f / inverseScale;
   return *this*uniformScale;
 }
+
+const vec3 vec3::operator*(const vec3& rhs) const {
+  return { x*rhs.x, y*rhs.y, z*rhs.z };
+}
+
 void vec3::operator+=(const vec3& vecToAdd) {
   x += vecToAdd.x; 
   y += vecToAdd.y; 

@@ -14,6 +14,7 @@ public:
   std::vector<fs::path> map(const fs::path& virtualPath);
 
   std::optional<Blob> asBuffer(const fs::path& file);
+  std::ifstream asStream(const fs::path& file);
 
   static FileSystem& Get();
 protected:

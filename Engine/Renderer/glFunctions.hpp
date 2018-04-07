@@ -2,6 +2,8 @@
 #include "External/gl/glcorearb.h"
 #include "External/gl/wglext.h"
 #include "Engine/Core/common.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Engine/Core/StringUtils.hpp"
 #pragma warning( disable : 4100 ) 
 
 struct HINSTANCE__;
