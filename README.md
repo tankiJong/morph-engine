@@ -11,10 +11,13 @@ Morph Engine is a morden C++ Game Engine in development.
 * Migrating to modern rendering pipline
 
 ## Math
+* Transform, Eular angle, matrix related utils
 * support perspective camera
 * Math library refactoring
 
 ## Other
+* render text use metadata and distance field
+* Json, Yaml parser integrated
 * Virtual file system
 * Simple clock&time util for profiler
 * Dev Console
