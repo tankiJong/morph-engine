@@ -23,6 +23,27 @@ LRESULT CALLBACK gameWndProc(HWND hwnd,
   return ::DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
+vec2 Window::clientCenter() const {
+  RECT client;
+  HWND hwnd = (HWND)Window::getInstance()->getHandle(); // Get your windows HWND
+  ::GetClientRect(hwnd, &client);
+
+  return {
+    (client.left + client.right) / 2.f,
+    (client.top + client.bottom) / 2.f
+  };
+}
+
+ivec2 Window::screenToClient(ivec2 pixelPostion) const {
+  POINT desktopPos;
+  desktopPos.x = pixelPostion.x;
+  desktopPos.y = pixelPostion.y;
+
+  ::ScreenToClient((HWND)mHwnd, &desktopPos);
+  
+  return { desktopPos.x, desktopPos.y };
+}
+
 Window::Window(int width, int height, const char* windowName) {
   init(width, height, windowName);
 }

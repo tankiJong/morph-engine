@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Engine/Core/Rgba.hpp"
-#include "Engine/Math/Primitives/vec2.hpp"
 #include "Engine/Math/Primitives/vec3.hpp"
 #include "Engine/Math/Primitives/AABB2.hpp"
 #include "Engine/Renderer/Geometry/Mesh.hpp"
@@ -10,6 +9,7 @@ class Renderer;
 class Texture;
 class Clock;
 class Font;
+class Camera;
 namespace Debug {
   enum eDebugDrawDepthMode {
     DEBUG_DEPTH_DEFAULT,

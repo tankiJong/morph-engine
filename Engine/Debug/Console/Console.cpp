@@ -11,6 +11,7 @@
 #include "Engine/Tool/Parser.hpp"
 #include "Engine/Renderer/Camera.hpp"
 #include "Engine/Debug/Draw.hpp"
+#include "Engine/Renderer/Shader/Shader.hpp"
 
 #define WM_CHAR                 0x0102
 #define WM_KEYDOWN              0x0100
@@ -357,7 +358,8 @@ void Console::render() const {
   static constexpr float inputBoxHeight = LINE_HEIGHT;
   const aabb2& screenBounds = Window::getInstance()->bounds();
   mRenderer->setCamera(mCamera);
-  mRenderer->useShaderProgram();
+  static Shader* defaultShader = fromYaml("/Data/default.shader");
+  mRenderer->setShader(defaultShader);
   mRenderer->resetAlphaBlending();
   mRenderer->enableDepth(COMPARE_ALWAYS, false);
   // ###### draw background

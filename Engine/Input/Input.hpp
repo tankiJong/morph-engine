@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/Input/KeyState.hpp"
 #include "Engine/Input/XboxController.hpp"
+#include "Engine/Math/Primitives/ivec2.hpp"
 
 void runMessagePump();
 class XboxController;
@@ -17,32 +18,44 @@ public:
 	bool isKeyJustDown(unsigned char keyCode) const;
 	bool isKeyJustUp(unsigned char keyCode) const;
 
+  vec2 mouseClientPositon(bool normalized = false) const;
+  vec2 mouseDeltaPosition(bool normalized = false) const;
+  vec2 mouseDeltaDirection() const;
+  void mouseSetPosition(const vec2& clientPosition);
+  void mouseLockCursor(bool lock);
+  void mouseHideCursor(bool hide);
+
+
 	void beforeFrame();
 	void afterFrame();
 	XboxController* getController(XboxControllerID controllerId);
 
+  vec2 mDeltaMousePosition;
 protected:
 	void updateKeyboard();
 	void updateXboxControllers();
+  void updateMousePosition();
 
 protected:
-	KeyState m_keyStates[NUM_KEY];
-	XboxController* m_xboxControllers[NUM_XBOXCONTROLLER]{nullptr};
-
+	KeyState mKeyStates[NUM_KEY];
+	XboxController* mXboxControllers[NUM_XBOXCONTROLLER]{nullptr};
+  vec2 mMousePosition;
+  bool mIsMouseLocked = false;
+  bool mCursorVisible = true;
 };
 
 
 /*
  * Virtual Keys, Standard Set
  */
-#define KEYBOARD_LBUTTON        0x01
-#define KEYBOARD_RBUTTON        0x02
+#define MOUSE_LBUTTON        0x01
+#define MOUSE_RBUTTON        0x02
 #define KEYBOARD_CANCEL         0x03
-#define KEYBOARD_MBUTTON        0x04    /* NOT contiguous with L & RBUTTON */
+#define MOUSE_MBUTTON        0x04    /* NOT contiguous with L & RBUTTON */
 
 #if(_WIN32_WINNT >= 0x0500)
-#define KEYBOARD_XBUTTON1       0x05    /* NOT contiguous with L & RBUTTON */
-#define KEYBOARD_XBUTTON2       0x06    /* NOT contiguous with L & RBUTTON */
+#define MOUSE_XBUTTON1       0x05    /* NOT contiguous with L & RBUTTON */
+#define MOUSE_XBUTTON2       0x06    /* NOT contiguous with L & RBUTTON */
 #endif /* _WIN32_WINNT >= 0x0500 */
 
 /*

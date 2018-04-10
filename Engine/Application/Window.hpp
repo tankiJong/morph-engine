@@ -39,6 +39,8 @@ public:
 
   inline const aabb2& bounds() const { return mBounds; }
   inline const ivec2&  size() const { return mSize; }
+  vec2 clientCenter() const;
+  ivec2 screenToClient(ivec2 pixelPostion) const;
 private:
   Window(int width, int height, const char* windowName = "");
   Window() = default;
