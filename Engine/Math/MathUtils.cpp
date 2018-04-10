@@ -84,7 +84,7 @@ float turnToward(float current, float goal, float maxTurnAngle) {
 }
 
 vec2 reflect(const vec2& in, const vec2& normal) {
-  vec2 normalDir = normal.getNormalized();
+  vec2 normalDir = normal.normalized();
   return in - 2.f * vec2::dotProduct(in, normalDir) * normalDir;
 }
 

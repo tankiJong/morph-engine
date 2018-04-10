@@ -45,7 +45,7 @@ public:
   float getLength() const;
   float getLengthSquared() const; // faster than GetLength() since it skips the sqrtf()
   float normalizeAndGetLength(); // set my new length to 1.0f; keep my direction
-  vec2 getNormalized() const; // return a new vector, which is a normalized copy of me
+  vec2 normalized() const; // return a new vector, which is a normalized copy of me
   float getOrientationDegrees() const; // return 0 for east (5,0), 90 for north (0,8), etc.
  
   float manhattan() const;

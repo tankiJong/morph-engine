@@ -216,7 +216,7 @@ float vec2::normalizeAndGetLength() {
 	return magnitude;
 }
 
-vec2 vec2::getNormalized() const {
+vec2 vec2::normalized() const {
 	float magnitude = getLength();
   if (magnitude == 0) return vec2::zero;
   magnitude = 1.f / magnitude;

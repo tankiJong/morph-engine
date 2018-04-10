@@ -38,7 +38,7 @@ public:
 
   float magnitude() const;
   float magnitudeSquared() const;
-  float normalizeAndGetMagnitude();
+  float normalize();
 
   float manhattan() const;
   float manhattan(const vec3& rhs) const;

@@ -112,8 +112,9 @@ float vec3::magnitude() const {
 float vec3::magnitudeSquared() const {
   return x*x + y*y + z*z;
 }
-float vec3::normalizeAndGetMagnitude() {
+float vec3::normalize() {
   float len = magnitude();
+
   float revLen = 1.f / len;
   x *= revLen;
   y *= revLen;

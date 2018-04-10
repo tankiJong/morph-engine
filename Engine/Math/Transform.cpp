@@ -9,7 +9,7 @@ transform_t::transform_t()
   , scale(1.f) {}
 
 mat44 transform_t::localToWorld() const {
-  mat44 r = mat44::makeRotation(eular.x, eular.y, eular.z);
+  mat44 r = mat44::makeRotation(eular);
   mat44 s = mat44::makeScale(scale.x, scale.y, scale.z);
   mat44 t = mat44::makeTranslation(position);
 
@@ -17,7 +17,7 @@ mat44 transform_t::localToWorld() const {
 }
 
 mat44 transform_t::worldToLocal() const {
-  mat44 r = mat44::makeRotation(-eular);
+  mat44 r = mat44::makeRotation(eular).transpose();
   mat44 s = mat44::makeScale(1.f / scale.x, 1.f / scale.y, 1.f / scale.z);
   mat44 t = mat44::makeTranslation(-position);
 

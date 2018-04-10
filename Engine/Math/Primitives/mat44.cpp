@@ -290,17 +290,17 @@ Euler mat44::eular() const {
 
   Euler e;
 
-  e.x = asinDegrees(-jj.z);
+  e.x = asinDegrees(jj.z);
   // cosx = 0
   if(jj.z == 1.f || jj.z == -1.f) {
     e.y = 0;
-    e.z = atan2Degree(kk.y, kk.x);
+    e.z = atan2Degree(ii.y, ii.x);
 
     return e;
   }
 
-  e.z = atan2Degree(jj.y, jj.x);
-  e.y = atan2Degree(kk.z, ii.z);
+  e.z = atan2Degree(-jj.x, jj.y);
+  e.y = atan2Degree(-kk.z, ii.z);
 
   return e;
 }
@@ -322,11 +322,11 @@ mat44 mat44::makeRotation(float x, float y, float z) {
   float cx = cosDegrees(x), cy = cosDegrees(y), cz = cosDegrees(z);
   float sx = sinDegrees(x), sy = sinDegrees(y), sz = sinDegrees(z);
 
-  return {
-    cz*cy - sz*sx*sy,  -sz*cx, sz*sx*cy + cz*sy, 0,
-    sz*cy + cz*sx*sy, cz*cx, -cz*sx*cy + sz*sy, 0,
-    -cx*sy,               sx, cx*cy,            0,
-    0,                     0, 0,                1
+  return mat44{
+    cz*cy - sz*sx*sy,      sz*cy + cz * sx*sy,   -cx * sy,    0,
+    -sz * cx,                           cz*cx,         sx,    0,
+    sz*sx*cy + cz * sy, -cz * sx*cy + sz * sy,         cx*cy, 0,
+    0,                                      0,             0, 1
   };
 
 //  return {
