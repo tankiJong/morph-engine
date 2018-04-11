@@ -2,6 +2,7 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Renderer/type.h"
 #include "ShaderProgram.hpp"
+#include "Engine/Core/Resource.hpp"
 
 class Shader {
 public:
@@ -23,3 +24,6 @@ protected:
 };
 
 owner<Shader*> fromYaml(const fs::path& file);
+
+template<>
+ResDef<Shader> Resource<Shader>::load(const fs::path& file);

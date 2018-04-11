@@ -3,6 +3,7 @@
 #include "Engine/Core/Gradient.hpp"
 #include "Engine/Renderer/Geometry/Mesher.hpp"
 #include "Engine/Renderer/Renderer.hpp"
+#include "Engine/Renderer/Font.hpp"
 
 Renderer* gRenderer = nullptr;
 Camera* gCamera = nullptr;
@@ -194,6 +195,19 @@ const Debug::DrawHandle* Debug::drawLine2(const vec2& a, const vec2& b, float du
   });
 }
 
+const Debug::DrawHandle* Debug::drawText2(std::string_view text, float size, const vec2& bottomLeft, float duration,
+  const Rgba& cl, const Font* font) {
+  return drawMeta(duration, nullptr, [&](Mesher& mesher) {
+
+    mesher.begin(DRAW_TRIANGES)
+      .color(cl)
+      .text(std::array<std::string_view, 1>{ text }, size,
+            font == nullptr ? Font::Default().get() : font, 
+            vec3(bottomLeft, 0), vec3::right, vec3::up)
+      .end();
+  });
+}
+
 const Debug::DrawHandle* Debug::drawPoint(const vec3& position, float duration, const Rgba& color, const Clock* clockOverride) {
 
   return drawMeta(duration, clockOverride, [&](Mesher& mesher) {
@@ -370,6 +384,18 @@ const Debug::DrawHandle* Debug::drawGrid(const vec3& center, const vec3& right, 
       i++;
     }
     mesher.end();
+  });
+}
+
+const Debug::DrawHandle* Debug::drawText(std::string_view text, float size, const vec3& bottomLeft, float duration,
+  const vec3& direction, const vec3& up, const Font* font, const Rgba& cl, const Clock* clockOverride) {
+  return drawMeta(duration, clockOverride, [&](Mesher& mesher) {
+
+    mesher.begin(DRAW_TRIANGES)
+      .color(cl)
+      .text(std::array<std::string_view, 1>{ text }, size, font == nullptr ? Font::Default().get() : font, bottomLeft, direction, up)
+      .end();
+
   });
 }
 

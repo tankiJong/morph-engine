@@ -22,7 +22,7 @@ Input::Input() {
   Window* win = Window::getInstance();
   mMousePosition = win->clientCenter();
   mouseSetPosition(mMousePosition);
-  win->addWinMessageHandler([this](uint msg, size_t wparam, size_t lparam) {
+  win->addWinMessageHandler([this](uint msg, size_t wparam, size_t /*lParam*/) {
     switch (msg) {
       // Raw physical keyboard "key-was-just-depressed" event (case-insensitive, not translated)
       case WM_KEYDOWN:
@@ -117,8 +117,8 @@ vec2 Input::mouseDeltaDirection() const {
 
 void Input::mouseSetPosition(const vec2& clientPosition) {
   POINT desktopPos;
-  desktopPos.x = clientPosition.x;
-  desktopPos.y = clientPosition.y;
+  desktopPos.x = (LONG)clientPosition.x;
+  desktopPos.y = (LONG)clientPosition.y;
   HWND hwnd = (HWND)Window::getInstance()->getHandle();
   ::ClientToScreen(hwnd, &desktopPos);
 

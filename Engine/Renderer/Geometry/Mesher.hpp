@@ -7,11 +7,11 @@
 #include "Engine/File/Path.hpp"
 
 class Mesh;
-
+class Font;
 class Mesher {
 public:
   Mesher& begin(eDrawPrimitive prim, bool useIndices = true);
-  void end();
+  void end(bool reNormal = false);
   void clear();
   Mesher& color(const Rgba& c);
   Mesher& normal(const vec3& n);
@@ -32,11 +32,13 @@ public:
   Mesher& quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d);
   Mesher& cube(const vec3& center, const vec3& dimension);
 
+  Mesher& text(const span<const std::string_view> asciiTexts, float size, const Font* font, const vec3& position, const vec3& right = vec3::right, const vec3& up = vec3::up);
   void obj(fs::path objFile);
-  template<typename VertexType=vertex_pcu_t>
+  template<typename VertexType=vertex_lit_t>
   owner<Mesh*> createMesh();
 
 protected:
+  vec3 normalOf(uint a, uint b, uint c);
   vertex_t mStamp;
   Vertex mVertices;
   std::vector<uint> mIndices;

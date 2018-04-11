@@ -1,6 +1,7 @@
 #pragma once
 //-----------------------------------------------------------------------------------------------
 #include <string>
+#include <string_view>
 #include <vector>
 #include <algorithm>
 #include "Engine/Core/type.h"
@@ -102,3 +103,6 @@ template<typename T>
 inline void operator >>(const T& lhs, std::string& rhs) {
   rhs = std::move(toString(lhs));
 }
+
+using namespace std::literals::string_literals;
+using namespace std::literals::string_view_literals;

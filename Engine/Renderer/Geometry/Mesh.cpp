@@ -1,4 +1,7 @@
 #include "Mesh.hpp"
+#include "Mesher.hpp"
+#include "Engine/File/Utils.hpp"
+#include "Engine/File/FileSystem.hpp"
 
 Mesh& Mesh::setVertices(uint streamIndex, uint stride, uint count, const void* vertices) {
   mVertices[streamIndex].vertexStride = stride;
@@ -38,4 +41,17 @@ Mesh& Mesh::setIndices(span<const uint> indices) {
   mIndices.indexCount = indices.size();
   mIndices.copyToGpu(sizeof(uint) * indices.size(), indices.data());
   return *this;
+}
+
+
+template<>
+ResDef<Mesh> Resource<Mesh>::load(const fs::path& file) {
+  Mesher ms;
+
+  EXPECTS(file.extension() == ".obj");
+  ms.begin(DRAW_TRIANGES);
+  ms.obj(file);
+  ms.end();
+
+  return { file.generic_string(), ms.createMesh() };
 }

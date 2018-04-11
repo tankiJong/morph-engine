@@ -1,6 +1,7 @@
 ﻿#include "Mesher.hpp"
 #include "Mesh.hpp"
 #include "gsl/span"
+#include "Engine/Renderer/Font.hpp"
 Mesher& Mesher::begin(eDrawPrimitive prim, bool useIndices) {
   GUARANTEE_OR_DIE(isDrawing == false, "Call begin before previous end get called.");
   mIns.prim = prim;
@@ -16,15 +17,43 @@ Mesher& Mesher::begin(eDrawPrimitive prim, bool useIndices) {
   return *this;
 }
 
-void Mesher::end() {
+void Mesher::end(bool reNormal) {
   GUARANTEE_OR_DIE(isDrawing, "Call end without calling begin before");
   uint end;
+
+  vec3* normals = mVertices.vertices().normal;
 
   if(mIns.useIndices) {
     end = mIndices.size();
   } else {
     end = mVertices.count();
   }
+
+  if(reNormal && mIns.prim == DRAW_TRIANGES) {
+    if(mIns.useIndices) {
+      for (auto i = mIns.startIndex; i + 2 < end; i+=3) {
+        vec3 normal = normalOf(mIndices[i], mIndices[i + 1], mIndices[i + 2]);
+        normals[mIndices[i]] += normal;
+        normals[mIndices[i + 1]] += normal;
+        normals[mIndices[i + 2]] += normal;
+//        ENSURES(normals[i].magnitudeSquared() != 0);
+      } 
+    } else {
+      for (auto i = mIns.startIndex; i + 2 < end; i+=3) {
+        vec3 normal = normalOf(i, i + 1, i + 2);
+        normals[i] += normal;
+        normals[i + 1] += normal;
+        normals[i + 2] += normal;
+      }
+    }
+
+    for(auto i = mIns.startIndex; i < mVertices.count(); i++) {
+      if(normals[i].magnitudeSquared() != 0) {
+        normals[i].normalize();
+      }
+    }
+  }
+
   mIns.elementCount = end - mIns.startIndex;
   isDrawing = false;
 }
@@ -111,10 +140,10 @@ Mesher& Mesher::sphere(const vec3& center, float size, uint levelX, uint levelY)
 
   for(uint j = 0; j < levelY; j++) {
     for(uint i = 0; i < levelX; i++) {
-      uint current = start + j * (levelX + 1) + i;
+      uint current = start + j * (levelX+1) + i;
 //      triangle(current, current + 1, current + levelX + 1);
 //      triangle(current, current + levelX + 1, current + levelX);
-      quad(current, current + 1, current + (levelX + 1)+1, current + (levelX + 1));
+      quad(current, current + 1, current + levelX+1 + 1, current + levelX+1);
     }
   }
 
@@ -241,3 +270,69 @@ Mesher& Mesher::cube(const vec3& center, const vec3& dimension) {
   return *this;
 }
 
+Mesher& Mesher::text(const span<const std::string_view> asciiTexts, float size, const Font* font, const vec3& position, const vec3& right, const vec3& up) {
+  vec3 cursor = position;
+
+  for (auto& asciiText : asciiTexts) {
+    EXPECTS(!asciiText.empty());
+    // Draw each line
+    vec3 lineStart = cursor;
+    uint i = 0;
+    {
+      aabb2 bounds = font->bounds(asciiText[i], size);
+      vec3 bottomLeft = cursor + bounds.mins.x * right + bounds.mins.y * up;
+      vec3 bottomRight = cursor + bounds.maxs.x * right + bounds.mins.y * up;
+      vec3 topRight = cursor + bounds.maxs.x * right + bounds.maxs.y * up;
+      vec3 topLeft = cursor + bounds.mins.x * right + bounds.maxs.y * up;
+      auto uvs = font->uv(asciiText[0]).vertices();
+      uint start =
+        uv(uvs[0])
+        .vertex3f(bottomLeft);
+      uv(uvs[1])
+        .vertex3f(bottomRight);
+      uv(uvs[2])
+        .vertex3f(topRight);
+      uv(uvs[3])
+        .vertex3f(topLeft);
+      quad(start, start + 1, start + 2, start + 3);
+    }
+    //    end();
+
+    cursor += font->advance('\0', asciiText[i], size) * right;
+    while (++i < asciiText.size()) {
+      aabb2 bounds = font->bounds(asciiText[i], size);
+      vec3 bottomLeft = cursor + bounds.mins.x * right + bounds.mins.y * up;
+      vec3 bottomRight = cursor + bounds.maxs.x * right + bounds.mins.y * up;
+      vec3 topRight = cursor + bounds.maxs.x * right + bounds.maxs.y * up;
+      vec3 topLeft = cursor + bounds.mins.x * right + bounds.maxs.y * up;
+      auto uvs = font->uv(asciiText[i]).vertices();
+
+      uint start =
+        uv(uvs[0])
+        .vertex3f(bottomLeft);
+      uv(uvs[1])
+        .vertex3f(bottomRight);
+      uv(uvs[2])
+        .vertex3f(topRight);
+      uv(uvs[3])
+        .vertex3f(topLeft);
+      quad(start, start + 1, start + 2, start + 3);
+
+      cursor += font->advance(asciiText[i - 1], asciiText[i], size) * right;
+    }
+
+    cursor = lineStart - font->lineHeight(size) * up;
+  }
+
+  return *this;
+}
+
+vec3 Mesher::normalOf(uint a, uint b, uint c) {
+  vec3* verts = mVertices.vertices().position;
+
+  vec3 ab = verts[b] - verts[a];
+  vec3 ac = verts[c] - verts[a];
+
+  vec3 xx = vec3::right.cross(vec3::up);
+  return ac.cross(ab);
+}

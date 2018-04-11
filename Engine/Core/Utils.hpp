@@ -2,6 +2,7 @@
 #include <type_traits>
 
 #include "ThirdParty/gsl/span"
+#include <memory>
 
 // source GSL: https://github.com/Microsoft/GSL/blob/master/include/gsl/pointers
 
@@ -35,3 +36,7 @@ protected:
 
 template<typename T>
 char tid<T>::_id = 0;
+
+
+template<typename T>
+using S = std::shared_ptr<T>;

@@ -25,9 +25,7 @@ DefineVertexType(vertex_lit_t) {
 
 
 Vertex::Vertex() {
-  mPositions.reserve(100u);
-  mUVs.reserve(100u);
-  mColors.reserve(100u);
+  reserve(100u);
 }
 
 vertex_a_t Vertex::vertices() {
@@ -51,12 +49,13 @@ void Vertex::reserve(uint size) {
   mPositions.reserve(size);
   mColors.reserve(size);
   mUVs.reserve(size);
+  mNormals.reserve(size);
 }
 
 void Vertex::clear() {
   mPositions.clear();
   mColors.clear();
   mUVs.clear();
-
+  mNormals.clear();
   mCount = 0;
 }

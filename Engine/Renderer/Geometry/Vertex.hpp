@@ -27,7 +27,7 @@ DeclVertexType(vertex_lit_t) {
 
 struct vertex_t {
   vec3 position;
-  Rgba color;
+  Rgba color{255, 255, 255, 255};
   vec2 uv;
 
   vec3 normal;
@@ -47,9 +47,7 @@ public:
   Vertex();
 
   vertex_a_t vertices();
-//  /**
-//   * \brief Do not have definition to prevent abuse usage, like pasing in a random type
-//   */
+
   void push(vertex_t v);
 
   inline uint count() const { return mCount; }

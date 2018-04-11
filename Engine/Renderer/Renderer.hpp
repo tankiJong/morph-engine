@@ -64,6 +64,9 @@ public:
   bool copyTexture(Texture* from, Texture* to = nullptr);
   BitmapFont* createOrGetBitmapFont(const char* bitmapFontName, const char* path);
   BitmapFont* createOrGetBitmapFont(const char* fontNameWithPath);
+
+  template<typename VertexType>
+  Mesh* createOrGetMesh(const char* obj);
   Texture* createOrGetTexture(const std::string& filePath);
   Texture* createRenderTarget(uint width, uint height,
                               eTextureFormat fmt = TEXTURE_FORMAT_RGBA8);
@@ -129,7 +132,7 @@ public:
   void setOrtho2D(const vec2& bottomLeft, const vec2& topRight);
   void setOrtho(float width, float height, float near, float far);
   void setProjection(const mat44& projection);
-  void setShader(const Shader* shader);
+  void setShader(const Shader* shader = nullptr);
   void setState(const render_state& state);
   void setSampler(uint i, Sampler* sampler = nullptr);
 
@@ -148,6 +151,7 @@ protected:
   std::map<std::string, Texture*> mTextures = {};
   std::map<std::string, BitmapFont*> mFonts = {};
   std::map<std::string, ShaderProgram*> mShaderPrograms = {};
+  std::map<std::string, Mesh*> mMesh = {};
 
   RenderBuffer mTempRenderBuffer;
   UniformBuffer mUniformTime;
@@ -170,3 +174,22 @@ private:
   owner<HDC> mHdc = nullptr;
   owner<HGLRC> mGlContext = nullptr;
 };
+
+template< typename VertexType >
+Mesh* Renderer::createOrGetMesh(const char* obj) {
+  auto kv = mMesh.find(obj);
+  if (kv != mMesh.end()) {
+    return kv->second;
+  }
+
+  Mesher ms;
+
+  ms.begin(DRAW_TRIANGES);
+
+  ms.obj(obj);
+
+  ms.end();
+  Mesh* mesh = ms.createMesh<VertexType>();
+  mMesh[obj] = mesh;
+  return mesh;
+}

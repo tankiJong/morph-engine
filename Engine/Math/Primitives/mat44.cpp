@@ -154,10 +154,10 @@ mat44 mat44::inverse() const {
   double inv[16];
   double det;
   double m[16];
-  uint i;
+  uint ii;
 
-  for (i = 0; i < 16; ++i) {
-    m[i] = (double)data[i];
+  for (ii = 0; ii < 16; ++ii) {
+    m[ii] = (double)data[ii];
   }
 
   inv[0] = m[5] * m[10] * m[15] -
@@ -276,8 +276,8 @@ mat44 mat44::inverse() const {
   det = 1.0 / det;
 
   mat44 inver;
-  for (i = 0; i < 16; i++) {
-    inver.data[i] = (float)(inv[i] * det);
+  for (ii = 0; ii < 16; ii++) {
+    inver.data[ii] = (float)(inv[ii] * det);
   }
 
   return inver;

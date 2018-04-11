@@ -124,7 +124,7 @@ void Mesher::obj(fs::path objFile) {
     uint size = 4;
     if (face[3].positon == -1) size = 3;
 
-    for(auto i = 0; i < size; i++) {
+    for(uint i = 0u; i < size; i++) {
       uv(uvs[face[i].uv-1]);
       normal(normals[face[i].normal-1] * vec3(-1.f, 1.f, 1.f));
       vertex3f(positions[face[i].positon-1] * vec3(-1.f, 1.f, 1.f));

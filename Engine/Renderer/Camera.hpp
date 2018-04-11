@@ -43,6 +43,7 @@ public:
   void translate(const vec3& translation);
 
   inline const Transform& transfrom() const { return mTransform; }
+  inline Transform& transfrom() { return mTransform; }
 protected:
   Transform mTransform;
   // default all to identiy

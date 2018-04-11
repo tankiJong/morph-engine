@@ -79,6 +79,13 @@ owner<Shader*> fromYaml(const fs::path& file) {
   return shader;
 }
 
+template<>
+ResDef<Shader> Resource<Shader>::load(const fs::path& file) {
+  Shader* shader = fromYaml(file);
+
+  return { shader->name, shader };
+}
+
 #define VAL_MAP(str, val) if(v == str) { rhs = val; return true; }
 namespace YAML {
   template<>

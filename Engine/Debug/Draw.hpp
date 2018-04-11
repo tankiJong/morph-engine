@@ -56,7 +56,8 @@ namespace Debug {
   const DrawHandle* drawLine2(const vec2& a, const vec2& b, float duration,
                  const Rgba& cla = Rgba::white, const Rgba& clb = Rgba::white, const Clock* clockOverride = nullptr);
 
-  const DrawHandle* drawText2(std::string_view text, const vec2& bottomLeft, float duration = INF, const Rgba& cl = Rgba::white);
+  const DrawHandle* drawText2(std::string_view text, float size, const vec2& bottomLeft, 
+                              float duration = INF, const Rgba& cl = Rgba::white, const Font* font = nullptr);
 
   // -------------------- 3D ---------------------------
 
@@ -92,11 +93,11 @@ namespace Debug {
                              float unitSize = 1.f, float limit = 10.f, float duration = INF,
                              const Rgba& cl = Rgba::white, const Clock* clockOverride = nullptr);
 
-  const DrawHandle* drawText(std::string_view text, const vec3& bottomLeft, 
-                             const vec3& direction = vec3::right, const vec3& up = vec3::up, Font* font = nullptr, float duration = INF, 
+  const DrawHandle* drawText(std::string_view text, float size, const vec3& bottomLeft, 
+                             const vec3& direction = vec3::right, const vec3& up = vec3::up, const Font* font = nullptr, float duration = INF, 
                              const Rgba& cl = Rgba::white, const Clock* clockOverride = nullptr);
-  const DrawHandle* drawText(std::string_view text, const vec3& bottomLeft, float duration, 
-                             const vec3& direction = vec3::right, const vec3& up = vec3::up, Font* font = nullptr, 
+  const DrawHandle* drawText(std::string_view text, float size, const vec3& bottomLeft, float duration, 
+                             const vec3& direction = vec3::right, const vec3& up = vec3::up, const Font* font = nullptr, 
                              const Rgba& cl = Rgba::white, const Clock* clockOverride = nullptr);
 
   // Tag always facing to the camera

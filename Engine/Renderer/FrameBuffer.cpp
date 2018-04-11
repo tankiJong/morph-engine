@@ -62,7 +62,7 @@ bool FrameBuffer::finalize() {
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE) {
     ERROR_AND_DIE("Failed to create framebuffer");
-    return false;
+//    return false;
   }
 #endif
 

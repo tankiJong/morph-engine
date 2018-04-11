@@ -22,6 +22,7 @@
 #include "Geometry/Mesh.hpp"
 #include "Geometry/Vertex.hpp"
 #include "Engine/Renderer/Shader/Shader.hpp"
+#include "Geometry/Mesher.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
@@ -141,8 +142,8 @@ void Renderer::drawTexturedAABB2(const aabb2& bounds,
     { vec2{ bounds.maxs.x, bounds.mins.y }, tint, vec2{ texCoordsAtMaxs.x, texCoordsAtMins.y } },
     { bounds.maxs, tint, texCoordsAtMaxs },
     { bounds.mins, tint, texCoordsAtMins },
-    { vec2{ bounds.mins.x, bounds.maxs.y }, tint, vec2{ texCoordsAtMins.x, texCoordsAtMaxs.y } },
     { bounds.maxs, tint, texCoordsAtMaxs },
+    { vec2{ bounds.mins.x, bounds.maxs.y }, tint, vec2{ texCoordsAtMins.x, texCoordsAtMaxs.y } },
   };
 
   drawMeshImmediate(verts, 6, DRAW_TRIANGES);
@@ -1011,87 +1012,20 @@ void Renderer::drawMesh(const Mesh& mesh) {
 }
 
 void Renderer::drawMeshImmediate(const vertex_pcu_t* vertices, size_t numVerts, eDrawPrimitive drawPrimitive) {
-  // first, copy the memory to the buffer
-  mTempRenderBuffer.copyToGpu(sizeof(vertex_pcu_t) * numVerts, vertices);
-  
-  //--------------------------bind position---------------------------------
+  static auto immediateMesh = new VertexMesh<vertex_pcu_t>();
+  static Vertex v;
 
-  // Describe the buffer - first, figure out where the shader is expecting
-  // position to be.
-  GLint posBind = glGetAttribLocation(mCurrentShader->prog()->handle(), "POSITION");
+  v.clear();
 
-  // Next, bind the buffer we want to use; 
-  glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle());
-
-  // next, bind where position is in our buffer to that location; 
-  if (posBind >= 0) {
-    // enable this location
-    glEnableVertexAttribArray(posBind);
-
-    // describe the data
-    glVertexAttribPointer(posBind, // where?
-                          3,                           // how many (vec3 has 3 floats)
-                          GL_FLOAT,                    // type? (vec3 is 3 floats)
-                          GL_FALSE,                    // Should data be normalized
-                          sizeof(vertex_pcu_t),              // stride (how far between each vertex)
-                          (GLvoid*)offsetof(vertex_pcu_t, position)); // From the start of a vertex, where is this data?
-  }
-  //--------------------------bind UV---------------------------------
-
-  GLint uvBind = glGetAttribLocation(mCurrentShader->prog()->handle(), "UV");
-  glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle());
-
-  if (uvBind >= 0) {
-    glEnableVertexAttribArray(uvBind);
-    glVertexAttribPointer(uvBind,
-                          2,                           
-                          GL_FLOAT,                    
-                          GL_FALSE,                   
-                          sizeof(vertex_pcu_t),
-                          (GLvoid*)offsetof(vertex_pcu_t, uvs));
+  for(size_t i = 0; i<numVerts; i++) {
+    const vertex_pcu_t& vert = vertices[i];
+    v.push({ vert.position, vert.color, vert.uvs });
   }
 
-  //-------------------------Texture---------------------------------
-  // bind in bindTexture
+  immediateMesh->setVertices(v);
+  immediateMesh->setInstruction(drawPrimitive, false, 0, v.count());
 
-  //-------------------------Color-----------------------------------
-  // Next, bind the buffer we want to use;
-  glBindBuffer(GL_ARRAY_BUFFER, mTempRenderBuffer.handle());
-
-  // next, bind where position is in our buffer to that location;
-  GLint bind = glGetAttribLocation(mCurrentShader->prog()->handle(), "COLOR");
-  if (bind >= 0) {
-    // enable this location
-    glEnableVertexAttribArray(bind);
-
-    // describe the data
-    glVertexAttribPointer(bind, // where?
-                          4,                           // how many (RGBA is 4 unsigned chars)
-                          GL_UNSIGNED_BYTE,            // type? (RGBA is 4 unsigned chars)
-                          GL_TRUE,                     // Normalize components, maps 0-255 to 0-1.
-                          sizeof(vertex_pcu_t),              // stride (how far between each vertex)
-                          (GLvoid*)offsetof(vertex_pcu_t, color)); // From the start of a vertex, where is this data?
-  }
-
-  // Now that it is described and bound, draw using our program
-  glUseProgram(mCurrentShader->prog()->handle());
-
-  //-----------------------Matrix------------------------------------
-  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), "PROJECTION");
-  if (loc >= 0) {
-    // you "may" need to use GL_TRUE, depending on your matrix layout
-    // and whether you prefer to multiply left or right;
-    // acts on the currently bound program (glUseProgram)
-    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mProjMatrix);
-  }
-
-  loc = glGetUniformLocation(mCurrentShader->prog()->handle(), "VIEW");
-  if (loc >= 0) {
-    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mViewMatrix);
-  }
-  glBindFramebuffer(GL_FRAMEBUFFER, mCurrentCamera->getFrameBufferHandle());
-  glDrawArrays(toGLType(drawPrimitive), 0, numVerts);
-
+  drawMesh(*immediateMesh);
 }
 
 void Renderer::cleanScreen(const Rgba& color) {

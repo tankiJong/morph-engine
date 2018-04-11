@@ -2,10 +2,10 @@
 #include "Engine/Core/common.hpp"
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
-#include "Game/Game.hpp"
 #include "type.h"
 #include "Vertex.hpp"
-
+#include "Engine/File/Path.hpp"
+#include "Engine/Core/Resource.hpp"
 /**
  * \brief Abstraction of Mesh type.
  *        User should never directly construct a Mesh instance since Mesh class does not make any promise for the vertex type. 
@@ -52,3 +52,6 @@ public:
     }
   }
 };
+
+template<>
+ResDef<Mesh> Resource<Mesh>::load(const fs::path& file);

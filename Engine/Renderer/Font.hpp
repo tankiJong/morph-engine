@@ -5,6 +5,7 @@
 #include <vector>
 #include "Engine/File/Path.hpp"
 #include "Engine/Persistence/json.forward.hpp"
+#include "Engine/Core/Resource.hpp"
 
 class Texture;
 class Font;
@@ -61,6 +62,7 @@ class Font {
 
 public:
   static constexpr uint NUM_MAX_TEXTURE_SUPPORT = 10u;
+  std::string name;
   
   Font(std::string name, span<const Texture*> textures, std::vector<Glyph>&& glyphs);
   Font(std::string name, span<const Texture*> textures, span<Glyph> glyphs);
@@ -74,23 +76,25 @@ public:
 
 
   // figure out how to move cursor from *previous* to c
-  float advance(char previous, char c, float size, float aspectScale = 1.f);
-  float advance(std::string_view text, float size, float aspectScale = 1.f);
+  float advance(char previous, char c, float size, float aspectScale = 1.f) const;
+  float advance(std::string_view text, float size, float aspectScale = 1.f) const;
   
   // how big is the text, http://www.angelcode.com/products/bmfont/doc/render_text.html
   aabb2 bounds(char c, float size, float aspectScale = 1.f) const;
 
-  aabb2 uv(char c);
+  aabb2 uv(char c) const;
+
+  static inline S<const Font>& Default() { return sDefaultFont; };
 protected:
-  std::string mName;
   std::vector<Glyph> mGlyphs;
   std::vector<Face> mFaces;
   std::vector<const Texture*> mTextures;
   float mLineHeight = 0.f;
   float mAscender = 0.f;
   float mDescender = 0.f;
+  static S<const Font> sDefaultFont;
 };
 
 Font* fromJson(const fs::path& path);
 
-
+ResDef<Font> Resource<Font>::load(const fs::path& file);

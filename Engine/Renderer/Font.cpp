@@ -5,6 +5,9 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
+
+S<const Font> Font::sDefaultFont = S<const Font>{};
+
 Glyph::Glyph(uint id, const vec2& offset, const aabb2& uv, float w, float h)
   : id(id)
   , uv(uv)
@@ -55,7 +58,7 @@ vec2 Font::Face::offset(float size) const {
 Font::Face::Kerning::Kerning(uint previous, float offset): previousCode(previous), mOffset(offset) {}
 
 Font::Font(std::string name, span<const Texture*> textures, std::vector<Glyph>&& glyphs)
-  : mName(std::move(name))
+  : name(std::move(name))
   , mGlyphs(glyphs) {
   for(int i = 0; i < textures.size(); i++) {
     mTextures[i] = textures[i];
@@ -74,7 +77,7 @@ void Font::addFace(uint code, float advance) {
   mFaces[code] = Face(code, nullptr, advance);
 }
 
-float Font::advance(std::string_view text, float size, float aspectScale) {
+float Font::advance(std::string_view text, float size, float aspectScale) const {
   // move forward one by one
   if (text.empty()) return 0;
   auto it = text.begin();
@@ -87,8 +90,8 @@ float Font::advance(std::string_view text, float size, float aspectScale) {
   return totalAd;
 }
 
-float Font::advance(char previous, char c, float size, float aspectScale) {
-  Face& f = mFaces[c];
+float Font::advance(char previous, char c, float size, float aspectScale) const {
+  const Face& f = mFaces[c];
   float advance = f.advance(size);
   float kerning = f.kerning(previous, size);
   return (advance + kerning) * aspectScale;
@@ -101,7 +104,7 @@ aabb2 Font::bounds(char c, float size, float aspectScale) const {
   const Face& f = mFaces[c];
 
   vec2 xyOffset = f.offset(size);
-  vec2 mins(xyOffset.x, ascender(size) + xyOffset.y - f.size(size).y);
+  vec2 mins(xyOffset.x, xyOffset.y);
   vec2 maxs = mins + f.size(size);
 
   maxs.x = mins.x + (maxs.x - mins.x) * aspectScale;
@@ -110,7 +113,7 @@ aabb2 Font::bounds(char c, float size, float aspectScale) const {
 
 }
 
-aabb2 Font::uv(char c) {
+aabb2 Font::uv(char c) const {
   return mFaces[c].uv();
 }
 
@@ -204,4 +207,10 @@ Font* fromJson(const fs::path& path) {
   }
 
   return font;
+}
+
+ResDef<Font> Resource<Font>::load(const fs::path& file) {
+  Font* font = fromJson(file);
+
+  return { font->name, font };
 }
