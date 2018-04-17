@@ -138,6 +138,11 @@ float vec3::dot(const vec3& another) const {
   return dot(*this, another);
 }
 
+
+/**
+ * \brief cross Pruduct
+ * \return since I use left hand basis, so this should use your left hand, which means vec3::right.cross(vec3::up) == vec3::forward
+ */
 vec3 vec3::cross(const vec3& c) const {
   const vec3& b = *this;
   return {

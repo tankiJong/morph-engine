@@ -74,7 +74,7 @@ public:
   static mat44 makeOrtho(float width, float height, float near, float far);
   static mat44 makePerspective(float fovDeg, float aspect, float nz, float fz);
   static mat44 makePerspective(float fovDeg, float width, float height, float nz, float fz);
-
+  static mat44 lookAt(const vec3& position, const vec3& target, const vec3& up = vec3::up);
 public:
   // x,i
   static const mat44 right;

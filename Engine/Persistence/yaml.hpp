@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Engine/Core/common.hpp"
 
 #if defined( _WIN64 )
   #if defined(_DEBUG)

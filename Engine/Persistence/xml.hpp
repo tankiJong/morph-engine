@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Engine/Core/common.hpp"
 #include "ThirdParty/pugixml/pugixml.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"

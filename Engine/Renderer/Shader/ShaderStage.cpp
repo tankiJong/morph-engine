@@ -102,6 +102,7 @@ uint passWhitespaceAndComment(const char*& c) {
     
     if (isComment(c)) {
       consumeComment(c);
+      offset++;
       continue;
     }
 
@@ -139,7 +140,7 @@ uint passWhitespaceAndInlineComment(const char*& c) {
 
 /*
  * the input c is any actual code content
- * * if get // first, pass until \n, *c would be either the symbol after \n
+ * * if get // first, pass until \n, *c would be either the symbol after \n or \0
  * * if get /* first return *c would be / (start of the inlineComment)
  * * if get \n first, *c would be the symbol after \n
  * * if get \0 first, *c would be \0
@@ -152,7 +153,7 @@ uint passCodeTillLineEndOrInlineComment(const char*& c) {
       while(true) {
         if (isTermination(c)) return 0;
         if(isReturn(c)) {
-          c++;
+          consumeReturn(c);
           return 1;
         }
         c++;
@@ -165,7 +166,7 @@ uint passCodeTillLineEndOrInlineComment(const char*& c) {
 
     //  \n
     if (isReturn(c)) {
-      c++;
+      consumeReturn(c);
       return 1;
     }
 
@@ -289,20 +290,24 @@ void logShaderError(GLuint shaderId) {
 
   // Print it out (may want to do some additional formatting)
   buffer[length] = NULL;
-  DebuggerPrintf("class", buffer);
+  DebuggerPrintf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCompile Shader error\n>%s>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n", buffer);
 
-  ERROR_RECOVERABLE(Stringf("Compile Shader error, %s", buffer));
 
-  //  DEBUGBREAK;
+  DEBUGBREAK;
 
   // free up the memory we used. 
   delete[]buffer;
 
 }
 
-ShaderStage::ShaderStage() {}
-ShaderStage::ShaderStage(eShaderType type) : mType(type) {}
+ShaderStage::ShaderStage() {
+  mIncludeDirectory.push_back(fs::workingPath());
+}
+ShaderStage::ShaderStage(eShaderType type) : mType(type) {
+  mIncludeDirectory.push_back(fs::workingPath());
+}
 ShaderStage::ShaderStage(eShaderType type, const char* source): mPath(source) {
+  mIncludeDirectory.push_back(fs::workingPath());
   std::string file(fileToBuffer(source).as<char*>());
   setFromString(type, file);
 }
@@ -375,7 +380,7 @@ std::optional<std::tuple<std::string, std::string, uint>> ShaderStage::parseDire
 
   passWhitespaceAndComment(begin);
 
-  uint line = 1;
+  uint line = 0;
   for(const char* i = source.data(); i != begin; ++i) {
     if (*i == '\n') line++;
   }
@@ -392,30 +397,28 @@ std::optional<std::tuple<std::string, std::string, uint>> ShaderStage::parseDire
 
 
   for(const auto& def: mDefineDirectives) {
-    first += "\n#define " + def.first;
+    first += "#define " + def.first;
     if(!def.second.empty()) {
       first += " " + def.second;
     }
+    first += "\n";
   }
-  first += "\n";
 
-  first += makelineDirective(mVersion, line, mPath.c_str());
+//  first += makelineDirective(mVersion, line, mPath.c_str());
 
   return std::make_tuple(first, rest, line);
 }
 
-
 bool ShaderStage::parseBody(const Path& currentFile, std::string& body, uint currentLine, std::set<Path>& includedFiles) {
-  static std::vector<fs::path> includeDirectory{ fs::workingPath() };
 
   std::istringstream input(body);
 
   std::stringstream output;
 
 
-  Path absDir = fs::absolute(currentFile);;
-  includeDirectory.push_back(absDir.parent_path());
-  output << makelineDirective(mVersion, currentLine, currentFile);
+  fs::path absCurrentFile = fs::absolute(currentFile, mIncludeDirectory.back());
+  mIncludeDirectory.push_back(absCurrentFile.parent_path());
+  output << makelineDirective(mVersion, currentLine, absCurrentFile);
 
   const char* c = body.data();
   while(!isTermination(c)) {
@@ -428,17 +431,20 @@ bool ShaderStage::parseBody(const Path& currentFile, std::string& body, uint cur
     }
 
     parseStart = c;
-    std::string includePath;
+    std::string includeFile;
     uint lineoffset = 0;
-    bool isInclude = tryInclude(c, lineoffset, &includePath);
+    bool isInclude = tryInclude(c, lineoffset, &includeFile);
     currentLine += lineoffset;
     if(isInclude) {
-      if(includedFiles.count(includePath) == 0) {
-//        Path absPath = fs::canonical(includePath);
+      if(includedFiles.count(includeFile) == 0) {
+//        Path absPath = fs::canonical(includeFile);
         Blob f;
-        for(auto it = includeDirectory.rbegin(), rn = includeDirectory.rend(); it != rn; ++it) {
-          f = fileToBuffer((*it / includePath).string().c_str());
-          if (f.size() != 0) break;
+        for(auto it = mIncludeDirectory.rbegin(), rn = mIncludeDirectory.rend(); it != rn; ++it) {
+          f = fileToBuffer((*it / includeFile).string().c_str());
+          if (f.size() != 0) {
+            mIncludeDirectory.push_back(*it);
+            break;
+          }
         }
 
         if(f.size() == 0) {
@@ -446,14 +452,14 @@ bool ShaderStage::parseBody(const Path& currentFile, std::string& body, uint cur
           return false;
         }
 
-        std::string includeFile(f.as<char*>());
-        includedFiles.insert(includePath);
-        bool success = parseBody(includePath, includeFile, 0, includedFiles);
+        std::string includeFileContent(f.as<char*>());
+        includedFiles.insert(includeFile);
+        bool success = parseBody(includeFile, includeFileContent, 0, includedFiles);
 
         if(!success) return false;
 
-        output << includeFile << '\n';
-        output << makelineDirective(mVersion, currentLine, currentFile);
+        output << includeFileContent << '\n';
+        output << makelineDirective(mVersion, currentLine, absCurrentFile);
       }
     } else {
       output << std::string(parseStart, c);
@@ -462,7 +468,7 @@ bool ShaderStage::parseBody(const Path& currentFile, std::string& body, uint cur
 
   body = std::move(output.str());
 
-  includeDirectory.pop_back();
+  mIncludeDirectory.pop_back();
   return true;
 }
 
@@ -471,7 +477,8 @@ std::string ShaderStage::makelineDirective(uint version, uint line, const Path& 
   if(version >= 330) {
     line++;
   }
-  return Stringf("#line %u \"%s\"\n", line, filename.filename().string().c_str());
+
+  return Stringf("#line %u \"%s\"\n", line, filename.generic_string().c_str());
 }
 
 int ShaderStage::compile(const char* shaderStr, eShaderType type) {

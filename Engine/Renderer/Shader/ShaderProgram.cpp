@@ -75,23 +75,27 @@ void addDefinesToStage(ShaderStage& stage, const char* defineArgs) {
 bool ShaderProgram::fromFile(const char* relativePath, const char* defineArgs) {
   addDefinesToStage(stages[SHADER_TYPE_VERTEX], defineArgs);
   addDefinesToStage(stages[SHADER_TYPE_FRAGMENT], defineArgs);
+  bool success = true;
   if(strcmp(relativePath, "@default") == 0) {
-    stages[SHADER_TYPE_VERTEX].setFromString(SHADER_TYPE_VERTEX, defaultVertexShader);
-    stages[SHADER_TYPE_FRAGMENT].setFromString(SHADER_TYPE_FRAGMENT, defaultFragmentShader);
+    success = success && 
+      stages[SHADER_TYPE_VERTEX].setFromString(SHADER_TYPE_VERTEX, defaultVertexShader) &&
+      stages[SHADER_TYPE_FRAGMENT].setFromString(SHADER_TYPE_FRAGMENT, defaultFragmentShader);
 
   } else if (strcmp(relativePath, "@invalid") == 0) {
-    stages[SHADER_TYPE_VERTEX].setFromString(SHADER_TYPE_VERTEX, defaultVertexShader);
-    stages[SHADER_TYPE_FRAGMENT].setFromString(SHADER_TYPE_FRAGMENT, invalidFragmentShader);
+    success = success &&
+      stages[SHADER_TYPE_VERTEX].setFromString(SHADER_TYPE_VERTEX, defaultVertexShader) &&
+      stages[SHADER_TYPE_FRAGMENT].setFromString(SHADER_TYPE_FRAGMENT, invalidFragmentShader);
 
   } else {
     std::string vsFile = relativePath;
-    vsFile += ".vs";
+    vsFile += ".vert";
 
     std::string fsFile = relativePath;
-    fsFile += ".fs";
+    fsFile += ".frag";
 
-    stages[SHADER_TYPE_VERTEX].setFromFile(SHADER_TYPE_VERTEX, vsFile.c_str());
-    stages[SHADER_TYPE_FRAGMENT].setFromFile(SHADER_TYPE_FRAGMENT, fsFile.c_str());
+    success = success &&
+      stages[SHADER_TYPE_VERTEX].setFromFile(SHADER_TYPE_VERTEX, vsFile.c_str()) &&
+      stages[SHADER_TYPE_FRAGMENT].setFromFile(SHADER_TYPE_FRAGMENT, fsFile.c_str());
 
   }
 

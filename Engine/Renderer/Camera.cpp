@@ -21,21 +21,10 @@ void Camera::setDepthStencilTarget(Texture* depthTarget) {
 }
 
 void Camera::lookAt(const vec3& position, const vec3& target, const vec3& up) {
-  mat44 t = mat44::makeTranslation(position);
 
-  vec3 forward = (target - position).normalized();
+  mViewMatrix = mat44::lookAt(position, target, up);
 
-  vec3 right = up.cross(forward).normalized();
-
-  vec3 newUp = forward.cross(right);
-
-  mat44 r(vec4(right, 0), 
-          vec4(newUp, 0), 
-          vec4(forward, 0));
-
-  mViewMatrix = r.transpose() * mat44::makeTranslation((-1.f*position));
-
-  mTransform.setlocalTransform(t * r);
+  mTransform.setlocalTransform(mViewMatrix.inverse());
 }
 void Camera::setProjection(const mat44& proj) {
   mProjMatrix = proj;
