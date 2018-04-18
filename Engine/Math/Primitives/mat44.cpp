@@ -419,18 +419,18 @@ mat44 mat44::makePerspective(float fovDeg, float width, float height, float nz, 
   return makePerspective(fovDeg, width / height, nz, fz);
 }
 
-mat44 mat44::lookAt(const vec3& position, const vec3& target, const vec3& up) {
+mat44 mat44::lookAt(const vec3& position, const vec3& target, const vec3& _up) {
   mat44 t = mat44::makeTranslation(position);
 
-  vec3 forward = (target - position).normalized();
+  vec3 _forward = (target - position).normalized();
 
-  vec3 right = up.cross(forward).normalized();
+  vec3 _right = _up.cross(_forward).normalized();
 
-  vec3 newUp = forward.cross(right);
+  vec3 newUp = _forward.cross(_right);
 
-  mat44 r(vec4(right, 0),
+  mat44 r(vec4(_right, 0),
           vec4(newUp, 0),
-          vec4(forward, 0));
+          vec4(_forward, 0));
 
   return r.transpose() * mat44::makeTranslation((-1.f*position));
 }

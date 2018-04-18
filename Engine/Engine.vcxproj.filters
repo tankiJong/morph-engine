@@ -88,6 +88,9 @@
     <Filter Include="Renderer\Geometry">
       <UniqueIdentifier>{76d417b5-9f03-4dc0-bf60-a310f5722d8d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ThirdParty\mikktspace">
+      <UniqueIdentifier>{0e388fb6-a62c-490a-8995-4a090fc95ee0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -305,6 +308,9 @@
     </ClCompile>
     <ClCompile Include="ObjMeshLoader.cpp">
       <Filter>Renderer\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\mikktspace\mikktspace.c">
+      <Filter>ThirdParty\mikktspace</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -697,6 +703,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\Shader\Shader.hpp">
       <Filter>Renderer\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\mikktspace\mikktspace.h">
+      <Filter>ThirdParty\mikktspace</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -31,7 +31,7 @@ struct vertex_t {
   vec2 uv;
 
   vec3 normal;
-  vec3 tangent;
+  vec4 tangent;
 };
 
 struct vertex_a_t {
@@ -40,7 +40,7 @@ struct vertex_a_t {
   vec2* uv;
 
   vec3* normal;
-  vec3* tangent;
+  vec4* tangent;
 };
 class Vertex {
 public:
@@ -59,5 +59,6 @@ protected:
   std::vector<Rgba> mColors;
   std::vector<vec2> mUVs;
   std::vector<vec3> mNormals;
+  std::vector<vec4> mTangents;
   uint mCount = 0;
 };

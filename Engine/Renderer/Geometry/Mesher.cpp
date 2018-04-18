@@ -1,7 +1,155 @@
-﻿#include "Mesher.hpp"
+﻿#include "Engine/Core/common.hpp"
+#include "Mesher.hpp"
 #include "Mesh.hpp"
-#include "gsl/span"
 #include "Engine/Renderer/Font.hpp"
+#include "ThirdParty/mikktspace/mikktspace.h"
+#include "Engine/Math/MathUtils.hpp"
+
+class MikktBinding : public SMikkTSpaceContext {
+public:
+  MikktBinding(Mesher* mesher);
+  void genTangent();
+  static int mikkGetNumFace(const SMikkTSpaceContext* pContext);
+
+  static int mikktGetNumVerticesOfFace(const SMikkTSpaceContext* pContext, const int iFace);
+
+  static void mikktGetPosition(const SMikkTSpaceContext* pContext, float out[], const int iFace, const int iVert);
+
+  static void mikktGetNormal(const SMikkTSpaceContext* pContext, float out[], const int iFace, const int iVert);
+
+  static void mikktGetTexCoords(const SMikkTSpaceContext* pContext, float out[], const int iFace, const int iVert);
+
+  static void mikktSetTSpaceBasic(const SMikkTSpaceContext* pContext,
+                                  const float               fvTangent[],
+                                  const float               fSign,
+                                  const int                 iFace,
+                                  const int                 iVert);;
+
+  static void mikktSetTSpace(const SMikkTSpaceContext* pContext,
+                             const float               fvTangent[],
+                             const float               fvBiTangent[],
+                             const float               fMagS,
+                             const float               fMagT,
+                             const tbool               bIsOrientationPreserving,
+                             const int                 iFace,
+                             const int                 iVert);
+
+};
+
+MikktBinding::MikktBinding(class Mesher* mesher) {
+  m_pUserData = mesher;
+  m_pInterface = new SMikkTSpaceInterface{
+    MikktBinding::mikkGetNumFace,
+    MikktBinding::mikktGetNumVerticesOfFace,
+    MikktBinding::mikktGetPosition,
+    MikktBinding::mikktGetNormal,
+    MikktBinding::mikktGetTexCoords,
+    MikktBinding::mikktSetTSpaceBasic,
+    MikktBinding::mikktSetTSpace,
+  };
+}
+
+void MikktBinding::genTangent() {
+  bool result = genTangSpaceDefault(this);
+
+  ENSURES(result);
+}
+
+int MikktBinding::mikkGetNumFace(const SMikkTSpaceContext* pContext) {
+  Mesher& mesher = *(Mesher*)pContext->m_pUserData;
+  if (mesher.mIns.prim != DRAW_TRIANGES) return 0;
+
+  return mesher.mIns.startIndex + mesher.currentElementCount() / 3;
+}
+
+int MikktBinding::mikktGetNumVerticesOfFace(const SMikkTSpaceContext* /*pContext*/, const int /*iFace*/) {
+  return 3;
+}
+
+void MikktBinding::mikktGetPosition(const SMikkTSpaceContext* pContext, float out[], const int iFace, const int iVert) {
+  Mesher& mesher = *(Mesher*)pContext->m_pUserData;
+
+  int index = mesher.mIns.startIndex + 3 * iFace + iVert;
+
+  index = mesher.mIns.useIndices ? mesher.mIndices[index] : index;
+
+  vec3 pos = mesher.mVertices.vertices().position[index];
+
+  out[0] = pos.x;
+  out[1] = pos.y;
+  out[2] = pos.z;
+}
+
+void MikktBinding::mikktGetNormal(const SMikkTSpaceContext* pContext, float out[], const int iFace, const int iVert) {
+  Mesher& mesher = *(Mesher*)pContext->m_pUserData;
+
+  int index = mesher.mIns.startIndex + 3 * iFace + iVert;
+
+  index = mesher.mIns.useIndices ? mesher.mIndices[index] : index;
+
+  vec3 norm = mesher.mVertices.vertices().normal[index];
+
+  out[0] = norm.x;
+  out[1] = norm.y;
+  out[2] = norm.z;
+}
+
+void MikktBinding::mikktGetTexCoords(const SMikkTSpaceContext* pContext, float out[], const int iFace, const int iVert) {
+  Mesher& mesher = *(Mesher*)pContext->m_pUserData;
+
+  int index = mesher.mIns.startIndex + 3 * iFace + iVert;
+
+  index = mesher.mIns.useIndices ? mesher.mIndices[index] : index;
+
+  vec2 uv = mesher.mVertices.vertices().uv[index];
+
+  out[0] = uv.x;
+  out[1] = uv.y;
+}
+
+void MikktBinding::mikktSetTSpaceBasic(const SMikkTSpaceContext* pContext,
+                                       const float               fvTangent[],
+                                       const float               fSign,
+                                       const int                 iFace,
+                                       const int                 iVert) {
+  Mesher& mesher = *(Mesher*)pContext->m_pUserData;
+
+  int index = mesher.mIns.startIndex + 3 * iFace + iVert;
+
+  index = mesher.mIns.useIndices ? mesher.mIndices[index] : index;
+
+  vec4& tangent = mesher.mVertices.vertices().tangent[index];
+
+  tangent.x = fvTangent[0];
+  tangent.y = fvTangent[1];
+  tangent.z = fvTangent[2];
+  tangent.w = fSign;
+}
+
+void MikktBinding::mikktSetTSpace(const SMikkTSpaceContext* pContext,
+                                  const float               fvTangent[],
+                                  const float[]             /*fvBiTangent[]*/,
+                                  const float               /*fMagS*/,
+                                  const float               /*fMagT*/,
+                                  const tbool               bIsOrientationPreserving,
+                                  const int                 iFace,
+                                  const int                 iVert) {
+  Mesher& mesher = *(Mesher*)pContext->m_pUserData;
+
+  int index = mesher.mIns.startIndex + 3 * iFace + iVert;
+
+  index = mesher.mIns.useIndices ? mesher.mIndices[index] : index;
+
+  vec4& tangent = mesher.mVertices.vertices().tangent[index];
+
+  tangent.x = fvTangent[0];
+  tangent.y = fvTangent[1];
+  tangent.z = fvTangent[2];
+  tangent.w = bIsOrientationPreserving;
+}
+
+
+
 Mesher& Mesher::begin(eDrawPrimitive prim, bool useIndices) {
   GUARANTEE_OR_DIE(isDrawing == false, "Call begin before previous end get called.");
   mIns.prim = prim;
@@ -17,42 +165,9 @@ Mesher& Mesher::begin(eDrawPrimitive prim, bool useIndices) {
   return *this;
 }
 
-void Mesher::end(bool reNormal) {
+void Mesher::end() {
   GUARANTEE_OR_DIE(isDrawing, "Call end without calling begin before");
-  uint end;
-
-  vec3* normals = mVertices.vertices().normal;
-
-  if(mIns.useIndices) {
-    end = mIndices.size();
-  } else {
-    end = mVertices.count();
-  }
-
-  if(reNormal && mIns.prim == DRAW_TRIANGES) {
-    if(mIns.useIndices) {
-      for (auto i = mIns.startIndex; i + 2 < end; i+=3) {
-        vec3 normal = normalOf(mIndices[i], mIndices[i + 1], mIndices[i + 2]);
-        normals[mIndices[i]] += normal;
-        normals[mIndices[i + 1]] += normal;
-        normals[mIndices[i + 2]] += normal;
-//        ENSURES(normals[i].magnitudeSquared() != 0);
-      } 
-    } else {
-      for (auto i = mIns.startIndex; i + 2 < end; i+=3) {
-        vec3 normal = normalOf(i, i + 1, i + 2);
-        normals[i] += normal;
-        normals[i + 1] += normal;
-        normals[i + 2] += normal;
-      }
-    }
-
-    for(auto i = mIns.startIndex; i < mVertices.count(); i++) {
-      if(normals[i].magnitudeSquared() != 0) {
-        normals[i].normalize();
-      }
-    }
-  }
+  uint end = mIns.startIndex + currentElementCount();
 
   mIns.elementCount = end - mIns.startIndex;
   isDrawing = false;
@@ -69,8 +184,13 @@ Mesher& Mesher::color(const Rgba& c) {
 }
 
 Mesher& Mesher::normal(const vec3& n) {
-  mStamp.normal = n;
+  mStamp.normal = n.normalized();
   return *this;
+}
+
+Mesher& Mesher::tangent(const vec3& t, float fSign) {
+  EXPECTS(fSign == 1.f || fSign == -1.f);
+  mStamp.tangent = vec4(t.normalized(), fSign);
 }
 
 Mesher& Mesher::uv(const vec2& uv) {
@@ -111,6 +231,39 @@ uint Mesher::vertex2f(const vec2& pos) {
   return vertex3f(pos.x, pos.y, 0);
 }
 
+Mesher& Mesher::genNormal() {
+  uint end = mIns.startIndex + currentElementCount();
+
+  vec3* normals = mVertices.vertices().normal;
+
+  if (mIns.prim == DRAW_TRIANGES) {
+    if (mIns.useIndices) {
+      for (auto i = mIns.startIndex; i + 2 < end; i += 3) {
+        vec3 normal = normalOf(mIndices[i], mIndices[i + 1], mIndices[i + 2]);
+        normals[mIndices[i]] += normal;
+        normals[mIndices[i + 1]] += normal;
+        normals[mIndices[i + 2]] += normal;
+        //        ENSURES(normals[i].magnitudeSquared() != 0);
+      }
+    } else {
+      for (auto i = mIns.startIndex; i + 2 < end; i += 3) {
+        vec3 normal = normalOf(i, i + 1, i + 2);
+        normals[i] += normal;
+        normals[i + 1] += normal;
+        normals[i + 2] += normal;
+      }
+    }
+
+    for (auto i = mIns.startIndex; i < mVertices.count(); i++) {
+      if (normals[i].magnitudeSquared() != 0) {
+        normals[i].normalize();
+      }
+    }
+  }
+
+  return *this;
+}
+
 Mesher& Mesher::line(const vec3& from, const vec3& to) {
   uint start = vertex3f(from);
   vertex3f(to);
@@ -134,6 +287,8 @@ Mesher& Mesher::sphere(const vec3& center, float size, uint levelX, uint levelY)
       float phi = dPhi * (float)j - 90.f, theta = dTheta * (float)i;
       vec3 pos = fromSpherical(size, theta, phi) + center;
       uv(theta / 360.f, (phi + 90.f) / 180.f);
+      normal(pos - center);
+      tangent({ -sinDegrees(theta), 0, cosDegrees(theta) }, 1);
       vertex3f(pos);
     }
   }
@@ -151,6 +306,7 @@ Mesher& Mesher::sphere(const vec3& center, float size, uint levelX, uint levelY)
 }
 
 Mesher& Mesher::triangle() {
+  EXPECTS(mIns.useIndices);
   uint last = mVertices.count() - 1;
 
   if (last < 2) {
@@ -186,6 +342,7 @@ Mesher& Mesher::triangle(uint a, uint b, uint c) {
 }
 
 Mesher& Mesher::quad() {
+  EXPECTS(mIns.useIndices);
   uint last = mVertices.count() - 1;
 
   if(last < 3) {
@@ -227,6 +384,10 @@ Mesher& Mesher::quad(uint a, uint b, uint c, uint d) {
 }
 
 Mesher& Mesher::quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d) {
+
+  tangent(b - a, 1);
+  normal((d - a).cross(b - a));
+
   uint start =
   uv({ 0,0 })
     .vertex3f(a);
@@ -261,11 +422,35 @@ Mesher& Mesher::cube(const vec3& center, const vec3& dimension) {
   };
 
   quad(vertices[0], vertices[1], vertices[2], vertices[3]);
-  quad(vertices[4], vertices[5], vertices[6], vertices[7]);
+  quad(vertices[4], vertices[7], vertices[6], vertices[5]);
   quad(vertices[4], vertices[5], vertices[1], vertices[0]);
   quad(vertices[5], vertices[6], vertices[2], vertices[1]);
   quad(vertices[6], vertices[7], vertices[3], vertices[2]);
   quad(vertices[7], vertices[4], vertices[0], vertices[3]);
+
+  return *this;
+}
+
+Mesher& Mesher::cone(const vec3& origin, const vec3& direction, float length, float angle, uint slide, bool bottomFace) {
+
+  mat44 trans = mat44::lookAt(origin, origin + direction.normalized() * length).inverse();
+
+  uint top = vertex3f((trans * vec4(vec3::zero, 1)).xyz());
+
+  uint bottom = vertex3f((trans * vec4(0, 0, length, 1)).xyz() );
+
+  float radius = tanDegree(angle) * length;
+
+  float dAngle = 360.f / (float)slide;
+
+  vertex3f((trans * vec4(radius, 0, length, 1)).xyz());
+
+  for(float i = dAngle; i <= 360.f; i+=dAngle) {
+    uint current = vertex3f((trans * vec4( cosDegrees(i) * radius, sinDegrees(i) * radius, length, 1)).xyz());
+
+    triangle(top, current - 1, current);
+    if(bottomFace) triangle(current - 1, bottom, current);
+  }
 
   return *this;
 }
@@ -327,6 +512,13 @@ Mesher& Mesher::text(const span<const std::string_view> asciiTexts, float size, 
   return *this;
 }
 
+void Mesher::mikkt() {
+  EXPECTS(!mIns.useIndices);
+  MikktBinding binding(this);
+  binding.genTangent();
+}
+
+
 vec3 Mesher::normalOf(uint a, uint b, uint c) {
   vec3* verts = mVertices.vertices().position;
 
@@ -336,3 +528,74 @@ vec3 Mesher::normalOf(uint a, uint b, uint c) {
   vec3 xx = vec3::right.cross(vec3::up);
   return ac.cross(ab);
 }
+
+uint Mesher::currentElementCount() const {
+  return  mIns.useIndices ? mIndices.size() : mVertices.count();
+}
+
+
+void Mesher::surfacePatch(const delegate<vec3(const vec2&)>& parametric) {
+  return surfacePatch({ 0.f, 1.f }, { 0.f, 1.f }, 10u, 10u, parametric);
+}
+
+void Mesher::surfacePatch(const FloatRange& u, const FloatRange& v, uint levelX, uint levelY, const delegate<vec3(const vec2&)>& parametric) {
+  constexpr float eps = 1e-6;
+  uint start = mVertices.count();
+
+  float stepX = u.length() / float(levelX);
+  float stepY = v.length() / float(levelY);
+
+  for (uint j = 0; j <= levelY; j++) {
+    for (uint i = 0; i <= levelX; i++) {
+      float x = u.min + stepX * (float)i;
+      float y = v.min + stepY * (float)j;
+      uv(x, y);
+      vec3 tan = (parametric({ x + eps, y }) - parametric({ x - eps, y })) / (2 * eps);
+      vec3 bitan = (parametric({ x, y + eps }) - parametric({ x, y - eps })) / ( 2 * eps);
+      if(tan.magnitude() >= eps) {
+        tangent(tan);
+        normal(bitan.cross(tan));
+      }
+      vertex3f(parametric({ x,y }));
+    }
+  }
+
+  for(uint j = 0; j < levelY; j++) {
+    for(uint i = 0; i < levelX; i++) {
+      uint current = start + j * (levelX+1) + i;
+      quad(current, current + 1, current + levelX+1 + 1, current + levelX+1);
+    }
+  }
+}
+
+//
+//Mesher& Mesher::sphere(const vec3& center, float size, uint levelX, uint levelY) {
+//  //  mIns.prim = DRAW_POINTS;
+//  //  mIns.useIndices = false;
+//  float dTheta = 360.f / (float)levelX;
+//  float dPhi = 180.f / (float)levelY;
+//
+//  uint start = mVertices.count();
+//
+//  for (uint j = 0; j <= levelY; j++) {
+//    for (uint i = 0; i <= levelX; i++) {
+//      float phi = dPhi * (float)j - 90.f, theta = dTheta * (float)i;
+//      vec3 pos = fromSpherical(size, theta, phi) + center;
+//      uv(theta / 360.f, (phi + 90.f) / 180.f);
+//      normal(pos - center);
+//      tangent({ -sinDegrees(theta), 0, cosDegrees(theta) }, 1);
+//      vertex3f(pos);
+//    }
+//  }
+//
+//  for (uint j = 0; j < levelY; j++) {
+//    for (uint i = 0; i < levelX; i++) {
+//      uint current = start + j * (levelX + 1) + i;
+//      //      triangle(current, current + 1, current + levelX + 1);
+//      //      triangle(current, current + levelX + 1, current + levelX);
+//      quad(current, current + 1, current + levelX + 1 + 1, current + levelX + 1);
+//    }
+//  }
+//
+//  return *this;
+//}

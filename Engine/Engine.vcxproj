@@ -205,8 +205,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -221,6 +220,8 @@
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
       <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
+      <PrecompiledHeaderFile>$(ProjectDir)Core\common.hpp</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\target\$(TargetName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -292,8 +293,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -307,6 +307,8 @@
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
       <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
+      <PrecompiledHeaderFile>$(ProjectDir)Core\common.hpp</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\target\$(TargetName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -468,6 +470,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\ThirdParty\mikktspace\mikktspace.c" />
     <ClCompile Include="..\ThirdParty\pugixml\pugixml.cpp" />
     <ClCompile Include="..\ThirdParty\stb\stb_image.c" />
     <ClCompile Include="..\ThirdParty\stb\stb_image_write.c" />
@@ -562,6 +565,7 @@
     <ClInclude Include="..\ThirdParty\fmod\fmod_dsp_effects.h" />
     <ClInclude Include="..\ThirdParty\fmod\fmod_errors.h" />
     <ClInclude Include="..\ThirdParty\fmod\fmod_output.h" />
+    <ClInclude Include="..\ThirdParty\mikktspace\mikktspace.h" />
     <ClInclude Include="..\ThirdParty\nlohmann-json\json.hpp" />
     <ClInclude Include="..\ThirdParty\pugixml\pugiconfig.hpp" />
     <ClInclude Include="..\ThirdParty\pugixml\pugixml.hpp" />

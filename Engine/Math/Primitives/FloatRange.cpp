@@ -33,6 +33,10 @@ void FloatRange::fromString(const char* data) {
   min = std::min(a, b);
 }
 
+float FloatRange::length() const {
+  return max - min;
+}
+
 std::string FloatRange::toString() const {
   return Stringf("%f~%f", min, max);
 }

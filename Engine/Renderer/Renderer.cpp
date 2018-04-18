@@ -387,42 +387,11 @@ void Renderer::postInit() {
   setCamera(nullptr);
 
   mUniformTime.set(uniform_time_t());
-}
 
-void Renderer::setOrtho2D(const vec2& bottomLeft, const vec2& topRight) {
-  mCurrentCamera->mProjMatrix = mat44::makeOrtho2D(bottomLeft, topRight);
-}
-
-
-void Renderer::setOrtho(float width, float height, float near, float far) {
-  mCurrentCamera->mProjMatrix = mat44::makeOrtho(width, height, near, far);
-}
-
-void Renderer::setProjection(const mat44& projection) {
-  mCurrentCamera->mProjMatrix = projection;
+  mUniformLights.set(light_buffer_t());
 }
 
 void Renderer::setState(const render_state& state) {
-//  struct render_state {
-//    // Raster State Control
-//    eCullMode cullMode = CULL_BACK;      // CULL_BACK
-//    eFillMode fillMode = FILL_SOLID;      // FILL_SOLID
-//    eWindOrder frontFace = WIND_COUNTER_CLOCKWISE;    // WIND_COUNTER_CLOCKWISE
-//
-//                                                      // Depth State Control
-//    eCompare depthMode = COMPARE_LESS;   // COMPARE_LESS
-//    eFlag isWriteDepth = FLAG_TRUE;         // true
-//
-//                                            // Blend
-//    eBlendOp colorBlendOp = BLEND_OP_ADD;          // COMPARE_ADD
-//    eBlendFactor colorSrcFactor = BLEND_F_ONE;    // BLEND_ONE
-//    eBlendFactor colorDstFactor = BLEND_F_ZERO;    // BLEND_ZERO
-//
-//    eBlendOp alphaBlendOp = BLEND_OP_ADD;          // COMPARE_ADD
-//    eBlendFactor alphaSrcFactor = BLEND_F_ONE;    // BLEND_ONE
-//    eBlendFactor alphaDstFactor = BLEND_F_ZERO;    // BLEND_ONE
-//  };
-//
   if(state.cullMode != CULL_NONE) {
     glEnable(GL_CULL_FACE);
     glCullFace(toGLType(state.cullMode));
@@ -498,24 +467,9 @@ void Renderer::setUnifrom(const char* name, const vec4& value) {
     glUniform4fv(loc, 1, value.data);
   }
 }
-void Renderer::setUniformBuffer(eUniformUnit slot, UniformBuffer& ubo) {
+void Renderer::setUniformBuffer(eUniformSlot slot, UniformBuffer& ubo) {
   ubo.putGpu();
   glBindBufferBase(GL_UNIFORM_BUFFER, slot, ubo.handle());
-}
-
-void Renderer::pushMatrix() {
-//	glPushMatrix();
-  UNIMPLEMENTED();
-}
-
-void Renderer::popMatrix() {
-//	glPopMatrix();
-  UNIMPLEMENTED();
-}
-
-void Renderer::traslate2D(const vec2& translation) {
-//	glTranslatef(translation.x, translation.y, 0);
-  UNIMPLEMENTED();
 }
 
 void Renderer::updateTime(float gameDeltaSec, float sysDeltaSec) {
@@ -551,8 +505,15 @@ void Renderer::disableDepth() {
   enableDepth(COMPARE_ALWAYS, false);
 }
 
-void Renderer::setAddtiveBlending() {
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+void Renderer::disableLight() {
+  for(light_info_t& light: mUniformLights.as<light_buffer_t>()->lights) {
+    light.color.a = 0.f;
+  }
+}
+
+void Renderer::disableLight(uint index) {
+  EXPECTS(index < NUM_MAX_LIGHTS);
+  mUniformLights.as<light_buffer_t>()->lights[index].color.a = 0.f;
 }
 
 void Renderer::setCamera(Camera* camera) {
@@ -716,11 +677,6 @@ HGLRC Renderer::createOldRenderContext(HDC hdc) {
   return context;
 }
 
-void Renderer::rotate2D(float degree) {
-//	glRotatef(degree, 0.f, 0.f, 1);
-  UNIMPLEMENTED();
-}
-
 Image Renderer::screenShot() {
   int x = mDefaultColorTarget->mDimensions.x, y = mDefaultColorTarget->mDimensions.y;
   Rgba* data = new Rgba[x * y];
@@ -743,13 +699,78 @@ Image Renderer::screenShot() {
   return img;
 }
 
-void Renderer::scale2D(float ratioX, float ratioY, float ratioZ) {
-//	glScalef(ratioX, ratioY, ratioZ);
-  UNIMPLEMENTED();
+void Renderer::setAmbient(const Rgba& color, float intensity) {
+  mUniformLights.as<light_buffer_t>()->ambience = color.normalized();
+  mUniformLights.as<light_buffer_t>()->ambience.a = intensity;
 }
 
-void Renderer::swapBuffers(HDC ctx) {
-	SwapBuffers(ctx);
+void Renderer::setAmbient(const vec4 ambience) {
+  mUniformLights.as<light_buffer_t>()->ambience = ambience;
+}
+
+void Renderer::setLight(uint index, const light_info_t& lightInfo) {
+  EXPECTS(index < NUM_MAX_LIGHTS);
+
+  mUniformLights.as<light_buffer_t>()->lights[index] = lightInfo;
+}
+
+void Renderer::setDirectionalLight(uint        index,
+                                   const vec3& position,
+                                   const vec3& direction,
+                                   float       intensity,
+                                   const vec3& attenuation,
+                                   const Rgba& color) {
+  setSpotLight(index, position, direction, 90.f, 90.f, intensity, attenuation, color);
+}
+
+void Renderer::setPointLight(uint        index,
+                             const vec3& position,
+                             float       intensity,
+                             const vec3& attenuation,
+                             const Rgba& color) {
+  light_info_t l;
+
+  l.position = position;
+  l.direction = vec3::zero;
+  l.directionFactor = 0.f;
+
+  l.color = color.normalized();
+  l.color.a = intensity;
+
+  l.attenuation = attenuation;
+  l.specAttenuation = attenuation;
+
+  l.dotInnerAngle = 1.f; // cos0
+  l.dotOuterAngle = 0.f; // cos90
+
+  setLight(index, l);
+}
+
+void Renderer::setSpotLight(uint        index,
+                            const vec3& position,
+                            const vec3& direction,
+                            float       innerAngle,
+                            float       outerAngle,
+                            float       intensity,
+                            const vec3& attenuation,
+                            const Rgba& color) {
+  EXPECTS(innerAngle <= outerAngle);
+  light_info_t l;
+
+  l.position = position;
+  l.direction = direction;
+  l.directionFactor = 1.f;
+
+  l.color = color.normalized();
+  l.color.a = intensity;
+
+  l.attenuation = attenuation;
+  l.specAttenuation = attenuation;
+
+  l.dotInnerAngle = cosDegrees(innerAngle);
+  l.dotOuterAngle = cosDegrees(outerAngle);
+
+  setLight(index, l);
 }
 
 bool Renderer::copyFrameBuffer(FrameBuffer* dest, FrameBuffer* src) {
@@ -801,11 +822,6 @@ bool Renderer::copyFrameBuffer(FrameBuffer* dest, FrameBuffer* src) {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, NULL);
 
   return GLSucceeded();
-}
-
-void Renderer::loadIdentity() {
-//	glLoadIdentity();
-  UNIMPLEMENTED();
 }
 
 void Renderer::drawAABB2(const aabb2& bounds, const Rgba& color, bool filled) {
@@ -942,7 +958,11 @@ void Renderer::drawCube(const vec3& bottomCenter, const vec3& dimension,
 
 void Renderer::drawMesh(const Mesh& mesh) {
   GL_CHECK_ERROR();
+  for(int i = 0; i<mesh.layout().attributes().size();i++) {
+    glDisableVertexAttribArray(i);
+  }
 
+  setUniformBuffer(UNIFORM_LIGHT, mUniformLights);
   for(const VertexAttribute& attribute: mesh.layout().attributes()) {
     GLint bindIdx = glGetAttribLocation(mCurrentShader->prog()->handle(), attribute.name.c_str());
 
@@ -966,30 +986,12 @@ void Renderer::drawMesh(const Mesh& mesh) {
 //
 //    glVertexAttribPointer(posBind, 3, GL_FLOAT, GL_FALSE, mesh.vertices().vertexStride, (GLvoid*)offsetof(vertex_pcu_t, position));
 //  }
-//
-//  // color
-//  GLint colorBind = glGetAttribLocation(mCurrentShader->prog()->handle(), "COLOR");
-//  if(colorBind >= 0) {
-//    glEnableVertexAttribArray(colorBind);
-//    glVertexAttribPointer(colorBind, 3, GL_UNSIGNED_BYTE, GL_TRUE, mesh.vertices().vertexStride, (GLvoid*)offsetof(vertex_pcu_t, color));
-//  }
-//
-//  // uv
-//  GLint uvBind = glGetAttribLocation(mCurrentShader->prog()->handle(), "UV");
-//  if(uvBind >= 0) {
-//    glEnableVertexAttribArray(uvBind);
-//    glVertexAttribPointer(uvBind, 2, GL_FLOAT, GL_FALSE, mesh.vertices().vertexStride, (GLvoid*)offsetof(vertex_pcu_t, uvs));
-//  }
+
   glUseProgram(mCurrentShader->prog()->handle());
   
 //  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), "PROJECTION");
 //  if (loc >= 0) {
 //    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mProjMatrix);
-//  }
-//
-//  loc = glGetUniformLocation(mCurrentShader->prog()->handle(), "VIEW");
-//  if (loc >= 0) {
-//    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mViewMatrix);
 //  }
 
   static UniformBuffer* ubo = UniformBuffer::For(mCurrentCamera->cameraBlock);

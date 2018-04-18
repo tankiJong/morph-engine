@@ -121,21 +121,24 @@ void Mesher::obj(fs::path objFile) {
   }
 
   for(std::array<face, 4>& face: faces) {
-    uint size = 4;
-    if (face[3].positon == -1) size = 3;
-
-    for(uint i = 0u; i < size; i++) {
+    std::array<uint, 6> content4 = { 0,1,2,0,2,3 };
+    std::array<uint, 6> content3 = {0,1,2};
+    span<uint> indices = content4;
+    if (face[3].positon == -1) indices = content3;
+    
+    for(auto i: indices) {
       uv(uvs[face[i].uv-1]);
       normal(normals[face[i].normal-1] * vec3(-1.f, 1.f, 1.f));
       vertex3f(positions[face[i].positon-1] * vec3(-1.f, 1.f, 1.f));
     }
-
-    if(size == 4) {
-      quad();
-    } else {
-      triangle();
-    }
+//
+//    if(size == 4) {
+//      quad();
+//    } else {
+//      triangle();
+//    }
   }
 
   f.close();
 }
+

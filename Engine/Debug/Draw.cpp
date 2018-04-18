@@ -24,22 +24,22 @@ struct Debug::DebugDrawMeta {
   Gradient decayColor;
   Camera* cam = nullptr;
   const Clock* clock = nullptr;
-  mutable float endSec = 0;
+  mutable double endSec = 0;
   DebugDrawMeta(Mesh* mesh, float duration, const Clock* clockOverride)
     : mesh(mesh), duration(duration)
     , depthMode(gDefaultDepthMode), decayColor(gDecayColor)
     , cam(gCamera), clock(clockOverride == nullptr ? gDefaultColock : clockOverride) {
     handle.id = DrawHandle::next();
-    endSec = duration == INF ? INF : (float)clock->total.second + duration;
+    endSec = duration == INF ? INF : clock->total.second + duration;
   }
 
-  float progress(float current) const {
+  double progress(double current) const {
     
     return (duration == INF || duration == 0)? 0 : (current - endSec + duration) / duration;
   }
 
   void terminate() const {
-    endSec = (float)clock->total.second;
+    endSec = clock->total.second;
   }
 
   ~DebugDrawMeta() {
@@ -121,7 +121,6 @@ Debug::DrawHandle* drawMeta(float duration, const Clock* clockOverride, F&& f) {
 
   Debug::DebugDrawMeta* meta = new Debug::DebugDrawMeta(mesher.createMesh(), duration, clockOverride);
   gDebugDrawCalls.push_back(meta);
-
   meta->duration = duration;
 
   ENSURES((void*)meta == &(meta->handle));
@@ -133,21 +132,13 @@ void Debug::drawNow() {
   static UniformBuffer* tintUniform = UniformBuffer::For(vec4::zero);
   // will change to material later
   if(!gShaderProg) {
-    gShaderProg = gRenderer->createOrGetShaderProgram("Data/debug");
+    gShaderProg = gRenderer->createOrGetShaderProgram("Data/shader/progs/debug");
   }
   gRenderer->useShaderProgram(gShaderProg);
   gRenderer->enableDepth(COMPARE_LESS, false);
   for(uint i = 0; i < gDebugDrawCalls.size(); ++i) {
     DebugDrawMeta*& comp = gDebugDrawCalls[i];
-
-    if(comp->endSec < comp->clock->total.second) {
-      delete comp;
-      comp = gDebugDrawCalls.back();
-      gDebugDrawCalls.pop_back();
-      i--;
-      continue;
-    }
-    Rgba col = comp->decayColor.evaluate(comp->progress((float)comp->clock->total.second));
+    Rgba col = comp->decayColor.evaluate((float)comp->progress(comp->clock->total.second));
     vec4 colf;
     col.getAsFloats(colf.x, colf.y, colf.z, colf.w);
 
@@ -156,6 +147,14 @@ void Debug::drawNow() {
     gRenderer->setUniformBuffer(UNiFORM_USER_1, *tintUniform);
     gRenderer->setCamera(comp->cam);
     gRenderer->drawMesh(*comp->mesh);
+
+    if(comp->endSec <= comp->clock->total.second) {
+      delete comp;
+      comp = gDebugDrawCalls.back();
+      gDebugDrawCalls.pop_back();
+      i--;
+      continue;
+    }
   }
 }
 
@@ -278,6 +277,24 @@ const Debug::DrawHandle* Debug::drawQuad(const vec3& a, const vec3& b, const vec
     mesher.triangle(start, start + 1, start + 2)
       .triangle(start, start + 2, start + 3);
     mesher.end();
+  });
+}
+
+const Debug::DrawHandle* Debug::drawCone(const vec3& origin,
+  const vec3& direction,
+  float length,
+  float angle,
+  uint slides,
+  float duration,
+  bool framed,
+  const Rgba& color,
+  const Clock* clockoverride) {
+  return drawMeta(duration, clockoverride, [&](Mesher& mesher) {
+    mesher.color(color);
+
+    mesher.begin(framed ? DRAW_LINES: DRAW_TRIANGES)
+      .cone(origin, direction, length, angle, slides)
+      .end();
   });
 }
 

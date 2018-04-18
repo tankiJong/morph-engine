@@ -77,6 +77,9 @@ namespace Debug {
   const DrawHandle* drawQuad(const vec3& center, const vec3& normal, float size, float duration = INF,
                 const Rgba& cl = Rgba::white, const Clock* clockOverride = nullptr);
 
+  const DrawHandle* drawCone(const vec3& origin, const vec3& direction, float length, float angle, uint slides,
+                             float duration = INF, bool framed = true, const Rgba& color = Rgba::white, const Clock* clockoverride = nullptr);
+
   const DrawHandle* drawSphere(const vec3& center, float size, uint levelX = 10u, uint levelY = 10u, float duration = INF,
                   const Rgba& color = Rgba::white, const Clock* clockoverride = nullptr);
   const DrawHandle* drawSphere(const vec3& center, uint levelX = 10u, uint levelY = 10u, float size = 1.f,

@@ -3,6 +3,8 @@
 #include "Engine/File/Utils.hpp"
 #include "Engine/File/FileSystem.hpp"
 
+
+
 Mesh& Mesh::setVertices(uint streamIndex, uint stride, uint count, const void* vertices) {
   mVertices[streamIndex].vertexStride = stride;
   mVertices[streamIndex].vertexCount = count;
@@ -49,8 +51,9 @@ ResDef<Mesh> Resource<Mesh>::load(const fs::path& file) {
   Mesher ms;
 
   EXPECTS(file.extension() == ".obj");
-  ms.begin(DRAW_TRIANGES);
+  ms.begin(DRAW_TRIANGES, false);
   ms.obj(file);
+  ms.mikkt();
   ms.end();
 
   return { file.generic_string(), ms.createMesh() };

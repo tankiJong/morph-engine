@@ -58,10 +58,10 @@ enum eTextureFormat {
   TEXTURE_FORMAT_D24S8,
 };
 
-enum eUniformUnit {
+enum eUniformSlot {
   UNIFORM_TIME = 1,
   UNIFORM_CAMERA,
-  UNIFORM_TRANSFORM,
+  UNIFORM_LIGHT,
   UNiFORM_USER_1
 };
 
@@ -118,6 +118,37 @@ struct uniform_time_t {
 struct camera_t {
   mat44 projection;
   mat44 view;
+};
+
+struct light_info_t {
+  vec4 color = vec4(1.f, 1.f, 1.f, 0.f);
+
+  vec3 attenuation;
+  float dotInnerAngle;
+
+  vec3 specAttenuation;
+  float dotOuterAngle;
+
+  vec3 position;
+  float directionFactor;
+
+  vec3 direction;
+private:
+  float __pad00;
+};
+
+constexpr uint NUM_MAX_LIGHTS = 8u;
+
+  struct light_buffer_t {
+  vec4 ambience;
+  light_info_t lights[NUM_MAX_LIGHTS];
+};
+
+struct light_obj_t {
+  float specStrength;
+  float specPower;
+private:
+  vec2 __pad00;
 };
 
 struct render_state {

@@ -1,0 +1,32 @@
+name: shader/example
+program:
+  define: defines;seperated;by;semicolons
+  vertex: path/to.vert
+  vertex: |
+    #version 420 core
+    .....
+  fragment: path/to.frag
+  vertex: |
+    #version 420 core
+    #include "sdfsdf"
+    .....
+
+>>sort: 0
+cull: back|front|none
+fill: solid|wire
+frontface: ccw|cw
+blend: false
+blend:
+>>  target: 0
+  color:
+    op: add|sub|rev_sub|min|max
+    src: one|zero|src_color|inv_src_color|src_alpha|inv_src_alpha|dest_color|inv_dest_color|dest_alpha|inv_dest_alpha|constant|inv_constant
+    dest: zero
+  alpha:
+    op: add|sub|rev_sub|min|max
+    src: one|zero|src_color|inv_src_color|src_alpha|inv_src_alpha|dest_color|inv_dest_color|dest_alpha|inv_dest_alpha|constant|inv_constant
+    dest: zero
+depth:
+  write: true|false
+  test: less|never|equal|lequal|greater|gequal|not|always
+  bias: 0.0

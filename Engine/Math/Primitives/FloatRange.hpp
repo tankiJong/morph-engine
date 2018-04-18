@@ -13,6 +13,7 @@ public:
   float getRandomInRange() const;
 
   void fromString(const char* data);
+  float length() const;
   std::string toString() const;
 };
 bool areRangesOverlap(const FloatRange& a, const FloatRange& b);
