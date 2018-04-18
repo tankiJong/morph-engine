@@ -145,7 +145,7 @@ void MikktBinding::mikktSetTSpace(const SMikkTSpaceContext* pContext,
   tangent.x = fvTangent[0];
   tangent.y = fvTangent[1];
   tangent.z = fvTangent[2];
-  tangent.w = bIsOrientationPreserving;
+  tangent.w = (float)bIsOrientationPreserving;
 }
 
 
@@ -191,6 +191,7 @@ Mesher& Mesher::normal(const vec3& n) {
 Mesher& Mesher::tangent(const vec3& t, float fSign) {
   EXPECTS(fSign == 1.f || fSign == -1.f);
   mStamp.tangent = vec4(t.normalized(), fSign);
+  return *this;
 }
 
 Mesher& Mesher::uv(const vec2& uv) {
@@ -539,7 +540,7 @@ void Mesher::surfacePatch(const delegate<vec3(const vec2&)>& parametric) {
 }
 
 void Mesher::surfacePatch(const FloatRange& u, const FloatRange& v, uint levelX, uint levelY, const delegate<vec3(const vec2&)>& parametric) {
-  constexpr float eps = 1e-6;
+  constexpr float eps = 1e-6f;
   uint start = mVertices.count();
 
   float stepX = u.length() / float(levelX);
