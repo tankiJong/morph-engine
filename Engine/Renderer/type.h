@@ -58,11 +58,31 @@ enum eTextureFormat {
   TEXTURE_FORMAT_D24S8,
 };
 
-enum eUniformSlot {
+enum eUniformSlot: uint {
   UNIFORM_TIME = 1,
   UNIFORM_CAMERA,
   UNIFORM_LIGHT,
   UNiFORM_USER_1
+};
+
+enum eTextureSlot: uint {
+  TEXTURE_DIFFUSE,
+  TEXTURE_NORMAL,
+  TEXTURE_SPECULAR,
+  TEXTURE_IMMERSIVE,
+  NUM_TEXTURE_SLOT = 16,
+};
+
+enum eTextureSampleMode: uint {
+  TEXTURE_SAMPLE_POINT,
+  TEXTURE_SAMPLE_LINEAR,
+  NUM_TEXTURE_SAMPLE_MODE,
+};
+
+enum eTextureWrapMode: uint {
+  TEXTURE_WRAP_NONE,
+  TEXTURE_WRAP_REPEAT,
+  NUM_TEXTURE_WRAP_MODE,
 };
 
 enum eDataDeclType {

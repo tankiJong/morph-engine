@@ -129,7 +129,7 @@ int SystemDialogue_YesNoCancel( const std::string& messageTitle, const std::stri
 //	- Shuts down the app
 //
 #if defined( DISABLE_ASSERTS )
-#define ASSERT_OR_DIE( condition, errorMessageText ) { (void)( condition ); }
+#define ASSERT_OR_DIE( condition, errorMessageText )
 #else
 #define ASSERT_OR_DIE( condition, errorMessageText )												\
 {																									\
@@ -154,7 +154,7 @@ int SystemDialogue_YesNoCancel( const std::string& messageTitle, const std::stri
 //	- Continues execution
 //
 #if defined( DISABLE_ASSERTS )
-#define ASSERT_RECOVERABLE( condition, errorMessageText ) { (void)( condition ); }
+#define ASSERT_RECOVERABLE( condition, errorMessageText )
 #else
 #define ASSERT_RECOVERABLE( condition, errorMessageText )											\
 {																									\
@@ -179,7 +179,7 @@ int SystemDialogue_YesNoCancel( const std::string& messageTitle, const std::stri
 //	- Continues execution
 //
 #if defined( DISABLE_ASSERTS )
-#define EXPECTS( condition ) { (void)( condition ); }
+#define EXPECTS( condition )
 #else
 #define EXPECTS( condition )											\
 {																									\
@@ -204,7 +204,7 @@ int SystemDialogue_YesNoCancel( const std::string& messageTitle, const std::stri
 //	- Continues execution
 //
 #if defined( DISABLE_ASSERTS )
-#define ENSURES( condition ) { (void)( condition ); }
+#define ENSURES( condition )
 #else
 #define ENSURES( condition )											\
 {																									\

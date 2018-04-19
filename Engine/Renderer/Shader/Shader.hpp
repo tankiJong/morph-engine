@@ -19,7 +19,7 @@ public:
   inline render_state& state() { return mState; }
   inline const render_state& state() const { return mState; }
 protected:
-  ShaderProgram* mProg;
+  ShaderProgram * mProg = nullptr;
   render_state mState;
 };
 

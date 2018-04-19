@@ -1011,3 +1011,19 @@ DeclGLTypeMapFn(NUM_BLEND_OP, eBlendOp) {
     NUM_BLEND_OP,
 };
 GLTypeMapGuard(NUM_BLEND_OP, eBlendOp);
+
+
+DeclGLTypeMapFn(NUM_TEXTURE_WRAP_MODE, eTextureWrapMode) {
+  GL_CLAMP_TO_EDGE,
+  GL_REPEAT,
+  NUM_TEXTURE_WRAP_MODE,
+};
+GLTypeMapGuard(NUM_TEXTURE_WRAP_MODE, eTextureWrapMode);
+
+
+DeclGLTypeMapFn(NUM_TEXTURE_SAMPLE_MODE, eTextureSampleMode) {
+  GL_NEAREST,
+  GL_LINEAR,
+  NUM_TEXTURE_SAMPLE_MODE,
+};
+GLTypeMapGuard(NUM_TEXTURE_SAMPLE_MODE, eTextureSampleMode);

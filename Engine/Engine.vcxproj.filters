@@ -312,6 +312,9 @@
     <ClCompile Include="..\ThirdParty\mikktspace\mikktspace.c">
       <Filter>ThirdParty\mikktspace</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Shader\Material.cpp">
+      <Filter>Renderer\Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -706,6 +709,9 @@
     </ClInclude>
     <ClInclude Include="..\ThirdParty\mikktspace\mikktspace.h">
       <Filter>ThirdParty\mikktspace</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Shader\Material.hpp">
+      <Filter>Renderer\Shader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

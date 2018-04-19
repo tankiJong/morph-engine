@@ -7,11 +7,21 @@ Sampler::Sampler()
   create();
 }
 
+Sampler::Sampler(eTextureWrapMode wrapMode, eTextureSampleMode sampleMode)
+  : mSamplerHandle(NULL) {
+  create(sampleMode, wrapMode);
+}
+
+Sampler::Sampler(eTextureSampleMode sampleMode, eTextureWrapMode wrapMode)
+  : mSamplerHandle(NULL) {
+  create(sampleMode, wrapMode);
+}
+
 Sampler::~Sampler() {
   destroy();
 }
 
-bool Sampler::create() {
+bool Sampler::create(eTextureSampleMode sampleMode, eTextureWrapMode wrapMode) {
   // create the sampler handle if needed; 
   if (mSamplerHandle == NULL) {
     glGenSamplers(1, &mSamplerHandle);
@@ -21,13 +31,14 @@ bool Sampler::create() {
   }
 
   // setup wrapping
-  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_WRAP_R, GL_REPEAT);
+  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_WRAP_S, toGLType(wrapMode));
+  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_WRAP_T, toGLType(wrapMode));
+  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_WRAP_R, toGLType(wrapMode));
 
   // filtering; 
-  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_MIN_FILTER, toGLType(sampleMode));
+  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_MAG_FILTER, toGLType(sampleMode));
+
   return true;
 }
 
@@ -36,4 +47,21 @@ void Sampler::destroy() {
     glDeleteSamplers(1, &mSamplerHandle);
     mSamplerHandle = NULL;
   }
+}
+
+Sampler* gDefaultSampler;
+Sampler* gLinearSampler;
+
+const Sampler& Sampler::Default() {
+  if(!gDefaultSampler) {
+    gDefaultSampler = new Sampler();
+  }
+  return *gDefaultSampler;
+}
+
+const Sampler& Sampler::Linear() {
+  if (!gLinearSampler) {
+    gLinearSampler = new Sampler(TEXTURE_SAMPLE_LINEAR);
+  }
+  return *gLinearSampler;
 }

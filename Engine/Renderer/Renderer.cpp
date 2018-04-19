@@ -83,7 +83,7 @@ void Renderer::bindTexture(uint i, const Texture* texture) {
 
   if (mCurrentTexture[i] == texture) return;
 
-  glBindSampler(i, mDefaultSampler->getHandle());
+  glBindSampler(i, mDefaultSampler->handle());
 
   // Bind the texture
   mCurrentTexture[i] = texture;
@@ -424,7 +424,7 @@ void Renderer::setShader(const Shader* shader) {
 }
 
 void Renderer::setSampler(uint i, Sampler* sampler) {
-  glBindSampler(i, sampler->getHandle());
+  glBindSampler(i, sampler->handle());
 }
 
 template<>
