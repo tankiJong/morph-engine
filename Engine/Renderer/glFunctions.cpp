@@ -921,6 +921,10 @@ void bindGLFunctions() {
   GL_BIND_FUNCTION(glGetProgramPipelineiv);
 }
 
+size_t GLSize(GLint type) {
+  UNIMPLEMENTED_RETURN(0);
+}
+
 //enum eDataDeclType {
 //  MP_FLOAT = 0,
 //  MP_BYTE,

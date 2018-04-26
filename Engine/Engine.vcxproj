@@ -504,6 +504,7 @@
     <ClCompile Include="File\FileSystem.cpp" />
     <ClCompile Include="File\Utils.cpp" />
     <ClCompile Include="File\Path.cpp" />
+    <ClCompile Include="Framework\Light.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Input\XboxController.cpp" />
     <ClCompile Include="Math\Curves.cpp" />
@@ -524,6 +525,7 @@
     <ClCompile Include="Math\Primitives\ivec2.cpp" />
     <ClCompile Include="Math\Primitives\ivec3.cpp" />
     <ClCompile Include="Math\Primitives\mat44.cpp" />
+    <ClCompile Include="Math\Primitives\quaternion.cpp" />
     <ClCompile Include="Math\Primitives\rect2.cpp" />
     <ClCompile Include="Math\Primitives\uvec2.cpp" />
     <ClCompile Include="Math\Primitives\uvec3.cpp" />
@@ -531,23 +533,27 @@
     <ClCompile Include="Math\Primitives\vec3.cpp" />
     <ClCompile Include="Math\Primitives\vec4.cpp" />
     <ClCompile Include="Math\Transform.cpp" />
-    <ClCompile Include="ObjMeshLoader.cpp" />
     <ClCompile Include="Persistence\json.cpp" />
     <ClCompile Include="Persistence\xml.cpp" />
     <ClCompile Include="Persistence\yaml.cpp" />
     <ClCompile Include="Renderer\BitmapFont.cpp" />
     <ClCompile Include="Renderer\Camera.cpp" />
     <ClCompile Include="Renderer\Font.cpp" />
+    <ClCompile Include="Renderer\ForwardRendering.cpp" />
     <ClCompile Include="Renderer\FrameBuffer.cpp" />
     <ClCompile Include="Renderer\Geometry\IndexBuffer.cpp" />
     <ClCompile Include="Renderer\Geometry\Mesh.cpp" />
     <ClCompile Include="Renderer\Geometry\Mesher.cpp" />
+    <ClCompile Include="Renderer\Geometry\ObjMeshLoader.cpp" />
     <ClCompile Include="Renderer\Geometry\Vertex.cpp" />
     <ClCompile Include="Renderer\Geometry\VertexBuffer.cpp" />
     <ClCompile Include="Renderer\Geometry\VertexLayout.cpp" />
     <ClCompile Include="Renderer\glFunctions.cpp" />
+    <ClCompile Include="Renderer\Renderable\Renderable.cpp" />
     <ClCompile Include="Renderer\RenderBuffer.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
+    <ClCompile Include="Renderer\RenderScene.cpp" />
+    <ClCompile Include="Renderer\RenderTask.cpp" />
     <ClCompile Include="Renderer\Sampler.cpp" />
     <ClCompile Include="Renderer\Shader\Material.cpp" />
     <ClCompile Include="Renderer\Shader\Shader.cpp" />
@@ -558,6 +564,7 @@
     <ClCompile Include="Renderer\SpriteAnimSet.cpp" />
     <ClCompile Include="Renderer\SpriteSheet.cpp" />
     <ClCompile Include="Renderer\Texture.cpp" />
+    <ClCompile Include="Renderer\type.cpp" />
     <ClCompile Include="Renderer\UniformBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -643,6 +650,7 @@
     <ClInclude Include="File\FileSystem.hpp" />
     <ClInclude Include="File\Utils.hpp" />
     <ClInclude Include="File\Path.hpp" />
+    <ClInclude Include="Framework\Light.hpp" />
     <ClInclude Include="Input\Input.hpp" />
     <ClInclude Include="Input\KeyState.hpp" />
     <ClInclude Include="Input\XboxController.hpp" />
@@ -664,6 +672,7 @@
     <ClInclude Include="Math\Primitives\ivec2.hpp" />
     <ClInclude Include="Math\Primitives\ivec3.hpp" />
     <ClInclude Include="Math\Primitives\mat44.hpp" />
+    <ClInclude Include="Math\Primitives\quaternion.hpp" />
     <ClInclude Include="Math\Primitives\rect2.hpp" />
     <ClInclude Include="Math\Primitives\uvec2.hpp" />
     <ClInclude Include="Math\Primitives\uvec3.hpp" />
@@ -681,6 +690,7 @@
     <ClInclude Include="Renderer\External\gl\glext.h" />
     <ClInclude Include="Renderer\External\gl\wglext.h" />
     <ClInclude Include="Renderer\Font.hpp" />
+    <ClInclude Include="Renderer\ForwardRendering.hpp" />
     <ClInclude Include="Renderer\FrameBuffer.hpp" />
     <ClInclude Include="Renderer\Geometry\IndexBuffer.hpp" />
     <ClInclude Include="Renderer\Geometry\Mesh.hpp" />
@@ -690,8 +700,11 @@
     <ClInclude Include="Renderer\Geometry\VertexBuffer.hpp" />
     <ClInclude Include="Renderer\Geometry\VertexLayout.hpp" />
     <ClInclude Include="Renderer\glFunctions.hpp" />
+    <ClInclude Include="Renderer\Renderable\Renderable.hpp" />
     <ClInclude Include="Renderer\RenderBuffer.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
+    <ClInclude Include="Renderer\RenderScene.hpp" />
+    <ClInclude Include="Renderer\RenderTask.hpp" />
     <ClInclude Include="Renderer\Sampler.hpp" />
     <ClInclude Include="Renderer\Shader\Material.hpp" />
     <ClInclude Include="Renderer\Shader\Shader.hpp" />

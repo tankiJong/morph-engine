@@ -364,7 +364,7 @@ void Console::render() const {
   mRenderer->enableDepth(COMPARE_ALWAYS, false);
   // ###### draw background
   
-  mRenderer->bindTexture();
+  mRenderer->setTexture();
   // input box
   mRenderer->drawAABB2({ screenBounds.mins, 
                         { screenBounds.maxs.x, inputBoxHeight } },
@@ -387,7 +387,7 @@ void Console::render() const {
   }
 
 
-  mRenderer->bindTexture(0, &font->getTexture());
+  mRenderer->setTexture(0, &font->getTexture());
 
   // ###### draw input
   std::string inputText = mInputStream;

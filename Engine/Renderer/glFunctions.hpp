@@ -490,3 +490,5 @@ inline bool GLSucceeded() {
 
 template<typename Enum>
 uint toGLType(Enum e);
+
+size_t GLSize(GLint type);

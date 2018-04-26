@@ -256,7 +256,7 @@ Mesher& Mesher::genNormal() {
     }
 
     for (auto i = mIns.startIndex; i < mVertices.count(); i++) {
-      if (normals[i].magnitudeSquared() != 0) {
+      if (normals[i].magnitude2() != 0) {
         normals[i].normalize();
       }
     }

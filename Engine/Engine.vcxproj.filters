@@ -91,6 +91,12 @@
     <Filter Include="ThirdParty\mikktspace">
       <UniqueIdentifier>{0e388fb6-a62c-490a-8995-4a090fc95ee0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Renderer\Renderable">
+      <UniqueIdentifier>{f7cada3c-1b9a-46db-bbe9-701b4b1bcdf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework">
+      <UniqueIdentifier>{29d1247b-b02e-40df-8270-d96cf0b4bac0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -306,14 +312,38 @@
     <ClCompile Include="Renderer\Shader\Shader.cpp">
       <Filter>Renderer\Shader</Filter>
     </ClCompile>
-    <ClCompile Include="ObjMeshLoader.cpp">
-      <Filter>Renderer\Geometry</Filter>
-    </ClCompile>
     <ClCompile Include="..\ThirdParty\mikktspace\mikktspace.c">
       <Filter>ThirdParty\mikktspace</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Shader\Material.cpp">
       <Filter>Renderer\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\quaternion.cpp">
+      <Filter>Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Renderable\Renderable.cpp">
+      <Filter>Renderer\Renderable</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Renderable\RenderableMesh.cpp">
+      <Filter>Renderer\Renderable</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderScene.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Light.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Geometry\ObjMeshLoader.cpp">
+      <Filter>Renderer\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\type.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderTask.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ForwardRendering.cpp">
+      <Filter>Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -712,6 +742,27 @@
     </ClInclude>
     <ClInclude Include="Renderer\Shader\Material.hpp">
       <Filter>Renderer\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\quaternion.hpp">
+      <Filter>Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Renderable\Renderable.hpp">
+      <Filter>Renderer\Renderable</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Renderable\RenderableMesh.hpp">
+      <Filter>Renderer\Renderable</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderScene.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Light.hpp">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderTask.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\ForwardRendering.hpp">
+      <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

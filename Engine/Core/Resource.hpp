@@ -32,7 +32,6 @@ public:
 
     return clone(res);
   }
-
   
   /**
    * \brief 
@@ -53,11 +52,16 @@ public:
   }
 
   static S<const T> get(std::string_view name) {
+    const ResourceItem<T>* resource = res(name);
+    return resource == nullptr ? S<const T>{} : resource->res;
+  }
+
+  static const ResourceItem<T>* res(std::string_view name) {
     if (auto kv = sDatabase.find(name); kv != sDatabase.end()) {
-      return { kv->second.res };
+      return &kv->second;
     } else {
       ERROR_RECOVERABLE(Stringf("fail to find resource of name: %s", name.data()));
-      return S<const T>{};
+      return nullptr;
     }
   }
 

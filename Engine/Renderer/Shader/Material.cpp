@@ -42,8 +42,17 @@ Material::~Material() {
 
 }
 
-Shader* Material::shader(Shader* shader) {
-  if(mShader == nullptr) {
+void Material::shader(S<const Shader> shader) {
+  mResShader = shader;
+  delete mShader;
+}
+
+const Shader* Material::shader() const {
+  return mShader == nullptr ? mResShader.get() : mShader;
+}
+
+Shader* Material::shader() {
+  if (mShader == nullptr) {
     EXPECTS(mResShader != nullptr);
 
     mShader = Resource<Shader>::clone(mResShader);
@@ -52,8 +61,22 @@ Shader* Material::shader(Shader* shader) {
   return mShader;
 }
 
-const Shader* Material::shader(Shader* shader) const {
-  return mShader == nullptr ? mResShader.get() : mShader;
+void Material::setTexture(uint slot, const Texture* tex, const Sampler* sampler, const char* name) {
+  MatProp<Texture>*& prop = mTextures[slot];
+
+  if(prop) {
+    delete prop;
+  }
+
+  auto texture = new MatProp<Texture>(slot, tex, name);
+
+  if(sampler) {
+    texture->sampler = sampler;
+  } else {
+    texture->sampler = &Sampler::Default();
+  }
+
+  prop = texture;
 }
 
 MaterialProperty*& Material::property(std::string_view name) {
@@ -84,13 +107,12 @@ Material::Material(const Material& mat) {
   }
 
   for(uint i = 0; i<NUM_TEXTURE_SLOT; i++) {
-    mTextures[i] = mat.mTextures[i] == nullptr ? nullptr : mat.mTextures[i]->clone();
+    mTextures[i] = mat.mTextures[i] == nullptr ? nullptr : static_cast<MatProp<Texture>*>(mat.mTextures[i]->clone());
   }
 }
 
 InstaMaterial::InstaMaterial(const Material& mat)
-  : Material(mat)
-  , mParent(&mat) {}
+  : Material(mat) {}
 
 //template<>
 //ResDef<Material> Resource<Material>::load(const fs::path& file) {

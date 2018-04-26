@@ -37,7 +37,7 @@ public:
   bool operator!=(const vec3& compare) const; // vec3 != vec3
 
   float magnitude() const;
-  float magnitudeSquared() const;
+  float magnitude2() const;
   float normalize();
 
   float manhattan() const;
@@ -46,6 +46,7 @@ public:
   vec3 normalized() const;
   float dot(const vec3& rhs) const;
   vec3 cross(const vec3& rhs) const;
+  float distance2(const vec3& rhs) const;
   vec2 xy() const;
   vec2 xz() const;
   static float dot(const vec3& a, const vec3& b);

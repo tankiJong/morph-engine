@@ -33,6 +33,10 @@ float asinDegrees(float degrees) {
   return asinf(convertDegreesToRadians(degrees));
 }
 
+float acosDegrees(float degrees) {
+	return acosf(convertDegreesToRadians(degrees));
+}
+
 float atan2Degree(float y, float x) {
 	return convertRadiansToDegrees(atan2f(y, x));
 }

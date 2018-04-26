@@ -49,3 +49,15 @@ void Transform::localTranslate(const vec3& offset) {
 void Transform::setlocalTransform(const mat44& transform) {
   mLocalTransform.set(transform);
 }
+
+vec3 Transform::forward() const {
+  return (localToWorld() * vec4(vec3::forward, 0)).xyz();
+}
+
+vec3 Transform::up() const {
+  return (localToWorld() * vec4(vec3::up, 0)).xyz();
+}
+
+vec3 Transform::right() const {
+  return (localToWorld() * vec4(vec3::right, 0)).xyz();
+}

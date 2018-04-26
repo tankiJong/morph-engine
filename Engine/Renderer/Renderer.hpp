@@ -33,7 +33,7 @@ class Sampler;
 class FrameBuffer;
 class Sprite;
 class Shader;
-
+class Material;
 
 /*
  * +y
@@ -54,12 +54,13 @@ public:
   void afterFrame();
   bool applyEffect(ShaderProgram* program);
   void beforeFrame();
-  void bindTexture(uint i, const Texture* texture = nullptr);
-  void bindTexture(const Texture* texture = nullptr);
-  void bindSampler(Sampler* sampler);
+  void setTexture(uint i, const Texture* texture = nullptr);
+  void setTexture(const Texture* texture = nullptr);
+  void setSampler(const Sampler* sampler);
 
-  void cleanScreen(const Rgba& color);
+  void cleanColor(const Rgba& color);
   void clearDepth(float depth = 1.f);
+  void cleanScreen(const Rgba& color);
   bool copyFrameBuffer(FrameBuffer* dest, FrameBuffer* src);
   bool copyTexture(Texture* from, Texture* to = nullptr);
   BitmapFont* createOrGetBitmapFont(const char* bitmapFontName, const char* path);
@@ -126,23 +127,26 @@ public:
 
   void setAmbient(const Rgba& color, float intensity);
   void setAmbient(const vec4 ambience);
-  void setLight(uint index, const light_info_t& lightInfo);
+  void setCamera(Camera* camera);
   void setDirectionalLight(uint index, const vec3& position, const vec3& direction,
                            float intensity = 1.f, const vec3& attenuation = vec3(0, 0, 1), const Rgba& color = Rgba::white);
+  void setLight(uint index, const light_info_t& lightInfo);
   void setPointLight(uint index, const vec3& position,
                      float intensity = 1.f, const vec3& attenuation = vec3(0, 0, 1), const Rgba& color = Rgba::white);
   void setSpotLight(uint index, const vec3& position, const vec3& direction, float innerAngle, float outerAngle,
                     float intensity = 1.f, const vec3& attenuation = vec3(0, 0, 1), const Rgba& color = Rgba::white);
 
-  void setCamera(Camera* camera);
+  void setModelMatrix(const mat44& model);
+  void setMaterial(const Material* material);
   void setShader(const Shader* shader = nullptr);
   void setState(const render_state& state);
-  void setSampler(uint i, Sampler* sampler = nullptr);
+  void setSampler(uint i, const Sampler* sampler = nullptr);
   void setTexture(const char* path);
   void setTexture(uint i, const char* path);
 
   template<typename T>
   void setUnifrom(const char* name, const T& value);
+
   void setUniformBuffer(eUniformSlot slot, UniformBuffer& ubo);
   void updateTime(float gameDeltaSec, float sysDeltaSec);
   void useShaderProgram(ShaderProgram* program = nullptr);

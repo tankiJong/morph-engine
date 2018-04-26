@@ -18,6 +18,7 @@ float convertDegreesToRadians (float degrees);
 float cosDegrees (float degrees);
 float sinDegrees (float degrees);
 float asinDegrees(float degrees);
+float acosDegrees(float degrees);
 float atan2Degree(float y, float x);
 float tanDegree(float degrees);
 float getSquaredDistance(const vec2& a, const vec2& b);
@@ -53,6 +54,10 @@ float clampfInAbs1(float v);
 vec2 clamp(const vec2& v, vec2 min, vec2 max);
 ivec2 clamp(const ivec2& v, ivec2 min, ivec2 max);
 
+template<typename T>
+T clamp(const T& v, const T& min, const T& max) {
+  return v > max ? max : (v < min ? min : v);
+}
 float getFraction(float v, float start, float end);
 
 float rangeMapf(float v, float inStart, float inEnd, float outStart, float outEnd);
@@ -113,3 +118,5 @@ void setBits(unsigned int& flag32, unsigned int mask);
 void clearBits(unsigned char& flag8, unsigned char mask);
 void clearBits(unsigned int& flag32, unsigned int mask);
 
+constexpr float EPS = 1e-5f;
+inline constexpr bool equal(float a, float b) { return (a - b <= EPS) && (a - b >= -EPS); }

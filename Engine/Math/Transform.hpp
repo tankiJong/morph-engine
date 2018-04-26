@@ -36,7 +36,11 @@ public:
   
 
   // accessor
-  inline const vec3& localPosition() const { return mLocalTransform.position; };
+  vec3 forward() const;
+  vec3 up() const;
+  vec3 right() const;
+  
+  inline const vec3& localPosition() const { return mLocalTransform.position; }
   inline vec3& localPosition() { return mLocalTransform.position; };
 
   inline const Euler& localRotation() const { return mLocalTransform.eular; };
@@ -45,9 +49,9 @@ public:
   inline const vec3& localScale() const { return mLocalTransform.scale; };
   inline vec3& localScale() { return mLocalTransform.scale; };
 
-  inline vec3 position() const { return mLocalTransform.position; };
-  inline Euler rotation() const { return mLocalTransform.eular; };
-  inline vec3 scale() const { return mLocalTransform.scale; };\
+  inline const vec3 position() const { return mLocalTransform.position; };
+  inline const Euler rotation() const { return mLocalTransform.eular; };
+  inline const vec3 scale() const { return mLocalTransform.scale; };\
 
 private:
   transform_t mLocalTransform;

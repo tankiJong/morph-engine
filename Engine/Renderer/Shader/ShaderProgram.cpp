@@ -72,19 +72,24 @@ void addDefinesToStage(ShaderStage& stage, const char* defineArgs) {
     }
   }
 }
+
+PropertyBlockInfo& ShaderProgramInfo::at(std::string_view blockName) {
+  return mBlockInfo[blockName.data()];
+}
+
 bool ShaderProgram::fromFile(const char* relativePath, const char* defineArgs) {
-  addDefinesToStage(stages[SHADER_TYPE_VERTEX], defineArgs);
-  addDefinesToStage(stages[SHADER_TYPE_FRAGMENT], defineArgs);
+  addDefinesToStage(mStages[SHADER_TYPE_VERTEX], defineArgs);
+  addDefinesToStage(mStages[SHADER_TYPE_FRAGMENT], defineArgs);
   bool success = true;
   if(strcmp(relativePath, "@default") == 0) {
     success = success && 
-      stages[SHADER_TYPE_VERTEX].setFromString(SHADER_TYPE_VERTEX, defaultVertexShader) &&
-      stages[SHADER_TYPE_FRAGMENT].setFromString(SHADER_TYPE_FRAGMENT, defaultFragmentShader);
+      mStages[SHADER_TYPE_VERTEX].setFromString(SHADER_TYPE_VERTEX, defaultVertexShader) &&
+      mStages[SHADER_TYPE_FRAGMENT].setFromString(SHADER_TYPE_FRAGMENT, defaultFragmentShader);
 
   } else if (strcmp(relativePath, "@invalid") == 0) {
     success = success &&
-      stages[SHADER_TYPE_VERTEX].setFromString(SHADER_TYPE_VERTEX, defaultVertexShader) &&
-      stages[SHADER_TYPE_FRAGMENT].setFromString(SHADER_TYPE_FRAGMENT, invalidFragmentShader);
+      mStages[SHADER_TYPE_VERTEX].setFromString(SHADER_TYPE_VERTEX, defaultVertexShader) &&
+      mStages[SHADER_TYPE_FRAGMENT].setFromString(SHADER_TYPE_FRAGMENT, invalidFragmentShader);
 
   } else {
     std::string vsFile = relativePath;
@@ -94,29 +99,134 @@ bool ShaderProgram::fromFile(const char* relativePath, const char* defineArgs) {
     fsFile += ".frag";
 
     success = success &&
-      stages[SHADER_TYPE_VERTEX].setFromFile(SHADER_TYPE_VERTEX, vsFile.c_str()) &&
-      stages[SHADER_TYPE_FRAGMENT].setFromFile(SHADER_TYPE_FRAGMENT, fsFile.c_str());
+      mStages[SHADER_TYPE_VERTEX].setFromFile(SHADER_TYPE_VERTEX, vsFile.c_str()) &&
+      mStages[SHADER_TYPE_FRAGMENT].setFromFile(SHADER_TYPE_FRAGMENT, fsFile.c_str());
 
   }
 
 
-  for(auto& stage: stages) {
+  for(auto& stage: mStages) {
     stage.compile();
   }
-  uint vs = stages[SHADER_TYPE_VERTEX].handle();
-  uint fs = stages[SHADER_TYPE_FRAGMENT].handle();
+  uint vs = mStages[SHADER_TYPE_VERTEX].handle();
+  uint fs = mStages[SHADER_TYPE_FRAGMENT].handle();
 
   if (vs == NULL || fs == NULL) {
     return false;
   }
-  programHandle = createAndLinkProgram(vs, fs, programHandle);
+  mProgId = createAndLinkProgram(vs, fs, mProgId);
 
   TODO("move to shaderstage");
   glDeleteShader(vs);
   glDeleteShader(fs);
   GL_CHECK_ERROR();
 
-  return (programHandle != NULL);
+  return (mProgId != NULL);
+}
+
+void ShaderProgram::fillBlockProperty(PropertyBlockInfo& block, uint progId, GLint index) {
+  GLint numUniform;
+  glGetActiveUniformBlockiv(progId, index, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &numUniform);
+  if(numUniform <= 0) {
+    return;
+  }
+
+  GLint *indices = (GLint*)_alloca(numUniform);
+  glGetActiveUniformBlockiv(progId, index, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, indices);
+  
+  GLint *offsets = (GLint*)_alloca(numUniform);
+  GLint *types = (GLint*)_alloca(numUniform);
+  GLint *counts = (GLint*)_alloca(numUniform);
+  glGetActiveUniformsiv(progId, numUniform, (GLuint*)indices, GL_UNIFORM_OFFSET, offsets);
+  glGetActiveUniformsiv(progId, numUniform, (GLuint*)indices, GL_UNIFORM_TYPE, types);
+  glGetActiveUniformsiv(progId, numUniform, (GLuint*)indices, GL_UNIFORM_SIZE, counts);
+
+  for(GLint i = 0; i < numUniform; ++i) {
+    char name[64];
+    GLint len = 0;
+    glGetActiveUniformName(progId, (GLuint)indices[i], sizeof(name), &len, name);
+    property_info_t& prop = block[name];
+
+    prop.name = name;
+    prop.offset = offsets[i];
+
+   // unfinished should get size here, while glSize unimplemented
+   size_t totalSize = GLSize(types[i]) * counts[i]; 
+   prop.size = (uint)totalSize;
+  }
+}
+
+void ShaderProgram::genInfo() {
+  mInfo.clear();
+
+  glUseProgram(mProgId);
+
+  // uniforms
+  GLint count;
+  glGetProgramiv(mProgId, GL_ACTIVE_UNIFORMS, &count);
+
+  constexpr GLsizei MAX_NAME_LEN = 128;
+  char name[MAX_NAME_LEN];
+
+  for(GLint ui = 0; ui < count; ++ui) {
+    GLsizei nameLen;
+    GLsizei size;
+    GLenum type = GL_NONE;
+
+    glGetActiveUniform(mProgId, ui, MAX_NAME_LEN, &nameLen, &size, &type, name);
+
+    if(type != GL_NONE) {
+      GLuint location = glGetUniformLocation(mProgId, name);
+      if(location != -1) {
+        switch(type) {
+          case GL_SAMPLER_1D:
+          case GL_SAMPLER_2D:
+          case GL_SAMPLER_3D:
+          case GL_SAMPLER_CUBE: {
+            // sampler and textures share locations in GL
+            EXPECTS(location < NUM_TEXTURE_SLOT);
+            shader_bind_info_t& info = mInfo.at((eTextureSlot)location);
+            info.location = location;
+            info.name = name;
+          }
+          break;
+
+          default:
+            ERROR_RECOVERABLE(Stringf("%s: Global uniform not supported", name));
+          break;
+        }
+      }
+    }
+  }
+
+  // uniform blocks, aka ubo
+  glGetProgramiv(mProgId, GL_ACTIVE_UNIFORM_BLOCKS, &count);
+
+  GLsizei len = 0;
+
+  for(GLint bi = 0; bi < count; ++bi) {
+    len = 0;
+    glGetActiveUniformBlockName(mProgId, bi, MAX_NAME_LEN, &len, name);
+
+    if(len > 0) {
+      PropertyBlockInfo& block = mInfo.at(name);
+      
+      block.bindInfo.name = name;
+      GLint binding = -1;
+      glGetActiveUniformBlockiv(mProgId, bi, GL_UNIFORM_BLOCK_BINDING, &binding);
+      ENSURES(binding != -1);
+      block.bindInfo.location = (uint)binding;
+
+      GLint size = 0u;
+      glGetActiveUniformBlockiv(mProgId, bi, GL_UNIFORM_BLOCK_DATA_SIZE, &size);
+      block.totalSize = (size_t)size;
+
+
+    }
+  }
+
+
+  
 }
 
 uint ShaderProgram::createAndLinkProgram(uint vs, uint fs, uint handle) {

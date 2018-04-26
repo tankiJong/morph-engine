@@ -1,7 +1,8 @@
 ﻿#include "mat44.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "Vec3.hpp"
+#include "vec3.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Engine/Math/Primitives/quaternion.hpp"
 
 const mat44 mat44::identity;
 const mat44 mat44::right     { vec4::right, vec4::zero, vec4::zero, vec4::zero };
@@ -39,6 +40,35 @@ mat44::mat44(const vec4& i, const vec4& j, const vec4& k, const vec4& t):
   iy(i.y), jy(j.y), ky(k.y), ty(t.y),
   iz(i.z), jz(j.z), kz(k.z), tz(t.z),
   iw(i.w), jw(j.w), kw(k.w), tw(t.w) {
+}
+
+mat44::mat44(const quaternion& q) {
+  // imaginary part
+  float const x = q.v.x;
+  float const y = q.v.y;
+  float const z = q.v.z;
+
+  // cache off some squares
+  float const x2 = x * x;
+  float const y2 = y * y;
+  float const z2 = z * z;
+
+  i = vec4(1.0f - 2.0f * y2 - 2.0f * z2,
+          2.0f * x * y + 2.0f * q.r * z,
+          2.0f * x * z - 2.0f * q.r * y,
+          0);
+
+  j = vec4(2 * x * y - 2.0f * q.r * z,
+          1.0f - 2.0f * x2 - 2.0f * z2,
+          2.0f * y * z + 2.0f * q.r * x,
+          0);
+
+  k = vec4(2.0f * x * z + 2.0f * q.r * y,
+          2.0f * y * z - 2.0f * q.r * x,
+          1.0f - 2.0f * x2 - 2.0f * y2,
+          0);
+
+  t = vec4(0, 0, 0, 1);
 }
 
 vec2 mat44::translateTo(const vec2& position2D) const {
@@ -118,6 +148,10 @@ vec4 mat44::z() const {
 }
 vec4 mat44::w() const {
   return { iw, jw, kw, tw };
+}
+
+float mat44::operator()(uint x, uint y) const {
+  return data[y * 4 + x];
 }
 
 mat44 mat44::operator*(const mat44& rhs) const {
@@ -303,6 +337,10 @@ Euler mat44::eular() const {
   e.y = atan2Degree(-kk.z, ii.z);
 
   return e;
+}
+
+quaternion mat44::quat() const {
+  UNIMPLEMENTED_RETURN(quaternion());
 }
 
 vec3 mat44::scale() const {

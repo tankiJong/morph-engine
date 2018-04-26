@@ -1,12 +1,17 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Texture.hpp"
-#include "Engine/Math/Primitives/Mat44.hpp"
+#include "Engine/Math/Primitives/mat44.hpp"
 #include "Engine/Math/Primitives/vec3.hpp"
 #include "FrameBuffer.hpp"
 #include "Engine/Math/Transform.hpp"
 
 class aabb2;
+
+enum eCamreraFlag {
+  CAM_CLEAR_DEPTH = 0b10,
+  CAM_CLEAR_COLOR = 0b01,
+};
 
 class Camera {
   friend class Renderer;
@@ -14,6 +19,7 @@ public:
   Camera();
   ~Camera();
 
+  int sort;
   // will be implemented later
   void setColorTarget(Texture* colorTarget);
   void setDepthStencilTarget(Texture* depthTarget);
@@ -33,9 +39,9 @@ public:
   vec3 screenToWorld(uvec2 pixel, float distanceFromCamera);
   uvec2 worldToScreen(vec3 position);
 
-  inline vec3 right() const { return (mTransform.localToWorld() * vec4(vec3::right, 0)).xyz(); };
-  vec3 up() const { return (mTransform.localToWorld() * vec4(vec3::up, 0)).xyz(); };
-  vec3 forward() const { return (mTransform.localToWorld() * vec4(vec3::forward, 0)).xyz(); };
+  inline const vec3 right() const { return (mTransform.localToWorld() * vec4(vec3::right, 0)).xyz(); };
+  inline const vec3 up() const { return (mTransform.localToWorld() * vec4(vec3::up, 0)).xyz(); };
+  inline const vec3 forward() const { return (mTransform.localToWorld() * vec4(vec3::forward, 0)).xyz(); };
   inline uint width() const { return mFrameBuffer->width(); }
   inline uint height() const { return mFrameBuffer->height(); }
 
@@ -44,6 +50,8 @@ public:
 
   inline const Transform& transfrom() const { return mTransform; }
   inline Transform& transfrom() { return mTransform; }
+  inline void setFlag(uint flag) { mFlag = mFlag | flag; }
+  inline bool queryFlag(eCamreraFlag flag) const { return flag & mFlag; }
 protected:
   Transform mTransform;
   // default all to identiy
@@ -55,4 +63,5 @@ protected:
     camera_t cameraBlock;
   };
   owner<FrameBuffer*> mFrameBuffer;
+  unsigned char mFlag = 0;
 };

@@ -109,7 +109,7 @@ bool vec3::operator!=(const vec3& compare) const {
 float vec3::magnitude() const {
   return sqrt(x*x + y*y + z*z);
 }
-float vec3::magnitudeSquared() const {
+float vec3::magnitude2() const {
   return x*x + y*y + z*z;
 }
 float vec3::normalize() {
@@ -150,6 +150,10 @@ vec3 vec3::cross(const vec3& c) const {
     b.z * c.x - b.x * c.z,
     b.x * c.y - b.y * c.x,
   };
+}
+
+float vec3::distance2(const vec3& rhs) const {
+  return (*this - rhs).magnitude2();
 }
 
 vec2 vec3::xy() const {

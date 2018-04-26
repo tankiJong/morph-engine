@@ -1,8 +1,8 @@
 #include "Engine/Renderer/Geometry/Mesher.hpp"
-#include "File/Path.hpp"
-#include "File/FileSystem.hpp"
+#include "Engine/File/Path.hpp"
+#include "Engine/File/FileSystem.hpp"
 #include <fstream>
-#include "Renderer/SpriteAnim.hpp"
+#include "Engine/Renderer/SpriteAnim.hpp"
 
 enum eLineType {
   LINE_PASS = 0,

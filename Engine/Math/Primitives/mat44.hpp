@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "Engine//Math/Primitives/vec2.hpp"
 #include "Engine//Math/Primitives/vec4.hpp"
+
+class quaternion;
 class mat44 {
 public:
   union {
@@ -33,7 +35,7 @@ public:
   explicit mat44(const float* sixteenValuesBasisMajor); // float[16] array in order Ix, Iy...
   explicit mat44(const vec2& iBasis, const vec2& jBasis, const vec2& translation = vec2::zero);
   explicit mat44(const vec4& right, const vec4& up, const vec4& forward, const vec4& w = vec4(0,0,0,1));
-
+  explicit mat44(const quaternion& q);
   // Accessors
   vec2 translateTo(const vec2& position2D) const; // Written assuming z=0, w=1
   vec2 translate(const vec2& displacement2D) const; // Written assuming z=0, w=0
@@ -51,15 +53,18 @@ public:
   vec4 y() const;
   vec4 z() const;
   vec4 w() const;
-
+  float operator()(uint x, uint y) const;
   mat44 operator*(const mat44& rhs) const;
   vec4 operator*(const vec4& rhs) const;
   bool operator==(const mat44& rhs) const;
 
   mat44 transpose() const;
   mat44 inverse() const;
-  Euler eular() const;
   vec3  scale() const;
+
+  Euler eular() const;
+  quaternion quat() const;
+
   // Producers
   static mat44 makeRotation(const Euler& ea);
   static mat44 makeRotation(float x, float y, float z);

@@ -14,9 +14,9 @@ public:
   MaterialProperty(const char* str) : name(str) {}
   MaterialProperty(const MaterialProperty&&) = delete;
   virtual ~MaterialProperty() = default;
-  std::string name;
   virtual void bind(uint bindPoint) = 0;
   virtual MaterialProperty* clone() const = 0;
+  std::string name;
 };
 
 
@@ -24,10 +24,11 @@ template<typename V>
 class MatProp : public MaterialProperty {
 public:
   MatProp(const char* name, V&& value) : MaterialProperty(name), value(std::forward(value)) {}
+  MatProp(const char* name, const V& value) : MaterialProperty(name), value(value) {}
 
   void bind(uint bindPoint) override;
   MaterialProperty* clone() const override {
-    MatProp<V>* prop = new MatProp<V>(name, value);
+    MatProp<V>* prop = new MatProp<V>(name.c_str(), value);
     return prop;
   }
   V value;
@@ -41,7 +42,7 @@ public:
   const Texture* value;
   const Sampler* sampler = nullptr;
 
-  void bind(uint bindPoint) override;
+  inline void bind(uint bindPoint) override { ERROR_AND_DIE("Don't call bind for texture"); };
   MaterialProperty* clone() const override;
 };
 
@@ -49,11 +50,14 @@ public:
 class Material {
 public:
   ~Material();
-  Shader* shader(Shader* shader);
-  const Shader* shader(Shader* shader) const;
+  Material() = default;
+  void shader(S<const Shader> shader);
+  const Shader* shader() const;
+  Shader* shader();
 
   template<typename T>
-  void setProperty(char* name, const T& val) {
+  void setProperty(const char* name, const T& val) {
+    static_assert(!std::is_same_v<T, Texture>, "use setTexture to set texture");
     MaterialProperty*& prop = property(name);
 
     if (prop) {
@@ -63,37 +67,23 @@ public:
     prop = new MatProp<T>(name, val);
   }
 
-  void setTexture(uint slot, const Texture* tex, const Sampler* sampler = nullptr, const char* name = "") {
-    MaterialProperty*& prop = mTextures[slot];
+  void setTexture(uint slot, const Texture* tex, const Sampler* sampler = nullptr, const char* name = "");
 
-    if(prop) {
-      delete prop;
-    }
-
-    auto texture = new MatProp<Texture>(slot, tex, name);
-
-    if(sampler) {
-      texture->sampler = sampler;
-    } else {
-      texture->sampler = &Sampler::Default();
-    }
-
-    prop = texture;
-  }
-
-  void setTexture(uint slot, const Texture* tex, const char* name = "", const Sampler* sampler = nullptr) {
+  inline void setTexture(uint slot, const Texture* tex, const char* name, const Sampler* sampler = nullptr) {
     setTexture(slot, tex, sampler, name);
   }
 
   MaterialProperty*& property(std::string_view name);
   const MaterialProperty* property(std::string_view name) const;
 
+  inline span<MaterialProperty* const> properties() const { return mProps; };
+  inline span<MatProp<Texture>* const> textures() const { return mTextures; };
 protected:
   Material(const Material& mat);
   S<const Shader> mResShader = nullptr;
   owner<Shader*> mShader = nullptr;
   std::vector<owner<MaterialProperty*>> mProps;
-  std::array<MaterialProperty*, NUM_TEXTURE_SLOT> mTextures;
+  std::array<MatProp<Texture>*, NUM_TEXTURE_SLOT> mTextures;
 };
 
 
@@ -101,9 +91,6 @@ class InstaMaterial: public Material {
   InstaMaterial(const Material& mat);
   InstaMaterial(const InstaMaterial&) = delete;
   InstaMaterial(const InstaMaterial&&) = delete;
-
-protected:
-  const Material* mParent;
 };
 
 template<>

@@ -23,6 +23,7 @@
 #include "Geometry/Vertex.hpp"
 #include "Engine/Renderer/Shader/Shader.hpp"
 #include "Geometry/Mesher.hpp"
+#include "Engine/Renderer/Shader/Material.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
@@ -76,7 +77,7 @@ void Renderer::beforeFrame() {
 
 }
 
-void Renderer::bindTexture(uint i, const Texture* texture) {
+void Renderer::setTexture(uint i, const Texture* texture) {
   if (texture == nullptr) {
     texture = createOrGetTexture("$");
   }
@@ -93,7 +94,7 @@ void Renderer::bindTexture(uint i, const Texture* texture) {
 
 void Renderer::drawLine(const vec3& start, const vec3& end, 
 						const Rgba& startColor, const Rgba& endColor, float lineThickness) {
-  bindTexture(mTextures.at("$"));
+  setTexture(mTextures.at("$"));
   vertex_pcu_t verts[2] = {
     { start, startColor, {0,0}},
     { end, endColor, {0,1}}
@@ -127,7 +128,7 @@ void Renderer::drawSprite(const vec3& position, const Sprite& sprite, mat44 orie
     m.position += position;
   }
 
-  bindTexture(sprite.texture);
+  setTexture(sprite.texture);
   drawMeshImmediate(mesh.data(), 6, DRAW_TRIANGES);
 }
 
@@ -136,7 +137,7 @@ void Renderer::drawTexturedAABB2(const aabb2& bounds,
 								 const vec2& texCoordsAtMins, 
 								 const vec2& texCoordsAtMaxs, 
 								 const Rgba& tint) {
-  bindTexture(&texture);
+  setTexture(&texture);
   vertex_pcu_t verts[6] = {
     { bounds.mins, tint, texCoordsAtMins },
     { vec2{ bounds.maxs.x, bounds.mins.y }, tint, vec2{ texCoordsAtMaxs.x, texCoordsAtMins.y } },
@@ -423,7 +424,7 @@ void Renderer::setShader(const Shader* shader) {
   setState(mCurrentShader->state());
 }
 
-void Renderer::setSampler(uint i, Sampler* sampler) {
+void Renderer::setSampler(uint i, const Sampler* sampler) {
   glBindSampler(i, sampler->handle());
 }
 
@@ -467,6 +468,15 @@ void Renderer::setUnifrom(const char* name, const vec4& value) {
     glUniform4fv(loc, 1, value.data);
   }
 }
+
+template<>
+void Renderer::setUnifrom(const char* name, const mat44& value) {
+  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), name);
+  if (loc >= 0) {
+    glUniform1fv(loc, 16, value.data);
+  }
+}
+
 void Renderer::setUniformBuffer(eUniformSlot slot, UniformBuffer& ubo) {
   ubo.putGpu();
   glBindBufferBase(GL_UNIFORM_BUFFER, slot, ubo.handle());
@@ -549,20 +559,27 @@ bool Renderer::reloadShaderProgram(const char* nameWithPath) {
   return it->second->fromFile(nameWithPath);
 }
 
-void Renderer::bindTexture(const Texture* texture) {
-  bindTexture(0, texture);
+void Renderer::setTexture(const Texture* texture) {
+  setTexture(0, texture);
 }
 
-void Renderer::bindSampler(Sampler* sampler) {
-  mDefaultSampler = sampler;
+void Renderer::setSampler(const Sampler* sampler) {
+  setSampler(0, sampler);
+}
+
+void Renderer::cleanColor(const Rgba& color) {
+  vec4 col = color.normalized();
+  glClearColor(col.r, col.g, col.b, col.a);
+  glClear(GL_COLOR_BUFFER_BIT);
+  
 }
 
 void Renderer::setTexture(const char* path) {
-  bindTexture(createOrGetTexture(path));
+  setTexture(createOrGetTexture(path));
 }
 
 void Renderer::setTexture(uint i, const char* path) {
-  bindTexture(i, createOrGetTexture(path));
+  setTexture(i, createOrGetTexture(path));
 }
 
 HGLRC Renderer::createRealRenderContext(HDC hdc, int major, int minor) {
@@ -728,22 +745,9 @@ void Renderer::setPointLight(uint        index,
                              float       intensity,
                              const vec3& attenuation,
                              const Rgba& color) {
-  light_info_t l;
+  EXPECTS(index < NUM_MAX_LIGHTS);
 
-  l.position = position;
-  l.direction = vec3::zero;
-  l.directionFactor = 0.f;
-
-  l.color = color.normalized();
-  l.color.a = intensity;
-
-  l.attenuation = attenuation;
-  l.specAttenuation = attenuation;
-
-  l.dotInnerAngle = 1.f; // cos0
-  l.dotOuterAngle = 0.f; // cos90
-
-  setLight(index, l);
+  mUniformLights.as<light_buffer_t>()->lights[index].asPointLight(position, intensity, attenuation, color);
 }
 
 void Renderer::setSpotLight(uint        index,
@@ -754,23 +758,35 @@ void Renderer::setSpotLight(uint        index,
                             float       intensity,
                             const vec3& attenuation,
                             const Rgba& color) {
-  EXPECTS(innerAngle <= outerAngle);
-  light_info_t l;
+  EXPECTS(index < NUM_MAX_LIGHTS);
 
-  l.position = position;
-  l.direction = direction;
-  l.directionFactor = 1.f;
+  mUniformLights.as<light_buffer_t>()->lights[index].asSpotLight(position, direction, innerAngle, outerAngle, intensity, attenuation, color);
+}
 
-  l.color = color.normalized();
-  l.color.a = intensity;
+void Renderer::setModelMatrix(const mat44& model) {
+  setUnifrom("MODEL", model);
+}
 
-  l.attenuation = attenuation;
-  l.specAttenuation = attenuation;
+void Renderer::setMaterial(const Material* material) {
+  TODO("handle nullptr, bind a default one");
+  EXPECTS(material != nullptr);
+  const Shader* shader = material->shader();
 
-  l.dotInnerAngle = cosDegrees(innerAngle);
-  l.dotOuterAngle = cosDegrees(outerAngle);
+  setShader(shader);
 
-  setLight(index, l);
+  for(MaterialProperty* prop: material->properties()) {
+    uint loc = glGetUniformLocation(shader->prog()->handle(), prop->name.c_str());
+
+    if(loc != -1) {
+      prop->bind(loc);
+    }
+  }
+
+  for(MatProp<Texture>* tex: material->textures()) {
+    if (tex == nullptr) continue;
+    setTexture(tex->slot, tex->value);
+    setSampler(tex->slot, tex->sampler);
+  }
 }
 
 bool Renderer::copyFrameBuffer(FrameBuffer* dest, FrameBuffer* src) {
@@ -1121,9 +1137,9 @@ bool Renderer::applyEffect(ShaderProgram* program) {
 
   useShaderProgram(program);
 
-  bindTexture(0, mEffectTarget);
+  setTexture(0, mEffectTarget);
   
-  bindTexture(1, mDefaultDepthTarget);
+  setTexture(1, mDefaultDepthTarget);
 
   drawAABB2({ {-1.f, -1.f}, {1.f, 1.f} }, Rgba::white);
   GL_CHECK_ERROR();
