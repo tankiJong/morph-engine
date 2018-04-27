@@ -9,7 +9,8 @@ program:
   path:
   define: defines;seperated;by;semicolons
 
-sort: 0
+layer: 0
+sort: 1
 cull: back|front|none
 fill: solid|wire
 frontface: ccw|cw
@@ -50,6 +51,21 @@ owner<Shader*> fromYaml(const fs::path& file) {
   }
   shader->prog() = prog;
   render_state& rs = shader->state();
+
+  if (node["layer"]) {
+    std::string layer = node["layer"].as<std::string>();
+    if (layer == "opaque") {
+      shader->layer = SHADER_LAYER_OPAQUE;
+    } else if (layer == "alpha") {
+      shader->layer = SHADER_LAYER_ALPHA;
+    } else {
+      shader->layer = parse<uint>(layer);
+    }
+  }
+
+  if(node["sort"]) {
+    shader->sort = node["sort"].as<uint>();
+  }
 
   if (node["cull"]) rs.cullMode = node["cull"].as<eCullMode>();
   if (node["fill"]) rs.fillMode = node["fill"].as<eFillMode>();

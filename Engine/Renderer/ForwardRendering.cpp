@@ -34,7 +34,7 @@ void ForwardRendering::renderView(RenderScene& scene, Camera* cam) {
 
     rt.camera = cam;
     rt.mesh = renderable->mesh();
-    rt.model = renderable->transform().localToWorld();
+    rt.transform = &renderable->transform();
 
     rt.material = renderable->material();
 
@@ -44,12 +44,12 @@ void ForwardRendering::renderView(RenderScene& scene, Camera* cam) {
     }
   }
 
-  // sort drawcalls
+  RenderTask::sort(*cam, tasks);
 
   // draw
   for(const RenderTask& task: tasks) {
     mRenderer->setMaterial(task.material);
-    mRenderer->setModelMatrix(task.model);
+    mRenderer->setModelMatrix(task.transform->localToWorld());
     auto lights = scene.lights();
     for(uint i = 0; i < task.lightCount; ++i) {
       mRenderer->setLight(i, lights[task.lightIndices[i]]->info);

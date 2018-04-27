@@ -4,9 +4,18 @@
 #include "ShaderProgram.hpp"
 #include "Engine/Core/Resource.hpp"
 
+#define SHADER_LAYER_OPAQUE 0
+#define SHADER_LAYER_ALPHA  0x100
 class Shader {
 public:
   std::string name;
+
+  /* it is opaque(0)/alpha(0x100)?
+   * when sorting the renderable, use `layer << 8 | sort` as the order
+   */
+  uint layer = SHADER_LAYER_OPAQUE;
+  uint sort = 0;
+  inline uint order() const { return layer << 8 | sort; }
   void enableBlending(eBlendOp op, eBlendFactor src, eBlendFactor dst);
   void disableBlending();
 
