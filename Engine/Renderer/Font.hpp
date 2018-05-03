@@ -97,4 +97,4 @@ protected:
 
 Font* fromJson(const fs::path& path);
 
-ResDef<Font> Resource<Font>::load(const fs::path& file);
+ResDef<Font> Resource<Font>::load(const std::string& file);

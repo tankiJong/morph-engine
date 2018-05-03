@@ -17,6 +17,7 @@ public:
 
   static const Sampler& Default();
   static const Sampler& Linear();
+  static const Sampler& Point();
 protected:
   uint mSamplerHandle;
 };

@@ -216,6 +216,12 @@ int SystemDialogue_YesNoCancel( const std::string& messageTitle, const std::stri
 }
 #endif
 
+#if defined( DISABLE_ASSERTS )
+#define ENSURES( condition )
+#else
+#define INFO( msg ) SystemDialogue_Okay("Info", msg, SEVERITY_INFORMATION);
+#endif
+
 #define DEBUGBREAK __debugbreak()
 #define _QUOTE(x) # x
 #define QUOTE(x) _QUOTE(x)

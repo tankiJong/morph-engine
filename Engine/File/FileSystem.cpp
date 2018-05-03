@@ -57,6 +57,17 @@ std::vector<fs::path> FileSystem::map(const fs::path& virtualPath) {
   }
 }
 
+std::optional<fs::path> FileSystem::locate(const fs::path& vFilePath) {
+  EXPECTS(!fs::isDirectory(vFilePath));
+  auto paths = map(vFilePath);
+  uint i = 0;
+  for (uint size = paths.size(); i<size; ++i) {
+    if (fs::exists(paths[i])) return paths[i];
+  }
+
+  return {};
+}
+
 std::optional<Blob> FileSystem::asBuffer(const fs::path& file) {
   auto paths = map(file);
   uint i = 0;

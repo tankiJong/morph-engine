@@ -209,7 +209,7 @@ Font* fromJson(const fs::path& path) {
   return font;
 }
 
-ResDef<Font> Resource<Font>::load(const fs::path& file) {
+ResDef<Font> Resource<Font>::load(const std::string& file) {
   Font* font = fromJson(file);
 
   return { font->name, font };

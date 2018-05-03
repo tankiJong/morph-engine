@@ -12,11 +12,12 @@ struct RenderTask {
 	const Transform* transform = nullptr;
 	const Mesh* mesh = nullptr;
 	const Material* material = nullptr;
+	uint passIndex;
 	uint lightIndices[NUM_MAX_LIGHTS];
 	uint lightCount;
 
-//	uint layer = 0;
-//	uint queue = 0;
+	uint layer;
+	uint queue;
 
 	static void sort(const Camera& cam, span<RenderTask> tasks);
 };

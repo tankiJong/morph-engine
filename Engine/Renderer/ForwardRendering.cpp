@@ -4,6 +4,9 @@
 #include "Engine/Renderer/RenderTask.hpp"
 #include "Engine/Renderer/Renderable/Renderable.hpp"
 #include "Engine/Framework/Light.hpp"
+#include "Engine/Renderer/Shader/Material.hpp"
+#include "Engine/Renderer/Shader/Shader.hpp"
+#include "Engine/Renderer/Shader/ShaderPass.hpp"
 
 void ForwardRendering::render(RenderScene& scene) {
   scene.sortCamera();
@@ -16,8 +19,9 @@ void ForwardRendering::renderView(RenderScene& scene, Camera* cam) {
   static std::vector<RenderTask> tasks;
   tasks.clear();
   mRenderer->setCamera(cam);
-  
-  TODO("replace with sky box or something");
+
+  TODO("replace with sky box or something")
+  ;
   if(cam->queryFlag(CAM_CLEAR_COLOR)) {
     mRenderer->cleanColor(Rgba::black);
   }
@@ -28,19 +32,25 @@ void ForwardRendering::renderView(RenderScene& scene, Camera* cam) {
   }
 
   for(const Renderable* renderable: scene.Renderables()) {
-    tasks.emplace_back();
 
-    RenderTask& rt = tasks.back();
+    for(uint i = 0; i < renderable->material()->shader()->passes().size(); i++) {
+      tasks.emplace_back();
 
-    rt.camera = cam;
-    rt.mesh = renderable->mesh();
-    rt.transform = &renderable->transform();
+      RenderTask& rt = tasks.back();
 
-    rt.material = renderable->material();
+      rt.camera    = cam;
+      rt.mesh      = renderable->mesh();
+      rt.transform = &renderable->transform();
 
-    if(renderable->useLight()) {
-      scene.lightContributorsAt(renderable->transform().position(), 
-                                 rt.lightIndices, &rt.lightCount);
+      rt.material  = renderable->material();
+      rt.passIndex = i;
+      rt.queue     = renderable->material()->shader()->pass(i).sort;
+      rt.layer     = renderable->material()->shader()->pass(i).layer;
+      if(renderable->useLight()) {
+        scene.lightContributorsAt(renderable->transform().position(),
+                                  rt.lightIndices,
+                                  &rt.lightCount);
+      }
     }
   }
 
@@ -48,13 +58,14 @@ void ForwardRendering::renderView(RenderScene& scene, Camera* cam) {
 
   // draw
   for(const RenderTask& task: tasks) {
-    mRenderer->setMaterial(task.material);
     mRenderer->setModelMatrix(task.transform->localToWorld());
-    auto lights = scene.lights();
-    for(uint i = 0; i < task.lightCount; ++i) {
+    auto     lights = scene.lights();
+    for(uint i      = 0; i < task.lightCount; ++i) {
       mRenderer->setLight(i, lights[task.lightIndices[i]]->info);
     }
+
+    mRenderer->setMaterial(task.material, task.passIndex);
     mRenderer->drawMesh(*task.mesh);
   }
-  
 }
+  

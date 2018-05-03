@@ -57,9 +57,9 @@ void MikktBinding::genTangent() {
 
 int MikktBinding::mikkGetNumFace(const SMikkTSpaceContext* pContext) {
   Mesher& mesher = *(Mesher*)pContext->m_pUserData;
-  if (mesher.mIns.prim != DRAW_TRIANGES) return 0;
+  if (mesher.mCurrentIns.prim != DRAW_TRIANGES) return 0;
 
-  return mesher.mIns.startIndex + mesher.currentElementCount() / 3;
+  return mesher.mCurrentIns.startIndex + mesher.currentElementCount() / 3;
 }
 
 int MikktBinding::mikktGetNumVerticesOfFace(const SMikkTSpaceContext* /*pContext*/, const int /*iFace*/) {
@@ -69,9 +69,9 @@ int MikktBinding::mikktGetNumVerticesOfFace(const SMikkTSpaceContext* /*pContext
 void MikktBinding::mikktGetPosition(const SMikkTSpaceContext* pContext, float out[], const int iFace, const int iVert) {
   Mesher& mesher = *(Mesher*)pContext->m_pUserData;
 
-  int index = mesher.mIns.startIndex + 3 * iFace + iVert;
+  int index = mesher.mCurrentIns.startIndex + 3 * iFace + iVert;
 
-  index = mesher.mIns.useIndices ? mesher.mIndices[index] : index;
+  index = mesher.mCurrentIns.useIndices ? mesher.mIndices[index] : index;
 
   vec3 pos = mesher.mVertices.vertices().position[index];
 
@@ -83,9 +83,9 @@ void MikktBinding::mikktGetPosition(const SMikkTSpaceContext* pContext, float ou
 void MikktBinding::mikktGetNormal(const SMikkTSpaceContext* pContext, float out[], const int iFace, const int iVert) {
   Mesher& mesher = *(Mesher*)pContext->m_pUserData;
 
-  int index = mesher.mIns.startIndex + 3 * iFace + iVert;
+  int index = mesher.mCurrentIns.startIndex + 3 * iFace + iVert;
 
-  index = mesher.mIns.useIndices ? mesher.mIndices[index] : index;
+  index = mesher.mCurrentIns.useIndices ? mesher.mIndices[index] : index;
 
   vec3 norm = mesher.mVertices.vertices().normal[index];
 
@@ -97,9 +97,9 @@ void MikktBinding::mikktGetNormal(const SMikkTSpaceContext* pContext, float out[
 void MikktBinding::mikktGetTexCoords(const SMikkTSpaceContext* pContext, float out[], const int iFace, const int iVert) {
   Mesher& mesher = *(Mesher*)pContext->m_pUserData;
 
-  int index = mesher.mIns.startIndex + 3 * iFace + iVert;
+  int index = mesher.mCurrentIns.startIndex + 3 * iFace + iVert;
 
-  index = mesher.mIns.useIndices ? mesher.mIndices[index] : index;
+  index = mesher.mCurrentIns.useIndices ? mesher.mIndices[index] : index;
 
   vec2 uv = mesher.mVertices.vertices().uv[index];
 
@@ -114,9 +114,9 @@ void MikktBinding::mikktSetTSpaceBasic(const SMikkTSpaceContext* pContext,
                                        const int                 iVert) {
   Mesher& mesher = *(Mesher*)pContext->m_pUserData;
 
-  int index = mesher.mIns.startIndex + 3 * iFace + iVert;
+  int index = mesher.mCurrentIns.startIndex + 3 * iFace + iVert;
 
-  index = mesher.mIns.useIndices ? mesher.mIndices[index] : index;
+  index = mesher.mCurrentIns.useIndices ? mesher.mIndices[index] : index;
 
   vec4& tangent = mesher.mVertices.vertices().tangent[index];
 
@@ -136,9 +136,9 @@ void MikktBinding::mikktSetTSpace(const SMikkTSpaceContext* pContext,
                                   const int                 iVert) {
   Mesher& mesher = *(Mesher*)pContext->m_pUserData;
 
-  int index = mesher.mIns.startIndex + 3 * iFace + iVert;
+  int index = mesher.mCurrentIns.startIndex + 3 * iFace + iVert;
 
-  index = mesher.mIns.useIndices ? mesher.mIndices[index] : index;
+  index = mesher.mCurrentIns.useIndices ? mesher.mIndices[index] : index;
 
   vec4& tangent = mesher.mVertices.vertices().tangent[index];
 
@@ -152,13 +152,13 @@ void MikktBinding::mikktSetTSpace(const SMikkTSpaceContext* pContext,
 
 Mesher& Mesher::begin(eDrawPrimitive prim, bool useIndices) {
   GUARANTEE_OR_DIE(isDrawing == false, "Call begin before previous end get called.");
-  mIns.prim = prim;
-  mIns.useIndices = useIndices;
+  mCurrentIns.prim = prim;
+  mCurrentIns.useIndices = useIndices;
 
   if(useIndices) {
-    mIns.startIndex = mIndices.size();
+    mCurrentIns.startIndex = mIndices.size();
   } else {
-    mIns.startIndex = mVertices.count();
+    mCurrentIns.startIndex = mVertices.count();
   }
 
   isDrawing = true;
@@ -167,16 +167,18 @@ Mesher& Mesher::begin(eDrawPrimitive prim, bool useIndices) {
 
 void Mesher::end() {
   GUARANTEE_OR_DIE(isDrawing, "Call end without calling begin before");
-  uint end = mIns.startIndex + currentElementCount();
+  uint end = currentElementCount();
 
-  mIns.elementCount = end - mIns.startIndex;
+  mCurrentIns.elementCount = end - mCurrentIns.startIndex;
+  mIns.push_back(mCurrentIns);
   isDrawing = false;
 }
 
 void Mesher::clear() {
   mVertices.clear();
   mIndices.clear();
-  mIns = draw_instr_t();
+  mIns.clear();
+  mCurrentIns = draw_instr_t();
 }
 Mesher& Mesher::color(const Rgba& c) {
   mStamp.color = c;
@@ -233,13 +235,13 @@ uint Mesher::vertex2f(const vec2& pos) {
 }
 
 Mesher& Mesher::genNormal() {
-  uint end = mIns.startIndex + currentElementCount();
+  uint end = currentElementCount();
 
   vec3* normals = mVertices.vertices().normal;
 
-  if (mIns.prim == DRAW_TRIANGES) {
-    if (mIns.useIndices) {
-      for (auto i = mIns.startIndex; i + 2 < end; i += 3) {
+  if (mCurrentIns.prim == DRAW_TRIANGES) {
+    if (mCurrentIns.useIndices) {
+      for (auto i = mCurrentIns.startIndex; i + 2 < end; i += 3) {
         vec3 normal = normalOf(mIndices[i], mIndices[i + 1], mIndices[i + 2]);
         normals[mIndices[i]] += normal;
         normals[mIndices[i + 1]] += normal;
@@ -247,7 +249,7 @@ Mesher& Mesher::genNormal() {
         //        ENSURES(normals[i].magnitudeSquared() != 0);
       }
     } else {
-      for (auto i = mIns.startIndex; i + 2 < end; i += 3) {
+      for (auto i = mCurrentIns.startIndex; i + 2 < end; i += 3) {
         vec3 normal = normalOf(i, i + 1, i + 2);
         normals[i] += normal;
         normals[i + 1] += normal;
@@ -255,7 +257,7 @@ Mesher& Mesher::genNormal() {
       }
     }
 
-    for (auto i = mIns.startIndex; i < mVertices.count(); i++) {
+    for (auto i = mCurrentIns.startIndex; i < mVertices.count(); i++) {
       if (normals[i].magnitude2() != 0) {
         normals[i].normalize();
       }
@@ -307,7 +309,7 @@ Mesher& Mesher::sphere(const vec3& center, float size, uint levelX, uint levelY)
 }
 
 Mesher& Mesher::triangle() {
-  EXPECTS(mIns.useIndices);
+  EXPECTS(mCurrentIns.useIndices);
   uint last = mVertices.count() - 1;
 
   if (last < 2) {
@@ -320,7 +322,7 @@ Mesher& Mesher::triangle() {
 }
 
 Mesher& Mesher::triangle(uint a, uint b, uint c) {
-  switch(mIns.prim) {
+  switch(mCurrentIns.prim) {
     case DRAW_POINTS:
     case DRAW_TRIANGES: {
       mIndices.push_back(a);
@@ -343,7 +345,7 @@ Mesher& Mesher::triangle(uint a, uint b, uint c) {
 }
 
 Mesher& Mesher::quad() {
-  EXPECTS(mIns.useIndices);
+  EXPECTS(mCurrentIns.useIndices);
   uint last = mVertices.count() - 1;
 
   if(last < 3) {
@@ -356,7 +358,7 @@ Mesher& Mesher::quad() {
 }
 
 Mesher& Mesher::quad(uint a, uint b, uint c, uint d) {
-  switch(mIns.prim) {
+  switch(mCurrentIns.prim) {
     case DRAW_POINTS: {
       mIndices.push_back(a);
       mIndices.push_back(b);
@@ -514,7 +516,7 @@ Mesher& Mesher::text(const span<const std::string_view> asciiTexts, float size, 
 }
 
 void Mesher::mikkt() {
-  EXPECTS(!mIns.useIndices);
+  EXPECTS(!mCurrentIns.useIndices);
   MikktBinding binding(this);
   binding.genTangent();
 }
@@ -531,7 +533,7 @@ vec3 Mesher::normalOf(uint a, uint b, uint c) {
 }
 
 uint Mesher::currentElementCount() const {
-  return  mIns.useIndices ? mIndices.size() : mVertices.count();
+  return  mCurrentIns.useIndices ? mIndices.size() : mVertices.count();
 }
 
 

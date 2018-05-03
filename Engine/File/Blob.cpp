@@ -1,5 +1,4 @@
 ﻿#include "Blob.hpp"
-#include "Game/GameCommon.hpp"
 Blob::~Blob() {
   free(buffer);
 }
@@ -22,6 +21,18 @@ Blob Blob::clone() const {
   memcpy(block, buffer, dataSize);
 
   return Blob(block, dataSize);
+}
+
+void Blob::set(void* data, size_t size, size_t offset) {
+  if (bufferSize < offset + size) {
+    void* newBuffer = malloc(offset + size);
+    memcpy(newBuffer, buffer, dataSize);
+    free(buffer);
+    buffer = newBuffer;
+    dataSize = offset + size;
+  }
+
+  memcpy((unsigned char*)buffer + offset, data, size);
 }
 
 Blob& Blob::operator=(Blob&& other) noexcept {

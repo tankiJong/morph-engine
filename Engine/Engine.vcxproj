@@ -556,7 +556,9 @@
     <ClCompile Include="Renderer\RenderTask.cpp" />
     <ClCompile Include="Renderer\Sampler.cpp" />
     <ClCompile Include="Renderer\Shader\Material.cpp" />
+    <ClCompile Include="Renderer\Shader\PropertyBlock.cpp" />
     <ClCompile Include="Renderer\Shader\Shader.cpp" />
+    <ClCompile Include="Renderer\Shader\ShaderPass.cpp" />
     <ClCompile Include="Renderer\Shader\ShaderProgram.cpp" />
     <ClCompile Include="Renderer\Shader\ShaderStage.cpp" />
     <ClCompile Include="Renderer\Sprite.cpp" />
@@ -707,7 +709,9 @@
     <ClInclude Include="Renderer\RenderTask.hpp" />
     <ClInclude Include="Renderer\Sampler.hpp" />
     <ClInclude Include="Renderer\Shader\Material.hpp" />
+    <ClInclude Include="Renderer\Shader\PropertyBlock.hpp" />
     <ClInclude Include="Renderer\Shader\Shader.hpp" />
+    <ClInclude Include="Renderer\Shader\ShaderPass.hpp" />
     <ClInclude Include="Renderer\Shader\ShaderProgram.hpp" />
     <ClInclude Include="Renderer\Shader\ShaderStage.hpp" />
     <ClInclude Include="Renderer\Sprite.hpp" />

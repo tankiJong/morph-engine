@@ -922,7 +922,10 @@ void bindGLFunctions() {
 }
 
 size_t GLSize(GLint type) {
-  UNIMPLEMENTED_RETURN(0);
+  switch(type) {
+    default:
+      ERROR_AND_DIE("unsupport type");
+  }
 }
 
 //enum eDataDeclType {

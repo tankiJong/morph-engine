@@ -73,7 +73,14 @@ void addDefinesToStage(ShaderStage& stage, const char* defineArgs) {
   }
 }
 
-PropertyBlockInfo& ShaderProgramInfo::at(std::string_view blockName) {
+const PropertyBlockInfoBinding* ShaderProgramInfo::find(const std::string& blockName) const {
+  auto binding = mBlockInfo.find(blockName);
+  if (binding == mBlockInfo.end()) return nullptr;
+
+  return &(binding->second);
+}
+
+PropertyBlockInfoBinding& ShaderProgramInfo::at(std::string_view blockName) {
   return mBlockInfo[blockName.data()];
 }
 
@@ -124,7 +131,7 @@ bool ShaderProgram::fromFile(const char* relativePath, const char* defineArgs) {
   return (mProgId != NULL);
 }
 
-void ShaderProgram::fillBlockProperty(PropertyBlockInfo& block, uint progId, GLint index) {
+void ShaderProgram::fillBlockProperty(PropertyBlockInfoBinding& block, uint progId, GLint index) {
   GLint numUniform;
   glGetActiveUniformBlockiv(progId, index, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &numUniform);
   if(numUniform <= 0) {
@@ -184,8 +191,10 @@ void ShaderProgram::genInfo() {
           case GL_SAMPLER_3D:
           case GL_SAMPLER_CUBE: {
             // sampler and textures share locations in GL
-            EXPECTS(location < NUM_TEXTURE_SLOT);
-            shader_bind_info_t& info = mInfo.at((eTextureSlot)location);
+            uint binding = -1;
+            glGetUniformuiv(mProgId, location, &binding);
+            ENSURES(binding < NUM_TEXTURE_SLOT);
+            shader_bind_info_t& info = mInfo.at((eTextureSlot)binding);
             info.location = location;
             info.name = name;
           }
@@ -209,7 +218,7 @@ void ShaderProgram::genInfo() {
     glGetActiveUniformBlockName(mProgId, bi, MAX_NAME_LEN, &len, name);
 
     if(len > 0) {
-      PropertyBlockInfo& block = mInfo.at(name);
+      PropertyBlockInfoBinding& block = mInfo.at(name);
       
       block.bindInfo.name = name;
       GLint binding = -1;

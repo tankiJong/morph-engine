@@ -49,14 +49,14 @@ void Sampler::destroy() {
   }
 }
 
-Sampler* gDefaultSampler;
+Sampler* gPointSampler;
 Sampler* gLinearSampler;
 
 const Sampler& Sampler::Default() {
-  if(!gDefaultSampler) {
-    gDefaultSampler = new Sampler();
+  if(!gPointSampler) {
+    gPointSampler = new Sampler();
   }
-  return *gDefaultSampler;
+  return *gPointSampler;
 }
 
 const Sampler& Sampler::Linear() {
@@ -64,4 +64,11 @@ const Sampler& Sampler::Linear() {
     gLinearSampler = new Sampler(TEXTURE_SAMPLE_LINEAR);
   }
   return *gLinearSampler;
+}
+
+const Sampler& Sampler::Point() {
+  if (!gPointSampler) {
+    gPointSampler = new Sampler();
+  }
+  return *gPointSampler;
 }

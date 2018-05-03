@@ -12,6 +12,7 @@ public:
 
   ~Renderable();
   void material(S<const Material> mat);
+  void material(Material& mat);
   Material* material();
   const Material* material() const;
 

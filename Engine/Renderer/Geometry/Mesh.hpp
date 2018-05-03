@@ -15,19 +15,22 @@ class Mesh {
 public:
 
   Mesh& setIndices(span<const uint> indices);
-  Mesh& setInstruction(eDrawPrimitive prim, bool useIndices, uint startIdx, uint elemCount);
-  Mesh& resetInstruction();
+  Mesh& pushInstruction(eDrawPrimitive prim, bool useIndices, uint startIdx, uint elemCount);
+  inline Mesh& setInstructions(const std::vector<draw_instr_t>& ins) { mIns = ins; return *this; };
+  Mesh& resetInstruction(uint index);
 
   const VertexBuffer& vertices(uint streamIndex) const { return mVertices[streamIndex]; }
   const IndexBuffer& indices() const { return mIndices; }
-  const draw_instr_t& instruction() const { return mIns; }
+  const draw_instr_t& instruction(uint i = 0) const { return mIns[i]; }
+  span<const draw_instr_t> instructions() const { return mIns; }
+  draw_instr_t& instruction(uint i = 0) { return mIns[i]; }
   const VertexLayout& layout() const { return *mLayout; }
-
+  uint subMeshCount() const { return mIns.size(); }
 protected:
   Mesh(const VertexLayout* layout);
   std::vector<VertexBuffer> mVertices;
   IndexBuffer  mIndices;
-  draw_instr_t mIns;
+  std::vector<draw_instr_t> mIns;
   const VertexLayout* mLayout = nullptr;
 
   /**
@@ -54,4 +57,4 @@ public:
 };
 
 template<>
-ResDef<Mesh> Resource<Mesh>::load(const fs::path& file);
+ResDef<Mesh> Resource<Mesh>::load(const std::string& file);

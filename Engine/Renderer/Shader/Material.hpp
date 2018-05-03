@@ -3,6 +3,7 @@
 #include "Engine/Renderer/type.h"
 #include "Engine/Renderer/Sampler.hpp"
 #include "Engine/Core/Resource.hpp"
+#include "Engine/Renderer/Shader/PropertyBlock.hpp"
 #include <vector>
 
 class Texture;
@@ -12,30 +13,36 @@ class Sampler;
 class MaterialProperty {
 public:
   MaterialProperty(const char* str) : name(str) {}
+  MaterialProperty(const char* name, S<const PropertyBlockInfo> info, void* data) : MaterialProperty(name) {
+    EXPECTS(info.get() != nullptr);
+    value.info = std::move(info);
+    value.put(value.info->totalSize, data);
+  }
+
   MaterialProperty(const MaterialProperty&&) = delete;
   virtual ~MaterialProperty() = default;
-  virtual void bind(uint bindPoint) = 0;
-  virtual MaterialProperty* clone() const = 0;
+  virtual void bind(uint bindPoint);
+  virtual MaterialProperty* clone() const {
+    MaterialProperty* prop = new MaterialProperty(name.c_str(), value.info, value.mData);
+    return prop;
+  };
   std::string name;
+  PropertyBlock value;
 };
-
 
 template<typename V>
 class MatProp : public MaterialProperty {
 public:
-  MatProp(const char* name, V&& value) : MaterialProperty(name), value(std::forward(value)) {}
-  MatProp(const char* name, const V& value) : MaterialProperty(name), value(value) {}
-
-  void bind(uint bindPoint) override;
-  MaterialProperty* clone() const override {
-    MatProp<V>* prop = new MatProp<V>(name.c_str(), value);
-    return prop;
+  MatProp(const char* name, const V& val) : MaterialProperty(name) {
+    INFO("using property instead of property block, be careful about the layout and padding");
+    value.set(val);
   }
-  V value;
+
+  void set(const V& val) { value.set(val); };
 };
 
 template<>
-class MatProp<Texture>: public MaterialProperty {
+class MatProp<Texture> : public MaterialProperty {
 public:
   MatProp(uint slot, const Texture* value, const char* name = "") : MaterialProperty(name), slot(slot), value(value) {}
   uint slot;
@@ -46,11 +53,10 @@ public:
   MaterialProperty* clone() const override;
 };
 
-
 class Material {
 public:
   ~Material();
-  Material() = default;
+  Material() { mTextures.fill(nullptr); };
   void shader(S<const Shader> shader);
   const Shader* shader() const;
   Shader* shader();
@@ -73,11 +79,15 @@ public:
     setTexture(slot, tex, sampler, name);
   }
 
+  void setPropertyBlock(S<const PropertyBlockInfo> layout, void* data);
   MaterialProperty*& property(std::string_view name);
   const MaterialProperty* property(std::string_view name) const;
 
   inline span<MaterialProperty* const> properties() const { return mProps; };
   inline span<MatProp<Texture>* const> textures() const { return mTextures; };
+
+  std::string name = "";
+  static owner<Material*> fromYaml(const fs::path& file);
 protected:
   Material(const Material& mat);
   S<const Shader> mResShader = nullptr;
@@ -94,4 +104,6 @@ class InstaMaterial: public Material {
 };
 
 template<>
-ResDef<Material> Resource<Material>::load(const fs::path& file);
+ResDef<Material> Resource<Material>::load(const std::string& file);
+
+

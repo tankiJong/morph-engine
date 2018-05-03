@@ -24,6 +24,7 @@
 #include "Engine/Renderer/Shader/Shader.hpp"
 #include "Geometry/Mesher.hpp"
 #include "Engine/Renderer/Shader/Material.hpp"
+#include "Engine/Renderer/Shader/ShaderPass.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
@@ -365,7 +366,9 @@ void Renderer::postInit() {
   glBindVertexArray(mDefaultVao);
 
   mDefaultShader = new Shader();
-  mDefaultShader->prog() = createOrGetShaderProgram("@default");
+  ShaderPass* pass = new ShaderPass();
+  pass->prog() = createOrGetShaderProgram("@default");
+  mDefaultShader->add(*pass);
   mCurrentShader = mDefaultShader;
 
   mDefaultSampler = new Sampler();
@@ -415,13 +418,13 @@ void Renderer::setState(const render_state& state) {
                       toGLType(state.alphaSrcFactor), toGLType(state.alphaDstFactor));
 }
 
-void Renderer::setShader(const Shader* shader) {
+void Renderer::setShader(const Shader* shader, uint passIndex) {
   
   mCurrentShader = shader == nullptr ? mDefaultShader : shader;
   
-  glUseProgram(mCurrentShader->prog()->handle());
+  glUseProgram(mCurrentShader->pass(passIndex).prog()->handle());
 
-  setState(mCurrentShader->state());
+  setState(mCurrentShader->pass(passIndex).state());
 }
 
 void Renderer::setSampler(uint i, const Sampler* sampler) {
@@ -430,7 +433,7 @@ void Renderer::setSampler(uint i, const Sampler* sampler) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const float& value) {
-  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), name);
+  GLint loc = glGetUniformLocation(mCurrentShader->pass(0).prog()->handle(), name);
   if(loc >= 0) {
     glUniform1f(loc, value);
   }
@@ -438,7 +441,7 @@ void Renderer::setUnifrom(const char* name, const float& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const vec2& value) {
-  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), name);
+  GLint loc = glGetUniformLocation(mCurrentShader->pass(0).prog()->handle(), name);
   if (loc >= 0) {
     glUniform2fv(loc, 1, &value.x);
   }
@@ -446,7 +449,7 @@ void Renderer::setUnifrom(const char* name, const vec2& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const vec3& value) {
-  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), name);
+  GLint loc = glGetUniformLocation(mCurrentShader->pass(0).prog()->handle(), name);
   if (loc >= 0) {
     glUniform3fv(loc, 1, &value.x);
   }
@@ -454,7 +457,7 @@ void Renderer::setUnifrom(const char* name, const vec3& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const Rgba& value) {
-  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), name);
+  GLint loc = glGetUniformLocation(mCurrentShader->pass(0).prog()->handle(), name);
   if (loc >= 0) {
     vec4 scaledColor = value.normalized();
     glUniform4fv(loc, 1, scaledColor.data);
@@ -463,7 +466,7 @@ void Renderer::setUnifrom(const char* name, const Rgba& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const vec4& value) {
-  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), name);
+  GLint loc = glGetUniformLocation(mCurrentShader->pass(0).prog()->handle(), name);
   if (loc >= 0) {
     glUniform4fv(loc, 1, value.data);
   }
@@ -471,7 +474,7 @@ void Renderer::setUnifrom(const char* name, const vec4& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const mat44& value) {
-  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), name);
+  GLint loc = glGetUniformLocation(mCurrentShader->pass(0).prog()->handle(), name);
   if (loc >= 0) {
     glUniform1fv(loc, 16, value.data);
   }
@@ -492,7 +495,7 @@ void Renderer::updateTime(float gameDeltaSec, float sysDeltaSec) {
 }
 
 void Renderer::useShaderProgram(ShaderProgram* program) {
-  mDefaultShader->prog() = program == nullptr ? mShaderPrograms.at("@default"): program;
+  mDefaultShader->pass(0)->prog() = program == nullptr ? mShaderPrograms.at("@default"): program;
 
   setShader(mDefaultShader);
 }
@@ -767,16 +770,22 @@ void Renderer::setModelMatrix(const mat44& model) {
   setUnifrom("MODEL", model);
 }
 
-void Renderer::setMaterial(const Material* material) {
+void Renderer::setMaterial(const Material* material, uint passIndex) {
   TODO("handle nullptr, bind a default one");
   EXPECTS(material != nullptr);
   const Shader* shader = material->shader();
 
-  setShader(shader);
+  setShader(shader, passIndex);
 
   for(MaterialProperty* prop: material->properties()) {
-    uint loc = glGetUniformLocation(shader->prog()->handle(), prop->name.c_str());
+      // check whether is successful
+    auto info = shader->pass(passIndex).prog()->info();
+    const PropertyBlockInfoBinding* binding = info.find(prop->name);
 
+    if (binding == nullptr) continue;
+
+    // location here is unifrom buffer location tbh
+    uint loc = binding->bindInfo.location;
     if(loc != -1) {
       prop->bind(loc);
     }
@@ -980,7 +989,7 @@ void Renderer::drawMesh(const Mesh& mesh) {
 
   setUniformBuffer(UNIFORM_LIGHT, mUniformLights);
   for(const VertexAttribute& attribute: mesh.layout().attributes()) {
-    GLint bindIdx = glGetAttribLocation(mCurrentShader->prog()->handle(), attribute.name.c_str());
+    GLint bindIdx = glGetAttribLocation(mCurrentShader->pass(0).prog()->handle(), attribute.name.c_str());
 
     if(bindIdx >= 0) {
       const VertexBuffer& vbo = mesh.vertices(attribute.streamIndex);
@@ -1003,7 +1012,7 @@ void Renderer::drawMesh(const Mesh& mesh) {
 //    glVertexAttribPointer(posBind, 3, GL_FLOAT, GL_FALSE, mesh.vertices().vertexStride, (GLvoid*)offsetof(vertex_pcu_t, position));
 //  }
 
-  glUseProgram(mCurrentShader->prog()->handle());
+//  glUseProgram(mCurrentShader->pass(0).prog()->handle());
   
 //  GLint loc = glGetUniformLocation(mCurrentShader->prog()->handle(), "PROJECTION");
 //  if (loc >= 0) {
@@ -1015,16 +1024,18 @@ void Renderer::drawMesh(const Mesh& mesh) {
   ubo->set(mCurrentCamera->cameraBlock);
 
   setUniformBuffer(UNIFORM_CAMERA, *ubo);
-  const draw_instr_t& ins = mesh.instruction();
 
 
   glBindFramebuffer(GL_FRAMEBUFFER, mCurrentCamera->getFrameBufferHandle());
-
-  if(ins.useIndices) {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.indices().handle());
-    glDrawElements(toGLType(ins.prim), ins.elementCount, GL_UNSIGNED_INT, 0);
-  } else {
-    glDrawArrays(toGLType(ins.prim), ins.startIndex, ins.elementCount);
+  for (const draw_instr_t& ins : mesh.instructions()) {
+    if (ins.useIndices) {
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.indices().handle());
+//      glDrawRangeElements(toGLType(ins.prim), ins.startIndex, ins.startIndex + ins.elementCount - 1, ins.elementCount, GL_UNSIGNED_INT, 0);
+//      GL_CHECK_ERROR();
+      glDrawElements(toGLType(ins.prim), ins.elementCount, GL_UNSIGNED_INT, (void*)(ins.startIndex*sizeof(uint)));
+    } else {
+      glDrawArrays(toGLType(ins.prim), ins.startIndex, ins.elementCount);
+    }
   }
 
 }
@@ -1041,7 +1052,7 @@ void Renderer::drawMeshImmediate(const vertex_pcu_t* vertices, size_t numVerts, 
   }
 
   immediateMesh->setVertices(v);
-  immediateMesh->setInstruction(drawPrimitive, false, 0, v.count());
+  immediateMesh->pushInstruction(drawPrimitive, false, 0, v.count());
 
   drawMesh(*immediateMesh);
 }

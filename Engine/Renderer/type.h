@@ -201,4 +201,7 @@ struct render_state {
   eBlendOp alphaBlendOp = BLEND_OP_ADD;          // COMPARE_ADD
   eBlendFactor alphaSrcFactor = BLEND_F_ONE;    // BLEND_ONE
   eBlendFactor alphaDstFactor = BLEND_F_ZERO;    // BLEND_ONE
+
+  bool operator!=(const render_state& rhs) const;
+  bool operator==(const render_state& rhs) const;
 };

@@ -51,7 +51,8 @@ protected:
   vertex_t mStamp;
   Vertex mVertices;
   std::vector<uint> mIndices;
-  draw_instr_t mIns;
+  std::vector<draw_instr_t> mIns;
+  draw_instr_t mCurrentIns;
   bool isDrawing = false;
 };
 
@@ -59,12 +60,10 @@ template< typename VertexType >
 owner<Mesh*> Mesher::createMesh() {
   GUARANTEE_OR_DIE(isDrawing == false, "createMesh called without calling end()");
   VertexMesh<VertexType>* m = new VertexMesh<VertexType>();
-  m->setInstruction(mIns.prim, mIns.useIndices, mIns.startIndex, mIns.elementCount);
+  m->setInstructions(mIns);
 
   m->setVertices(mVertices);
-  if (mIns.useIndices) {
-    m->setIndices({ mIndices.data() + mIns.startIndex, mIndices.data() + mIns.elementCount });
-  }
+  m->setIndices(mIndices);
 
   return m;
 }

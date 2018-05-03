@@ -4,6 +4,7 @@
 #include "Engine/Renderer/Texture.hpp"
 #include "glFunctions.hpp"
 #include "Engine/Core/Rgba.hpp"
+#include "Engine/File/FileSystem.hpp"
 
 Texture::Texture()
 : mTextureID(0)
@@ -130,3 +131,16 @@ Texture* Texture::clone() const {
   return tex;
 }
 
+template<>
+ResDef<Texture> Resource<Texture>::load(const std::string& file) {
+	FileSystem& vfs = FileSystem::Get();
+	auto realPath = vfs.locate(file);
+
+	if (!realPath) return { file, nullptr };
+
+	Image img(realPath->string());
+
+	Texture* tex = new Texture(img);
+
+	return { file, tex };
+};

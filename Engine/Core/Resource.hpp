@@ -22,7 +22,10 @@ public:
   /* default template expension will always return nullptr, which means, by default, resource is not cloneable.
    * If you want to make some resource cloneable, you should create specialization of this function.
    */
-  static owner<T*> clone(S<const T> res) { return nullptr; }
+  static owner<T*> clone(S<const T> res) {
+    ERROR_RECOVERABLE("possibly is not the actual function you want to call");
+    return nullptr;
+  }
 
   /*
    * This is an convenient way to call the upper function. In most case DO NOT need to implement this.
@@ -45,6 +48,10 @@ public:
       ERROR_RECOVERABLE("resource already exists");
       return false;
     }
+    if (res == nullptr) {
+      ERROR_RECOVERABLE("fail to define resource(nullptr)");
+      return false;
+    }
     auto& item = sDatabase[std::string(name)];
     item.res.reset(res);
     item.path = path;
@@ -65,7 +72,7 @@ public:
     }
   }
 
-  static bool define(const fs::path& file) {
+  static bool define(const std::string& file) {
     auto [name, res] = load(file);
     return define(name, res, file);
   }
@@ -75,7 +82,7 @@ protected:
   /*
    * This function is required for the resource system to work.
    */
-  static ResDef<T> load(const fs::path& file);
+  static ResDef<T> load(const std::string& file);
 };
 
 template<typename T>

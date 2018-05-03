@@ -25,6 +25,11 @@ void Renderable::material(S<const Material> mat) {
   mResMaterial = mat;
 }
 
+void Renderable::material(Material& mat) {
+  delete mMaterial;
+  mMaterial = &mat;
+}
+
 Material* Renderable::material() {
   if(!mMaterial) {
     mMaterial = Resource<Material>::clone(mResMaterial);

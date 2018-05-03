@@ -12,19 +12,22 @@ Mesh& Mesh::setVertices(uint streamIndex, uint stride, uint count, const void* v
   return *this;
 }
 
-Mesh& Mesh::setInstruction(eDrawPrimitive prim, bool useIndices, uint startIdx, uint elemCount) {
-  mIns.prim = prim;
-  mIns.useIndices = useIndices;
-  mIns.startIndex = startIdx;
-  mIns.elementCount = elemCount;
+Mesh& Mesh::pushInstruction(eDrawPrimitive prim, bool useIndices, uint startIdx, uint elemCount) {
+  mIns.emplace_back();
+  draw_instr_t& ins = mIns.back();
+  ins.prim = prim;
+  ins.useIndices = useIndices;
+  ins.startIndex = startIdx;
+  ins.elementCount = elemCount;
   return *this;
 }
 
-Mesh& Mesh::resetInstruction() {
-  mIns.prim = DRAW_TRIANGES;
-  mIns.useIndices = true;
-  mIns.startIndex = 0;
-  mIns.elementCount = mIndices.indexCount;
+Mesh& Mesh::resetInstruction(uint index) {
+  draw_instr_t& ins = mIns.back();
+  ins.prim = DRAW_TRIANGES;
+  ins.useIndices = true;
+  ins.startIndex = 0;
+  ins.elementCount = mIndices.indexCount;
   return *this;
 }
 
@@ -47,14 +50,14 @@ Mesh& Mesh::setIndices(span<const uint> indices) {
 
 
 template<>
-ResDef<Mesh> Resource<Mesh>::load(const fs::path& file) {
+ResDef<Mesh> Resource<Mesh>::load(const std::string& file) {
   Mesher ms;
 
-  EXPECTS(file.extension() == ".obj");
+  EXPECTS(fs::path(file).extension() == ".obj");
   ms.begin(DRAW_TRIANGES, false);
   ms.obj(file);
   ms.mikkt();
   ms.end();
 
-  return { file.generic_string(), ms.createMesh() };
+  return { file, ms.createMesh() };
 }

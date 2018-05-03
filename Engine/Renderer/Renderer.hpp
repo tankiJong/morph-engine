@@ -137,8 +137,8 @@ public:
                     float intensity = 1.f, const vec3& attenuation = vec3(0, 0, 1), const Rgba& color = Rgba::white);
 
   void setModelMatrix(const mat44& model);
-  void setMaterial(const Material* material);
-  void setShader(const Shader* shader = nullptr);
+  void setMaterial(const Material* material, uint passIndex = 0);
+  void setShader(const Shader* shader = nullptr, uint passIndex = 0);
   void setState(const render_state& state);
   void setSampler(uint i, const Sampler* sampler = nullptr);
   void setTexture(const char* path);

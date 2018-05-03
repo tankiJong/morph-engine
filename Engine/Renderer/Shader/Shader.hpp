@@ -1,38 +1,41 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Engine/Renderer/type.h"
-#include "ShaderProgram.hpp"
 #include "Engine/Core/Resource.hpp"
+#include "Engine/Persistence/yaml.hpp"
 
-#define SHADER_LAYER_OPAQUE 0
-#define SHADER_LAYER_ALPHA  0x100
+class ShaderPass;
+class Shader;
+namespace YAML {
+  class Node;
+  template<>
+  struct convert<Shader*> {
+    static bool decode(const Node& node, Shader*& shader);;
+  };
+};
+
 class Shader {
+  friend bool YAML::convert<Shader*>::decode(const YAML::Node& node, Shader*& shader);
 public:
   std::string name;
+  ~Shader();
 
-  /* it is opaque(0)/alpha(0x100)?
-   * when sorting the renderable, use `layer << 8 | sort` as the order
-   */
-  uint layer = SHADER_LAYER_OPAQUE;
-  uint sort = 0;
-  inline uint order() const { return layer << 8 | sort; }
-  void enableBlending(eBlendOp op, eBlendFactor src, eBlendFactor dst);
-  void disableBlending();
+  inline ShaderPass*& pass(uint i) { return mPasses.at(i); }
+  inline const ShaderPass& pass(uint i) const { return *mPasses.at(i); }
 
-  void setDepth(eCompare comp, bool willWrite);
-  void disableDepth();
+  inline void add(ShaderPass& pass) { mPasses.push_back(&pass); }
 
-  inline ShaderProgram*& prog() { return mProg; }
-  inline ShaderProgram* prog() const { return mProg; }
+  inline span<const ShaderPass* const> passes() const { return mPasses; }
 
-  inline render_state& state() { return mState; }
   inline const render_state& state() const { return mState; }
+  inline render_state& state() { return mState; }
+  static owner<Shader*> fromYaml(const fs::path& file);
 protected:
-  ShaderProgram * mProg = nullptr;
+  std::vector<owner<ShaderPass*>> mPasses;
   render_state mState;
 };
 
-owner<Shader*> fromYaml(const fs::path& file);
 
 template<>
-ResDef<Shader> Resource<Shader>::load(const fs::path& file);
+ResDef<Shader> Resource<Shader>::load(const std::string& file);
+

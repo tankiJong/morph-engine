@@ -6,7 +6,18 @@ void light_info_t::asDirectionalLight(const vec3& pos,
                                              float intensity,
                                              const vec3& atten,
                                              const Rgba& col) {
-  asSpotLight(pos, dir, 90.f, 90.f, intensity, atten, col);
+  this->position = pos;
+  this->direction = dir;
+  this->directionFactor = 1.f;
+
+  this->color = col.normalized();
+  this->color.a = intensity;
+
+  this->attenuation = atten;
+  this->specAttenuation = atten;
+
+  this->dotInnerAngle = cosDegrees(90.f);
+  this->dotOuterAngle = cosDegrees(90.f);
 }
 
 void light_info_t::asPointLight(const vec3& pos, float intensity, const vec3& atten, const Rgba& col) {
@@ -43,4 +54,12 @@ void light_info_t::asSpotLight(const vec3& pos,
   
   this->dotInnerAngle = cosDegrees(innerAngle);
   this->dotOuterAngle = cosDegrees(outerAngle);
+}
+
+bool render_state::operator!=(const render_state& rhs) const {
+  return !(*this == rhs);
+}
+
+bool render_state::operator==(const render_state& rhs) const {
+  return memcmp(this, &rhs, sizeof(render_state)) == 0;
 }

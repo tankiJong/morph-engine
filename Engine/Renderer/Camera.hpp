@@ -63,5 +63,5 @@ protected:
     camera_t cameraBlock;
   };
   owner<FrameBuffer*> mFrameBuffer;
-  unsigned char mFlag = 0;
+  uint mFlag = 0;
 };

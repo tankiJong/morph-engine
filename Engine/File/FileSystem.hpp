@@ -12,7 +12,7 @@ public:
   void unmount(const fs::path& virtualDir);
 
   std::vector<fs::path> map(const fs::path& virtualPath);
-
+  std::optional<fs::path> locate(const fs::path& vPath);
   std::optional<Blob> asBuffer(const fs::path& file);
   std::ifstream asStream(const fs::path& file);
 

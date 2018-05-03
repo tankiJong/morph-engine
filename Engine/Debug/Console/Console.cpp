@@ -358,7 +358,7 @@ void Console::render() const {
   static constexpr float inputBoxHeight = LINE_HEIGHT;
   const aabb2& screenBounds = Window::getInstance()->bounds();
   mRenderer->setCamera(mCamera);
-  static Shader* defaultShader = fromYaml("/Data/default.shader");
+  static const Shader* defaultShader = Resource<Shader>::get("/Data/default.shader").get();
   mRenderer->setShader(defaultShader);
   mRenderer->resetAlphaBlending();
   mRenderer->enableDepth(COMPARE_ALWAYS, false);

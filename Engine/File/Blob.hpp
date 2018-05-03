@@ -1,7 +1,6 @@
 ﻿#pragma once
-#include <type_traits>
-#include <corecrt_memcpy_s.h>
-
+#include <memory>
+#include "Engine/Core/common.hpp"
 class Blob {
 public:
   template<typename T>
@@ -19,6 +18,7 @@ public:
 
   Blob clone() const;
 
+  void set(void* data, size_t size, size_t offset = 0);
   template<typename T>
   operator T() {
      return as<T>();
