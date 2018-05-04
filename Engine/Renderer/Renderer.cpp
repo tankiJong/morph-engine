@@ -411,11 +411,13 @@ void Renderer::setState(const render_state& state) {
 
   if (state.colorBlendOp == BLEND_OP_DISABLE || state.alphaBlendOp == BLEND_OP_DISABLE) {
     glDisable(GL_BLEND);
+  } else {
+    glEnable(GL_BLEND);
+    glBlendEquationSeparate(toGLType(state.colorBlendOp), toGLType(state.alphaBlendOp));
+    glBlendFuncSeparate(toGLType(state.colorSrcFactor), toGLType(state.colorDstFactor),
+                        toGLType(state.alphaSrcFactor), toGLType(state.alphaDstFactor));
   }
 
-  glBlendEquationSeparate(toGLType(state.colorBlendOp), toGLType(state.alphaBlendOp));
-  glBlendFuncSeparate(toGLType(state.colorSrcFactor), toGLType(state.colorDstFactor),
-                      toGLType(state.alphaSrcFactor), toGLType(state.alphaDstFactor));
 }
 
 void Renderer::setShader(const Shader* shader, uint passIndex) {

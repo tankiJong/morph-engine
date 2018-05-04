@@ -13,6 +13,7 @@ const Rgba Rgba::blue  = Rgba(0  , 0  , 255);
 const Rgba Rgba::yellow= Rgba(255, 255, 0  );
 const Rgba Rgba::cyan  = Rgba(0  , 255, 255);
 const Rgba Rgba::gray  = Rgba(128, 128, 128);
+const Rgba Rgba::magenta = Rgba(255, 0, 255);
 
 const Rgba Rgba::transparent = Rgba(255, 255, 255, 0);
 

@@ -5,6 +5,7 @@
 #include "Engine/Math/Primitives/vec3.hpp"
 #include "FrameBuffer.hpp"
 #include "Engine/Math/Transform.hpp"
+#include "Engine/Core/Delegate.hpp"
 
 class aabb2;
 
@@ -24,6 +25,8 @@ public:
   void setColorTarget(Texture* colorTarget);
   void setDepthStencilTarget(Texture* depthTarget);
 
+  void handlePrePass(delegate<void(const Camera& cam)> cb);
+  void prepass() const;
   // model setters
   void lookAt(const vec3& position, const vec3& target, const vec3& up = vec3::up);
 
@@ -55,6 +58,7 @@ public:
 protected:
   Transform mTransform;
   // default all to identiy
+  std::vector<delegate<void(const Camera& cam)>> mPrePassHandler;
   union {
     struct {
       mat44 mProjMatrix;    // projection

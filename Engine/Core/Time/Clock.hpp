@@ -6,7 +6,7 @@
 
 class Clock {
 public:
-  friend class Stopwatch;
+  friend class Interval;
   
   /**
    * \brief create a master clock
@@ -37,34 +37,27 @@ protected:
 };
 
 
-class Stopwatch {
+class Interval {
   friend class Clock;
-  friend Stopwatch& createWatch();
+  friend Interval& createWatch();
 public:
+  Interval();
   inline void pause() { isPaused = true; };
   inline void resume() { isPaused = false; }
-  Stopwatch();
+  
+  inline bool decrement() { return (mCurrentTime - mStartTime > duration) ? mCurrentTime += duration, true : false; };
+
+  double duration;
+  uint flush();
+  Clock& clock() const;
 protected:
   void elapse();
-  Time currentTime;
-  Time startTime;
+  double mCurrentTime;
+  double mStartTime;
   bool isPaused = false;
 };
 
-// add delegate callback for countdown
-class Countdown: public Stopwatch {
-  friend class CdHeap;
-  friend Countdown& createCountdown(double duration);
-public:
-  double duration = 0;
-  inline bool isFinished() const { return currentTime.second - startTime.second >= duration; }
-  Countdown(double dura);
-};
-
-
 Clock& GetMainClock();
 
-Stopwatch& createWatch();
-bool destoryWatch(Stopwatch& sw);
-
-Countdown& createCountdown(double duration);
+Interval& createWatch();
+bool destoryWatch(Interval& sw);

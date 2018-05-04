@@ -1,4 +1,5 @@
 ﻿#include "vec4.hpp"
+#include "Engine/Renderer/SpriteAnim.hpp"
 
 const vec4 vec4::right  (1, 0, 0, 0);
 const vec4 vec4::up     (0, 1, 0, 0);
@@ -20,6 +21,16 @@ vec4::vec4(const vec3& xyz, float w)
   , y(xyz.y)
   , z(xyz.z)
   , w(w) {}
+
+void vec4::fromString(const char* data) {
+  auto raw = split(data, " ,");
+  GUARANTEE_OR_DIE(raw.size() == 4, "illegal input string to parse");
+
+  x = parse<float>(raw[0]);
+  y = parse<float>(raw[1]);
+  z = parse<float>(raw[2]);
+  w = parse<float>(raw[3]);
+}
 
 bool vec4::operator==(const vec4& rhs) const {
   return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w;

@@ -183,6 +183,10 @@ owner<Material*> Material::fromYaml(const fs::path& file) {
                 EXPECTS(info.count == 1);
                 data.set(&val, info.count * sizeof(float), info.offset);
               }
+            } else if (type == "vec4") {
+              vec4 val = parse<vec4>(attr.second.as<std::string>());
+              EXPECTS(info.count == 1);
+              data.set(&val, info.count * sizeof(float), info.offset);
             } else {
               ERROR_AND_DIE("unsupported property type for material");
             }

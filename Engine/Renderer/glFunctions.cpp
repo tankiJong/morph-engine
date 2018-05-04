@@ -1004,6 +1004,9 @@ GLTypeMapGuard(NUM_WIND_ORDER, eWindOrder);
 DeclGLTypeMapFn(NUM_BLEND_F, eBlendFactor) {
   GL_ONE,
   GL_ZERO,
+  GL_SRC_ALPHA,
+  GL_DST_ALPHA,
+  GL_ONE_MINUS_SRC_ALPHA,
   NUM_BLEND_F,
 };
 GLTypeMapGuard(NUM_BLEND_F, eBlendFactor);

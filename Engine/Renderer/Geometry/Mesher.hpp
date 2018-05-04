@@ -34,7 +34,12 @@ public:
   Mesher& triangle(uint a, uint b, uint c);
   Mesher& quad();
   Mesher& quad(uint a, uint b, uint c, uint d);
+
+  // d -- c
+  // |    |
+  // a -- b
   Mesher& quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d);
+  Mesher& quad(const vec3& center, const vec3& right, const vec3& up, const vec2& size);
   Mesher& cube(const vec3& center, const vec3& dimension);
   Mesher& cone(const vec3& origin, const vec3& direction, float length, float angle, uint slide = 10, bool bottomFace= true);
   Mesher& text(const span<const std::string_view> asciiTexts, float size, const Font* font, const vec3& position, const vec3& right = vec3::right, const vec3& up = vec3::up);
@@ -44,6 +49,9 @@ public:
   void mikkt();
   template<typename VertexType=vertex_lit_t>
   owner<Mesh*> createMesh();
+
+  template<typename VertexType = vertex_lit_t>
+  void resetMesh(Mesh& mesh);
 
 protected:
   vec3 normalOf(uint a, uint b, uint c);
@@ -68,3 +76,12 @@ owner<Mesh*> Mesher::createMesh() {
   return m;
 }
 
+template< typename VertexType >
+void Mesher::resetMesh(Mesh& mesh) {
+  GUARANTEE_OR_DIE(isDrawing == false, "createMesh called without calling end()");
+  VertexMesh<VertexType>* m = reinterpret_cast<VertexMesh<VertexType>*>(&mesh);
+  m->setInstructions(mIns);
+
+  m->setVertices(mVertices);
+  m->setIndices(mIndices);
+}

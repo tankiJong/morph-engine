@@ -31,6 +31,8 @@ void ForwardRendering::renderView(RenderScene& scene, Camera* cam) {
     mRenderer->clearDepth(1.f);
   }
 
+  cam->prepass();
+
   for(const Renderable* renderable: scene.Renderables()) {
 
     for(uint i = 0; i < renderable->material()->shader()->passes().size(); i++) {

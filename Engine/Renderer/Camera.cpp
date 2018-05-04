@@ -20,6 +20,16 @@ void Camera::setDepthStencilTarget(Texture* depthTarget) {
   mFrameBuffer->setDepthStencilTarget(depthTarget);
 }
 
+void Camera::handlePrePass(delegate<void(const Camera& cam)> cb) {
+  mPrePassHandler.push_back(std::move(cb));
+}
+
+void Camera::prepass() const {
+  for(auto& handle: mPrePassHandler) {
+    handle(*this);
+  }
+}
+
 void Camera::lookAt(const vec3& position, const vec3& target, const vec3& up) {
 
   mViewMatrix = mat44::lookAt(position, target, up);

@@ -124,6 +124,9 @@ enum eBlendOp {
 enum eBlendFactor {
   BLEND_F_ONE,
   BLEND_F_ZERO,
+  BLEND_F_SRC_ALPHA,
+  BLEND_F_DST_ALPHA,
+  BLEND_F_INV_SRC_ALPHA,
   NUM_BLEND_F,
 };
 // ---------------------- STRUCT -----------------------------
@@ -194,11 +197,11 @@ struct render_state {
   eFlag isWriteDepth = FLAG_TRUE;         // true
 
                               // Blend
-  eBlendOp colorBlendOp = BLEND_OP_ADD;          // COMPARE_ADD
+  eBlendOp colorBlendOp = BLEND_OP_DISABLE;          // COMPARE_ADD
   eBlendFactor colorSrcFactor = BLEND_F_ONE;    // BLEND_ONE
   eBlendFactor colorDstFactor = BLEND_F_ZERO;    // BLEND_ZERO
 
-  eBlendOp alphaBlendOp = BLEND_OP_ADD;          // COMPARE_ADD
+  eBlendOp alphaBlendOp = BLEND_OP_DISABLE;          // COMPARE_ADD
   eBlendFactor alphaSrcFactor = BLEND_F_ONE;    // BLEND_ONE
   eBlendFactor alphaDstFactor = BLEND_F_ZERO;    // BLEND_ONE
 

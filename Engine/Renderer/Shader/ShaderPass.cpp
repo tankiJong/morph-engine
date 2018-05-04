@@ -94,7 +94,9 @@ namespace YAML {
 
       VAL_MAP("one", BLEND_F_ONE);
       VAL_MAP("zero", BLEND_F_ZERO);
-
+      VAL_MAP("src_alpha", BLEND_F_SRC_ALPHA);
+      VAL_MAP("dest_alpha", BLEND_F_DST_ALPHA);
+      VAL_MAP("inv_src_alpha", BLEND_F_INV_SRC_ALPHA);
       return false;
     }
   };
@@ -158,7 +160,7 @@ namespace YAML {
     if (node["frontface"]) rs.frontFace = node["frontface"].as<eWindOrder>();
 
     if (node["blend"])
-      if (node["blend"].as<std::string>() != "false") {
+      if (node["blend"].IsMap()) {
         if (node["blend"]["color"]) {
           auto color = node["blend"]["color"];
           if (color["op"]) rs.colorBlendOp = color["op"].as<eBlendOp>();

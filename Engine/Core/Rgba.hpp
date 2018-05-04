@@ -34,7 +34,8 @@ public:
   const static Rgba transparent;
   const static Rgba blue;
   const static Rgba gray;
-  const static Rgba green;
+	const static Rgba green;
+	const static Rgba magenta;
 public:
 	unsigned char r = 255;
 	unsigned char g = 255;

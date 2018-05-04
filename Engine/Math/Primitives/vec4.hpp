@@ -30,7 +30,7 @@ public:
 
   explicit vec4(const vec3& copy);
   vec4(const vec3& xyz, float w);
-
+  void fromString(const char* data);
   bool operator==(const vec4& rhs) const;
   // x, i
   const static vec4 right;

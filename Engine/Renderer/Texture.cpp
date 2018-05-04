@@ -10,6 +10,7 @@ Texture::Texture()
 : mTextureID(0)
 , mData(&Rgba::white, 1, 1)
 , mDimensions(1,1){
+	PopulateFromData();
 }
 //-----------------------------------------------------------------------------------------------
 // Called only by the Renderer.  Use renderer->CreateOrGetTexture() to instantiate textures.
@@ -133,6 +134,10 @@ Texture* Texture::clone() const {
 
 template<>
 ResDef<Texture> Resource<Texture>::load(const std::string& file) {
+	if(file == "$default") {
+		Texture* tex = new Texture();
+		return { file, tex };
+	}
 	FileSystem& vfs = FileSystem::Get();
 	auto realPath = vfs.locate(file);
 

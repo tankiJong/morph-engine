@@ -4,49 +4,7 @@
 
 static Clock gMainClock;
 
-static struct CountdownComp {// greator<Countdown>
-  bool operator()(const Countdown& a, const Countdown& b) {
-    return a.duration > b.duration;
-  }
-} SwComp;
-
-class CdHeap: protected std::vector<Countdown> {
-public:
-  using ContainerType = std::vector<Countdown>;
-  CdHeap() {}
-
-  auto begin() { return ContainerType::begin(); }
-  auto end() { return ContainerType::end(); }
-
-  template<typename ...Valty>
-  Countdown& emplace_push(Valty ...valty) {
-    Countdown& cd = emplace_back(valty...);
-    std::push_heap(begin(), end(), SwComp);
-    return cd;
-  }
-
-  Countdown& push(const Countdown& sw) {
-    push_back(sw);
-    std::push_heap(begin(), end(), SwComp);
-    return back();
-  }
-
-  Countdown& top() {
-    return back();
-  }
-
-  void pop() {
-    std::pop_heap(begin(), end(), SwComp);
-    pop_back();
-  }
-
-  uint size() {
-    return  ContainerType::size();
-  }
-};
-
-static CdHeap gCountdown;
-std::list<Stopwatch> gStopwatch;
+std::list<Interval> gStopwatch;
 
 Clock* Clock::createChild() {
   return new Clock(this);
@@ -88,16 +46,8 @@ void Clock::stepClock(uint64_t elapsed) {
   }
 
   if(this == &gMainClock) {
-    for(Countdown& cd: gCountdown) {
-      cd.elapse();
-    }
-
-    for(Stopwatch& sw: gStopwatch) {
+    for(Interval& sw: gStopwatch) {
       sw.elapse();
-    }
-
-    while(gCountdown.size() > 0 && gCountdown.top().isFinished()) {
-      gCountdown.pop();
     }
   }
 
@@ -119,28 +69,36 @@ void Clock::addChild(Clock* clock) {
   clock->mParent = this;
 }
 
-Stopwatch::Stopwatch() {
-  startTime = gMainClock.total;
-  currentTime = startTime;
+uint Interval::flush() {
+  uint d = 0;
+  while(decrement()) {
+    d++;
+  }
+  return d;
 }
 
-void Stopwatch::elapse() {
-  currentTime = gMainClock.total;
+Clock& Interval::clock() const {
+  return gMainClock;
 }
 
-Countdown::Countdown(double dura) {
-  duration = dura;
+Interval::Interval() {
+  mStartTime = gMainClock.total.second;
+  mCurrentTime = mStartTime;
+}
+
+void Interval::elapse() {
+  mCurrentTime = gMainClock.total.second;
 }
 
 Clock& GetMainClock() {
   return gMainClock;
 }
 
-Stopwatch& createWatch() {
+Interval& createWatch() {
   return gStopwatch.emplace_back();
 }
 
-bool destoryWatch(Stopwatch& target) {
+bool destoryWatch(Interval& target) {
   for(auto it = gStopwatch.begin(); it != gStopwatch.end(); it++) {
     if(&(*it) == &target) {
       gStopwatch.erase(it);
@@ -148,9 +106,5 @@ bool destoryWatch(Stopwatch& target) {
     }
   }
   return false;
-}
-
-Countdown& createCountdown(double duration) {
-  return gCountdown.emplace_push(duration);
 }
 

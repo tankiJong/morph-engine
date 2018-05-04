@@ -493,6 +493,7 @@
     <ClCompile Include="Debug\Console\Console.cpp" />
     <ClCompile Include="Debug\Draw.cpp" />
     <ClCompile Include="Debug\ErrorWarningAssert.cpp" />
+    <ClCompile Include="Effect\ParticleEmitter.cpp" />
     <ClCompile Include="File\Blob.cpp" />
     <ClCompile Include="File\DataSource.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -641,6 +642,7 @@
     <ClInclude Include="Debug\Console\Console.hpp" />
     <ClInclude Include="Debug\Draw.hpp" />
     <ClInclude Include="Debug\ErrorWarningAssert.hpp" />
+    <ClInclude Include="Effect\ParticleEmitter.hpp" />
     <ClInclude Include="File\Blob.hpp" />
     <ClInclude Include="File\DataSource.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>

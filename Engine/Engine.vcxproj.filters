@@ -97,6 +97,9 @@
     <Filter Include="Framework">
       <UniqueIdentifier>{29d1247b-b02e-40df-8270-d96cf0b4bac0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Effect">
+      <UniqueIdentifier>{c0acd46b-8555-43b3-aa10-b3697df4c7f4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -347,6 +350,9 @@
     </ClCompile>
     <ClCompile Include="Renderer\Shader\PropertyBlock.cpp">
       <Filter>Renderer\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect\ParticleEmitter.cpp">
+      <Filter>Effect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -769,6 +775,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\Shader\PropertyBlock.hpp">
       <Filter>Renderer\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect\ParticleEmitter.hpp">
+      <Filter>Effect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
