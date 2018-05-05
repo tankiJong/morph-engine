@@ -554,6 +554,7 @@
     <ClCompile Include="Renderer\RenderBuffer.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\RenderScene.cpp" />
+    <ClCompile Include="Renderer\RenderTarget.cpp" />
     <ClCompile Include="Renderer\RenderTask.cpp" />
     <ClCompile Include="Renderer\Sampler.cpp" />
     <ClCompile Include="Renderer\Shader\Material.cpp" />
@@ -708,6 +709,7 @@
     <ClInclude Include="Renderer\RenderBuffer.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
     <ClInclude Include="Renderer\RenderScene.hpp" />
+    <ClInclude Include="Renderer\RenderTarget.hpp" />
     <ClInclude Include="Renderer\RenderTask.hpp" />
     <ClInclude Include="Renderer\Sampler.hpp" />
     <ClInclude Include="Renderer\Shader\Material.hpp" />

@@ -1,6 +1,7 @@
 ﻿#include "Engine/Renderer/glFunctions.hpp"
-#include "Engine/Renderer/Texture.hpp"
 #include "FrameBuffer.hpp"
+#include "Engine/Renderer/RenderTarget.hpp"
+
 FrameBuffer::FrameBuffer() {
   glGenFramebuffers(1, &mHandle);
 }

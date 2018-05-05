@@ -38,7 +38,7 @@ public:
   void emit(uint count = 1);
 
   delegate<void(particle_t&)> setupFunc = [](particle_t&) {};
-  delegate<void(particle_t&, float dsec)> updateFunc = [](particle_t&, float dsec) {};
+  delegate<void(particle_t&, float)> updateFunc = [](particle_t&, float) {};
   
   inline void frequency(float numPerSecond) { mSpawnInterval.duration = 1.f / numPerSecond; };
   inline Renderable& renderable() { return *mRenderable; }

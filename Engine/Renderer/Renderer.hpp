@@ -34,7 +34,7 @@ class FrameBuffer;
 class Sprite;
 class Shader;
 class Material;
-
+class RenderTarget;
 /*
  * +y
  * |
@@ -67,9 +67,9 @@ public:
   BitmapFont* createOrGetBitmapFont(const char* fontNameWithPath);
 
   Texture* createOrGetTexture(const std::string& filePath);
-  Texture* createRenderTarget(uint width, uint height,
+  RenderTarget* createRenderTarget(uint width, uint height,
                               eTextureFormat fmt = TEXTURE_FORMAT_RGBA8);
-  inline Texture* createDepthStencilTarget(uint width, uint height) {
+  inline RenderTarget* createDepthStencilTarget(uint width, uint height) {
     return createRenderTarget(width, height, TEXTURE_FORMAT_D24S8);
   }
   ShaderProgram* createOrGetShaderProgram(const char* nameWithPath);
@@ -114,8 +114,8 @@ public:
 
   void enableDepth(eCompare compare, bool shouldWrite);
 
-  inline Texture* getDefaultColorTarget() { return mDefaultColorTarget; }
-  inline Texture* getDefaultDepthTarget() { return mDefaultDepthTarget; }
+  inline RenderTarget* getDefaultColorTarget() { return mDefaultColorTarget; }
+  inline RenderTarget* getDefaultDepthTarget() { return mDefaultDepthTarget; }
   inline Camera* getCurrentCarmara() { return mCurrentCamera; }
   bool init(HWND hwnd);
 
@@ -170,10 +170,10 @@ protected:
   unsigned mDefaultVao = 0;
   owner<Sampler*> mDefaultSampler = nullptr;
   std::array<const Texture*, 64u> mCurrentTexture{ nullptr };
-  owner<Texture*> mDefaultDepthTarget = nullptr;
-  owner<Texture*> mDefaultColorTarget = nullptr;
-  owner<Texture*> mEffectTarget = nullptr;
-  owner<Texture*> mEffectScratch = nullptr;
+  owner<RenderTarget*> mDefaultDepthTarget = nullptr;
+  owner<RenderTarget*> mDefaultColorTarget = nullptr;
+  owner<RenderTarget*> mEffectTarget = nullptr;
+  owner<RenderTarget*> mEffectScratch = nullptr;
 private:
 
   owner<HWND> mGlWnd = nullptr;

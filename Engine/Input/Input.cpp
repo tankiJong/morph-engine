@@ -19,7 +19,7 @@ void runMessagePump() {
 }
 
 Input::Input() {
-  Window* win = Window::getInstance();
+  Window* win = Window::Get();
   mMousePosition = win->clientCenter();
   mouseSetPosition(mMousePosition);
   win->addWinMessageHandler([this](uint msg, size_t wparam, size_t /*lParam*/) {
@@ -93,10 +93,10 @@ vec2 Input::mouseClientPositon(bool normalized) const {
   POINT desktopPos;
   ::GetCursorPos(&desktopPos);
   
-  vec2 clientPostion = (vec2)Window::getInstance()->screenToClient({ desktopPos.x, desktopPos.y });
+  vec2 clientPostion = (vec2)Window::Get()->screenToClient({ desktopPos.x, desktopPos.y });
 
   if(normalized) {
-    ivec2 size = Window::getInstance()->size();
+    ivec2 size = Window::Get()->size();
     clientPostion.x /= size.x;
     clientPostion.y /= size.y;
   }
@@ -105,7 +105,7 @@ vec2 Input::mouseClientPositon(bool normalized) const {
 
 vec2 Input::mouseDeltaPosition(bool normalized) const {
   if(normalized) {
-    return mDeltaMousePosition / (vec2)Window::getInstance()->size();
+    return mDeltaMousePosition / (vec2)Window::Get()->size();
   } else {
     return mDeltaMousePosition;
   }
@@ -119,7 +119,7 @@ void Input::mouseSetPosition(const vec2& clientPosition) {
   POINT desktopPos;
   desktopPos.x = (LONG)clientPosition.x;
   desktopPos.y = (LONG)clientPosition.y;
-  HWND hwnd = (HWND)Window::getInstance()->getHandle();
+  HWND hwnd = (HWND)Window::Get()->getHandle();
   ::ClientToScreen(hwnd, &desktopPos);
 
   ::SetCursorPos(desktopPos.x, desktopPos.y);
@@ -129,7 +129,7 @@ void Input::mouseLockCursor(bool lock) {
   if (!lock) {
     ::ClipCursor(nullptr); // this unlock the mouse
   } else {
-    HWND hwnd = (HWND)Window::getInstance()->getHandle(); // Get your windows HWND
+    HWND hwnd = (HWND)Window::Get()->getHandle(); // Get your windows HWND
 
     RECT client_rect; // window class RECDT
     ::GetClientRect(hwnd, &client_rect);
@@ -168,7 +168,7 @@ void Input::beforeFrame() {
 
 void Input::afterFrame() {
   if(mIsMouseLocked) {
-    vec2 center = Window::getInstance()->clientCenter();
+    vec2 center = Window::Get()->clientCenter();
     mouseSetPosition(center);
   }
 }
@@ -199,7 +199,7 @@ void Input::updateXboxControllers() {
 void Input::updateMousePosition() {
   vec2 currentMouse = mouseClientPositon();
   if(mIsMouseLocked) {
-    mDeltaMousePosition = Window::getInstance()->clientCenter() - mMousePosition;
+    mDeltaMousePosition = Window::Get()->clientCenter() - mMousePosition;
   } else {
     mDeltaMousePosition = currentMouse - mMousePosition;
   }

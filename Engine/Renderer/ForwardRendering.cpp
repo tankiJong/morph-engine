@@ -5,64 +5,79 @@
 #include "Engine/Renderer/Renderable/Renderable.hpp"
 #include "Engine/Framework/Light.hpp"
 #include "Engine/Renderer/Shader/Material.hpp"
-#include "Engine/Renderer/Shader/Shader.hpp"
 #include "Engine/Renderer/Shader/ShaderPass.hpp"
 
 void ForwardRendering::render(RenderScene& scene) {
   scene.sortCamera();
   for(Camera* cam: scene.cameras()) {
-    renderView(scene, cam);
+    renderView(scene, *cam);
   }
 }
 
-void ForwardRendering::renderView(RenderScene& scene, Camera* cam) {
+/*
+ * - create render tasks
+ * - sort render task
+ * - prepass
+ * - pass
+ * - postpass
+ */
+void ForwardRendering::renderView(RenderScene& scene, Camera& cam) {
   static std::vector<RenderTask> tasks;
   tasks.clear();
-  mRenderer->setCamera(cam);
+  mRenderer->setCamera(&cam);
 
   TODO("replace with sky box or something")
   ;
-  if(cam->queryFlag(CAM_CLEAR_COLOR)) {
+  if(cam.queryFlag(CAM_CLEAR_COLOR)) {
     mRenderer->cleanColor(Rgba::black);
   }
 
-  if(cam->queryFlag(CAM_CLEAR_DEPTH)) {
+  if(cam.queryFlag(CAM_CLEAR_DEPTH)) {
     mRenderer->enableDepth(COMPARE_LEQUAL, true);
     mRenderer->clearDepth(1.f);
   }
 
-  cam->prepass();
-
   for(const Renderable* renderable: scene.Renderables()) {
-
-    for(uint i = 0; i < renderable->material()->shader()->passes().size(); i++) {
-      tasks.emplace_back();
-
-      RenderTask& rt = tasks.back();
-
-      rt.camera    = cam;
-      rt.mesh      = renderable->mesh();
-      rt.transform = &renderable->transform();
-
-      rt.material  = renderable->material();
-      rt.passIndex = i;
-      rt.queue     = renderable->material()->shader()->pass(i).sort;
-      rt.layer     = renderable->material()->shader()->pass(i).layer;
-      if(renderable->useLight()) {
-        scene.lightContributorsAt(renderable->transform().position(),
-                                  rt.lightIndices,
-                                  &rt.lightCount);
-      }
-    }
+    renderable->pushRenderTask(tasks, scene, cam);
   }
 
-  RenderTask::sort(*cam, tasks);
+  RenderTask::sort(cam, tasks);
+  
+  prepass(scene, tasks, cam);
+  pass(scene, tasks, cam);
+  postpass(scene, tasks, cam);
+
+}
+
+/* pre-pass:
+ * 1. do camera pre-pass
+ * 3. bake shadow map for each light casting shadow
+ * 2. bind bloom texture as second target on camera
+*/
+void ForwardRendering::prepass(RenderScene& scene, span<RenderTask> tasks, Camera& cam) {
+  cam.prepass();
+  for(Light* lit: scene.lights()) {
+    
+  }
+}
+
+/* post-pass:
+* - bloom
+*   - blur sample the bloom texture
+*   - bloom the color target
+*/
+void ForwardRendering::postpass(RenderScene& scene, span<RenderTask> tasks, Camera& cam) {}
+
+/* pass
+ * - draw
+ */
+void ForwardRendering::pass(RenderScene& scene, span<RenderTask> tasks, Camera& cam) {
 
   // draw
-  for(const RenderTask& task: tasks) {
+  auto lights = scene.lights();
+  for (const RenderTask& task : tasks) {
     mRenderer->setModelMatrix(task.transform->localToWorld());
-    auto     lights = scene.lights();
-    for(uint i      = 0; i < task.lightCount; ++i) {
+    for (uint i = 0; i < task.lightCount; ++i) {
       mRenderer->setLight(i, lights[task.lightIndices[i]]->info);
     }
 

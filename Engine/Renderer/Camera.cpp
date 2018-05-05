@@ -2,7 +2,7 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "FrameBuffer.hpp"
 #include "Engine/Math/Curves.hpp"
-
+#include "RenderTarget.hpp"
 Camera::Camera() {
   mFrameBuffer = new FrameBuffer();
   mViewMatrix = mTransform.worldToLocal();
@@ -13,10 +13,10 @@ Camera::~Camera() {
   mFrameBuffer = nullptr;
 }
 
-void Camera::setColorTarget(Texture* colorTarget) {
+void Camera::setColorTarget(RenderTarget* colorTarget) {
   mFrameBuffer->setColorTarget(colorTarget);
 }
-void Camera::setDepthStencilTarget(Texture* depthTarget) {
+void Camera::setDepthStencilTarget(RenderTarget* depthTarget) {
   mFrameBuffer->setDepthStencilTarget(depthTarget);
 }
 

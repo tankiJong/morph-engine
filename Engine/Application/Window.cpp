@@ -12,7 +12,7 @@ LRESULT CALLBACK gameWndProc(HWND hwnd,
                              UINT msg,
                              WPARAM wparam,
                              LPARAM lparam) {
-  Window* window = Window::getInstance();
+  Window* window = Window::Get();
   if(nullptr != window) {
     auto delegates = gWindow->getMessageDelegates();
     for(const WinMsgDelegate& handler: delegates) {
@@ -25,7 +25,7 @@ LRESULT CALLBACK gameWndProc(HWND hwnd,
 
 vec2 Window::clientCenter() const {
   RECT client;
-  HWND hwnd = (HWND)Window::getInstance()->getHandle(); // Get your windows HWND
+  HWND hwnd = (HWND)Window::Get()->getHandle(); // Get your windows HWND
   ::GetClientRect(hwnd, &client);
 
   return {
@@ -157,7 +157,7 @@ void Window::destory() {
   UnregisterClass(GAME_WINDOW_CLASS, GetModuleHandle(NULL));
 }
 
-Window* Window::getInstance() {
+Window* Window::Get() {
   if(gWindow == nullptr) {
     gWindow = new Window();
   }

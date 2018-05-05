@@ -22,8 +22,8 @@ vec4::vec4(const vec3& xyz, float w)
   , z(xyz.z)
   , w(w) {}
 
-void vec4::fromString(const char* data) {
-  auto raw = split(data, " ,");
+void vec4::fromString(const char* text) {
+  auto raw = split(text, " ,");
   GUARANTEE_OR_DIE(raw.size() == 4, "illegal input string to parse");
 
   x = parse<float>(raw[0]);

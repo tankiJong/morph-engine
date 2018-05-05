@@ -7,7 +7,8 @@ class Camera;
 class Mesh;
 class Material;
 class Transform;
-struct RenderTask {
+class RenderTask {
+public:
   Camera* camera = nullptr;
 	const Transform* transform = nullptr;
 	const Mesh* mesh = nullptr;

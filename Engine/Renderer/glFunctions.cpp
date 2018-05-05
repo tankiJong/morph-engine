@@ -928,6 +928,91 @@ size_t GLSize(GLint type) {
   }
 }
 
+void GLTexFormat(eTextureFormat format, GLenum& internalFormat, GLenum& channel, GLenum& pixelLayout) {
+  switch(format) { 
+    case TEXTURE_FORMAT_RGBA8: break;
+    case TEXTURE_FORMAT_RGB8: break;
+    case TEXTURE_FORMAT_RG8: break;
+    case TEXTURE_FORMAT_R8: break;
+    case TEXTURE_FORMAT_RGBA16: break;
+    case TEXTURE_FORMAT_RGB16: break;
+    case TEXTURE_FORMAT_RG16: break;
+    case TEXTURE_FORMAT_R16: break;
+    case TEXTURE_FORMAT_D24S8: break;
+    default: ERROR_AND_DIE("unsupported texture format");
+  }
+
+  switch(format) {
+    case TEXTURE_FORMAT_RGBA8:
+      internalFormat = GL_RGBA8;
+      break;
+    case TEXTURE_FORMAT_RGB8:
+      internalFormat = GL_RGB8;
+      break;
+    case TEXTURE_FORMAT_RG8:
+      internalFormat = GL_RG8;
+      break;
+    case TEXTURE_FORMAT_R8:
+      internalFormat = GL_R8;
+      break;
+    case TEXTURE_FORMAT_RGBA16:
+      internalFormat = GL_RGBA16;
+      break;
+    case TEXTURE_FORMAT_RGB16:
+      internalFormat = GL_RGB16;
+      break;
+    case TEXTURE_FORMAT_RG16:
+      internalFormat = GL_RG16;
+      break;
+    case TEXTURE_FORMAT_R16:
+      internalFormat = GL_R16;
+      break;
+    case TEXTURE_FORMAT_D24S8:
+      internalFormat = GL_DEPTH_STENCIL;
+      break;
+  }
+
+  switch(format) {
+    case TEXTURE_FORMAT_RGBA8:
+    case TEXTURE_FORMAT_RGBA16:
+      channel = GL_RGBA;
+      break;
+    case TEXTURE_FORMAT_RGB8:
+    case TEXTURE_FORMAT_RGB16:
+      channel = GL_RGB;
+      break;
+    case TEXTURE_FORMAT_RG8:
+    case TEXTURE_FORMAT_RG16:
+      channel = GL_RG;
+      break;
+    case TEXTURE_FORMAT_R8:
+    case TEXTURE_FORMAT_R16:
+      channel = GL_RED;
+      break;
+    case TEXTURE_FORMAT_D24S8:
+      channel = GL_DEPTH_STENCIL;
+      break;
+  }
+
+  switch(format) {
+    case TEXTURE_FORMAT_RGBA8:
+    case TEXTURE_FORMAT_RGB8:
+    case TEXTURE_FORMAT_RG8:
+    case TEXTURE_FORMAT_R8: 
+      pixelLayout = GL_UNSIGNED_BYTE;
+    break;
+    case TEXTURE_FORMAT_RGBA16:
+    case TEXTURE_FORMAT_RGB16:
+    case TEXTURE_FORMAT_RG16:
+    case TEXTURE_FORMAT_R16: 
+      pixelLayout = GL_UNSIGNED_INT;
+    break;
+    case TEXTURE_FORMAT_D24S8:
+      pixelLayout = GL_UNSIGNED_INT_24_8;
+    break;
+  }
+}
+
 //enum eDataDeclType {
 //  MP_FLOAT = 0,
 //  MP_BYTE,
@@ -1037,3 +1122,4 @@ DeclGLTypeMapFn(NUM_TEXTURE_SAMPLE_MODE, eTextureSampleMode) {
   NUM_TEXTURE_SAMPLE_MODE,
 };
 GLTypeMapGuard(NUM_TEXTURE_SAMPLE_MODE, eTextureSampleMode);
+

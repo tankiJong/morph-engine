@@ -53,6 +53,6 @@ private:
   aabb2 mBounds;
   ivec2 mSize;
 public:
-  static Window* getInstance();
+  static Window* Get();
   static void registerWindowClass();
 };

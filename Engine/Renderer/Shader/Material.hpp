@@ -49,7 +49,7 @@ public:
   const Texture* value;
   const Sampler* sampler = nullptr;
 
-  inline void bind(uint bindPoint) override { ERROR_AND_DIE("Don't call bind for texture"); };
+  inline void bind(uint /*bindPoint*/) override { ERROR_AND_DIE("Don't call bind for texture"); };
   MaterialProperty* clone() const override;
 };
 
@@ -73,10 +73,10 @@ public:
     prop = new MatProp<T>(name, val);
   }
 
-  void setTexture(uint slot, const Texture* tex, const Sampler* sampler = nullptr, const char* name = "");
+  void setTexture(uint slot, const Texture* tex, const Sampler* sampler = nullptr, const char* nameid = "");
 
-  inline void setTexture(uint slot, const Texture* tex, const char* name, const Sampler* sampler = nullptr) {
-    setTexture(slot, tex, sampler, name);
+  inline void setTexture(uint slot, const Texture* tex, const char* nameid, const Sampler* sampler = nullptr) {
+    setTexture(slot, tex, sampler, nameid);
   }
 
   void setPropertyBlock(S<const PropertyBlockInfo> layout, void* data);

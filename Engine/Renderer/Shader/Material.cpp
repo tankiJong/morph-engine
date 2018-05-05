@@ -66,14 +66,14 @@ Shader* Material::shader() {
   return mShader;
 }
 
-void Material::setTexture(uint slot, const Texture* tex, const Sampler* sampler, const char* name) {
+void Material::setTexture(uint slot, const Texture* tex, const Sampler* sampler, const char* nameid) {
   MatProp<Texture>*& prop = mTextures[slot];
 
   if(prop) {
     delete prop;
   }
 
-  auto texture = new MatProp<Texture>(slot, tex, name);
+  auto texture = new MatProp<Texture>(slot, tex, nameid);
 
   if(sampler) {
     texture->sampler = sampler;

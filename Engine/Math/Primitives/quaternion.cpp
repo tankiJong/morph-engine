@@ -25,12 +25,12 @@ quaternion::quaternion(const Euler& euler) {
   float cz = cosDegrees(he.z);
   float sz = sinDegrees(he.z);
 
-  float r = cx * cy*cz + sx * sy*sz;
+  float rr = cx * cy*cz + sx * sy*sz;
   float ix = sx * cy*cz + cx * sy*sz;
   float iy = cx * sy*cz - sx * cy*sz;
   float iz = cx * cy*sz - sx * sy*cz;
 
-  data = vec4(ix, iy, iz, r);
+  data = vec4(ix, iy, iz, rr);
 }
 
 quaternion::quaternion(float x, float y, float z): quaternion(Euler{x, y, z}) {

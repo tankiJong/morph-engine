@@ -8,7 +8,7 @@
 #include "Engine/Core/Delegate.hpp"
 
 class aabb2;
-
+class RenderTarget;
 enum eCamreraFlag {
   CAM_CLEAR_DEPTH = 0b10,
   CAM_CLEAR_COLOR = 0b01,
@@ -22,8 +22,8 @@ public:
 
   int sort;
   // will be implemented later
-  void setColorTarget(Texture* colorTarget);
-  void setDepthStencilTarget(Texture* depthTarget);
+  void setColorTarget(RenderTarget* colorTarget);
+  void setDepthStencilTarget(RenderTarget* depthTarget);
 
   void handlePrePass(delegate<void(const Camera& cam)> cb);
   void prepass() const;

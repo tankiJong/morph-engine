@@ -99,7 +99,7 @@ void Console::init(Renderer& renderer, Input& input) {
   mRenderer = &renderer;
   mInput = &input;
 
-  const aabb2& bounds = Window::getInstance()->bounds();
+  const aabb2& bounds = Window::Get()->bounds();
   mCamera = new Camera();
   mCamera->setProjection(mat44::makeOrtho(0, bounds.width(), 0, bounds.height(), -1.f, 1.f));
   mCamera->setColorTarget(mRenderer->getDefaultColorTarget());
@@ -356,7 +356,7 @@ void Console::hookInBuiltInCommand() {
 
 void Console::render() const {
   static constexpr float inputBoxHeight = LINE_HEIGHT;
-  const aabb2& screenBounds = Window::getInstance()->bounds();
+  const aabb2& screenBounds = Window::Get()->bounds();
   mRenderer->setCamera(mCamera);
   static const Shader* defaultShader = Resource<Shader>::get("/Data/default.shader").get();
   mRenderer->setShader(defaultShader);
@@ -510,7 +510,7 @@ bool Console::clear() {
 }
 
 Console::Console() {
-  Window::getInstance()->addWinMessageHandler([this](unsigned msg, size_t wParam, size_t lParam) {
+  Window::Get()->addWinMessageHandler([this](unsigned msg, size_t wParam, size_t lParam) {
     if (!mIsOpened) return;
     consoleCharHandler(msg, wParam, lParam);
     consoleControlHandler(msg, wParam, lParam);

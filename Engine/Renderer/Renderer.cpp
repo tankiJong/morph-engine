@@ -25,6 +25,7 @@
 #include "Geometry/Mesher.hpp"
 #include "Engine/Renderer/Shader/Material.hpp"
 #include "Engine/Renderer/Shader/ShaderPass.hpp"
+#include "Engine/Renderer/RenderTarget.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
@@ -375,7 +376,7 @@ void Renderer::postInit() {
 
   setTexture("$");
 
-  aabb2 bounds = Window::getInstance()->bounds();
+  aabb2 bounds = Window::Get()->bounds();
 
   // create our output textures
   mDefaultColorTarget = createRenderTarget((uint)bounds.width(), (uint)bounds.height());
@@ -1110,10 +1111,8 @@ Texture* Renderer::createOrGetTexture(const std::string& filePath) {
 	return it->second;
 }
 
-Texture* Renderer::createRenderTarget(uint width, uint height, eTextureFormat fmt) {
-  Texture *tex = new Texture();
-  tex->setupRenderTarget(width, height, fmt);
-  return tex;
+RenderTarget* Renderer::createRenderTarget(uint width, uint height, eTextureFormat fmt) {
+  return new RenderTarget(width, height, fmt);
 }
 
 ShaderProgram* Renderer::createOrGetShaderProgram(const char* nameWithPath) {

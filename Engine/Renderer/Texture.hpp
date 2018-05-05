@@ -21,13 +21,12 @@ public:
 	Texture( const std::string& imageFilePath );
   Texture(const Image& image);
   inline ivec2 dimension() const { return mDimensions; };
-private:
+protected:
   void fromImage(const Image& image);
 	void PopulateFromData();
-  bool setupRenderTarget(uint width, uint height, eTextureFormat format);
   inline uint getHandle() const { return mTextureID; }
   Texture* clone() const;
-private:
+protected:
 	unsigned int	 mTextureID;
   Image          mData;
 	ivec2					 mDimensions;

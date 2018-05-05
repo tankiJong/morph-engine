@@ -10,7 +10,7 @@ class Blob;
 
 struct shader_bind_info_t {
   std::string name;
-  uint location = -1;
+  uint location = uint(-1);
 };
 
 class PropertyBlockInfoBinding: public PropertyBlockInfo {

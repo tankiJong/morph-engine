@@ -4,6 +4,7 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Renderer/type.h"
 #pragma warning( disable : 4100 ) 
 
 struct HINSTANCE__;
@@ -492,3 +493,5 @@ template<typename Enum>
 uint toGLType(Enum e);
 
 size_t GLSize(GLint type);
+
+void GLTexFormat(eTextureFormat format, GLenum& internalFormat, GLenum& channel, GLenum& pixelLayout);

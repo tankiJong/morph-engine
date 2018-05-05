@@ -354,6 +354,9 @@
     <ClCompile Include="Effect\ParticleEmitter.cpp">
       <Filter>Effect</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\RenderTarget.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -778,6 +781,9 @@
     </ClInclude>
     <ClInclude Include="Effect\ParticleEmitter.hpp">
       <Filter>Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderTarget.hpp">
+      <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
