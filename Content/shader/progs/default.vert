@@ -1,12 +1,7 @@
 #version 420 core
 
+#include "../inc/common.glsl"
 // Uniforms ==============================================
-layout(std140, binding = 2) uniform cameraBlock {
-   mat4 PROJECTION;
-   mat4 VIEW;
-};
-
-mat4 MODEL = mat4(1.0f); 
 
 // Attributes ============================================
 // Inputs

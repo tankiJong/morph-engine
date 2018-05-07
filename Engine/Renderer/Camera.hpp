@@ -12,19 +12,20 @@ class RenderTarget;
 enum eCamreraFlag {
   CAM_CLEAR_DEPTH = 0b10,
   CAM_CLEAR_COLOR = 0b01,
+  CAM_EFFECT_BLOOM = 0b100,
 };
 
 class Camera {
-  friend class Renderer;
 public:
   Camera();
   ~Camera();
 
   int sort;
   // will be implemented later
-  void setColorTarget(RenderTarget* colorTarget);
+  void setColorTarget(RenderTarget* colorTarget, uint slot = 0);
   void setDepthStencilTarget(RenderTarget* depthTarget);
 
+  inline RenderTarget* depthTarget() { return (RenderTarget*)mFrameBuffer->mDepthTarget; }
   void handlePrePass(delegate<void(const Camera& cam)> cb);
   void prepass() const;
   // model setters
@@ -52,9 +53,14 @@ public:
   void translate(const vec3& translation);
 
   inline const Transform& transfrom() const { return mTransform; }
-  inline Transform& transfrom() { return mTransform; }
+  inline Transform& transfrom() { mIsDirty = true; return mTransform; };
   inline void setFlag(uint flag) { mFlag = mFlag | flag; }
   inline bool queryFlag(eCamreraFlag flag) const { return flag & mFlag; }
+
+  camera_t ubo() const;
+  inline FrameBuffer* fbo() const { return mFrameBuffer; }
+  inline mat44 view() const { return mViewMatrix; }
+  inline mat44 projection() const { return mProjMatrix; };
 protected:
   Transform mTransform;
   // default all to identiy
@@ -62,10 +68,11 @@ protected:
   union {
     struct {
       mat44 mProjMatrix;    // projection
-      mat44 mViewMatrix;    // inverse of camera (used for shader)
+      mutable mat44 mViewMatrix;    // inverse of camera (used for shader)
     };
     camera_t cameraBlock;
   };
   owner<FrameBuffer*> mFrameBuffer;
+  bool mIsDirty;
   uint mFlag = 0;
 };

@@ -68,8 +68,9 @@ enum eTextureFormat {
 enum eUniformSlot: uint {
   UNIFORM_TIME = 1,
   UNIFORM_CAMERA,
+  UNIFORM_TRANSFORM,
   UNIFORM_LIGHT,
-  UNiFORM_USER_1
+  UNIFORM_USER_1 = 12,
 };
 
 enum eTextureSlot: uint {
@@ -168,7 +169,9 @@ struct light_info_t {
   float directionFactor;
 
   vec3 direction;
+  float __pad00;
 
+  mat44 vp;
   void asDirectionalLight(const vec3& position, const vec3& direction,
                           float intensity = 1.f, const vec3& attenuation = vec3(0, 0, 1),
                           const Rgba& color = Rgba::white);
@@ -180,8 +183,6 @@ struct light_info_t {
   void asSpotLight(const vec3& position, const vec3& direction, float innerAngle, float outerAngle,
                    float intensity = 1.f, const vec3& attenuation = vec3(0, 0, 1),
                    const Rgba& color = Rgba::white);
-private:
-  float __pad00;
 };
 
 constexpr uint NUM_MAX_LIGHTS = 8u;

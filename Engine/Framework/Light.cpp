@@ -1,22 +1,64 @@
 #include "Engine/Framework/Light.hpp"
 #include "Engine/Application/Window.hpp"
+#include "Game/Game.hpp"
 
 void Light::asDirectionalLight(float intensity, const vec3& attenuation, const Rgba& color) {
-  info.asDirectionalLight(transform.position(), transform.forward(), intensity, attenuation, color);
+  mInfo.asDirectionalLight(transform.position(), transform.forward(), intensity, attenuation, color);
+  type = LIGHT_DIRECTIONAL;
+  updateCamera();
 }
 
 void Light::asPointLight(float intensity, const vec3& attenuation, const Rgba& color) {
-  info.asPointLight(transform.position(), intensity, attenuation, color);
+  mInfo.asPointLight(transform.position(), intensity, attenuation, color);
+  type = LIGHT_POINT;
+  updateCamera();
 }
 
 void Light::asSpotLight(float innerAngle, float outerAngle, float intensity, const vec3& attenuation, const Rgba& color) {
-  info.asSpotLight(transform.position(), transform.forward(), innerAngle, outerAngle, intensity, attenuation, color);
+  mInfo.asSpotLight(transform.position(), transform.forward(), innerAngle, outerAngle, intensity, attenuation, color);
+  type = LIGHT_SPOT;
+  updateCamera();
 }
 
-RenderTarget* Light::lightMap() {
-  if(mLightMap == nullptr) {
-    ivec2 size = Window::Get()->size();
-    mLightMap = new RenderTarget(size.x, size.y, TEXTURE_FORMAT_D24S8);
+RenderTarget& Light::shadowMap() {
+  if(mShadowMap == nullptr) {
+    mShadowMap = new RenderTarget(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, TEXTURE_FORMAT_D24S8);
   }
-  return mLightMap;
+  return *mShadowMap;
 }
+
+Camera& Light::camera() {
+  mCamera.setDepthStencilTarget(&shadowMap());
+  mCamera.transfrom() = transform;
+
+  return mCamera;
+}
+
+float Light::fovAngle() const {
+  return acosDegrees(mInfo.dotOuterAngle);
+}
+
+float Light::attenuation(vec3 position) const {
+  float distance = transform.position().distance(position);
+
+  return mInfo.color.a / (mInfo.attenuation.x + mInfo.attenuation.y * distance + mInfo.attenuation.z * distance * distance);
+}
+
+void Light::updateCamera() {
+  float fz = 30.f, nz = 0.01f;
+  vec2 size(10.f, 10.f);
+
+  switch (type) {
+    case LIGHT_UNKNOWN: return;
+    case LIGHT_SPOT:
+      mCamera.setProjectionPrespective(fovAngle()*2, 5.f, 5.f, nz, fz);
+      break;
+    case LIGHT_DIRECTIONAL:
+      mCamera.setProjectionOrtho(size.x, size.y, nz, fz);
+      break;
+    case LIGHT_POINT: return;
+    case NUM_LIGHT_TYPE: return;
+    default:;
+  }
+}
+

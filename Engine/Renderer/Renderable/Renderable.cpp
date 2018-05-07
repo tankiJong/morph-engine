@@ -48,6 +48,14 @@ const Material* Renderable::material() const {
 }
 
 void Renderable::pushRenderTask(std::vector<RenderTask>& tasks, const RenderScene& scene, Camera& cam) const {
+  uint lightIndices[NUM_MAX_LIGHTS];
+  uint lightCount;
+
+  if (useLight()) {
+    scene.lightContributorsAt(mTransform->position(),
+                              lightIndices,
+                              &lightCount);
+  }
   for (int i = 0; i < material()->shader()->passes().size(); i++) {
     tasks.emplace_back();
 
@@ -62,10 +70,8 @@ void Renderable::pushRenderTask(std::vector<RenderTask>& tasks, const RenderScen
     rt.passIndex = i;
     rt.queue = mat->shader()->pass(i).sort;
     rt.layer = mat->shader()->pass(i).layer;
-    if (useLight()) {
-      scene.lightContributorsAt(mTransform->position(),
-                                rt.lightIndices,
-                                &rt.lightCount);
-    }
+
+    memcpy(rt.lightIndices, lightIndices, NUM_MAX_LIGHTS);
+    rt.lightCount = lightCount;
   }
 }

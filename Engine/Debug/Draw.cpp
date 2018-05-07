@@ -144,7 +144,7 @@ void Debug::drawNow() {
 
     tintUniform->set(colf);
 
-    gRenderer->setUniformBuffer(UNiFORM_USER_1, *tintUniform);
+    gRenderer->setUniformBuffer(UNIFORM_USER_1, *tintUniform);
     gRenderer->setCamera(comp->cam);
     gRenderer->drawMesh(*comp->mesh);
 

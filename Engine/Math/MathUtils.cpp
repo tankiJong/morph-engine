@@ -29,12 +29,12 @@ float sinDegrees(float degrees) {
 	return sinf(convertDegreesToRadians(degrees));
 }
 
-float asinDegrees(float degrees) {
-  return asinf(convertDegreesToRadians(degrees));
+float asinDegrees(float sin) {
+  return convertRadiansToDegrees(asinf(sin));
 }
 
-float acosDegrees(float degrees) {
-	return acosf(convertDegreesToRadians(degrees));
+float acosDegrees(float cos) {
+	return convertRadiansToDegrees(acosf(cos));
 }
 
 float atan2Degree(float y, float x) {

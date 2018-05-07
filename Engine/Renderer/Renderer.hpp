@@ -63,6 +63,7 @@ public:
   void cleanScreen(const Rgba& color);
   bool copyFrameBuffer(FrameBuffer* dest, FrameBuffer* src);
   bool copyTexture(Texture* from, Texture* to = nullptr);
+  bool copyTexture(Texture* from, uint fromX, uint fromY, Texture* to, uint toX, uint toY, uint width, uint height);
   BitmapFont* createOrGetBitmapFont(const char* bitmapFontName, const char* path);
   BitmapFont* createOrGetBitmapFont(const char* fontNameWithPath);
 
@@ -162,6 +163,7 @@ protected:
   RenderBuffer mTempRenderBuffer;
   UniformBuffer mUniformTime;
   UniformBuffer mUniformLights;
+  UniformBuffer mUniformTransform;
   const Shader* mCurrentShader = nullptr;
   Shader* mDefaultShader = nullptr;
   Camera* mCurrentCamera = nullptr;

@@ -568,6 +568,7 @@
     <ClCompile Include="Renderer\SpriteAnimSet.cpp" />
     <ClCompile Include="Renderer\SpriteSheet.cpp" />
     <ClCompile Include="Renderer\Texture.cpp" />
+    <ClCompile Include="Renderer\TextureArray.cpp" />
     <ClCompile Include="Renderer\type.cpp" />
     <ClCompile Include="Renderer\UniformBuffer.cpp" />
   </ItemGroup>
@@ -723,6 +724,7 @@
     <ClInclude Include="Renderer\SpriteAnimSet.hpp" />
     <ClInclude Include="Renderer\SpriteSheet.hpp" />
     <ClInclude Include="Renderer\Texture.hpp" />
+    <ClInclude Include="Renderer\TextureArray.hpp" />
     <ClInclude Include="Renderer\type.h" />
     <ClInclude Include="Renderer\UniformBuffer.hpp" />
     <ClInclude Include="Tool\Parser.hpp" />

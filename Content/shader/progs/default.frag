@@ -3,14 +3,20 @@
 // Uniforms ==============================================
 #ifdef _LIT
 
+#include "../inc/light.glsl"
 
 // Scene related
+layout (binding=6, std140) uniform cSpecBlock
+{
+   float SPECULAR_AMOUNT; 
+   float SPECULAR_POWER;
+   vec2 padding0;  
+}; 
 
-uniform float SPECULAR_AMOUNT; // shininess (0 to 1)
-uniform float SPECULAR_POWER; // smoothness (1 to whatever)
+// uniform float SPECULAR_AMOUNT; // shininess (0 to 1)
+// uniform float SPECULAR_POWER; // smoothness (1 to whatever)
 #endif
 
-#include "../inc/light.glsl"
 // Textures
 layout(binding = 0) uniform sampler2D gTexDiffuse;
 layout(binding = 1) uniform sampler2D gTexNormal;
@@ -32,12 +38,17 @@ in vec3 passTangent;
 in vec3 passBiTangent;
 #endif
 
-out vec4 outColor; 
+layout(location = 0)out vec4 outColor; 
 
 // Entry Point ===========================================
 void main( void )
 {
     vec4 texColor = texture( gTexDiffuse, passUV );
+
+    #ifdef _d_tex_color
+    outColor = texColor;
+    return;
+    #endif
 
     #ifdef _d_vert_normal
     outColor = vec4((normalize(passWorldNormal) + vec3(1.f)) * .5f, 1.f);
@@ -94,6 +105,6 @@ void main( void )
                 normalize(passEyeDir));
     
     #else
-    outColor = texColor;
+    outColor = texColor * passColor;
     #endif
 }

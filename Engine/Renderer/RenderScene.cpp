@@ -69,7 +69,7 @@ void RenderScene::lightContributorsAt(const vec3& position, uint* out_lights, ui
   }
 
   std::sort(lights.begin(), lights.end(), [&position](const indexedLight& a, const indexedLight& b) {
-    return position.distance2(a.l->transform.position()) < position.distance2(b.l->transform.position());
+    return a.l->attenuation(position) > b.l->attenuation(position);
   });
 
   uint lightCount = clamp<uint>(lights.size(), 0u, NUM_MAX_LIGHTS);

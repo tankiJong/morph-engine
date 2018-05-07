@@ -1,7 +1,7 @@
 ﻿#include "RenderTarget.hpp"
 #include "Engine/Renderer/glFunctions.hpp"
 
-RenderTarget::RenderTarget(uint width, uint height, eTextureFormat format): Texture() {
+RenderTarget::RenderTarget(uint width, uint height, eTextureFormat format): Texture(width, height, format) {
   setup(width, height, format);
 }
 

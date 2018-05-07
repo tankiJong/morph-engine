@@ -47,6 +47,7 @@ public:
   float dot(const vec3& rhs) const;
   vec3 cross(const vec3& rhs) const;
   float distance2(const vec3& rhs) const;
+  float distance(const vec3& rhs) const;
   vec2 xy() const;
   vec2 xz() const;
   static float dot(const vec3& a, const vec3& b);

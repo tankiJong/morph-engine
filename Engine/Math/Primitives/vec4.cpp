@@ -1,5 +1,5 @@
 ﻿#include "vec4.hpp"
-#include "Engine/Renderer/SpriteAnim.hpp"
+#include "Engine/Core/StringUtils.hpp"
 
 const vec4 vec4::right  (1, 0, 0, 0);
 const vec4 vec4::up     (0, 1, 0, 0);

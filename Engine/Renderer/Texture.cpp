@@ -6,33 +6,70 @@
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/File/FileSystem.hpp"
 
-Texture::Texture()
-: mTextureID(0)
-, mData(&Rgba::white, 1, 1)
-, mDimensions(1,1){
+Texture::Texture(eTextureFormat format)
+	: mTextureID(0)
+	, mData(new Image(&Rgba::white, 1, 1))
+	, mDimensions(1,1)
+	, mFormat(format) {
 	PopulateFromData();
 }
-//-----------------------------------------------------------------------------------------------
-// Called only by the Renderer.  Use renderer->CreateOrGetTexture() to instantiate textures.
-//
+
+Texture::Texture(uint width, uint height, eTextureFormat format)
+	: mTextureID(0) 
+	, mData(nullptr) 
+	, mDimensions(width, height) 
+	, mFormat(format) {}
+
 Texture::Texture( const std::string& imageFilePath )
-	: mTextureID( 0 )
-  , mData(imageFilePath)
-	, mDimensions( mData.dimension() ) {
+  : mTextureID( 0 )
+  , mData(new Image(imageFilePath))
+  , mDimensions( mData->dimension() ) {
 
   PopulateFromData();
 }
 
 Texture::Texture(const Image& image) 
   : mTextureID(0)
-  , mData(image)
-  , mDimensions(mData.dimension()) {
+  , mData(new Image(image))
+  , mDimensions(mData->dimension()) {
   PopulateFromData();
 }
 
+void Texture::resize(ivec2 size) {
+	if (mTextureID == NULL) return;
+	glBindTexture(GL_TEXTURE_2D, mTextureID);
+
+	GLenum internal_format = GL_RGBA8;
+	GLenum channels = GL_RGBA;
+	GLenum pixel_layout = GL_UNSIGNED_BYTE;
+	GLTexFormat(mFormat, internal_format, channels, pixel_layout);
+
+	glTexImage2D(			
+				GL_TEXTURE_2D,		
+				0,
+				internal_format,
+				mDimensions.x,
+				mDimensions.y,
+				0,	
+				channels,	
+				pixel_layout,
+				0);
+
+	GL_CHECK_ERROR();
+
+}
+
+Texture::~Texture() {
+	glDeleteTextures(1, &mTextureID);
+}
+
 void Texture::fromImage(const Image& image) {
-  mData = image;
+  mData = new Image(image);
   PopulateFromData();
+}
+
+void Texture::init(uint width, uint height, eTextureFormat format) {
+	
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -40,7 +77,7 @@ void Texture::fromImage(const Image& image) {
 //
 void Texture:: PopulateFromData()
 {
-  unsigned char* imageData = (unsigned char*)mData.data();
+  unsigned char* imageData = mData ? (unsigned char*)mData->data() : nullptr;
   int numComponents = 4;
 	// Enable texturing
 //	glEnable( GL_TEXTURE_2D );
@@ -59,9 +96,11 @@ void Texture:: PopulateFromData()
 	glBindTexture( GL_TEXTURE_2D, mTextureID );
 
 	GLenum bufferFormat = GL_RGBA; // the format our source pixel data is in; any of: GL_RGB, GL_RGBA, GL_LUMINANCE, GL_LUMINANCE_ALPHA, ...
-	if( numComponents == 3 )
+	if( numComponents == 3 ) {
 		bufferFormat = GL_RGB;
+	}
 
+	ENSURES(numComponents == 3 || numComponents == 4);
 	GLenum internalFormat = bufferFormat; // the format we want the texture to be on the card; allows us to translate into a different texture format as we upload to OpenGL
 
 	glTexImage2D(			// Upload this pixel data to our new OpenGL texture

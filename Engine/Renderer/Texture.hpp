@@ -13,27 +13,37 @@
 
 // for now, texture manangement is none meta file based.
 class Texture {
-	friend class Renderer; // Textures are managed by a Renderer instance
-  friend class FrameBuffer;
+	friend class Renderer;
+	friend class FrameBuffer;
 
 public:
-  Texture();
-	Texture( const std::string& imageFilePath );
-  Texture(const Image& image);
-  inline ivec2 dimension() const { return mDimensions; };
+	Texture(eTextureFormat format = TEXTURE_FORMAT_RGBA8);
+	Texture(uint width, uint height, eTextureFormat format);
+	Texture(const std::string& imageFilePath);
+	Texture(const Image& image);
+
+	inline ivec2 dimension() const { return mDimensions; };
+
+	inline uint getHandle() const { return mTextureID; }
+
+	void resize(ivec2 size);
+
+	~Texture();
+
 protected:
-  void fromImage(const Image& image);
+	void fromImage(const Image& image);
+
+	void init(uint width, uint height, eTextureFormat format);
 	void PopulateFromData();
-  inline uint getHandle() const { return mTextureID; }
-  Texture* clone() const;
+
+	Texture* clone() const;
+
 protected:
-	unsigned int	 mTextureID;
-  Image          mData;
-	ivec2					 mDimensions;
-  eTextureFormat mFormat;
+	unsigned int   mTextureID;
+	Image*         mData = nullptr;
+	ivec2          mDimensions;
+	eTextureFormat mFormat;
 };
-
-
 
 template<>
 ResDef<Texture> Resource<Texture>::load(const std::string& file);

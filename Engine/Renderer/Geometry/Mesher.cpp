@@ -408,8 +408,8 @@ Mesher& Mesher::quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d)
   return *this;
 }
 
-Mesher& Mesher::quad(const vec3& center, const vec3& right, const vec3& up, const vec2& size) {
-  vec3 halfX = right * size.x * .5f, halfY = up * size.y * .5f;
+Mesher& Mesher::quad(const vec3& center, const vec3& right, const vec3& forward, const vec2& size) {
+  vec3 halfX = right * size.x * .5f, halfY = forward * size.y * .5f;
   return quad(center - halfX - halfY, 
               center + halfX - halfY, 
               center + halfX + halfY, 

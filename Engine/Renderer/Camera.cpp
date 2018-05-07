@@ -13,8 +13,8 @@ Camera::~Camera() {
   mFrameBuffer = nullptr;
 }
 
-void Camera::setColorTarget(RenderTarget* colorTarget) {
-  mFrameBuffer->setColorTarget(colorTarget);
+void Camera::setColorTarget(RenderTarget* colorTarget, uint slot) {
+  mFrameBuffer->setColorTarget(colorTarget, slot);
 }
 void Camera::setDepthStencilTarget(RenderTarget* depthTarget) {
   mFrameBuffer->setDepthStencilTarget(depthTarget);
@@ -93,11 +93,18 @@ uvec2 Camera::worldToScreen(vec3 position) {
 void Camera::rotate(const Euler& eular) {
   mTransform.localRotate(eular);
 
-  mViewMatrix = mTransform.worldToLocal();
+  mIsDirty = true;
 }
 
 void Camera::translate(const vec3& translation) {
   mTransform.localTranslate(translation);
 
-  mViewMatrix = mTransform.worldToLocal();
+  mIsDirty = true;
+}
+
+camera_t Camera::ubo() const {
+  if(mIsDirty) {
+    mViewMatrix = mTransform.worldToLocal();
+  }
+  return cameraBlock;
 }

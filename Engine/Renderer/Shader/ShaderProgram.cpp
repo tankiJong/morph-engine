@@ -73,6 +73,14 @@ void addDefinesToStage(ShaderStage& stage, const char* defineArgs) {
   }
 }
 
+eTextureSlot ShaderProgramInfo::texture(std::string_view name) const {
+  for(uint i = 0; i<NUM_TEXTURE_SLOT; i++) {
+    if (mTextureInfo[i].name == name) return (eTextureSlot)i;
+  }
+
+  return NUM_TEXTURE_SLOT;
+}
+
 const PropertyBlockInfoBinding* ShaderProgramInfo::find(const std::string& blockName) const {
   auto binding = mBlockInfo.find(blockName);
   if (binding == mBlockInfo.end()) return nullptr;

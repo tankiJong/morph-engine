@@ -1,0 +1,26 @@
+name: material/particle
+properties:
+  cParticle: {
+    [Tint, vec4]: '1.f, 1.f, 1.f, 1.f'
+  }
+  gTexDiffuse: [0, /image/particle.png, LINEAR]
+
+shader:
+  pass:
+  -
+    layer: alpha
+    program:
+      path: Data/shader/progs/default
+    cull: none
+    depth:
+      write: false
+      test: less
+    blend:
+      alpha:
+        op: add
+        src: src_alpha
+        dest: inv_src_alpha
+      color:
+        op: add
+        src: src_alpha
+        dest: inv_src_alpha

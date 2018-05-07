@@ -324,17 +324,17 @@ Euler mat44::eular() const {
 
   Euler e;
 
-  e.x = asinDegrees(jj.z);
+  e.x = asinDegrees(kk.y);
   // cosx = 0
-  if(jj.z == 1.f || jj.z == -1.f) {
+  if(kk.y == 1.f || kk.y == -1.f) {
     e.y = 0;
-    e.z = atan2Degree(ii.y, ii.x);
+    e.z = atan2Degree(jj.x, ii.x);
 
     return e;
   }
 
-  e.z = atan2Degree(-jj.x, jj.y);
-  e.y = atan2Degree(-kk.z, ii.z);
+  e.z = atan2Degree(-ii.y, jj.y);
+  e.y = atan2Degree(-kk.z, kk.x);
 
   return e;
 }

@@ -4,6 +4,7 @@
 
 FrameBuffer::FrameBuffer() {
   glGenFramebuffers(1, &mHandle);
+  mColorTarget.fill(nullptr);
 }
 
 FrameBuffer::~FrameBuffer() {
@@ -14,15 +15,21 @@ FrameBuffer::~FrameBuffer() {
 }
 
 uint FrameBuffer::width() const {
-  return mColorTarget->mDimensions.x;
+  if(mDepthTarget != nullptr) {
+    return mDepthTarget->mDimensions.x;
+  }
+  return mColorTarget[0]->mDimensions.x;
 }
 
 uint FrameBuffer::height() const {
-  return mColorTarget->mDimensions.y;
+  if(mDepthTarget != nullptr) {
+    return mDepthTarget->mDimensions.y;
+  }
+  return mColorTarget[0]->mDimensions.y;
 }
 
-void FrameBuffer::setColorTarget(Texture* colorTarget) {
-  mColorTarget = colorTarget;
+void FrameBuffer::setColorTarget(Texture* colorTarget, uint slot) {
+  mColorTarget[slot] = colorTarget;
 }
 
 void FrameBuffer::setDepthStencilTarget(Texture* depthTarget) {
@@ -33,20 +40,29 @@ bool FrameBuffer::finalize() {
 
   glBindFramebuffer(GL_FRAMEBUFFER, mHandle);
 
-  // keep track of which outputs go to which attachments; 
-  GLenum targets[1];
 
   // Bind a color target to an attachment point
   // and keep track of which locations to to which attachments. 
-  glFramebufferTexture(GL_FRAMEBUFFER,
-                       GL_COLOR_ATTACHMENT0 + 0,
-                       mColorTarget->getHandle(),0);
-  // 0 to to attachment 0
-  targets[0] = GL_COLOR_ATTACHMENT0 + 0;
 
-  // Update target bindings
-  glDrawBuffers(1, targets);
+  GLenum targets[NUM_MAX_TARGET];
 
+  for(uint i = 0; i<NUM_MAX_TARGET; ++i) {
+    if (mColorTarget[i] != nullptr) {
+      targets[i] = GL_COLOR_ATTACHMENT0 + i;
+      // keep track of which outputs go to which attachments; 
+
+      glFramebufferTexture(GL_FRAMEBUFFER,
+                           GL_COLOR_ATTACHMENT0 + i,
+                           mColorTarget[i]->getHandle(), 0);
+      // 0 to to attachment 0
+
+      // Update target bindings
+    } else {
+      targets[i] = GL_NONE;
+    }
+  }
+  glDrawBuffers(NUM_MAX_TARGET, targets);
+  GL_CHECK_ERROR();
   // Bind depth if available;
   if (mDepthTarget == nullptr) {
     glFramebufferTexture(GL_FRAMEBUFFER,

@@ -24,6 +24,7 @@ class ShaderProgramInfo {
   friend class ShaderProgram;
 public:
   inline shader_bind_info_t& at(eTextureSlot slot) { return mTextureInfo[slot]; };
+  eTextureSlot texture(std::string_view name) const;
   const PropertyBlockInfoBinding& at(const std::string& blockName) const { return mBlockInfo.at(blockName); };
   const PropertyBlockInfoBinding* find(const std::string& blockName) const;
   PropertyBlockInfoBinding& search(std::string_view propName);

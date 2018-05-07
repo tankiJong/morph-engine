@@ -156,6 +156,10 @@ float vec3::distance2(const vec3& rhs) const {
   return (*this - rhs).magnitude2();
 }
 
+float vec3::distance(const vec3& rhs) const {
+  return sqrt(distance2(rhs));
+}
+
 vec2 vec3::xy() const {
   return { x,y };
 }

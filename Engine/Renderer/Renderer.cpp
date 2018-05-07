@@ -67,7 +67,7 @@ Renderer::~Renderer() {
 void Renderer::afterFrame() {
   // copies the default camera's framebuffer to the "null" framebuffer, 
   // also known as the back buffer.
-  copyFrameBuffer(nullptr, mDefaultCamera->mFrameBuffer);
+  copyFrameBuffer(nullptr, mDefaultCamera->fbo());
 	SwapBuffers(mHdc);
 }
 
@@ -392,7 +392,6 @@ void Renderer::postInit() {
   setCamera(nullptr);
 
   mUniformTime.set(uniform_time_t());
-
   mUniformLights.set(light_buffer_t());
 }
 
@@ -504,6 +503,7 @@ void Renderer::useShaderProgram(ShaderProgram* program) {
 }
 
 void Renderer::clearDepth(float depth) {
+  enableDepth(COMPARE_LEQUAL, true);
   glClearDepthf(depth);
   glClear(GL_DEPTH_BUFFER_BIT);
 }
@@ -538,6 +538,8 @@ void Renderer::setCamera(Camera* camera) {
   }
 
   camera->finalize(); // make sure the framebuffer is finished being setup; 
+
+  glViewport(0, 0, camera->width(), camera->height());
   mCurrentCamera = camera;
 }
 
@@ -770,7 +772,8 @@ void Renderer::setSpotLight(uint        index,
 }
 
 void Renderer::setModelMatrix(const mat44& model) {
-  setUnifrom("MODEL", model);
+  mUniformTransform.set(model);
+  setUniformBuffer(UNIFORM_TRANSFORM, mUniformTransform);
 }
 
 void Renderer::setMaterial(const Material* material, uint passIndex) {
@@ -1022,9 +1025,9 @@ void Renderer::drawMesh(const Mesh& mesh) {
 //    glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&mCurrentCamera->mProjMatrix);
 //  }
 
-  static UniformBuffer* ubo = UniformBuffer::For(mCurrentCamera->cameraBlock);
+  static UniformBuffer* ubo = UniformBuffer::For(mCurrentCamera->ubo());
 
-  ubo->set(mCurrentCamera->cameraBlock);
+  ubo->set(mCurrentCamera->ubo());
 
   setUniformBuffer(UNIFORM_CAMERA, *ubo);
 
@@ -1081,6 +1084,32 @@ bool Renderer::copyTexture(Texture* from, Texture* to) {
   dst.setColorTarget(to);
   dst.finalize();
   return copyFrameBuffer(&dst, &src);
+}
+
+bool Renderer::copyTexture(Texture* from, uint fromX, uint fromY, Texture* to, uint toX, uint toY, uint width, uint height) {
+  static FrameBuffer src;
+
+  if (from->mFormat != to->mFormat) return false;
+
+  src.setDepthStencilTarget(from);
+  src.finalize();
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, src.mHandle);
+
+  GL_CHECK_ERROR();
+  uint internalformat;
+  uint channels;
+  uint layout;
+
+  glBindTexture(GL_TEXTURE_2D, to->mTextureID);
+  GLTexFormat(from->mFormat, internalformat, channels, layout);
+  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, toX, toY, fromX, fromY, width, height);
+  GL_CHECK_ERROR();
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, NULL);
+  GL_CHECK_ERROR();
+
+  return GLSucceeded();
 }
 
 BitmapFont* Renderer::createOrGetBitmapFont(const char* bitmapFontName, const char* path) {
