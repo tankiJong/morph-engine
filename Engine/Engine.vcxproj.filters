@@ -100,6 +100,9 @@
     <Filter Include="Effect">
       <UniqueIdentifier>{c0acd46b-8555-43b3-aa10-b3697df4c7f4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Renderer\AfterEffect">
+      <UniqueIdentifier>{0de6dbe7-d3dc-4495-ac5c-0378aaed858f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -356,6 +359,16 @@
     </ClCompile>
     <ClCompile Include="Renderer\RenderTarget.cpp">
       <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\TextureArray.cpp" />
+    <ClCompile Include="Renderer\AfterEffect\AfterEffect.cpp">
+      <Filter>Renderer\AfterEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\AfterEffect\BloomEffect.cpp">
+      <Filter>Renderer\AfterEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\AfterEffect\FogEffect.cpp">
+      <Filter>Renderer\AfterEffect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -784,6 +797,16 @@
     </ClInclude>
     <ClInclude Include="Renderer\RenderTarget.hpp">
       <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\TextureArray.hpp" />
+    <ClInclude Include="Renderer\AfterEffect\AfterEffect.hpp">
+      <Filter>Renderer\AfterEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\AfterEffect\BloomEffect.hpp">
+      <Filter>Renderer\AfterEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\AfterEffect\FogEffect.hpp">
+      <Filter>Renderer\AfterEffect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

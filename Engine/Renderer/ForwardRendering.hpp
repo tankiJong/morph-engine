@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
-
+class BloomEffect;
 class RenderScene;
 class Camera;
 class Renderer;
@@ -23,5 +23,6 @@ protected:
 
   owner<RenderTarget*> mBloomTexture = nullptr;
   owner<RenderTarget*> mShadowInfo = nullptr;
+  BloomEffect* effect;
 
 };

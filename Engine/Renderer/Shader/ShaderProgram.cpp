@@ -119,25 +119,15 @@ bool ShaderProgram::fromFile(const char* relativePath, const char* defineArgs) {
 
   }
 
-
-  for(auto& stage: mStages) {
-    stage.compile();
-  }
-  uint vs = mStages[SHADER_TYPE_VERTEX].handle();
-  uint fs = mStages[SHADER_TYPE_FRAGMENT].handle();
-
-  if (vs == NULL || fs == NULL) {
-    return false;
-  }
-  mProgId = createAndLinkProgram(vs, fs, mProgId);
-
-  TODO("move to shaderstage");
-  glDeleteShader(vs);
-  glDeleteShader(fs);
-  GL_CHECK_ERROR();
-
-  return (mProgId != NULL);
+  return commit();
 }
+
+bool ShaderProgram::setStage(eShaderType stageType, const char* stageString, const char* defineArgs) {
+  addDefinesToStage(mStages[stageType], defineArgs);
+
+  return mStages[stageType].setFromString(stageType, stageString);
+}
+
 
 void ShaderProgram::fillBlockProperty(PropertyBlockInfoBinding& block, uint progId, GLint index) {
   GLint numUniform;
@@ -197,9 +187,10 @@ void ShaderProgram::genInfo() {
           case GL_SAMPLER_1D:
           case GL_SAMPLER_2D:
           case GL_SAMPLER_3D:
+          case GL_SAMPLER_2D_SHADOW:
           case GL_SAMPLER_CUBE: {
             // sampler and textures share locations in GL
-            uint binding = -1;
+            uint binding = uint(-1);
             glGetUniformuiv(mProgId, location, &binding);
             ENSURES(binding < NUM_TEXTURE_SLOT);
             shader_bind_info_t& info = mInfo.at((eTextureSlot)binding);
@@ -246,7 +237,7 @@ void ShaderProgram::genInfo() {
   
 }
 
-uint ShaderProgram::createAndLinkProgram(uint vs, uint fs, uint handle) {
+uint ShaderProgram::createAndLinkProgram(uint vs, uint fs, uint& handle) {
   // credate the program handle - how you will reference
   // this program within OpenGL, like a texture handle
   uint programId = handle;
@@ -282,6 +273,7 @@ uint ShaderProgram::createAndLinkProgram(uint vs, uint fs, uint handle) {
   glDetachShader(programId, fs);
   GL_CHECK_ERROR();
 
+  handle = programId;
   return programId;
 
 }
@@ -308,117 +300,19 @@ void ShaderProgram::logProgramError(uint programId) {
 
 }
 
-//uint ShaderProgram::loadShader(const char* rawShader, GLenum type, const char* defineArgs) {
-//  
-//  EXPECTS(rawShader != nullptr);
-//
-//  // Create a shader
-//  uint shaderId = glCreateShader(type);
-//  EXPECTS(shaderId != NULL);
-//
-//  // Bind source to it, and compile
-//  // You can add multiple strings to a shader – they will 
-//  // be concatenated together to form the actual source object.
-//  GLint shaderLength = (GLint)strlen(rawShader);
-//
-//  Blob shaderStr = injectDefine(rawShader, shaderLength, defineArgs);
-//  shaderLength = (GLint)shaderStr.size();
-//
-//  glShaderSource(shaderId, 1, (GLchar**)&shaderStr, &shaderLength);
-//  glCompileShader(shaderId);
-//
-//  // Check status
-//  GLint status;
-//  glGetShaderiv(shaderId, GL_COMPILE_STATUS, &status);
-//  if (status == GL_FALSE) {
-//    logShaderError(shaderId); // function we write
-//    glDeleteShader(shaderId);
-//    shaderId = NULL;
-//  }
-//
-//  return shaderId;
-//
-//}
-//
-//uint ShaderProgram::loadShader(const Blob& rawShader, GLenum type, const char* defineArgs) {
-//
-//  // Create a shader
-//  uint shaderId = glCreateShader(type);
-//  EXPECTS(shaderId != NULL);
-//
-//  // Bind source to it, and compile
-//  // You can add multiple strings to a shader – they will 
-//  // be concatenated together to form the actual source object.
-//
-//  Blob shaderStr = injectDefine(rawShader, rawShader.size(), defineArgs);
-//  GLint shaderLength = (GLint)shaderStr.size();
-//
-//  glShaderSource(shaderId, 1, (GLchar**)&shaderStr, &shaderLength);
-//  glCompileShader(shaderId);
-//
-//  // Check status
-//  GLint status;
-//  glGetShaderiv(shaderId, GL_COMPILE_STATUS, &status);
-//  if (status == GL_FALSE) {
-//    logShaderError(shaderId); // function we write
-//    glDeleteShader(shaderId);
-//    shaderId = NULL;
-//  }
-//
-//  return shaderId;
-//
-//}
-//
-//Blob ShaderProgram::injectDefine(const char* buffer, size_t size, const char* defines) {
-//  if (defines == nullptr) return Blob(buffer, size);
-//  auto defs = split(defines, ";");
-//
-//  static constexpr size_t injectedTokenLen = 10; // length of "#define  \n"
-//
-//  size_t blockSize 
-//    = strlen(defines)                 // token to be injected
-//    + defs.size() * injectedTokenLen  // additional token in each line
-//    + size;                   // original file length
-//  char* injected = (char*)malloc(blockSize);
-//      
-//  size_t p = 0;
-//
-//  int offect = 0;
-//  while (buffer[p] != '\n') {
-//    injected[offect++] =buffer[p++];
-//
-//    if (buffer[p] == '\0') ERROR_AND_DIE("illegal shader file");
-//  }
-//
-//  injected[offect++] =buffer[p++]; // put in \n
-//
-//
-//  for(auto& def: defs) {
-//    injected[offect] = '\0';
-//    strcat_s(injected, blockSize, "#define ");
-//    offect += 8; // length of "#define "
-//
-//    const char* q = def.c_str();
-//
-//    while(*q != '=' && *q != '\0') {
-//      injected[offect++] = *(q++);
-//    }
-//
-//    if(*(q++) == '=') {
-//      injected[offect++] = ' ';
-//      while(*q != '\0') {
-//        injected[offect++] = (*q++);
-//      }
-//    }
-//
-//    injected[offect++] = '\n';
-//  }
-//
-//  while(buffer[p] != '\0') {
-//    injected[offect++] =buffer[p++];
-//  }
-//
-//  injected[offect++] = '\0';
-//
-//  return Blob(injected, blockSize);
-//}
+bool ShaderProgram::commit() {
+  for(ShaderStage& stage: mStages) {
+    if(stage.status() != STAGE_READY) {
+      stage.compile();
+    }
+  }
+  uint vs = mStages[SHADER_TYPE_VERTEX].handle();
+  uint fs = mStages[SHADER_TYPE_FRAGMENT].handle();
+  createAndLinkProgram(vs, fs, mProgId);
+
+  glDeleteShader(vs);
+  glDeleteShader(fs);
+  GL_CHECK_ERROR();
+
+  return mProgId != 0;
+}

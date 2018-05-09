@@ -923,6 +923,8 @@ void bindGLFunctions() {
 
 size_t GLSize(GLint type) {
   switch(type) {
+    case GL_FLOAT:
+      return 4;
     default:
       ERROR_AND_DIE("unsupport type");
   }
@@ -1092,6 +1094,7 @@ DeclGLTypeMapFn(NUM_BLEND_F, eBlendFactor) {
   GL_SRC_ALPHA,
   GL_DST_ALPHA,
   GL_ONE_MINUS_SRC_ALPHA,
+  GL_ONE_MINUS_DST_ALPHA,
   NUM_BLEND_F,
 };
 GLTypeMapGuard(NUM_BLEND_F, eBlendFactor);

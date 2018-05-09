@@ -20,7 +20,7 @@ public:
   const property_info_t* operator()(std::string_view name, uint index) const;
 
   // would protentially cause an insert if the entry does not exist.
-  property_info_t& operator[](const std::string& name);
+  property_info_t& operator[](const std::string& propName);
 
   static const PropertyBlockInfo invalid;
   size_t totalSize = 0;

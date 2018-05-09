@@ -1,7 +1,7 @@
 ﻿#include "PropertyBlock.hpp"
 
-property_info_t& PropertyBlockInfo::operator[](const std::string& name) {
-  auto& block = mInfos[name];
+property_info_t& PropertyBlockInfo::operator[](const std::string& propName) {
+  auto& block = mInfos[propName];
   block.owningBlock = this;
   return block;
 }

@@ -118,7 +118,8 @@ void Texture:: PopulateFromData()
 Texture* Texture::clone() const {
   Texture* tex = new Texture();
   tex->mData = mData;
-
+  tex->mDimensions = mDimensions;
+  tex->mFormat = mFormat;
   return tex;
 }
 

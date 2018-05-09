@@ -23,7 +23,7 @@ Mesh& Mesh::pushInstruction(eDrawPrimitive prim, bool useIndices, uint startIdx,
 }
 
 Mesh& Mesh::resetInstruction(uint index) {
-  draw_instr_t& ins = mIns.back();
+  draw_instr_t& ins = mIns[index];
   ins.prim = DRAW_TRIANGES;
   ins.useIndices = true;
   ins.startIndex = 0;

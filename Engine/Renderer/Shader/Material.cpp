@@ -94,9 +94,9 @@ void Material::setPropertyBlock(S<const PropertyBlockInfo> layout, void* data) {
   prop = new MaterialProperty(layout->name.data(), layout, data);
 }
 
-MaterialProperty*& Material::property(std::string_view name) {
+MaterialProperty*& Material::property(std::string_view propName) {
   for (MaterialProperty*& prop : mProps) {
-    if (prop->name == name) return prop;
+    if (prop->name == propName) return prop;
   }
 
   mProps.push_back(nullptr);
@@ -104,9 +104,9 @@ MaterialProperty*& Material::property(std::string_view name) {
   return mProps.back();
 }
 
-const MaterialProperty* Material::property(std::string_view name) const {
+const MaterialProperty* Material::property(std::string_view propName) const {
   for (const MaterialProperty* prop : mProps) {
-    if (prop->name == name) return prop;
+    if (prop->name == propName) return prop;
   }
 
   return nullptr;
@@ -148,7 +148,7 @@ owner<Material*> Material::fromYaml(const fs::path& file) {
   if(props) {
     EXPECTS(props.IsMap());
 
-    for(auto& prop: props) {
+    for(auto prop: props) {
       if(!prop.first.IsSequence()) {
         S<PropertyBlockInfo> propInfo;
 
@@ -159,8 +159,8 @@ owner<Material*> Material::fromYaml(const fs::path& file) {
         if(prop.second.IsMap()) {           // property block
           uint offset = 0u;
           Blob data(1024u);
-          for(auto& attr: prop.second) {
-//            EXPECTS(attr.IsSequence()); // bug in cpp yaml
+          for(auto attr: prop.second) {
+            EXPECTS(attr.first.IsSequence()); // bug in cpp yaml
             std::string name = attr.first[0].as<std::string>();
             std::string type = attr.first[1].as<std::string>();
             property_info_t& info = (*propInfo)[name];
@@ -233,9 +233,16 @@ owner<Material*> Material::fromYaml(const fs::path& file) {
     S<const Shader> resShader = Resource<Shader>::get(shader["name"].as<std::string>());
     if(resShader != nullptr) {
       mat->mResShader = resShader;
-      render_state rs = shader.as<render_state>();
-      if (rs != mat->mResShader->state()) {
-        mat->shader()->state() = rs;
+
+      uint i = 0;
+      for(auto pass: shader["pass"]) {
+        render_state rs = pass.as<render_state>();
+
+        if (rs != mat->mResShader->pass(i).state()) {
+          mat->shader()->pass(i)->state() = rs;
+        }
+
+        i++;
       }
     }
   } else {

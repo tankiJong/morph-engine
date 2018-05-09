@@ -27,12 +27,9 @@ public:
 
   inline span<const ShaderPass* const> passes() const { return mPasses; }
 
-  inline const render_state& state() const { return mState; }
-  inline render_state& state() { return mState; }
   static owner<Shader*> fromYaml(const fs::path& file);
 protected:
   std::vector<owner<ShaderPass*>> mPasses;
-  render_state mState;
 };
 
 

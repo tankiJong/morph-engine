@@ -45,12 +45,15 @@ public:
   ShaderProgram() = default;
   ~ShaderProgram() = default;
   bool fromFile(const char*  relativePath, const char* defineArgs = nullptr);
+  bool setStage(eShaderType stageType, const char* stageString, const char* defineArgs = nullptr);
   inline uint handle() const { return mProgId; }
 
   inline const ShaderProgramInfo& info() const { return mInfo; }
   void genInfo();
-  static uint createAndLinkProgram(uint vs, uint fs, uint handle = 0);
+  static uint createAndLinkProgram(uint vs, uint fs, uint& handle);
   static void logProgramError(uint programId);
+
+  bool commit();
 protected:
   static void fillBlockProperty(PropertyBlockInfoBinding& block, uint progId, int index);
   std::array<ShaderStage, NUM_SHADER_TYPE> mStages;

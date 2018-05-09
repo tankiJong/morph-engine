@@ -26,6 +26,7 @@ public:
   void setDepthStencilTarget(RenderTarget* depthTarget);
 
   inline RenderTarget* depthTarget() { return (RenderTarget*)mFrameBuffer->mDepthTarget; }
+  inline RenderTarget* colorTarget(uint index = 0) { return (RenderTarget*)mFrameBuffer->mColorTarget[index]; }
   void handlePrePass(delegate<void(const Camera& cam)> cb);
   void prepass() const;
   // model setters

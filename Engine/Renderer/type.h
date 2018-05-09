@@ -140,6 +140,7 @@ enum eBlendFactor {
   BLEND_F_SRC_ALPHA,
   BLEND_F_DST_ALPHA,
   BLEND_F_INV_SRC_ALPHA,
+  BLEND_F_INV_DST_ALPHA,
   NUM_BLEND_F,
 };
 // ---------------------- STRUCT -----------------------------

@@ -23,6 +23,7 @@ public:
   inline eShaderStageState status() const { return mStatus; }
   ShaderStage& define(const std::string& k, std::string v = "");
 protected:
+  void init();
   bool parse(std::string& source);
   bool parseBody(const Path& currentFile, std::string& body, uint currentLine, std::set<Path>& includedFiles);
   std::optional<std::tuple<std::string, std::string, uint>> parseDirectives(std::string& source);

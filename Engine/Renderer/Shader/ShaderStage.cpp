@@ -301,13 +301,13 @@ void logShaderError(GLuint shaderId) {
 }
 
 ShaderStage::ShaderStage() {
-  mIncludeDirectory.push_back(fs::workingPath());
+  init();
 }
 ShaderStage::ShaderStage(eShaderType type) : mType(type) {
-  mIncludeDirectory.push_back(fs::workingPath());
+  init();
 }
 ShaderStage::ShaderStage(eShaderType type, const char* source): mPath(source) {
-  mIncludeDirectory.push_back(fs::workingPath());
+  init();
   std::string file(fileToBuffer(source).as<char*>());
   setFromString(type, file);
 }
@@ -350,6 +350,11 @@ ShaderStage& ShaderStage::define(const std::string& k, std::string v) {
   mDefineDirectives.push_back(std::make_pair(k, v));
 
   return *this;
+}
+
+void ShaderStage::init() {
+  mIncludeDirectory.push_back(fs::workingPath());
+  mPath = Stringf("Buffer-%u", (size_t)this);
 }
 
 bool ShaderStage::parse(std::string& source) {

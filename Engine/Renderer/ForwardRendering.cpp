@@ -10,6 +10,8 @@
 #include "Engine/Renderer/TextureArray.hpp"
 #include "Engine/Renderer/Shader/Shader.hpp"
 #include "Engine/Renderer/glFunctions.hpp"
+#include "Engine/Renderer/AfterEffect/BloomEffect.hpp"
+#include "Engine/Renderer/AfterEffect/FogEffect.hpp"
 
 ForwardRendering::ForwardRendering(Renderer* renderer): mRenderer(renderer) {
   mShadowInfo = new RenderTarget(Light::SHADOW_MAP_SIZE * NUM_MAX_LIGHTS, Light::SHADOW_MAP_SIZE, TEXTURE_FORMAT_D24S8);
@@ -65,7 +67,7 @@ void ForwardRendering::createShadowMap(Light& light, span<RenderTask> tasks) {
   mRenderer->clearDepth(1.f);
   // render opaque only
   for(RenderTask& task: tasks) {
-    EXPECTS(SHADER_LAYER_ALPHA > SHADER_LAYER_OPAQUE);
+    static_assert(SHADER_LAYER_ALPHA > SHADER_LAYER_OPAQUE);
     if(task.layer == SHADER_LAYER_ALPHA) break;
     
     mRenderer->setModelMatrix(task.transform->localToWorld());
@@ -105,7 +107,19 @@ void ForwardRendering::prepass(RenderScene& scene, span<RenderTask> tasks, Camer
 *   - bloom the color target
 */
 void ForwardRendering::postpass(RenderScene& scene, span<RenderTask> tasks, Camera& cam) {
-  
+  delete effect;
+  effect = new BloomEffect(*mRenderer,
+                           *cam.colorTarget(0),
+                           *Resource<Shader>::get("shader/effect/bloom"),
+                           *cam.colorTarget(1));
+  // effect->apply();
+
+  FogEffect fog(*mRenderer,
+                *cam.colorTarget(0),
+                *Resource<Shader>::get("shader/effect/fog"), *cam.depthTarget());
+
+  // fog.apply();
+  mRenderer->setCamera(&cam);
 }
 
 ForwardRendering::~ForwardRendering() {
@@ -132,9 +146,8 @@ void ForwardRendering::pass(RenderScene& scene, span<RenderTask> tasks, Camera& 
       }
       mRenderer->setLight(i, lit->info());
     }
-    mRenderer->setMaterial(task.material, task.passIndex);
-//    mRenderer->setTexture(UNIFORM_USER_1, mShadowInfo);
 
+    mRenderer->setMaterial(task.material, task.passIndex);
     const eTextureSlot binding = task.material->shader()->pass(task.passIndex).prog()->info().texture("gTexShadowMap");
     if(binding < NUM_TEXTURE_SLOT) {
       mRenderer->setTexture(binding, mShadowInfo);

@@ -537,6 +537,9 @@
     <ClCompile Include="Persistence\json.cpp" />
     <ClCompile Include="Persistence\xml.cpp" />
     <ClCompile Include="Persistence\yaml.cpp" />
+    <ClCompile Include="Renderer\AfterEffect\AfterEffect.cpp" />
+    <ClCompile Include="Renderer\AfterEffect\BloomEffect.cpp" />
+    <ClCompile Include="Renderer\AfterEffect\FogEffect.cpp" />
     <ClCompile Include="Renderer\BitmapFont.cpp" />
     <ClCompile Include="Renderer\Camera.cpp" />
     <ClCompile Include="Renderer\Font.cpp" />
@@ -690,6 +693,9 @@
     <ClInclude Include="Persistence\json.hpp" />
     <ClInclude Include="Persistence\xml.hpp" />
     <ClInclude Include="Persistence\yaml.hpp" />
+    <ClInclude Include="Renderer\AfterEffect\AfterEffect.hpp" />
+    <ClInclude Include="Renderer\AfterEffect\BloomEffect.hpp" />
+    <ClInclude Include="Renderer\AfterEffect\FogEffect.hpp" />
     <ClInclude Include="Renderer\BitmapFont.hpp" />
     <ClInclude Include="Renderer\Camera.hpp" />
     <ClInclude Include="Renderer\External\gl\glcorearb.h" />

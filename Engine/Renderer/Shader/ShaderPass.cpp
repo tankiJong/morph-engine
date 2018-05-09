@@ -97,6 +97,7 @@ namespace YAML {
       VAL_MAP("src_alpha", BLEND_F_SRC_ALPHA);
       VAL_MAP("dest_alpha", BLEND_F_DST_ALPHA);
       VAL_MAP("inv_src_alpha", BLEND_F_INV_SRC_ALPHA);
+      VAL_MAP("inv_dest_alpha", BLEND_F_INV_DST_ALPHA);
       return false;
     }
   };
@@ -126,11 +127,14 @@ namespace YAML {
 
     if(node["program"]["path"]) {
       prog->fromFile(
-                     node["program"]["path"].as<std::string>().c_str(),
-                     node["program"]["define"] ? node["program"]["define"].as<std::string>().c_str() : nullptr);
+                     node["program"]["path"].as<std::string>().c_str(), node["program"]["define"] ? node["program"]["define"].as<std::string>().c_str():nullptr);
     } else {
-      DEBUGBREAK;
-      return false;
+      std::string vert = node["program"]["vert"].as<std::string>();
+      std::string frag = node["program"]["frag"].as<std::string>();
+
+      prog->setStage(SHADER_TYPE_VERTEX, vert.c_str(), node["program"]["define"] ? node["program"]["define"].as<std::string>().c_str():nullptr);
+      prog->setStage(SHADER_TYPE_FRAGMENT, frag.c_str(), node["program"]["define"] ? node["program"]["define"].as<std::string>().c_str():nullptr);
+      prog->commit();
     }
     prog->genInfo();
     shaderPass->prog() = prog;
