@@ -7,12 +7,12 @@
 #include "Engine/Renderer/Camera.hpp"
 
 template<typename T>
-inline bool notInList(std::vector<T*> list, T* ele) {
+inline bool notInList(std::vector<T*>& list, T* ele) {
   return std::find(list.begin(), list.end(), ele) == list.end();
 }
 
 template<typename T>
-inline T* removeAndShrink(std::vector<T*> list, T* ele) {
+inline T* removeAndShrink(std::vector<T*>& list, T* ele) {
   auto loc = std::find(list.begin(), list.end(), ele);
   if(loc == list.end()) return nullptr;
 

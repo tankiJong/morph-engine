@@ -84,7 +84,7 @@ void Renderer::setTexture(uint i, const Texture* texture) {
     texture = createOrGetTexture("$");
   }
 
-  if (mCurrentTexture[i] == texture) return;
+  // if (mCurrentTexture[i] == texture) return;
 
   glBindSampler(i, mDefaultSampler->handle());
 
@@ -575,7 +575,7 @@ void Renderer::setSampler(const Sampler* sampler) {
   setSampler(0, sampler);
 }
 
-void Renderer::cleanColor(const Rgba& color) {
+void Renderer::clearColor(const Rgba& color) {
   vec4 col = color.normalized();
   glClearColor(col.r, col.g, col.b, col.a);
   glClear(GL_COLOR_BUFFER_BIT);

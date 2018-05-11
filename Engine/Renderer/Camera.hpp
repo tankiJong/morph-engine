@@ -50,7 +50,7 @@ public:
   inline uint width() const { return mFrameBuffer->width(); }
   inline uint height() const { return mFrameBuffer->height(); }
 
-  void rotate(const Euler& eular);
+  void rotate(const Euler& euler);
   void translate(const vec3& translation);
 
   inline const Transform& transfrom() const { return mTransform; }
@@ -60,7 +60,7 @@ public:
 
   camera_t ubo() const;
   inline FrameBuffer* fbo() const { return mFrameBuffer; }
-  inline mat44 view() const { return mViewMatrix; }
+  inline mat44 view() const { return mTransform.worldToLocal(); }
   inline mat44 projection() const { return mProjMatrix; };
 protected:
   Transform mTransform;

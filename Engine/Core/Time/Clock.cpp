@@ -6,7 +6,7 @@ static Clock gMainClock;
 
 std::list<Interval> gStopwatch;
 
-Clock* Clock::createChild() {
+owner<Clock*> Clock::createChild() {
   return new Clock(this);
 }
 

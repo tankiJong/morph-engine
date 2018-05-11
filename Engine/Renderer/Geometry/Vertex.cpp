@@ -26,7 +26,7 @@ DefineVertexType(vertex_lit_t) {
 
 
 Vertex::Vertex() {
-  reserve(100u);
+  reserve(1000u);
 }
 
 vertex_a_t Vertex::vertices() {

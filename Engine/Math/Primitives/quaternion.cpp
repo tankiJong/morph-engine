@@ -79,7 +79,7 @@ quaternion quaternion::inverse() const {
 }
 
 Euler quaternion::euler() const {
-  return mat().eular();
+  return mat().euler();
 }
 
 // matrix def related

@@ -2,6 +2,7 @@
 #include "Engine/Math/Curves.hpp"
 
 Gradient::Gradient(const Rgba& from, const Rgba& to) {
+  mColors.reserve(10);
   mColors.push_back({ from, 0.f });
   mColors.push_back({ to, 1.f });
 }

@@ -10,7 +10,7 @@ public:
     float percent;
   };
 
-  Gradient() = default;
+  Gradient() { mColors.reserve(10); };
   Gradient(const Rgba& from, const Rgba& to);
   void clear();
 

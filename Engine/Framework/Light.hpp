@@ -17,7 +17,7 @@ enum eLightType {
 class Light {
 public:
   Transform transform;
-  bool castShadow = true;
+  bool castShadow = false;
   eLightType type = LIGHT_UNKNOWN;
 
   void asDirectionalLight(float intensity = 1.f, const vec3& attenuation = vec3(0, 0, 1), 
@@ -30,7 +30,8 @@ public:
                    float intensity = 1.f, const vec3& attenuation = vec3(0, 0, 1),
                    const Rgba& color = Rgba::white);
 
-  inline light_info_t& info() { mInfo.vp = mCamera.projection() * mCamera.view(); return mInfo; }
+  light_info_t& info();
+
   RenderTarget& shadowMap();
   Camera& camera();
   float fovAngle() const;

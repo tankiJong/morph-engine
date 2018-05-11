@@ -1,7 +1,5 @@
 #include "Engine/Framework/Light.hpp"
-#include "Engine/Application/Window.hpp"
-#include "Game/Game.hpp"
-
+#include "Engine/Math/MathUtils.hpp"
 void Light::asDirectionalLight(float intensity, const vec3& attenuation, const Rgba& color) {
   mInfo.asDirectionalLight(transform.position(), transform.forward(), intensity, attenuation, color);
   type = LIGHT_DIRECTIONAL;
@@ -18,6 +16,13 @@ void Light::asSpotLight(float innerAngle, float outerAngle, float intensity, con
   mInfo.asSpotLight(transform.position(), transform.forward(), innerAngle, outerAngle, intensity, attenuation, color);
   type = LIGHT_SPOT;
   updateCamera();
+}
+
+light_info_t& Light::info() {
+  mInfo.vp = mCamera.projection() * mCamera.view();
+  mInfo.position = transform.position();
+  mInfo.direction = transform.forward();
+  return mInfo;
 }
 
 RenderTarget& Light::shadowMap() {
@@ -45,8 +50,8 @@ float Light::attenuation(vec3 position) const {
 }
 
 void Light::updateCamera() {
-  float fz = 30.f, nz = 0.01f;
-  vec2 size(10.f, 10.f);
+  float fz = 100.f, nz = 0.01f;
+  vec2 size(100.f, 100.f);
 
   switch (type) {
     case LIGHT_UNKNOWN: return;

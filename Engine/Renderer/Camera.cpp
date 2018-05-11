@@ -90,8 +90,8 @@ uvec2 Camera::worldToScreen(vec3 position) {
   return uvec2(s);
 }
 
-void Camera::rotate(const Euler& eular) {
-  mTransform.localRotate(eular);
+void Camera::rotate(const Euler& euler) {
+  mTransform.localRotate(euler);
 
   mIsDirty = true;
 }
@@ -103,8 +103,6 @@ void Camera::translate(const vec3& translation) {
 }
 
 camera_t Camera::ubo() const {
-  if(mIsDirty) {
-    mViewMatrix = mTransform.worldToLocal();
-  }
+  mViewMatrix = mTransform.worldToLocal();
   return cameraBlock;
 }

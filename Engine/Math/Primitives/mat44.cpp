@@ -317,7 +317,7 @@ mat44 mat44::inverse() const {
   return inver;
 }
 
-Euler mat44::eular() const {
+Euler mat44::euler() const {
   vec3 ii = i.xyz().normalized();
   vec3 jj = j.xyz().normalized();
   vec3 kk = k.xyz().normalized();

@@ -58,7 +58,7 @@ public:
   void setTexture(const Texture* texture = nullptr);
   void setSampler(const Sampler* sampler);
 
-  void cleanColor(const Rgba& color);
+  void clearColor(const Rgba& color);
   void clearDepth(float depth = 1.f);
   void cleanScreen(const Rgba& color);
   bool copyFrameBuffer(FrameBuffer* dest, FrameBuffer* src);

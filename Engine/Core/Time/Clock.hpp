@@ -3,6 +3,7 @@
 #include "Engine/Core/Time/Time.hpp"
 #include <vector>
 #include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Game/GameCommon.hpp"
 
 class Clock {
 public:
@@ -17,7 +18,7 @@ public:
   void reset();
   void beginFrame();
   void stepClock(uint64_t elapsed);
-  Clock* createChild();
+  owner<Clock*> createChild();
   inline void pause() { paused = !paused; }
   inline void scale(float s = 1.f) { EXPECTS(s > 0);  mScale = s; }
 public:

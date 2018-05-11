@@ -62,7 +62,7 @@ public:
   mat44 inverse() const;
   vec3  scale() const;
 
-  Euler eular() const;
+  Euler euler() const;
   quaternion quat() const;
 
   // Producers

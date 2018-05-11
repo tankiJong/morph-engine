@@ -5,11 +5,11 @@ const transform_t transform_t::IDENTITY = transform_t();
 
 transform_t::transform_t()
   : position(0.f)
-  , eular(0.f)
+  , euler(0.f)
   , scale(1.f) {}
 
 mat44 transform_t::localToWorld() const {
-  mat44 r = mat44::makeRotation(eular);
+  mat44 r = mat44::makeRotation(euler);
   mat44 s = mat44::makeScale(scale.x, scale.y, scale.z);
   mat44 t = mat44::makeTranslation(position);
 
@@ -17,7 +17,7 @@ mat44 transform_t::localToWorld() const {
 }
 
 mat44 transform_t::worldToLocal() const {
-  mat44 r = mat44::makeRotation(eular).transpose();
+  mat44 r = mat44::makeRotation(euler).transpose();
   mat44 s = mat44::makeScale(1.f / scale.x, 1.f / scale.y, 1.f / scale.z);
   mat44 t = mat44::makeTranslation(-position);
 
@@ -26,20 +26,20 @@ mat44 transform_t::worldToLocal() const {
 
 void transform_t::set(const mat44& transform) {
   position = transform.t.xyz();
-  eular = transform.eular();
+  euler = transform.euler();
   scale = transform.scale();
 }
 
 mat44 Transform::localToWorld() const {
-  return mLocalTransform.localToWorld();
+  return worldMat() * mLocalTransform.localToWorld();
 }
 
 mat44 Transform::worldToLocal() const {
-  return mLocalTransform.worldToLocal();
+  return mLocalTransform.worldToLocal() * localMat();
 }
 
-void Transform::localRotate(const Euler& eular) {
-  mLocalTransform.rotate(eular);
+void Transform::localRotate(const Euler& euler) {
+  mLocalTransform.rotate(euler);
 }
 
 void Transform::localTranslate(const vec3& offset) {
@@ -60,4 +60,12 @@ vec3 Transform::up() const {
 
 vec3 Transform::right() const {
   return (localToWorld() * vec4(vec3::right, 0)).xyz();
+}
+
+mat44 Transform::worldMat() const {
+  return mParent == nullptr ? mat44::identity : mParent->localToWorld();
+}
+
+mat44 Transform::localMat() const {
+  return mParent == nullptr ? mat44::identity : mParent->worldToLocal();
 }
