@@ -72,6 +72,15 @@ public:
     }
   }
 
+  static bool reload() {
+    
+    bool success = true;
+    for(auto& [k,res]: sDatabase) {
+      success = success && reload(res.path, *res.res);
+    }
+
+    return success;
+  }
   static bool define(const std::string& file) {
     auto [name, res] = load(file);
     return define(name, res, file);
@@ -83,6 +92,7 @@ protected:
    * This function is required for the resource system to work.
    */
   static ResDef<T> load(const std::string& file);
+  static bool reload(const fs::path&, T&);
 };
 
 template<typename T>

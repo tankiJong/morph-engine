@@ -34,14 +34,14 @@ void ForwardRendering::render(RenderScene& scene) {
  * - postpass
  */
 void ForwardRendering::renderView(RenderScene& scene, Camera& cam) {
-  static std::vector<RenderTask> tasks;
+  std::vector<RenderTask> tasks;
   tasks.clear();
   mRenderer->setCamera(&cam);
 
   TODO("replace with sky box or something")
   ;
   if(cam.queryFlag(CAM_CLEAR_COLOR)) {
-    mRenderer->cleanColor(Rgba::black);
+    mRenderer->clearColor(Rgba::black);
   }
 
   if(cam.queryFlag(CAM_CLEAR_DEPTH)) {
@@ -54,10 +54,15 @@ void ForwardRendering::renderView(RenderScene& scene, Camera& cam) {
   }
 
   RenderTask::sort(cam, tasks);
-  
+  GL_CHECK_ERROR();
   prepass(scene, tasks, cam);
+  GL_CHECK_ERROR();
+
   pass(scene, tasks, cam);
+  GL_CHECK_ERROR();
+
   postpass(scene, tasks, cam);
+  GL_CHECK_ERROR();
 
 }
 
@@ -83,6 +88,7 @@ void ForwardRendering::createShadowMap(Light& light, span<RenderTask> tasks) {
 */
 void ForwardRendering::prepass(RenderScene& scene, span<RenderTask> tasks, Camera& cam) {
   cam.prepass();
+  GL_CHECK_ERROR();
 
   mRenderer->setShader(Resource<Shader>::get("shader/default").get(), 0);
   for(Light* lit: scene.lights()) {
@@ -90,9 +96,11 @@ void ForwardRendering::prepass(RenderScene& scene, span<RenderTask> tasks, Camer
       createShadowMap(*lit, tasks);
     }
   }
+  GL_CHECK_ERROR();
 
   Camera tempCam;
   tempCam.setDepthStencilTarget(mShadowInfo);
+  GL_CHECK_ERROR();
   mRenderer->setCamera(&tempCam);
   mRenderer->clearDepth(1.f);
 
@@ -112,7 +120,7 @@ void ForwardRendering::postpass(RenderScene& scene, span<RenderTask> tasks, Came
                            *cam.colorTarget(0),
                            *Resource<Shader>::get("shader/effect/bloom"),
                            *cam.colorTarget(1));
-  // effect->apply();
+  effect->apply();
 
   FogEffect fog(*mRenderer,
                 *cam.colorTarget(0),

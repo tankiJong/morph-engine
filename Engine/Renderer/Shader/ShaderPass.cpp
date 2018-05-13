@@ -1,8 +1,6 @@
 ﻿#include "ShaderPass.hpp"
 #include "Engine/File/FileSystem.hpp"
 #include "Engine/Persistence/yaml.hpp"
-#include "Engine/Debug/ErrorWarningAssert.hpp"
-
 /* implemented version:
 x name: shader/example
 program:
@@ -22,6 +20,7 @@ blend:
     test: less|never|equal|lequal|greater|gequal|not|always
  */
 #define VAL_MAP(str, val) if(v == str) { rhs = val; return true; }
+
 namespace YAML {
   template<>
   struct convert<eCullMode> {
@@ -186,4 +185,26 @@ namespace YAML {
     }
     return true;
   }
+}
+
+ShaderPass::~ShaderPass() {
+  SAFE_DELETE(mProg);
+}
+
+ShaderPass::ShaderPass(ShaderPass&& from) {
+  mProg = from.mProg;
+  from.mProg = nullptr;
+  mState = from.mState;
+  layer = from.layer;
+  sort = from.sort;
+}
+
+ShaderPass& ShaderPass::operator=(ShaderPass&& from) {
+  mProg = from.mProg;
+  from.mProg = nullptr;
+  mState = from.mState;
+  layer = from.layer;
+  sort = from.sort;
+
+  return *this;
 }

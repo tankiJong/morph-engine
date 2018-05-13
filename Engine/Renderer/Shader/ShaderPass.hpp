@@ -4,14 +4,24 @@
 #include "ShaderProgram.hpp"
 #include "Engine/Core/Resource.hpp"
 #include "Engine/Persistence/yaml.hpp"
+#include "Game/GameCommon.hpp"
 #define SHADER_LAYER_OPAQUE 0
 #define SHADER_LAYER_ALPHA  0x100
 class ShaderPass {
 public:
+
+  ShaderPass() = default;
+  ShaderPass(ShaderPass&& from);
+  ShaderPass(const ShaderPass&) = delete;
+  ShaderPass& operator=(const ShaderPass&) = delete;
+  ShaderPass& operator=(ShaderPass&& from);
+  
+  ~ShaderPass();
+  
   /* it is opaque(0)/alpha(0x100)?
   * when sorting the renderable, use `layer << 8 | sort` as the order
   */
-  uint layer = SHADER_LAYER_OPAQUE;
+  uint layer;
   uint sort = 0;
   inline uint order() const { return layer << 8 | sort; }
 
@@ -28,8 +38,9 @@ public:
   inline const render_state& state() const { return mState; }
 
   inline static uint order(uint layer, uint sort) { return layer << 8 | sort; }
+
 protected:
-  ShaderProgram * mProg = nullptr;
+  owner<ShaderProgram*> mProg = nullptr;
   render_state mState;
 };
 

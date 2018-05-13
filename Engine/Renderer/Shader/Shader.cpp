@@ -3,6 +3,7 @@
 #include "Engine/Persistence/yaml.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Renderer/Shader/ShaderPass.hpp"
+#include "Game/GameCommon.hpp"
 
 Shader::~Shader() {
   for(ShaderPass* pass: mPasses) {
@@ -37,23 +38,49 @@ owner<Shader*> Shader::fromYaml(const fs::path& file) {
   std::optional<Blob> f = vfs.asBuffer(file);
 
   if(!f) {
-    return nullptr;
+    return false;
   }
 
   yaml::Node node = yaml::Load(f->as<const char*>());
 
-  Shader* shader = new Shader();
-  
-  shader = node.as<Shader*>();
-
+  Shader* shader = node.as<Shader*>();
   return shader;
 }
 
 template<>
 ResDef<Shader> Resource<Shader>::load(const std::string& file) {
   Shader* shader = Shader::fromYaml(file);
-
   return { shader->name, shader };
+}
+
+
+template<>
+bool Resource<Shader>::reload(const fs::path& file, Shader& shader) {
+  auto vfs = FileSystem::Get();
+
+  std::optional<Blob> f = vfs.asBuffer(file);
+
+  if (!f) {
+    return false;
+  }
+  yaml::Node node = yaml::Load(f->as<const char*>());
+
+  shader.name = node["name"] ? node["name"].as<std::string>() : "";
+
+  auto passes = node["pass"];
+  EXPECTS(passes.IsSequence() && passes.size() >= 1);
+
+  for(ShaderPass* pass: shader.mPasses) {
+    delete pass;
+  }
+  shader.mPasses.clear();
+
+  for (auto pass : passes) {
+    ShaderPass* p = new ShaderPass(std::move(pass.as<ShaderPass>()));
+    shader.mPasses.push_back(p);
+  }
+
+  return true;
 }
 
 bool YAML::convert<Shader*>::decode(const Node& node, Shader*& shader) {
@@ -64,7 +91,7 @@ bool YAML::convert<Shader*>::decode(const Node& node, Shader*& shader) {
   EXPECTS(passes.IsSequence() && passes.size() >= 1);
 
   for (auto pass : passes) {
-    ShaderPass* p = new ShaderPass(pass.as<ShaderPass>());
+    ShaderPass* p = new ShaderPass(std::move(pass.as<ShaderPass>()));
     shader->mPasses.push_back(p);
   }
 

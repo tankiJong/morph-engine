@@ -16,6 +16,7 @@ namespace YAML {
 
 class Shader {
   friend bool YAML::convert<Shader*>::decode(const YAML::Node& node, Shader*& shader);
+  friend class Resource<Shader>;
 public:
   std::string name;
   ~Shader();
@@ -27,7 +28,7 @@ public:
 
   inline span<const ShaderPass* const> passes() const { return mPasses; }
 
-  static owner<Shader*> fromYaml(const fs::path& file);
+  static owner<Shader*> Shader::fromYaml(const fs::path& file);
 protected:
   std::vector<owner<ShaderPass*>> mPasses;
 };
@@ -36,3 +37,5 @@ protected:
 template<>
 ResDef<Shader> Resource<Shader>::load(const std::string& file);
 
+template<>
+bool Resource<Shader>::reload(const fs::path& file, Shader& shader);

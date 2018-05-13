@@ -177,9 +177,6 @@
     <ClCompile Include="File\Blob.cpp">
       <Filter>File</Filter>
     </ClCompile>
-    <ClCompile Include="File\DataSource.cpp">
-      <Filter>File</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Window.cpp">
       <Filter>Application</Filter>
     </ClCompile>
@@ -370,6 +367,9 @@
     <ClCompile Include="Renderer\AfterEffect\FogEffect.cpp">
       <Filter>Renderer\AfterEffect</Filter>
     </ClCompile>
+    <ClCompile Include="File\File.cpp">
+      <Filter>File</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -538,9 +538,6 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="File\Blob.hpp">
-      <Filter>File</Filter>
-    </ClInclude>
-    <ClInclude Include="File\DataSource.hpp">
       <Filter>File</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\yaml-cpp\contrib\anchordict.h">
@@ -807,6 +804,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\AfterEffect\FogEffect.hpp">
       <Filter>Renderer\AfterEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="File\File.hpp">
+      <Filter>File</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

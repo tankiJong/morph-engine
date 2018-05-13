@@ -21,7 +21,9 @@ Blob fileToBuffer(const char* nameWithFullPath) {
 
   if(file.read(buffer, size)) {
     buffer[size] = 0;
-    return Blob(buffer, (uint)size+1);
+    Blob b(buffer, (uint)size+1);
+    delete[] buffer;
+    return b;
   } else {
     return Blob();
   }

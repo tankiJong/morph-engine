@@ -312,6 +312,12 @@ ShaderStage::ShaderStage(eShaderType type, const char* source): mPath(source) {
   setFromString(type, file);
 }
 
+ShaderStage::~ShaderStage() {
+  if(mHandle != NULL) {
+    glDeleteShader(mHandle);
+  }
+}
+
 bool ShaderStage::setFromString(eShaderType type, std::string source) {
   mType = type;
   if (!parse(source)) {
@@ -324,11 +330,20 @@ bool ShaderStage::setFromString(eShaderType type, std::string source) {
 
 bool ShaderStage::setFromFile(eShaderType type, const char* path) {
   mPath = path;
+  mFromFile = true;
   Blob f = fileToBuffer(path);
 
   if (f.size() == 0) return false;
   std::string file(f.as<char*>());
   return setFromString(type, file);
+}
+
+bool ShaderStage::reload() {
+
+  EXPECTS(mStatus == STAGE_READY);
+  if(!mFromFile) return false;
+
+  return setFromFile(mType, mPath.generic_string().c_str());
 }
 
 int ShaderStage::compile() {

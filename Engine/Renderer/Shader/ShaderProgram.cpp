@@ -128,6 +128,17 @@ bool ShaderProgram::setStage(eShaderType stageType, const char* stageString, con
   return mStages[stageType].setFromString(stageType, stageString);
 }
 
+bool ShaderProgram::reload() {
+
+  bool success = true;
+  for(ShaderStage& stage: mStages) {
+    success = success & stage.reload();
+  }
+
+  success = success && 0 != createAndLinkProgram(mStages[SHADER_TYPE_VERTEX].handle(), mStages[SHADER_TYPE_VERTEX].handle(), mProgId);
+
+  return success;
+}
 
 void ShaderProgram::fillBlockProperty(PropertyBlockInfoBinding& block, uint progId, GLint index) {
   GLint numUniform;
@@ -136,12 +147,12 @@ void ShaderProgram::fillBlockProperty(PropertyBlockInfoBinding& block, uint prog
     return;
   }
 
-  GLint *indices = (GLint*)_alloca(numUniform);
+  GLint* indices = (GLint*)_alloca(numUniform);
   glGetActiveUniformBlockiv(progId, index, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, indices);
   
-  GLint *offsets = (GLint*)_alloca(numUniform);
-  GLint *types = (GLint*)_alloca(numUniform);
-  GLint *counts = (GLint*)_alloca(numUniform);
+  GLint* offsets = (GLint*)_alloca(numUniform);
+  GLint* types = (GLint*)_alloca(numUniform);
+  GLint* counts = (GLint*)_alloca(numUniform);
   glGetActiveUniformsiv(progId, numUniform, (GLuint*)indices, GL_UNIFORM_OFFSET, offsets);
   glGetActiveUniformsiv(progId, numUniform, (GLuint*)indices, GL_UNIFORM_TYPE, types);
   glGetActiveUniformsiv(progId, numUniform, (GLuint*)indices, GL_UNIFORM_SIZE, counts);
@@ -269,10 +280,12 @@ uint ShaderProgram::createAndLinkProgram(uint vs, uint fs, uint& handle) {
 
   // no longer need the shaders, you can detach them if you want
   // (not necessary)
-  glDetachShader(programId, vs);
-  glDetachShader(programId, fs);
+  // glDetachShader(programId, vs);
+  // glDetachShader(programId, fs);
   GL_CHECK_ERROR();
 
+  vs = 0;
+  fs = 0;
   handle = programId;
   return programId;
 

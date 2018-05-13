@@ -261,6 +261,7 @@ ResDef<Material> Resource<Material>::load(const std::string& file) {
 
   return { mat->name, mat };
 }
+
 #define VAL_MAP(str, val) if(v == str) { rhs = val; return true; }
 
 namespace YAML {

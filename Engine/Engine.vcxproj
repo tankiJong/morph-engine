@@ -495,13 +495,7 @@
     <ClCompile Include="Debug\ErrorWarningAssert.cpp" />
     <ClCompile Include="Effect\ParticleEmitter.cpp" />
     <ClCompile Include="File\Blob.cpp" />
-    <ClCompile Include="File\DataSource.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="File\File.cpp" />
     <ClCompile Include="File\FileSystem.cpp" />
     <ClCompile Include="File\Utils.cpp" />
     <ClCompile Include="File\Path.cpp" />
@@ -649,13 +643,7 @@
     <ClInclude Include="Debug\ErrorWarningAssert.hpp" />
     <ClInclude Include="Effect\ParticleEmitter.hpp" />
     <ClInclude Include="File\Blob.hpp" />
-    <ClInclude Include="File\DataSource.hpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="File\File.hpp" />
     <ClInclude Include="File\FileSystem.hpp" />
     <ClInclude Include="File\Utils.hpp" />
     <ClInclude Include="File\Path.hpp" />
