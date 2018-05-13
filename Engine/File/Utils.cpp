@@ -52,3 +52,34 @@ bool fs::exists(const path& file) {
 bool fs::isDirectory(const path& path) {
   return is_directory(path);
 }
+
+// reference from Boost filesystem
+fs::path fs::relative(const path& p, const path& base) {
+  std::pair<path::iterator, path::iterator> mm
+    = std::mismatch(p.begin(), p.end(), base.begin(), base.end());
+
+  if (mm.first == p.begin() && mm.second == base.begin())
+    return base.root_directory();
+
+  if (mm.first == p.end() && mm.second == base.end())
+    return fs::dotPath();
+
+  path tmp;
+  for (; mm.second != base.end(); ++mm.second)
+    tmp /= fs::dotdotPath();
+  for (; mm.first != p.end(); ++mm.first)
+    tmp /= *mm.first;
+  return tmp;
+}
+
+const fs::path& fs::dotPath() {
+  static fs::path dot = ".";
+
+  return dot;
+}
+
+const fs::path& fs::dotdotPath() {
+  static const fs::path dotdot("..");
+
+  return dotdot;
+}

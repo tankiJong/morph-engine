@@ -110,6 +110,29 @@ std::ifstream FileSystem::asStream(const fs::path& file) {
   return f;
 }
 
+void FileSystem::foreach(fs::path vpath, const delegate<void(const fs::path&)>& handler, bool recursive) {
+
+  auto physicalPaths = map(vpath);
+  if (physicalPaths.size() == 0) return;
+
+  EXPECTS(fs::isDirectory(physicalPaths[0]));
+  for(auto& path: physicalPaths) {
+    if(recursive) {
+      for(auto& p: fs::RecursiveDirectoryIterator(path)) {
+        fs::path vFilePath = vpath / fs::relative(p.path(), path);
+        handler(vFilePath);
+      }
+    } else {
+      for(auto& p: fs::DirectoryIterator(path)) {
+        fs::path rela = fs::relative(p.path(), path);
+        fs::path vFilePath = vpath / rela;
+
+        handler(vFilePath);
+      }
+    }
+  }
+}
+
 static FileSystem* gInstance = nullptr;
 FileSystem& FileSystem::Get() {
   if(!gInstance) {

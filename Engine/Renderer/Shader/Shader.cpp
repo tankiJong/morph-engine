@@ -88,7 +88,7 @@ bool YAML::convert<Shader*>::decode(const Node& node, Shader*& shader) {
   shader->name = node["name"] ? node["name"].as<std::string>() : "";
 
   auto passes = node["pass"];
-  EXPECTS(passes.IsSequence() && passes.size() >= 1);
+  EXPECTS(passes && passes.IsSequence() && passes.size() >= 1);
 
   for (auto pass : passes) {
     ShaderPass* p = new ShaderPass(std::move(pass.as<ShaderPass>()));

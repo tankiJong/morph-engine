@@ -5,6 +5,7 @@
 #include "Blob.hpp"
 #include <unordered_map>
 #include "Engine/File/File.hpp"
+#include "Engine/Core/Delegate.hpp"
 
 class File;
 
@@ -18,7 +19,7 @@ public:
   std::optional<fs::path> locate(const fs::path& vPath);
   std::optional<Blob> asBuffer(const fs::path& file);
   std::ifstream asStream(const fs::path& file);
-
+  void foreach(fs::path vpath, const delegate<void(const fs::path&)>& handler, bool recursive = true);
   static FileSystem& Get();
 
 protected:

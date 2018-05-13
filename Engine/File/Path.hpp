@@ -5,6 +5,8 @@
 
 namespace fs {
   using path = std::experimental::filesystem::path;
+  using RecursiveDirectoryIterator = std::experimental::filesystem::recursive_directory_iterator;
+  using DirectoryIterator = std::experimental::filesystem::directory_iterator;
 }
 
 using Path = fs::path;
