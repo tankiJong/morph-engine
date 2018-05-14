@@ -37,7 +37,26 @@ layout(binding = UNIFORM_USER_1) uniform sampler2D gTexShadowMap;
 
 float shadowFactor[NUM_MAX_LIGHT];
 
+vec2 ShadowSpread[16] = vec2[]( 
+   vec2( -0.94201624, -0.39906216 ), 
+   vec2( 0.94558609, -0.76890725 ), 
+   vec2( -0.094184101, -0.92938870 ), 
+   vec2( 0.34495938, 0.29387760 ), 
+   vec2( -0.91588581, 0.45771432 ), 
+   vec2( -0.81544232, -0.87912464 ), 
+   vec2( -0.38277543, 0.27676845 ), 
+   vec2( 0.97484398, 0.75648379 ), 
+   vec2( 0.44323325, -0.97511554 ), 
+   vec2( 0.53742981, -0.47373420 ), 
+   vec2( -0.26496911, -0.41893023 ), 
+   vec2( 0.79197514, 0.19090188 ), 
+   vec2( -0.24188840, 0.99706507 ), 
+   vec2( -0.81409955, 0.91437590 ), 
+   vec2( 0.19984126, 0.78641367 ), 
+   vec2( 0.14383161, -0.14100790 ) 
+);
 
+const float ShadowSpreadRatio = 1.f / 500.f;
 // 0 means in the shadow
 float ShadowTestCore(vec3 worldPosition, mat4 lightVP, float index) {
   vec4 world = vec4(worldPosition, 1.f);
@@ -45,13 +64,22 @@ float ShadowTestCore(vec3 worldPosition, mat4 lightVP, float index) {
 
   vec3 ndc = clip.xyz / clip.w;
   vec3 uvd = ndc * .5f + vec3(.5f);
+  uvd.z -= 0.001;
   vec2 uv = uvd.xy;
 
   if(uv.x > 1.f || uv.y > 1.f || uv.x < 0.f || uv.y < 0.f) return 1.f;
   uv.x = uv.x / float(NUM_MAX_LIGHT) + index * (1.f / float(NUM_MAX_LIGHT));
-  float depth = texture( gTexShadowMap, uv ).r;
 
-  return ( uvd.z < depth + 0.001) ? 1.f : 0f;
+  float depth = texture( gTexShadowMap, uv).r;
+  for(int i = 0; i < 16; i++) {
+    float d = texture( gTexShadowMap, uv + ShadowSpread[i]*ShadowSpreadRatio).r;
+    depth += ( uvd.z < d) ? 1.f : 0.f;
+  }
+
+  depth /= 17.f;
+
+  return depth;
+  // return depth;
 }
 
 void ShadowTest(vec3 worldPosition) {
@@ -146,33 +174,28 @@ vec3 Specular(light_buffer_t lights, vec3 surfacePosition, vec3 surfaceNormal, f
 
   return specular;
 }
+// vec4 ShadowTestCore2(vec3 worldPosition, mat4 lightVP, float index) {
+//   vec4 world = vec4(worldPosition, 1.f);
+//   vec4 clip = lightVP * world;
 
-vec4 ShadowTestCore2(vec3 worldPosition, mat4 lightVP, float index) {
-  vec4 world = vec4(worldPosition, 1.f);
-  vec4 clip = lightVP * world;
+//   vec3 ndc = clip.xyz / clip.w;
+//   vec3 uvd = ndc * .5f + vec3(.5f);
+//   vec2 uv = uvd.xy;
 
-  vec3 ndc = clip.xyz / clip.w;
-  vec3 uvd = ndc * .5f + vec3(.5f);
-  vec2 uv = uvd.xy;
-  // return uvd;
-  // if(uv.x > 1.f || uv.y > 1.f || uv.x < 0.f || uv.y < 0.f) return vec2(0,0);
-
-  // return uv;
-  uv.x = uv.x / float(NUM_MAX_LIGHT) + index * (1.f / float(NUM_MAX_LIGHT));
-  return vec4((texture( gTexShadowMap, uv ).xyz - .95f)/ 0.05f, 1.f);
-
-  // return ( uvd.z < depth ) ? 1.f : 0f;
-}
+//   // if(uv.x > 1.f || uv.y > 1.f || uv.x < 0.f || uv.y < 0.f) return 1.f;
+//   uv.x = uv.x / float(NUM_MAX_LIGHT) + index * (1.f / float(NUM_MAX_LIGHT));
+//   return texture( gTexShadowMap, uv );
+//   // return vec4(uvd.xy, 0 ,1);
+//   // return ( uvd.z < depth + 0.001) ? 1.f : 0f;
+//   // return depth;
+// }
 
 vec4 PhongLighting(light_buffer_t lights, 
                    vec3 surfacePosition, vec3 surfaceNormal, float shininesss, float smoothness, vec4 surfaceColor,
                    vec3 eyeDir) {
+  // float d = ShadowTestCore2(surfacePosition, lights.lights[0].vp, 0);
+  // return vec4(d,0,0 ,1);
   // return ShadowTestCore2(surfacePosition, lights.lights[0].vp, 0);
-  // float d = texture( gTexShadowMap, uvd.xy ).r;
-  // float diff = uvd.z;
-  // return vec4(vec3(abs(d-diff))*100,1);
-  // return vec4(ShadowTestCore2(surfacePosition, lights.lights[0].vp, 0), 0, 1);
-	// return ShadowTestCore2(surfacePosition, lights.lights[0].vp, 0);
   ShadowTest(surfacePosition);
   #ifndef _disable_diffuse
   vec3 diffuse = Diffuse(lights, surfacePosition, surfaceNormal);

@@ -13,6 +13,8 @@ class Command;
 class Renderer;
 class Input;
 class Camera;
+class Font;
+
 using CommandHandler = delegate<bool(Command&)> ;
 
 
@@ -46,12 +48,12 @@ public:
   static void warn(const std::string& msg);
   static void error(const std::string& msg);
   static constexpr uint MAX_COMMAND_COUNT = 1000u;
-  static constexpr float FONT_SIZE = 16;
+  static constexpr float FONT_SIZE = 20;
   static constexpr float FONT_ASPECT = 0.7f;
   static constexpr float WORD_PADDING = 1;
-  static constexpr float LINE_HEIGHT = FONT_SIZE + WORD_PADDING * 2;
   static constexpr float SCROLLBAR_WIDTH = 3;
   static constexpr uint MAX_LOG_NUMBER = 200u;
+  float LINE_HEIGHT = 0.f;
 public:
   void init(Renderer& renderer, Input& input);;
   template<typename T>
@@ -132,6 +134,7 @@ protected:
   uint mNumCurrentCommand = 0;
   uint mNextCommandLogIndex = 0;
   Camera* mCamera = nullptr;
+  S<const Font> mFont;
 private:
   void hookInBuiltInCommand();
 };

@@ -13,7 +13,6 @@
 #include "Engine/Debug/Draw.hpp"
 #include "Engine/Renderer/Shader/Shader.hpp"
 #include "Engine/Renderer/Geometry/Mesher.hpp"
-#include "Engine/Renderer/Font.hpp"
 
 #define WM_CHAR                 0x0102
 #define WM_KEYDOWN              0x0100
@@ -357,138 +356,103 @@ void Console::hookInBuiltInCommand() {
 }
 
 void Console::render() const {
-
-  float inputBoxHeight = LINE_HEIGHT;
-  float descender = mFont->descender(FONT_SIZE);
+  static constexpr float inputBoxHeight = LINE_HEIGHT;
   const aabb2& screenBounds = { vec2::zero, vec2{(float)mCamera->width(), (float)mCamera->height()}};
-
   mRenderer->setCamera(mCamera);
   static const Shader* defaultShader = Resource<Shader>::get("shader/ui/default").get();
   mRenderer->setShader(defaultShader);
+  mRenderer->resetAlphaBlending();
+  mRenderer->enableDepth(COMPARE_ALWAYS, false);
+  // ###### draw background
+  
   mRenderer->setTexture();
-
   Mesher ms;
-
-  // ###### draw input box
-  ms.begin(DRAW_TRIANGES);
+  ms.begin(DRAW_TRIANGES, false);
   ms.color(Rgba(0, 0, 0, 200));
   ms.quad(vec3(screenBounds.mins, 0.f), 
           vec3{ screenBounds.maxs.x, screenBounds.mins.y, 0 }, 
           vec3{ screenBounds.maxs.x, inputBoxHeight, 0 },
           vec3{ screenBounds.mins.x, inputBoxHeight, 0 });
-
-  // ###### draw log window
   ms.color(Rgba(0, 50, 70, 200));
   ms.quad(vec3{ screenBounds.mins.x, inputBoxHeight , 0 },
           vec3{ screenBounds.maxs.x, inputBoxHeight , 0 },
           vec3{ screenBounds.maxs, 0 },
           vec3{ screenBounds.mins.x, screenBounds.maxs.y, 0 });
   ms.end();
-
-  // ###### draw scrollbar
-  ms.begin(DRAW_TRIANGES);
-  // bg
-  vec2 scrollBarMins =  screenBounds.mins + vec2{ screenBounds.width() - SCROLLBAR_WIDTH, inputBoxHeight };
-  const vec2& scrollBarMaxs = screenBounds.maxs;
-  ms.color(Rgba(255, 255, 255, 100));
-  ms.quad2({ scrollBarMins, scrollBarMaxs }, -.1f);
-
-  // bar
-  float barAreaHeight = scrollBarMaxs.y - scrollBarMins.y;
-  float barHeight = (float)mTotalLineLogCanRender / (float)mLogStream.size() * barAreaHeight;
-  float barPadding = (float)mLineNumberAtBottom / (float)mLogStream.size() *barAreaHeight;
-  ms.color(Rgba(255, 255, 255, 150));
-  ms.quad2({ scrollBarMins + vec2{ 0, barPadding },
-             scrollBarMins + vec2{ SCROLLBAR_WIDTH, barHeight + barPadding } }, -.1f);
-  ms.end();
-
-  // ###### draw selection
-  EXPECTS(mSelection.min >= 0 && mSelection.max >=0);
-  std::string_view inputText(mInputStream);
-  if(mSelection.size() > 0) {
-
-
-    float selectionStart = mFont->advance(inputText.substr(0, mSelection.min), FONT_SIZE);
-    float selectionEnd = mFont->advance(inputText.substr(mSelection.min, mSelection.size()), FONT_SIZE);
-
-    vec2 selectionBottomLeft = screenBounds.mins + vec2{ selectionStart, 0 };
-    vec2 selectionTopRight = selectionBottomLeft + vec2{ selectionEnd, inputBoxHeight };
-
-    ms.begin(DRAW_TRIANGES);
-    ms.color(Rgba::red);
-    ms.quad2({ selectionBottomLeft, selectionTopRight }, -.1f);
-    ms.end();
-  }
-
-  // ###### draw cursor
-  if (mDrawCursor) {
-    float cursorX = mFont->advance(std::string_view(mInputStream).substr(0, mCursorPosition), FONT_SIZE) + WORD_PADDING;
-    float cursorY = screenBounds.mins.y;
-    float cursorHeight = LINE_HEIGHT;
-    float cursorWidth = 2.f;
-
-    ms.begin(DRAW_TRIANGES);
-    ms.color(Rgba::white);
-    ms.quad(
-      vec3{cursorX + .5f * cursorWidth, cursorY + .5f * cursorHeight, .3f},
-      vec3::right,
-      vec3::up,
-      vec2{ cursorWidth, cursorHeight}
-    );
-    ms.end();
-  }
-
   Mesh* layout = ms.createMesh<vertex_pcu_t>();
   mRenderer->drawMesh(*layout);
-
-  // ###### render text
-
-  Mesher printer;
-
-  printer.begin(DRAW_TRIANGES);
-  // ### input text
-  printer.color(Rgba::white);
-  printer.text( inputText, FONT_SIZE, mFont.get(),
-               vec3{ screenBounds.mins + vec2(WORD_PADDING, descender), -.2f }, vec3::right);
-
-  // ###### draw log
-  {
-    std::vector<std::string> stringChunks;
-    std::vector<Rgba> colors;
-
-    float startY = LINE_HEIGHT;
-
-    auto prepareTextRenderData = [&stringChunks, &colors](const std::string& str, const Rgba& color) {
-     stringChunks.push_back(str);
-     colors.push_back(color);
-    };
-
-    for (auto it = mLogStream.rbegin() + mLineNumberAtBottom; it != mLogStream.rend(); ++it) {
-      std::string aLog = *it;
-      stringChunks.clear();
-      colors.clear();
-      float startX = 0.f;
-      consumeConsoleText(aLog, prepareTextRenderData);
-      for(uint i = 0; i<stringChunks.size(); i++) {
-        std::string& txt = stringChunks[i];
-        printer.color(colors[i]);
-        printer.text(txt, FONT_SIZE, mFont.get(), vec3{ startX, startY + descender, 0 });
-        startX += mFont->advance(txt, FONT_SIZE);
-      }
-      startY += inputBoxHeight;
-      stringChunks.clear();
-      colors.clear();
-    }
-  }
-
-  printer.end();
-
-  Mesh* text = printer.createMesh<vertex_pcu_t>();
-  static const Shader* fontShader = Resource<Shader>::get("shader/ui/font").get();
-  mRenderer->setShader(fontShader);
-  mRenderer->setTexture(mFont->texture(0));
-  mRenderer->setSampler(0, &Sampler::Linear());
-  mRenderer->drawMesh(*text);
+  // // input box
+  // mRenderer->drawAABB2({ screenBounds.mins, 
+  //                       { screenBounds.maxs.x, inputBoxHeight } },
+  //                      Rgba(0, 0, 0, 200));
+  // // log
+  // mRenderer->drawAABB2({ screenBounds.mins + vec2{ 0, inputBoxHeight}, 
+  //                        screenBounds.maxs }, 
+  //                      Rgba(0, 50, 70, 200));
+//
+//   BitmapFont* font = BitmapFont::getDefaultFont();
+//   EXPECTS(font != nullptr);
+//   float chWidth = font->getCharWidth(FONT_SIZE, 'A', FONT_ASPECT);
+//
+//   // ###### draw selection
+//   EXPECTS(mSelection.min >= 0 && mSelection.max >=0);
+//   if(mSelection.size() > 0) {
+//     vec2 selectionBottomLeft = screenBounds.mins + vec2{ mSelection.min * chWidth + WORD_PADDING, 0 };
+//     vec2 selectionTopRight = selectionBottomLeft + vec2{ mSelection.size() * chWidth + WORD_PADDING, inputBoxHeight };
+//     mRenderer->drawAABB2({ selectionBottomLeft, selectionTopRight }, Rgba::red);
+//   }
+//
+//
+//   mRenderer->setTexture(0, &font->getTexture());
+//
+//   // ###### draw input
+//   std::string inputText = mInputStream;
+// //  consumeConsoleText(inputText, prepareTextRenderData);
+//   mRenderer->drawText2D(screenBounds.mins + vec2{ WORD_PADDING, WORD_PADDING }, 
+//                         mInputStream, FONT_SIZE, DEFAULT_TEXT_COLOR, FONT_ASPECT);
+//
+//   // ###### draw log
+//   std::vector<std::string> stringChunks;
+//   std::vector<Rgba> colors;
+//
+//   float startY = LINE_HEIGHT;
+//
+//   auto prepareTextRenderData = [&stringChunks, &colors](const std::string& str, const Rgba& color) {
+//     stringChunks.push_back(str);
+//     colors.push_back(color);
+//   };
+//
+//   for (auto it = mLogStream.rbegin() + mLineNumberAtBottom; it != mLogStream.rend(); ++it) {
+//     std::string aLog = *it;
+//     stringChunks.clear();
+//     colors.clear();
+//     consumeConsoleText(aLog, prepareTextRenderData);
+//     mRenderer->drawText2D({ 0, startY }, stringChunks, FONT_SIZE, colors, nullptr, FONT_ASPECT);
+//     startY += inputBoxHeight;
+//   }
+//
+//   // ###### draw scrollbar
+//   // bg
+//   vec2 scrollBarMins =  screenBounds.mins + vec2{ screenBounds.width() - SCROLLBAR_WIDTH, inputBoxHeight };
+//   const vec2& scrollBarMaxs = screenBounds.maxs;
+//   mRenderer->drawAABB2({ scrollBarMins,
+//                          scrollBarMaxs },
+//                        Rgba(255, 255, 255, 100));
+//   //bar
+//   float barAreaHeight = scrollBarMaxs.y - scrollBarMins.y;
+//   float barHeight = (float)mTotalLineLogCanRender / (float)mLogStream.size() * barAreaHeight;
+//   float barPadding = (float)mLineNumberAtBottom / (float)mLogStream.size() *barAreaHeight;
+//
+//   mRenderer->drawAABB2({ scrollBarMins + vec2{ 0, barPadding},
+//                          scrollBarMins + vec2{ SCROLLBAR_WIDTH, barHeight + barPadding } },
+//                        Rgba(255, 255, 255, 150));
+//   // ###### draw cursor
+//   if(mDrawCursor) {
+//     vec2 cursorBottomPos(mCursorPosition * chWidth + WORD_PADDING, WORD_PADDING);
+//     vec2 cursorTopPos = cursorBottomPos + vec2(0, FONT_SIZE);
+//
+//     mRenderer->drawLine(vec3(cursorBottomPos), vec3(cursorTopPos), Rgba::white, Rgba::white, 3);
+//   }
 }
 
 bool Console::exec(const std::string& cmd) {
@@ -567,9 +531,7 @@ Console::Console() {
     consoleCharHandler(msg, wParam, lParam);
     consoleControlHandler(msg, wParam, lParam);
   });
-  mFont = Font::Default();
-  EXPECTS(mFont != nullptr);
-  LINE_HEIGHT = mFont->lineHeight(FONT_SIZE);
+
   hookInBuiltInCommand();
 
   mInputStream.reserve(1024u);

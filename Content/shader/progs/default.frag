@@ -60,7 +60,7 @@ void main( void )
     return;
     #endif
     
-    #ifdef _LIT
+#ifdef _LIT
     vec4 normal = vec4(passWorldNormal, 0);
 
     #ifdef _d_tangent
@@ -104,7 +104,7 @@ void main( void )
                 texColor,
                 normalize(passEyeDir));
     
-    #else
+#else
     outColor = texColor * passColor;
-    #endif
+#endif
 }

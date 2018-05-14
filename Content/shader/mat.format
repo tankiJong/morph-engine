@@ -1,0 +1,32 @@
+name: material/format
+properties:
+  cParticle: {
+    [Tint, vec4]: '1.f, 1.f, 1.f, 1.f',
+    [SingleValue, float]: 1,
+    [ArrayValue, float]: [1, 2, 3]
+  }
+  gTexDiffuse: [0, /image/particle.png, LINEAR]
+
+shader:
+  name: shader/default
+  pass: # overwrite corrisponding pass state
+  -
+    layer: alpha
+    cull: none
+    depth:
+      write: false
+      test: less
+    blend:
+      alpha:
+        op: add
+        src: src_alpha
+        dest: inv_src_alpha
+      color:
+        op: add
+        src: src_alpha
+        dest: inv_src_alpha
+shader: # same to definition of a shader
+  pass:
+  -
+    program:
+      path: ...

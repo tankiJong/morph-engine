@@ -39,10 +39,16 @@ public:
   // |    |
   // a -- b
   Mesher& quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d);
-  Mesher& quad(const vec3& center, const vec3& right, const vec3& forward, const vec2& size);
+  Mesher& quad(const vec3& center, const vec3& xDir, const vec3& yDir, const vec2& size);
+  Mesher& quad2(const aabb2& bound, float z = 0);
   Mesher& cube(const vec3& center, const vec3& dimension);
   Mesher& cone(const vec3& origin, const vec3& direction, float length, float angle, uint slide = 10, bool bottomFace= true);
-  Mesher& text(const span<const std::string_view> asciiTexts, float size, const Font* font, const vec3& position, const vec3& right = vec3::right, const vec3& up = vec3::up);
+  Mesher& text(const span<const std::string_view> asciiTexts, float size, const Font* font, 
+               const vec3& position, const vec3& right = vec3::right, const vec3& up = vec3::up);
+  Mesher& text(const std::string_view asciiText, float size, const Font* font,
+               const vec3& position, const vec3& right = vec3::right, const vec3& up = vec3::up);
+  Mesher& text(const span<const std::string> asciiTexts, float size, const Font* font,
+               const vec3& position, const vec3& right = vec3::right, const vec3& up = vec3::up);
   void obj(fs::path objFile);
   void surfacePatch(const delegate<vec3(const vec2&)>& parametric);
   void surfacePatch(const FloatRange& u, const FloatRange& v, uint levelX, uint levelY, const delegate<vec3(const vec2&)>& parametric);

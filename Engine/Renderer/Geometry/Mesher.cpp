@@ -322,6 +322,7 @@ Mesher& Mesher::triangle() {
 }
 
 Mesher& Mesher::triangle(uint a, uint b, uint c) {
+  ASSERT_OR_DIE(mCurrentIns.useIndices, "use indices!");
   switch(mCurrentIns.prim) {
     case DRAW_POINTS:
     case DRAW_TRIANGES: {
@@ -358,6 +359,7 @@ Mesher& Mesher::quad() {
 }
 
 Mesher& Mesher::quad(uint a, uint b, uint c, uint d) {
+  ASSERT_OR_DIE(mCurrentIns.useIndices, "use indices!");
   switch(mCurrentIns.prim) {
     case DRAW_POINTS: {
       mIndices.push_back(a);
@@ -387,7 +389,7 @@ Mesher& Mesher::quad(uint a, uint b, uint c, uint d) {
 }
 
 Mesher& Mesher::quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d) {
-
+  ASSERT_OR_DIE(mCurrentIns.useIndices, "use indices!");
   tangent(b - a, 1);
   normal((d - a).cross(b - a));
 
@@ -408,12 +410,19 @@ Mesher& Mesher::quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d)
   return *this;
 }
 
-Mesher& Mesher::quad(const vec3& center, const vec3& right, const vec3& forward, const vec2& size) {
-  vec3 halfX = right * size.x * .5f, halfY = forward * size.y * .5f;
+Mesher& Mesher::quad(const vec3& center, const vec3& xDir, const vec3& yDir, const vec2& size) {
+  vec3 halfX = xDir * size.x * .5f, halfY = yDir * size.y * .5f;
   return quad(center - halfX - halfY, 
               center + halfX - halfY, 
               center + halfX + halfY, 
               center - halfX + halfY);
+}
+
+Mesher& Mesher::quad2(const aabb2& bound, float z) {
+  return quad(vec3{ bound.mins, z },
+              vec3{ bound.maxs.x, bound.mins.y, z },
+              vec3{ bound.maxs, z },
+              vec3{ bound.mins.x, bound.maxs.y, z });
 }
 
 Mesher& Mesher::cube(const vec3& center, const vec3& dimension) {
@@ -466,57 +475,89 @@ Mesher& Mesher::cone(const vec3& origin, const vec3& direction, float length, fl
   return *this;
 }
 
-Mesher& Mesher::text(const span<const std::string_view> asciiTexts, float size, const Font* font, const vec3& position, const vec3& right, const vec3& up) {
+Mesher& Mesher::text(const span<const std::string_view> asciiTexts, float size, const Font* font, 
+                     const vec3& position, const vec3& right, const vec3& up) {
+
   vec3 cursor = position;
+  vec3 lineStart = cursor;
 
   for (auto& asciiText : asciiTexts) {
-    EXPECTS(!asciiText.empty());
-    // Draw each line
-    vec3 lineStart = cursor;
-    uint i = 0;
-    {
-      aabb2 bounds = font->bounds(asciiText[i], size);
-      vec3 bottomLeft = cursor + bounds.mins.x * right + bounds.mins.y * up;
-      vec3 bottomRight = cursor + bounds.maxs.x * right + bounds.mins.y * up;
-      vec3 topRight = cursor + bounds.maxs.x * right + bounds.maxs.y * up;
-      vec3 topLeft = cursor + bounds.mins.x * right + bounds.maxs.y * up;
-      auto uvs = font->uv(asciiText[0]).vertices();
-      uint start =
-        uv(uvs[0])
-        .vertex3f(bottomLeft);
-      uv(uvs[1])
-        .vertex3f(bottomRight);
-      uv(uvs[2])
-        .vertex3f(topRight);
-      uv(uvs[3])
-        .vertex3f(topLeft);
-      quad(start, start + 1, start + 2, start + 3);
-    }
-    //    end();
+    text(asciiText, size, font, cursor, right, up);
+    cursor = lineStart - font->lineHeight(size) * up;
+  }
 
-    cursor += font->advance('\0', asciiText[i], size) * right;
-    while (++i < asciiText.size()) {
-      aabb2 bounds = font->bounds(asciiText[i], size);
-      vec3 bottomLeft = cursor + bounds.mins.x * right + bounds.mins.y * up;
-      vec3 bottomRight = cursor + bounds.maxs.x * right + bounds.mins.y * up;
-      vec3 topRight = cursor + bounds.maxs.x * right + bounds.maxs.y * up;
-      vec3 topLeft = cursor + bounds.mins.x * right + bounds.maxs.y * up;
-      auto uvs = font->uv(asciiText[i]).vertices();
+  return *this;
+}
 
-      uint start =
-        uv(uvs[0])
-        .vertex3f(bottomLeft);
-      uv(uvs[1])
-        .vertex3f(bottomRight);
-      uv(uvs[2])
-        .vertex3f(topRight);
-      uv(uvs[3])
-        .vertex3f(topLeft);
-      quad(start, start + 1, start + 2, start + 3);
+Mesher& Mesher::text(const std::string_view asciiText,
+  float size,
+  const Font* font,
+  const vec3& position,
+  const vec3& right,
+  const vec3& up) {
+  if (asciiText.empty()) return *this;
+  vec3 cursor = position;
+  vec3 lineStart = cursor;
 
-      cursor += font->advance(asciiText[i - 1], asciiText[i], size) * right;
-    }
+  uint i = 0;
+  {
+    aabb2 bounds = font->bounds(asciiText[i], size);
+    vec3 bottomLeft = cursor + bounds.mins.x * right + bounds.mins.y * up;
+    vec3 bottomRight = cursor + bounds.maxs.x * right + bounds.mins.y * up;
+    vec3 topRight = cursor + bounds.maxs.x * right + bounds.maxs.y * up;
+    vec3 topLeft = cursor + bounds.mins.x * right + bounds.maxs.y * up;
+    auto uvs = font->uv(asciiText[0]).vertices();
+    uint start =
+      uv(uvs[0])
+      .vertex3f(bottomLeft);
+    uv(uvs[1])
+      .vertex3f(bottomRight);
+    uv(uvs[2])
+      .vertex3f(topRight);
+    uv(uvs[3])
+      .vertex3f(topLeft);
+    quad(start, start + 1, start + 2, start + 3);
+  }
+  //    end();
 
+  cursor += font->advance('\0', asciiText[i], size) * right;
+  while (++i < asciiText.size()) {
+    aabb2 bounds = font->bounds(asciiText[i], size);
+    vec3 bottomLeft = cursor + bounds.mins.x * right + bounds.mins.y * up;
+    vec3 bottomRight = cursor + bounds.maxs.x * right + bounds.mins.y * up;
+    vec3 topRight = cursor + bounds.maxs.x * right + bounds.maxs.y * up;
+    vec3 topLeft = cursor + bounds.mins.x * right + bounds.maxs.y * up;
+    auto uvs = font->uv(asciiText[i]).vertices();
+
+    uint start =
+      uv(uvs[0])
+      .vertex3f(bottomLeft);
+    uv(uvs[1])
+      .vertex3f(bottomRight);
+    uv(uvs[2])
+      .vertex3f(topRight);
+    uv(uvs[3])
+      .vertex3f(topLeft);
+    quad(start, start + 1, start + 2, start + 3);
+
+    cursor += font->advance(asciiText[i - 1], asciiText[i], size) * right;
+  }
+
+  return *this;
+}
+
+Mesher& Mesher::text(const span<const std::string> asciiTexts,
+  float size,
+  const Font* font,
+  const vec3& position,
+  const vec3& right,
+  const vec3& up) {
+
+  vec3 cursor = position;
+  vec3 lineStart = cursor;
+
+  for (auto& asciiText : asciiTexts) {
+    text(asciiText, size, font, cursor, right, up);
     cursor = lineStart - font->lineHeight(size) * up;
   }
 

@@ -141,9 +141,6 @@ Font* fromJson(const fs::path& path) {
 
   json meta = json::parse(str.begin(), str.end());
 
-
-  UNIMPLEMENTED();
-
   auto glyphsNode = meta.at("glyphs");
   EXPECTS(glyphsNode.is_array());
 
@@ -168,6 +165,20 @@ Font* fromJson(const fs::path& path) {
   font->mLineHeight = meta.at("line_height").get<float>() / size;
   font->mAscender = meta.at("ascender").get<float>() / size;
   font->mDescender = meta.at("descender").get<float>() / size;
+
+  auto& textures = meta.at("images");
+  EXPECTS(textures.is_array());
+  for(auto& path: textures) {
+    std::string p = path;
+
+    auto tex = Resource<Texture>::get(p);
+    if(!tex) {
+      Resource<Texture>::define(p);
+      tex = Resource<Texture>::get(p);
+    }
+
+    font->mTextures.push_back(tex.get());
+  }
 
   // the code expects the element at the end is with the biggest index
   auto& faces = meta.at("faces");

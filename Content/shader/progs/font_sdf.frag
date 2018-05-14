@@ -22,11 +22,13 @@ void main( void )
 {
    float alpha = texture( gTexDiffuse, passUV ).x;
    
-   if (alpha < .5f) {
+   if (alpha < .45f) {
       discard; 
    }
 
-   outColor = vec4( passColor.xyz, passColor.w); 
+   alpha = RangeMap( alpha, .45f, .5f, 0.0f, 1.0f );
+   alpha = smoothstep(0.f, 1.f, alpha);
+   outColor = vec4( passColor.xyz, passColor.w * alpha ); 
 }
 
 

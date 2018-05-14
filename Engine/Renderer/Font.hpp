@@ -83,7 +83,7 @@ public:
   aabb2 bounds(char c, float size, float aspectScale = 1.f) const;
 
   aabb2 uv(char c) const;
-
+  const Texture* texture(uint index = 0) const { return mTextures[index]; }
   static inline S<const Font>& Default() { return sDefaultFont; };
 protected:
   std::vector<Glyph> mGlyphs;
