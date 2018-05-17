@@ -22,6 +22,10 @@ Input::Input() {
   Window* win = Window::Get();
   mMousePosition = win->clientCenter();
   mouseSetPosition(mMousePosition);
+
+  // some how ShowCursor count is one more bigger;
+  ::ShowCursor(false);
+
   win->addWinMessageHandler([this](uint msg, size_t wparam, size_t /*lParam*/) {
     switch (msg) {
       // Raw physical keyboard "key-was-just-depressed" event (case-insensitive, not translated)
@@ -156,7 +160,8 @@ void Input::mouseHideCursor(bool hide) {
 
   if (mCursorVisible == !hide) return;
   mCursorVisible = !hide;
-  ::ShowCursor(!hide);
+  int count = ::ShowCursor(!hide);
+  ENSURES(hide == count < 0);
 }
 
 void Input::beforeFrame() {

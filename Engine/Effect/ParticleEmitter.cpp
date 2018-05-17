@@ -4,6 +4,7 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Renderer/Shader/Material.hpp"
 #include "Engine/Renderer/Renderable/Renderable.hpp"
+#include "Engine/Renderer/Camera.hpp"
 
 particle_t::particle_t(float spawnTime, float lifeTime)
   : timeSpawnSec(spawnTime)

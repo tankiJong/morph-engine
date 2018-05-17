@@ -47,6 +47,12 @@ owner<Shader*> Shader::fromYaml(const fs::path& file) {
   return shader;
 }
 
+Shader::Shader(const Shader& from) {
+  for(ShaderPass* const pass: from.mPasses) {
+    mPasses.push_back(new ShaderPass(*pass));
+  }
+}
+
 template<>
 ResDef<Shader> Resource<Shader>::load(const std::string& file) {
   Shader* shader = Shader::fromYaml(file);
@@ -98,3 +104,8 @@ bool YAML::convert<Shader*>::decode(const Node& node, Shader*& shader) {
   return true;
 }
 
+
+template<>
+owner<Shader*> Resource<Shader>::clone(S<const Shader> res) {
+  return new Shader(*res);
+};

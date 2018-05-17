@@ -4,7 +4,6 @@
 #include "Engine/Math/Primitives/vec3.hpp"
 #include "Engine/Math/Primitives/AABB2.hpp"
 #include "Engine/Renderer/Geometry/Mesh.hpp"
-
 class Renderer;
 class Texture;
 class Clock;
@@ -20,9 +19,9 @@ namespace Debug {
 
   class DrawHandle {
     friend struct DebugDrawMeta;
+    DebugDrawMeta* mTarget;
     uint id = NULL;
     inline static uint _id = 0;
-    
   public:
     bool terminate() const;
     inline static uint next() {
@@ -32,6 +31,7 @@ namespace Debug {
 
   inline constexpr float INF = INFINITY;
   void setRenderer(Renderer* renderer);
+  void setCamera2D(Camera* camera);
   void setCamera(Camera* camera);
   void setClock(const Clock* clock = nullptr);
   void setDuration(float time);

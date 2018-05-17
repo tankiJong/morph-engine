@@ -20,7 +20,7 @@ class Shader {
 public:
   std::string name;
   ~Shader();
-
+  Shader() = default;
   inline ShaderPass*& pass(uint i) { return mPasses.at(i); }
   inline const ShaderPass& pass(uint i) const { return *mPasses.at(i); }
 
@@ -30,6 +30,7 @@ public:
 
   static owner<Shader*> Shader::fromYaml(const fs::path& file);
 protected:
+  Shader(const Shader& from);
   std::vector<owner<ShaderPass*>> mPasses;
 };
 
@@ -39,3 +40,6 @@ ResDef<Shader> Resource<Shader>::load(const std::string& file);
 
 template<>
 bool Resource<Shader>::reload(const fs::path& file, Shader& shader);
+
+template<>
+owner<Shader*> Resource<Shader>::clone(S<const Shader> res);

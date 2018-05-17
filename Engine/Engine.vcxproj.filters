@@ -821,12 +821,6 @@
     <Text Include="..\..\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Renderer\Shader\passthrough.fs">
-      <Filter>Renderer\Shader</Filter>
-    </None>
-    <None Include="Renderer\Shader\passthrough.vs">
-      <Filter>Renderer\Shader</Filter>
-    </None>
     <None Include="..\ThirdParty\gsl\gsl">
       <Filter>ThirdParty\gsl</Filter>
     </None>

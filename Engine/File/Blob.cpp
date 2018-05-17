@@ -23,7 +23,7 @@ Blob Blob::clone() const {
   return Blob(block, dataSize);
 }
 
-void Blob::set(void* data, size_t size, size_t offset) {
+void Blob::set(const void* data, size_t size, size_t offset) {
   if (bufferSize < offset + size) {
     void* newBuffer = malloc(offset + size);
     memcpy(newBuffer, buffer, dataSize);

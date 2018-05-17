@@ -7,38 +7,38 @@ void runMessagePump();
 class XboxController;
 class Input {
 public:
-	Input();
-	~Input();
-	static constexpr int NUM_KEY = 0xff;
-	void onKeyDown(unsigned char keyCode);
-	void onKeyUp(unsigned char keyCode);
+  Input();
+  ~Input();
+  static constexpr int NUM_KEY = 0xff;
+  void onKeyDown(unsigned char keyCode);
+  void onKeyUp(unsigned char keyCode);
 
-	bool isKeyDown(unsigned char keyCode) const;
-	bool isKeyUp(unsigned char keyCode) const;
-	bool isKeyJustDown(unsigned char keyCode) const;
-	bool isKeyJustUp(unsigned char keyCode) const;
+  bool isKeyDown(unsigned char keyCode) const;
+  bool isKeyUp(unsigned char keyCode) const;
+  bool isKeyJustDown(unsigned char keyCode) const;
+  bool isKeyJustUp(unsigned char keyCode) const;
 
   vec2 mouseClientPositon(bool normalized = false) const;
   vec2 mouseDeltaPosition(bool normalized = false) const;
   vec2 mouseDeltaDirection() const;
   void mouseSetPosition(const vec2& clientPosition);
   void mouseLockCursor(bool lock);
-  void mouseHideCursor(bool hide);
 
 
-	void beforeFrame();
-	void afterFrame();
-	XboxController* getController(XboxControllerID controllerId);
+  void beforeFrame();
+  void afterFrame();
+  XboxController* getController(XboxControllerID controllerId);
 
   vec2 mDeltaMousePosition;
 protected:
-	void updateKeyboard();
-	void updateXboxControllers();
+  void updateKeyboard();
+  void updateXboxControllers();
   void updateMousePosition();
+  void mouseHideCursor(bool hide);
 
 protected:
-	KeyState mKeyStates[NUM_KEY];
-	XboxController* mXboxControllers[NUM_XBOXCONTROLLER]{nullptr};
+  KeyState mKeyStates[NUM_KEY];
+  XboxController* mXboxControllers[NUM_XBOXCONTROLLER]{nullptr};
   vec2 mMousePosition;
   bool mIsMouseLocked = false;
   bool mCursorVisible = true;

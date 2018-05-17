@@ -58,12 +58,17 @@ const Shader* Material::shader() const {
   return mShader == nullptr ? mResShader.get() : mShader;
 }
 
-Shader* Material::shader() {
-  if (mShader == nullptr && mResShader != nullptr) {
-    mShader = Resource<Shader>::clone(mResShader);
+void Material::setProperty(std::string_view name, const void* data, uint size) {
+  for(MaterialProperty* prop: mProps) {
+    const property_info_t* p = prop->value.info->get(name);
+    if(p == nullptr) continue;
+
+    EXPECTS(size == p->size);
+    prop->value.putCpu(p->offset, p->size, data);
+    return;
   }
 
-  return mShader;
+  ERROR_AND_DIE("undefined material property");
 }
 
 void Material::setTexture(uint slot, const Texture* tex, const Sampler* sampler, const char* nameid) {
@@ -92,6 +97,13 @@ void Material::setPropertyBlock(S<const PropertyBlockInfo> layout, void* data) {
   }
 
   prop = new MaterialProperty(layout->name.data(), layout, data);
+}
+
+void Material::setPropertyBlock(std::string_view name, void* data, uint size) {
+  MaterialProperty* prop = property(name);
+  EXPECTS(prop != nullptr);
+
+  prop->value.put(size, data);
 }
 
 MaterialProperty*& Material::property(std::string_view propName) {
@@ -239,7 +251,10 @@ owner<Material*> Material::fromYaml(const fs::path& file) {
         render_state rs = pass.as<render_state>();
 
         if (rs != mat->mResShader->pass(i).state()) {
-          mat->shader()->pass(i)->state() = rs;
+          if(mat->mShader == nullptr) {
+            mat->mShader = Resource<Shader>::clone(mat->mResShader);
+          }
+          mat->mShader->pass(i)->state() = rs;
         }
 
         i++;
@@ -261,6 +276,11 @@ ResDef<Material> Resource<Material>::load(const std::string& file) {
 
   return { mat->name, mat };
 }
+
+template<>
+owner<Material*> Resource<Material>::clone(S<const Material> res) {
+  return new InstaMaterial(*res);
+};
 
 #define VAL_MAP(str, val) if(v == str) { rhs = val; return true; }
 

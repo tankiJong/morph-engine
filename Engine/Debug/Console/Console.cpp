@@ -14,6 +14,7 @@
 #include "Engine/Renderer/Shader/Shader.hpp"
 #include "Engine/Renderer/Geometry/Mesher.hpp"
 #include "Engine/Renderer/Font.hpp"
+#include "Engine/Renderer/Sampler.hpp"
 
 #define WM_CHAR                 0x0102
 #define WM_KEYDOWN              0x0100

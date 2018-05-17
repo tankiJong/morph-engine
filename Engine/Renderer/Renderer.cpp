@@ -370,7 +370,7 @@ void Renderer::postInit() {
   ShaderPass* pass = new ShaderPass();
   pass->prog() = createOrGetShaderProgram("@default");
   mDefaultShader->add(*pass);
-  mCurrentShader = mDefaultShader;
+  mCurrentPass = mDefaultShader->pass(0);
 
   mDefaultSampler = new Sampler();
 
@@ -422,11 +422,11 @@ void Renderer::setState(const render_state& state) {
 
 void Renderer::setShader(const Shader* shader, uint passIndex) {
   
-  mCurrentShader = shader == nullptr ? mDefaultShader : shader;
+  mCurrentPass = shader == nullptr ? mDefaultShader->pass(0) : &shader->pass(passIndex);
   
-  glUseProgram(mCurrentShader->pass(passIndex).prog()->handle());
+  glUseProgram(mCurrentPass->prog()->handle());
 
-  setState(mCurrentShader->pass(passIndex).state());
+  setState(mCurrentPass->state());
 }
 
 void Renderer::setSampler(uint i, const Sampler* sampler) {
@@ -435,7 +435,7 @@ void Renderer::setSampler(uint i, const Sampler* sampler) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const float& value) {
-  GLint loc = glGetUniformLocation(mCurrentShader->pass(0).prog()->handle(), name);
+  GLint loc = glGetUniformLocation(mCurrentPass->prog()->handle(), name);
   if(loc >= 0) {
     glUniform1f(loc, value);
   }
@@ -443,7 +443,7 @@ void Renderer::setUnifrom(const char* name, const float& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const vec2& value) {
-  GLint loc = glGetUniformLocation(mCurrentShader->pass(0).prog()->handle(), name);
+  GLint loc = glGetUniformLocation(mCurrentPass->prog()->handle(), name);
   if (loc >= 0) {
     glUniform2fv(loc, 1, &value.x);
   }
@@ -451,7 +451,7 @@ void Renderer::setUnifrom(const char* name, const vec2& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const vec3& value) {
-  GLint loc = glGetUniformLocation(mCurrentShader->pass(0).prog()->handle(), name);
+  GLint loc = glGetUniformLocation(mCurrentPass->prog()->handle(), name);
   if (loc >= 0) {
     glUniform3fv(loc, 1, &value.x);
   }
@@ -459,7 +459,7 @@ void Renderer::setUnifrom(const char* name, const vec3& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const Rgba& value) {
-  GLint loc = glGetUniformLocation(mCurrentShader->pass(0).prog()->handle(), name);
+  GLint loc = glGetUniformLocation(mCurrentPass->prog()->handle(), name);
   if (loc >= 0) {
     vec4 scaledColor = value.normalized();
     glUniform4fv(loc, 1, scaledColor.data);
@@ -468,7 +468,7 @@ void Renderer::setUnifrom(const char* name, const Rgba& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const vec4& value) {
-  GLint loc = glGetUniformLocation(mCurrentShader->pass(0).prog()->handle(), name);
+  GLint loc = glGetUniformLocation(mCurrentPass->prog()->handle(), name);
   if (loc >= 0) {
     glUniform4fv(loc, 1, value.data);
   }
@@ -476,7 +476,7 @@ void Renderer::setUnifrom(const char* name, const vec4& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const mat44& value) {
-  GLint loc = glGetUniformLocation(mCurrentShader->pass(0).prog()->handle(), name);
+  GLint loc = glGetUniformLocation(mCurrentPass->prog()->handle(), name);
   if (loc >= 0) {
     glUniform1fv(loc, 16, value.data);
   }
@@ -494,12 +494,6 @@ void Renderer::updateTime(float gameDeltaSec, float sysDeltaSec) {
   t->gameSeconds += gameDeltaSec;
   t->sysDeltaSeconds = sysDeltaSec;
   t->sysSeconds += sysDeltaSec;
-}
-
-void Renderer::useShaderProgram(ShaderProgram* program) {
-  mDefaultShader->pass(0)->prog() = program == nullptr ? mShaderPrograms.at("@default"): program;
-
-  setShader(mDefaultShader);
 }
 
 void Renderer::clearDepth(float depth) {
@@ -995,7 +989,7 @@ void Renderer::drawMesh(const Mesh& mesh) {
 
   setUniformBuffer(UNIFORM_LIGHT, mUniformLights);
   for(const VertexAttribute& attribute: mesh.layout().attributes()) {
-    GLint bindIdx = glGetAttribLocation(mCurrentShader->pass(0).prog()->handle(), attribute.name.c_str());
+    GLint bindIdx = glGetAttribLocation(mCurrentPass->prog()->handle(), attribute.name.c_str());
 
     if(bindIdx >= 0) {
       const VertexBuffer& vbo = mesh.vertices(attribute.streamIndex);
@@ -1158,32 +1152,4 @@ ShaderProgram* Renderer::createOrGetShaderProgram(const char* nameWithPath) {
   
   mShaderPrograms[name] = program;
   return program;
-}
-
-bool Renderer::applyEffect(ShaderProgram* program) {
-  if(mEffectTarget == nullptr) {
-    mEffectTarget = mDefaultColorTarget;
-    if(mEffectScratch == nullptr) {
-      mEffectScratch = mEffectTarget->clone();
-    }
-  }
-
-  if(mEffectCamera == nullptr) {
-    mEffectCamera = new Camera();
-  }
-
-  mEffectCamera->setColorTarget(mEffectScratch);
-
-  setCamera(mEffectCamera);
-
-  useShaderProgram(program);
-
-  setTexture(0, mEffectTarget);
-  
-  setTexture(1, mDefaultDepthTarget);
-
-  drawAABB2({ {-1.f, -1.f}, {1.f, 1.f} }, Rgba::white);
-  GL_CHECK_ERROR();
-
-  return copyTexture(mEffectScratch, mDefaultColorTarget);
 }

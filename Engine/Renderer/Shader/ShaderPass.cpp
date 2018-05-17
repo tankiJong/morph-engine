@@ -199,6 +199,13 @@ ShaderPass::ShaderPass(ShaderPass&& from) {
   sort = from.sort;
 }
 
+ShaderPass::ShaderPass(const ShaderPass& from) {
+  mProg = new ShaderProgram(*from.mProg);
+  mState = from.mState;
+  layer = from.layer;
+  sort = from.sort;
+}
+
 ShaderPass& ShaderPass::operator=(ShaderPass&& from) {
   mProg = from.mProg;
   from.mProg = nullptr;

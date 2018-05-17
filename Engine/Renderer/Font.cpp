@@ -4,7 +4,7 @@
 #include "Engine/File/FileSystem.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
-
+#include "Engine/Renderer/Texture.hpp"
 
 S<const Font> Font::sDefaultFont = S<const Font>{};
 

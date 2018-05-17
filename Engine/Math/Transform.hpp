@@ -27,6 +27,7 @@ struct transform_t {
 
 class Transform {
 public:
+
   mat44 localToWorld() const;
 
 

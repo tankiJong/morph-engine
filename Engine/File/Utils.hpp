@@ -17,7 +17,7 @@ namespace fs {
   bool isDirectory(const path& path);
   
   int64 sizeOf(const path& file);
-  byte* read(const path& file);
+  byte_t* read(const path& file);
   bool  read(const path& file, void* buffer, int64 size = -1);
 
   path relative(const path& p, const path& base);

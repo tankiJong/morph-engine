@@ -18,7 +18,7 @@ typedef int              intptr_t;
 #endif
 #endif
 
-enum class byte : unsigned char {};
+enum class byte_t : unsigned char {};
 typedef unsigned int uint;
 typedef long long int64;
 typedef short int16;

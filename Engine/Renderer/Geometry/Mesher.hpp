@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
-#include "Game/Game.hpp"
 #include "Vertex.hpp"
 #include "type.h"
 #include "Mesh.hpp"
@@ -8,6 +7,7 @@
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Math/Primitives/FloatRange.hpp"
 
+class aabb2;
 class Mesh;
 class Font;
 class Mesher {

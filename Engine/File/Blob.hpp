@@ -18,7 +18,7 @@ public:
 
   Blob clone() const;
 
-  void set(void* data, size_t size, size_t offset = 0);
+  void set(const void* data, size_t size, size_t offset = 0);
   template<typename T>
   operator T() {
      return as<T>();

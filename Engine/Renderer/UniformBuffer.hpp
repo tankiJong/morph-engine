@@ -15,6 +15,7 @@ public:
 public:
   // copy data to the CPU and dirty the buffer
   void putCpu(size_t byteSize, void const *data);
+  void putCpu(uint offset, size_t byteSize, const void* data);
 
   // update the gpu buffer from the local cpu buffer if dirty
   // and clears the dirty flag
@@ -22,7 +23,6 @@ public:
 
   // sets the cpu and gpu buffers - clears the dirty flag
   void put(size_t byteSize, void const *data);
-
   // gets a pointer to the cpu buffer (const - so does not dirty)
   inline const void* get() const { return mData; };
 
@@ -42,7 +42,10 @@ public:
   void set(T const &v) {
     this->putCpu(sizeof(T), &v);
   }
-
+  template <typename T>
+  void set(uint offset, T const &v) {
+    this->putCpu(offset, sizeof(T), &v);
+  }
   //------------------------------------------------------------------------
   // get's a constant reference to the CPU buffer as known struct 
   // would get the same as saying (T*) uniform_buffer->get_cpu_buffer(); 

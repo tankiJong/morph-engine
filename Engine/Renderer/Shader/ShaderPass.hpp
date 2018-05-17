@@ -12,7 +12,7 @@ public:
 
   ShaderPass() = default;
   ShaderPass(ShaderPass&& from);
-  ShaderPass(const ShaderPass&) = delete;
+  ShaderPass(const ShaderPass&);
   ShaderPass& operator=(const ShaderPass&) = delete;
   ShaderPass& operator=(ShaderPass&& from);
   

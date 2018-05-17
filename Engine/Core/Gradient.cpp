@@ -7,6 +7,10 @@ Gradient::Gradient(const Rgba& from, const Rgba& to) {
   mColors.push_back({ to, 1.f });
 }
 
+Gradient::Gradient(const Rgba& color) {
+  mColors.push_back({ color, 0.f });
+}
+
 void Gradient::clear() {
   mColors.clear();
 }

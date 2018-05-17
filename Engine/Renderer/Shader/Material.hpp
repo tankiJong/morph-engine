@@ -55,24 +55,19 @@ public:
 
 class Material {
 public:
-  ~Material();
+  virtual ~Material();
   Material() { mTextures.fill(nullptr); };
   void shader(S<const Shader> shader);
   const Shader* shader() const;
-  Shader* shader();
-
   template<typename T>
   void setProperty(const char* name, const T& val) {
     static_assert(!std::is_same_v<T, Texture>, "use setTexture to set texture");
-    MaterialProperty*& prop = property(name);
+    static_assert(!std::is_pointer_v<T>, "does not expect T is pointer type");
 
-    if (prop) {
-      delete prop;
-    }
-
-    prop = new MatProp<T>(name, val);
+    setProperty(name, &val, sizeof(T));
   }
 
+  void setProperty(std::string_view name, const void* data, uint size);
   void setTexture(uint slot, const Texture* tex, const Sampler* sampler = nullptr, const char* nameid = "");
 
   inline void setTexture(uint slot, const Texture* tex, const char* nameid, const Sampler* sampler = nullptr) {
@@ -80,6 +75,12 @@ public:
   }
 
   void setPropertyBlock(S<const PropertyBlockInfo> layout, void* data);
+  void setPropertyBlock(std::string_view name, void* data, uint size);
+
+  template<typename T>
+  void setPropertyBlock(std::string_view name, const T& data) {
+    setPropertyBlock(name, &data, sizeof(T));
+  }
   MaterialProperty*& property(std::string_view name);
   const MaterialProperty* property(std::string_view name) const;
 
@@ -98,6 +99,7 @@ protected:
 
 
 class InstaMaterial: public Material {
+public:
   InstaMaterial(const Material& mat);
   InstaMaterial(const InstaMaterial&) = delete;
   InstaMaterial(const InstaMaterial&&) = delete;
@@ -106,4 +108,5 @@ class InstaMaterial: public Material {
 template<>
 ResDef<Material> Resource<Material>::load(const std::string& file);
 
-
+template<>
+owner<Material*> Resource<Material>::clone(S<const Material> res);

@@ -1,5 +1,13 @@
 ﻿#include "PropertyBlock.hpp"
 
+const property_info_t* PropertyBlockInfo::get(std::string_view name) const {
+  if (auto kv = mInfos.find(name); kv != mInfos.end()) {
+    return &kv->second;
+  } else {
+    return nullptr;
+  }
+}
+
 property_info_t& PropertyBlockInfo::operator[](const std::string& propName) {
   auto& block = mInfos[propName];
   block.owningBlock = this;

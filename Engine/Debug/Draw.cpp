@@ -4,15 +4,17 @@
 #include "Engine/Renderer/Geometry/Mesher.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Font.hpp"
+#include "Engine/Renderer/Shader/Material.hpp"
 
 Renderer* gRenderer = nullptr;
 Camera* gCamera = nullptr;
+Camera* gCamera2D = nullptr;
 const Clock* gDefaultColock = nullptr;
 
 float gDefaultDuration = Debug::INF;
 Debug::eDebugDrawDepthMode gDefaultDepthMode = Debug::DEBUG_DEPTH_DEFAULT;
 Gradient gDecayColor;
-ShaderProgram* gShaderProg = nullptr;
+Material* gDebugMaterial = nullptr;
 Mesher gDebugMesher;
 
 bool gEnabled = true;
@@ -25,10 +27,15 @@ struct Debug::DebugDrawMeta {
   Camera* cam = nullptr;
   const Clock* clock = nullptr;
   mutable double endSec = 0;
+
   DebugDrawMeta(Mesh* mesh, float duration, const Clock* clockOverride)
-    : mesh(mesh), duration(duration)
-    , depthMode(gDefaultDepthMode), decayColor(gDecayColor)
-    , cam(gCamera), clock(clockOverride == nullptr ? gDefaultColock : clockOverride) {
+    : mesh(mesh)
+    , duration(duration)
+    , depthMode(gDefaultDepthMode)
+    , decayColor(gDecayColor)
+    , cam(gCamera)
+    , clock(clockOverride == nullptr ? gDefaultColock : clockOverride) {
+    handle.mTarget = this;
     handle.id = DrawHandle::next();
     endSec = duration == INF ? INF : clock->total.second + duration;
   }
@@ -42,18 +49,71 @@ struct Debug::DebugDrawMeta {
     endSec = clock->total.second;
   }
 
-  ~DebugDrawMeta() {
+  virtual void render() {
+    vec4 col = this->decayColor.evaluate((float)this->progress(this->clock->total.second)).normalized();
+    gDebugMaterial->setProperty("tint", col);
+
+    gRenderer->setMaterial(gDebugMaterial, 0);
+    gRenderer->setCamera(this->cam);
+
+    switch(depthMode) { 
+      case DEBUG_DEPTH_DEFAULT: break;
+      case DEBUG_DEPTH_ENABLE:
+        gRenderer->enableDepth(COMPARE_LESS, false);
+      break;
+      case DEBUG_DEPTH_DISABLE:
+        gRenderer->enableDepth(COMPARE_ALWAYS, false);
+      break;
+      case DEBUG_DEPTH_XRAY:
+        INFO("unsupported depth mode for debug draw");
+      break;
+    }
+
+    gRenderer->drawMesh(*this->mesh);
+  }
+
+  virtual ~DebugDrawMeta() {
     delete mesh;
   }
 };
 
+struct DebugDrawMetaText: public Debug::DebugDrawMeta {
+  DebugDrawMetaText(const Font& font, Mesh* mesh, float duration, const Clock* clockOverride)
+    : DebugDrawMeta(mesh, duration, clockOverride), font(font) {}
+  const Font& font;
+  virtual void render() {
+    vec4 col = this->decayColor.evaluate((float)this->progress(this->clock->total.second)).normalized();
+    gDebugMaterial->setProperty("tint", col);
+
+    const Shader* ffontShader = gDebugMaterial->shader();
+    g_theRenderer->setMaterial(gDebugMaterial, 1);
+
+    g_theRenderer->setTexture(TEXTURE_DIFFUSE,font.texture(0));
+    gRenderer->setSampler(0, &Sampler::Linear());
+    gRenderer->setCamera(this->cam);
+
+    switch (depthMode) {
+      case Debug::DEBUG_DEPTH_DEFAULT: break;
+      case Debug::DEBUG_DEPTH_ENABLE:
+        gRenderer->enableDepth(COMPARE_LESS, false);
+        break;
+      case Debug::DEBUG_DEPTH_DISABLE:
+        gRenderer->enableDepth(COMPARE_ALWAYS, false);
+        break;
+      case Debug::DEBUG_DEPTH_XRAY:
+        INFO("unsupported depth mode for debug draw");
+        break;
+    }
+
+    gRenderer->drawMesh(*this->mesh);
+  }
+};
 std::vector<Debug::DebugDrawMeta*> gDebugDrawCalls;
 
 bool Debug::DrawHandle::terminate() const {
-  const Debug::DebugDrawMeta* meta = reinterpret_cast<const Debug::DebugDrawMeta*>(this);
   for(DebugDrawMeta* d: gDebugDrawCalls) {
-    if (d == meta) {
-      meta->terminate();
+    if (d == mTarget) {
+      mTarget->terminate();
       return true;
     }
   }
@@ -64,6 +124,10 @@ void Debug::setRenderer(Renderer* renderer) {
   EXPECTS(renderer != nullptr);
 
   gRenderer = renderer;
+}
+
+void Debug::setCamera2D(Camera* camera) {
+  gCamera2D = camera;
 }
 
 void Debug::setCamera(Camera* camera) {
@@ -112,7 +176,7 @@ void Debug::toggleDebugRender() {
 }
 
 template<typename F>
-Debug::DrawHandle* drawMeta(float duration, const Clock* clockOverride, F&& f) {
+Debug::DrawHandle* drawMeta(float duration, const Clock* clockOverride, F&& f, bool is3D = true) {
   static_assert(std::is_invocable_v<F, Mesher>);
   Mesher& mesher = gDebugMesher;
   mesher.clear();
@@ -120,34 +184,47 @@ Debug::DrawHandle* drawMeta(float duration, const Clock* clockOverride, F&& f) {
   f(mesher);
 
   Debug::DebugDrawMeta* meta = new Debug::DebugDrawMeta(mesher.createMesh(), duration, clockOverride);
+  if(!is3D) {
+    meta->cam = gCamera2D;
+  }
   gDebugDrawCalls.push_back(meta);
   meta->duration = duration;
 
-  ENSURES((void*)meta == &(meta->handle));
+  return reinterpret_cast<Debug::DrawHandle*>(meta);
+}
+
+template<typename F>
+Debug::DrawHandle* drawMetaText(const Font* font, float duration, const Clock* clockOverride, F&& f, bool is3D = true) {
+  static_assert(std::is_invocable_v<F, Mesher>);
+  Mesher& mesher = gDebugMesher;
+  mesher.clear();
+
+  f(mesher);
+
+  if(font == nullptr) {
+    font = Font::Default().get();
+  }
+
+  Debug::DebugDrawMeta* meta = new DebugDrawMetaText(*font, mesher.createMesh<vertex_pcu_t>(), duration, clockOverride);
+  if (!is3D) {
+    meta->cam = gCamera2D;
+  }
+  gDebugDrawCalls.push_back(meta);
+  meta->duration = duration;
+
   return reinterpret_cast<Debug::DrawHandle*>(meta);
 }
 
 void Debug::drawNow() {
   if(!gEnabled) return;
-  static UniformBuffer* tintUniform = UniformBuffer::For(vec4::zero);
   // will change to material later
-  if(!gShaderProg) {
-    gShaderProg = gRenderer->createOrGetShaderProgram("Data/shader/progs/debug");
+  if(!gDebugMaterial) {
+    gDebugMaterial = Resource<Material>::clone("material/debug/default");
   }
-  gRenderer->useShaderProgram(gShaderProg);
-  gRenderer->enableDepth(COMPARE_LESS, false);
   for(uint i = 0; i < gDebugDrawCalls.size(); ++i) {
     DebugDrawMeta*& comp = gDebugDrawCalls[i];
-    Rgba col = comp->decayColor.evaluate((float)comp->progress(comp->clock->total.second));
-    vec4 colf;
-    col.getAsFloats(colf.x, colf.y, colf.z, colf.w);
-
-    tintUniform->set(colf);
-
-    gRenderer->setUniformBuffer(UNIFORM_USER_1, *tintUniform);
-    gRenderer->setCamera(comp->cam);
-    gRenderer->drawMesh(*comp->mesh);
-
+    
+    comp->render();
     if(comp->endSec <= comp->clock->total.second) {
       delete comp;
       comp = gDebugDrawCalls.back();
@@ -175,7 +252,7 @@ const Debug::DrawHandle* Debug::drawQuad2(const vec2& a, const vec2& b, const ve
     mesher.triangle(start, start + 1, start + 2)
           .triangle(start, start + 2, start + 3);
     mesher.end();
-  });
+  }, false);
 
 }
 
@@ -191,20 +268,20 @@ const Debug::DrawHandle* Debug::drawLine2(const vec2& a, const vec2& b, float du
     mesher.vertex2f(b);
 
     mesher.end();
-  });
+  }, false);
 }
 
 const Debug::DrawHandle* Debug::drawText2(std::string_view text, float size, const vec2& bottomLeft, float duration,
   const Rgba& cl, const Font* font) {
-  return drawMeta(duration, nullptr, [&](Mesher& mesher) {
+  return drawMetaText(font, duration, nullptr, [&](Mesher& mesher) {
 
     mesher.begin(DRAW_TRIANGES)
       .color(cl)
-      .text(std::array<std::string_view, 1>{ text }, size,
+      .text(text, size,
             font == nullptr ? Font::Default().get() : font, 
             vec3(bottomLeft, 0), vec3::right, vec3::up)
       .end();
-  });
+  }, false);
 }
 
 const Debug::DrawHandle* Debug::drawPoint(const vec3& position, float duration, const Rgba& color, const Clock* clockOverride) {
@@ -406,11 +483,11 @@ const Debug::DrawHandle* Debug::drawGrid(const vec3& center, const vec3& right, 
 
 const Debug::DrawHandle* Debug::drawText(std::string_view text, float size, const vec3& bottomLeft, float duration,
   const vec3& direction, const vec3& up, const Font* font, const Rgba& cl, const Clock* clockOverride) {
-  return drawMeta(duration, clockOverride, [&](Mesher& mesher) {
+  return drawMetaText(font, duration, clockOverride, [&](Mesher& mesher) {
 
     mesher.begin(DRAW_TRIANGES)
       .color(cl)
-      .text(std::array<std::string_view, 1>{ text }, size, font == nullptr ? Font::Default().get() : font, bottomLeft, direction, up)
+      .text(text, size, font == nullptr ? Font::Default().get() : font, bottomLeft, direction, up)
       .end();
 
   });

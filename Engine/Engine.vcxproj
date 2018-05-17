@@ -740,8 +740,6 @@
     <None Include="..\ThirdParty\gsl\pointers" />
     <None Include="..\ThirdParty\gsl\span" />
     <None Include="..\ThirdParty\gsl\string_span" />
-    <None Include="Renderer\Shader\passthrough.fs" />
-    <None Include="Renderer\Shader\passthrough.vs" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis" />

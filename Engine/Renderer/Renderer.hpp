@@ -35,6 +35,7 @@ class Sprite;
 class Shader;
 class Material;
 class RenderTarget;
+class ShaderPass;
 /*
  * +y
  * |
@@ -52,7 +53,6 @@ public:
   ~Renderer();
 
   void afterFrame();
-  bool applyEffect(ShaderProgram* program);
   void beforeFrame();
   void setTexture(uint i, const Texture* texture = nullptr);
   void setTexture(const Texture* texture = nullptr);
@@ -150,7 +150,6 @@ public:
 
   void setUniformBuffer(eUniformSlot slot, UniformBuffer& ubo);
   void updateTime(float gameDeltaSec, float sysDeltaSec);
-  void useShaderProgram(ShaderProgram* program = nullptr);
 
   static HGLRC createRealRenderContext(HDC hdc, int major, int minor);
   static HGLRC createOldRenderContext(HDC hdc);
@@ -164,7 +163,7 @@ protected:
   UniformBuffer mUniformTime;
   UniformBuffer mUniformLights;
   UniformBuffer mUniformTransform;
-  const Shader* mCurrentShader = nullptr;
+  const ShaderPass* mCurrentPass = nullptr;
   Shader* mDefaultShader = nullptr;
   Camera* mCurrentCamera = nullptr;
   owner<Camera*> mDefaultCamera = nullptr;

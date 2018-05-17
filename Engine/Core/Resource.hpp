@@ -22,10 +22,7 @@ public:
   /* default template expension will always return nullptr, which means, by default, resource is not cloneable.
    * If you want to make some resource cloneable, you should create specialization of this function.
    */
-  static owner<T*> clone(S<const T> res) {
-    ERROR_RECOVERABLE("possibly is not the actual function you want to call");
-    return nullptr;
-  }
+  static owner<T*> clone(S<const T> res);
 
   /*
    * This is an convenient way to call the upper function. In most case DO NOT need to implement this.
