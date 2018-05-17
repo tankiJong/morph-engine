@@ -16,7 +16,7 @@ struct property_info_t {
 
 class PropertyBlockInfo {
 public:
-  const property_info_t* get(std::string_view name) const;
+  const property_info_t* get(std::string_view propName) const;
   // const property_info_t* operator()(std::string_view name, uint index) const;
 
   // would protentially cause an insert if the entry does not exist.

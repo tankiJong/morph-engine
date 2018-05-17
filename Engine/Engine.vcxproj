@@ -349,8 +349,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -361,6 +360,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4201</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -372,8 +372,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -384,6 +383,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4201</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -395,8 +395,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -408,6 +407,7 @@
       </MultiProcessorCompilation>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4201</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -421,8 +421,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -448,8 +447,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -461,6 +459,7 @@
       </MultiProcessorCompilation>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4201</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -493,6 +492,7 @@
     <ClCompile Include="Debug\Console\Console.cpp" />
     <ClCompile Include="Debug\Draw.cpp" />
     <ClCompile Include="Debug\ErrorWarningAssert.cpp" />
+    <ClCompile Include="Debug\Log.cpp" />
     <ClCompile Include="Effect\ParticleEmitter.cpp" />
     <ClCompile Include="File\Blob.cpp" />
     <ClCompile Include="File\File.cpp" />
@@ -641,6 +641,7 @@
     <ClInclude Include="Debug\Console\Console.hpp" />
     <ClInclude Include="Debug\Draw.hpp" />
     <ClInclude Include="Debug\ErrorWarningAssert.hpp" />
+    <ClInclude Include="Debug\Log.hpp" />
     <ClInclude Include="Effect\ParticleEmitter.hpp" />
     <ClInclude Include="File\Blob.hpp" />
     <ClInclude Include="File\File.hpp" />

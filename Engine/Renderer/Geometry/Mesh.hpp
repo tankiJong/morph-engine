@@ -25,7 +25,7 @@ public:
   span<const draw_instr_t> instructions() const { return mIns; }
   draw_instr_t& instruction(uint i = 0) { return mIns[i]; }
   const VertexLayout& layout() const { return *mLayout; }
-  uint subMeshCount() const { return mIns.size(); }
+  uint subMeshCount() const { return (uint)mIns.size(); }
 protected:
   Mesh(const VertexLayout* layout);
   std::vector<VertexBuffer> mVertices;

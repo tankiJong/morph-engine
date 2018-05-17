@@ -27,7 +27,7 @@ float Font::Face::kerning(uint previous, float size) const {
   if (previous == 0u || mKernings.empty()) return 0.f;
   
   uint start = 0u;
-  uint end = mKernings.size() - 1u;
+  uint end = (uint)mKernings.size() - 1u;
 
   uint i = (end - start) / 2u;
 
@@ -150,7 +150,7 @@ Font* fromJson(const fs::path& path) {
   for(auto& glyph: glyphsNode) {
     glyphs.push_back(glyph.get<Glyph>());
     Glyph& g = glyphs.back();
-    g.id = glyphs.size() - 1u;
+    g.id = (uint)glyphs.size() - 1u;
     g.mOffset /= size;
     g.dimension() /= size;
 
@@ -168,8 +168,8 @@ Font* fromJson(const fs::path& path) {
 
   auto& textures = meta.at("images");
   EXPECTS(textures.is_array());
-  for(auto& path: textures) {
-    std::string p = path;
+  for(auto& texpath: textures) {
+    std::string p = texpath;
 
     auto tex = Resource<Texture>::get(p);
     if(!tex) {

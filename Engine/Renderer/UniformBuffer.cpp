@@ -25,7 +25,7 @@ void UniformBuffer::put(size_t byteSize, void const* data) {
   putGpu();
 }
 
-void UniformBuffer::putCpu(unsigned offset, size_t byteSize, const void* data) {
+void UniformBuffer::putCpu(size_t offset, size_t byteSize, const void* data) {
 
   mData.set(data, byteSize, offset);
 

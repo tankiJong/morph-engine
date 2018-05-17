@@ -156,9 +156,9 @@ Mesher& Mesher::begin(eDrawPrimitive prim, bool useIndices) {
   mCurrentIns.useIndices = useIndices;
 
   if(useIndices) {
-    mCurrentIns.startIndex = mIndices.size();
+    mCurrentIns.startIndex = (uint)mIndices.size();
   } else {
-    mCurrentIns.startIndex = mVertices.count();
+    mCurrentIns.startIndex = (uint)mVertices.count();
   }
 
   isDrawing = true;
@@ -214,11 +214,11 @@ uint Mesher::vertex3f(const vec3& pos) {
 }
 
 uint Mesher::vertex3f(span<const vec3> verts) {
-  mVertices.reserve(mVertices.count() + verts.size());
+  mVertices.reserve(mVertices.count() + (uint)verts.size());
   for(const vec3& vert: verts) {
     vertex3f(vert);
   }
-  return mVertices.count() - verts.size();
+  return mVertices.count() - (uint)verts.size();
 }
 
 uint Mesher::vertex3f(float x, float y, float z) {
@@ -582,7 +582,7 @@ vec3 Mesher::normalOf(uint a, uint b, uint c) {
 }
 
 uint Mesher::currentElementCount() const {
-  return  mCurrentIns.useIndices ? mIndices.size() : mVertices.count();
+  return  mCurrentIns.useIndices ? (uint)mIndices.size() : mVertices.count();
 }
 
 

@@ -1,7 +1,7 @@
 ﻿#include "PropertyBlock.hpp"
 
-const property_info_t* PropertyBlockInfo::get(std::string_view name) const {
-  if (auto kv = mInfos.find(name); kv != mInfos.end()) {
+const property_info_t* PropertyBlockInfo::get(std::string_view propName) const {
+  if (auto kv = mInfos.find(propName); kv != mInfos.end()) {
     return &kv->second;
   } else {
     return nullptr;

@@ -21,7 +21,7 @@ public:
 
   template<typename CallBack>
   uint addWinMessageHandler(const CallBack& cb) {
-    uint idx = this->mHandlers.size();
+    uint idx = (uint)this->mHandlers.size();
 
     mHandlers.emplace_back(cb);
     return idx;

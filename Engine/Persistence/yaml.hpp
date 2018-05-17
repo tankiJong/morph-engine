@@ -3,7 +3,7 @@
 
 #if defined( _WIN64 )
   #if defined(_DEBUG)
-  #pragma comment( lib, "ThirdParty/libyaml-cppmdd-x64-debug.lib" )
+  #pragma comment( lib, "ThirdParty/yaml-cpp/libyaml-cppmdd-x64-debug.lib" )
   #else 
   #pragma comment( lib, "ThirdParty/yaml-cpp/libyaml-cppmd-x64-release.lib" )
   #endif

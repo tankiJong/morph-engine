@@ -113,7 +113,7 @@ void Console::init(Renderer& renderer, Input& input) {
 
 void Console::replaceInput(std::string str) {
   mInputStream = std::move(str);
-  mCursorPosition = mInputStream.size();
+  mCursorPosition = (uint)mInputStream.size();
 }
 
 void Console::update(float deltaSecond) {
@@ -125,8 +125,8 @@ void Console::update(float deltaSecond) {
   if (!mIsOpened) return;
 
   if(mInput->isKeyJustDown(KEYBOARD_ESCAPE)) {
-    if (mInputStream.size() > 0) {
-      erase(0, mInputStream.size());
+    if (!mInputStream.empty()) {
+      erase(0, (uint)mInputStream.size());
     } else {
       mIsOpened = false;
     }
@@ -203,16 +203,16 @@ void Console::consoleControlHandler(unsigned msg, size_t wParam, size_t) {
         }
         return;
       case KEYBOARD_UP:
-        if (mCommandLog.size() == 0) return;
+        if (mCommandLog.empty()) return;
         if(mNextCommandLogIndex == mCommandLog.size()) {
           mNextCommandLogIndex = 0;
         }
         replaceInput(*(mCommandLog.rbegin() + (mNextCommandLogIndex++)));
         return;
       case KEYBOARD_DOWN:
-        if (mCommandLog.size() == 0) return;
+        if (mCommandLog.empty()) return;
         if (mNextCommandLogIndex == uint(-1)) {
-          mNextCommandLogIndex = mCommandLog.size() - 1;
+          mNextCommandLogIndex = (uint)mCommandLog.size() - 1;
         }
         replaceInput(*(mCommandLog.rbegin() + (mNextCommandLogIndex--)));
         return;
@@ -441,6 +441,7 @@ void Console::render() const {
 
   Mesh* layout = ms.createMesh<vertex_pcu_t>();
   mRenderer->drawMesh(*layout);
+  delete layout;
 
   // ###### render text
 
@@ -490,6 +491,8 @@ void Console::render() const {
   mRenderer->setTexture(mFont->texture(0));
   mRenderer->setSampler(0, &Sampler::Linear());
   mRenderer->drawMesh(*text);
+
+  delete text;
 }
 
 bool Console::exec(const std::string& cmd) {

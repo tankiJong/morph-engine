@@ -13,7 +13,6 @@ const Clock* gDefaultColock = nullptr;
 
 float gDefaultDuration = Debug::INF;
 Debug::eDebugDrawDepthMode gDefaultDepthMode = Debug::DEBUG_DEPTH_DEFAULT;
-Gradient gDecayColor;
 Material* gDebugMaterial = nullptr;
 Mesher gDebugMesher;
 
@@ -28,11 +27,11 @@ struct Debug::DebugDrawMeta {
   const Clock* clock = nullptr;
   mutable double endSec = 0;
 
-  DebugDrawMeta(Mesh* mesh, float duration, const Clock* clockOverride)
+  DebugDrawMeta(const Gradient& decayColor, Mesh* mesh, float duration, const Clock* clockOverride)
     : mesh(mesh)
     , duration(duration)
     , depthMode(gDefaultDepthMode)
-    , decayColor(gDecayColor)
+    , decayColor(decayColor)
     , cam(gCamera)
     , clock(clockOverride == nullptr ? gDefaultColock : clockOverride) {
     handle.mTarget = this;
@@ -78,14 +77,13 @@ struct Debug::DebugDrawMeta {
 };
 
 struct DebugDrawMetaText: public Debug::DebugDrawMeta {
-  DebugDrawMetaText(const Font& font, Mesh* mesh, float duration, const Clock* clockOverride)
-    : DebugDrawMeta(mesh, duration, clockOverride), font(font) {}
+  DebugDrawMetaText(const Gradient& decayColor, const Font& font, Mesh* mesh, float duration, const Clock* clockOverride)
+    : DebugDrawMeta(decayColor, mesh, duration, clockOverride), font(font) {}
   const Font& font;
   virtual void render() {
     vec4 col = this->decayColor.evaluate((float)this->progress(this->clock->total.second)).normalized();
     gDebugMaterial->setProperty("tint", col);
 
-    const Shader* ffontShader = gDebugMaterial->shader();
     g_theRenderer->setMaterial(gDebugMaterial, 1);
 
     g_theRenderer->setTexture(TEXTURE_DIFFUSE,font.texture(0));
@@ -151,15 +149,6 @@ void Debug::setDepth(eDebugDrawDepthMode depthMode) {
   gDefaultDepthMode = depthMode;
 }
 
-void Debug::setDecayColor(const Rgba& from, const Rgba& to) {
-  gDecayColor.clear();
-  gDecayColor.add(from, 0.f).add(to, 1.f);
-}
-
-void Debug::setDecayColor(const Rgba& color) {
-  setDecayColor(color, color);
-}
-
 void Debug::clear() {
   for(auto& dc: gDebugDrawCalls) {
     delete dc;
@@ -176,14 +165,14 @@ void Debug::toggleDebugRender() {
 }
 
 template<typename F>
-Debug::DrawHandle* drawMeta(float duration, const Clock* clockOverride, F&& f, bool is3D = true) {
+Debug::DrawHandle* drawMeta(const Gradient& color, float duration, const Clock* clockOverride, F&& f, bool is3D = true) {
   static_assert(std::is_invocable_v<F, Mesher>);
   Mesher& mesher = gDebugMesher;
   mesher.clear();
 
   f(mesher);
 
-  Debug::DebugDrawMeta* meta = new Debug::DebugDrawMeta(mesher.createMesh(), duration, clockOverride);
+  Debug::DebugDrawMeta* meta = new Debug::DebugDrawMeta(color, mesher.createMesh(), duration, clockOverride);
   if(!is3D) {
     meta->cam = gCamera2D;
   }
@@ -194,7 +183,7 @@ Debug::DrawHandle* drawMeta(float duration, const Clock* clockOverride, F&& f, b
 }
 
 template<typename F>
-Debug::DrawHandle* drawMetaText(const Font* font, float duration, const Clock* clockOverride, F&& f, bool is3D = true) {
+Debug::DrawHandle* drawMetaText(const Gradient& color, const Font* font, float duration, const Clock* clockOverride, F&& f, bool is3D = true) {
   static_assert(std::is_invocable_v<F, Mesher>);
   Mesher& mesher = gDebugMesher;
   mesher.clear();
@@ -205,7 +194,7 @@ Debug::DrawHandle* drawMetaText(const Font* font, float duration, const Clock* c
     font = Font::Default().get();
   }
 
-  Debug::DebugDrawMeta* meta = new DebugDrawMetaText(*font, mesher.createMesh<vertex_pcu_t>(), duration, clockOverride);
+  Debug::DebugDrawMeta* meta = new DebugDrawMetaText(color, *font, mesher.createMesh<vertex_pcu_t>(), duration, clockOverride);
   if (!is3D) {
     meta->cam = gCamera2D;
   }
@@ -235,14 +224,13 @@ void Debug::drawNow() {
   }
 }
 
-const Debug::DrawHandle* Debug::drawQuad2(const vec2& a, const vec2& b, const vec2& c, const vec2& d, float duration, const Rgba& cl,
+const Debug::DrawHandle* Debug::drawQuad2(const vec2& a, const vec2& b, const vec2& c, const vec2& d, float duration, const Gradient& cl,
   const Clock* clockOverride) {
   
-  return drawMeta(duration, clockOverride, [=](Mesher& mesher) {
-    mesher.color(cl);
+  return drawMeta(cl, duration, clockOverride, [=](Mesher& mesher) {
 
     mesher.begin(DRAW_TRIANGES);
-
+    mesher.color(Rgba::white);
     uint start = 
     mesher.vertex2f(a);
     mesher.vertex2f(b);
@@ -259,7 +247,7 @@ const Debug::DrawHandle* Debug::drawQuad2(const vec2& a, const vec2& b, const ve
 const Debug::DrawHandle* Debug::drawLine2(const vec2& a, const vec2& b, float duration, const Rgba& cla, const Rgba& clb,
   const Clock* clockOverride) {
   
-  return drawMeta(duration, clockOverride, [&](Mesher& mesher) {
+  return drawMeta(Rgba::white, duration, clockOverride, [&](Mesher& mesher) {
     mesher.begin(DRAW_LINES, false);
 
     mesher.color(cla);
@@ -272,11 +260,11 @@ const Debug::DrawHandle* Debug::drawLine2(const vec2& a, const vec2& b, float du
 }
 
 const Debug::DrawHandle* Debug::drawText2(std::string_view text, float size, const vec2& bottomLeft, float duration,
-  const Rgba& cl, const Font* font) {
-  return drawMetaText(font, duration, nullptr, [&](Mesher& mesher) {
+  const Gradient& cl, const Font* font) {
+  return drawMetaText(cl, font, duration, nullptr, [&](Mesher& mesher) {
 
     mesher.begin(DRAW_TRIANGES)
-      .color(cl)
+      .color(Rgba::white)
       .text(text, size,
             font == nullptr ? Font::Default().get() : font, 
             vec3(bottomLeft, 0), vec3::right, vec3::up)
@@ -284,12 +272,12 @@ const Debug::DrawHandle* Debug::drawText2(std::string_view text, float size, con
   }, false);
 }
 
-const Debug::DrawHandle* Debug::drawPoint(const vec3& position, float duration, const Rgba& color, const Clock* clockOverride) {
+const Debug::DrawHandle* Debug::drawPoint(const vec3& position, float duration, const Gradient& color, const Clock* clockOverride) {
 
-  return drawMeta(duration, clockOverride, [&](Mesher& mesher) {
+  return drawMeta(color, duration, clockOverride, [&](Mesher& mesher) {
     mesher.begin(DRAW_LINES, false);
 
-    mesher.color(color);
+    mesher.color(Rgba::white);
     mesher.vertex3f(vec3::right + position);
     mesher.vertex3f(-vec3::right + position);
     mesher.vertex3f(vec3::up + position);
@@ -302,7 +290,7 @@ const Debug::DrawHandle* Debug::drawPoint(const vec3& position, float duration, 
 
 }
 
-const Debug::DrawHandle* Debug::drawPoint(const vec3& position, const Rgba& color, float duration, const Clock* clockOverride) {
+const Debug::DrawHandle* Debug::drawPoint(const vec3& position, const Gradient& color, float duration, const Clock* clockOverride) {
   return drawPoint(position, duration, color, clockOverride);
 }
 
@@ -310,7 +298,7 @@ const Debug::DrawHandle* Debug::drawLine(const vec3& from, const vec3& to, float
   const Rgba& colorEnd, const Clock* clockOverride) {
 
   TODO("introduce thickness when use mesh to draw line")
-  return drawMeta(duration, clockOverride, [&](Mesher& mesher) {
+  return drawMeta(Rgba::white, duration, clockOverride, [&](Mesher& mesher) {
     mesher.begin(DRAW_LINES, false);
 
     mesher.color(colorStart);
@@ -322,10 +310,10 @@ const Debug::DrawHandle* Debug::drawLine(const vec3& from, const vec3& to, float
   });
 }
 
-const Debug::DrawHandle* Debug::drawTri(const vec3& a, const vec3& b, const vec3& c, float duration, const Rgba& cl,
+const Debug::DrawHandle* Debug::drawTri(const vec3& a, const vec3& b, const vec3& c, float duration, const Gradient& cl,
   const Clock* clockOverride) {
-  return drawMeta(duration, clockOverride, [&](Mesher& mesher) {
-    mesher.color(cl);
+  return drawMeta(cl, duration, clockOverride, [&](Mesher& mesher) {
+    mesher.color(Rgba::white);
 
     mesher.begin(DRAW_TRIANGES, false);
 
@@ -338,10 +326,10 @@ const Debug::DrawHandle* Debug::drawTri(const vec3& a, const vec3& b, const vec3
 }
 
 const Debug::DrawHandle* Debug::drawQuad(const vec3& a, const vec3& b, const vec3& c, const vec3& d, float duration,
-  const Rgba& cl, const Clock* clockOverride) {
+  const Gradient& cl, const Clock* clockOverride) {
 
-  return drawMeta(duration, clockOverride, [&](Mesher& mesher) {
-    mesher.color(cl);
+  return drawMeta(cl, duration, clockOverride, [&](Mesher& mesher) {
+    mesher.color(Rgba::white);
 
     mesher.begin(DRAW_TRIANGES);
 
@@ -364,10 +352,10 @@ const Debug::DrawHandle* Debug::drawCone(const vec3& origin,
   uint slides,
   float duration,
   bool framed,
-  const Rgba& color,
+  const Gradient& color,
   const Clock* clockoverride) {
-  return drawMeta(duration, clockoverride, [&](Mesher& mesher) {
-    mesher.color(color);
+  return drawMeta(color, duration, clockoverride, [&](Mesher& mesher) {
+    mesher.color(Rgba::white);
 
     mesher.begin(framed ? DRAW_LINES: DRAW_TRIANGES)
       .cone(origin, direction, length, angle, slides)
@@ -375,10 +363,10 @@ const Debug::DrawHandle* Debug::drawCone(const vec3& origin,
   });
 }
 
-const Debug::DrawHandle* Debug::drawSphere(const vec3& center, float size, uint levelX, uint levelY, float duration, const Rgba& color,
+const Debug::DrawHandle* Debug::drawSphere(const vec3& center, float size, uint levelX, uint levelY, float duration, const Gradient& color,
   const Clock* clockoverride) {
-  return drawMeta(duration, clockoverride, [&](Mesher& mesher) {
-    mesher.color(color);
+  return drawMeta(color, duration, clockoverride, [&](Mesher& mesher) {
+    mesher.color(Rgba::white);
     mesher
       .begin(DRAW_LINES)
       .sphere(center, size, levelX, levelY)
@@ -387,11 +375,11 @@ const Debug::DrawHandle* Debug::drawSphere(const vec3& center, float size, uint 
   });
 }
 
-const Debug::DrawHandle* Debug::drawCube(const vec3& center, const vec3& dimension, bool framed, float duration, const Rgba& cl,
+const Debug::DrawHandle* Debug::drawCube(const vec3& center, const vec3& dimension, bool framed, float duration, const Gradient& cl,
   const Clock* clockOverride) {
 
-  return drawMeta(duration, clockOverride, [&](Mesher& mesher) {
-    mesher.color(cl);
+  return drawMeta(cl, duration, clockOverride, [&](Mesher& mesher) {
+    mesher.color(Rgba::white);
     vec3 bottomCenter = center - vec3::up * dimension.y * .5f;
     float dx = dimension.x * .5f, dy = dimension.y * .5f, dz = dimension.z * .5f;
 
@@ -423,14 +411,14 @@ const Debug::DrawHandle* Debug::drawCube(const vec3& center, const vec3& dimensi
   
 }
 
-const Debug::DrawHandle* Debug::drawCube(const vec3& center, float size, bool framed, float duration, const Rgba& cl,
+const Debug::DrawHandle* Debug::drawCube(const vec3& center, float size, bool framed, float duration, const Gradient& cl,
   const Clock* clockOverride) {
   return drawCube(center, vec3(size), framed, duration, cl, clockOverride);
 }
 
 const Debug::DrawHandle* Debug::drawBasis(const vec3& position, const vec3& i, const vec3& j, const vec3& k,
   float duration, Clock* clockOverride) {
-  Debug::DrawHandle* handle =  drawMeta(duration, clockOverride, [&](Mesher& mesher) {
+  Debug::DrawHandle* handle =  drawMeta(Rgba::white, duration, clockOverride, [&](Mesher& mesher) {
     mesher.begin(DRAW_LINES, false);
 
     mesher.color(Rgba::red);
@@ -455,16 +443,16 @@ const Debug::DrawHandle* Debug::drawBasis(const vec3& position, const vec3& i, c
 }
 
 const Debug::DrawHandle* Debug::drawGrid(const vec3& center, const vec3& right, const vec3 forward, float unitSize,
-  float limit, float duration, const Rgba& cl, const Clock* clockOverride) {
+  float limit, float duration, const Gradient& cl, const Clock* clockOverride) {
 
-  return drawMeta(duration, clockOverride, [&](Mesher& mesher) {
+  return drawMeta(cl, duration, clockOverride, [&](Mesher& mesher) {
     vec3 xStart = center - right * limit, xEnd = center + right * limit;
     vec3 yStart = center - forward * limit, yEnd = center + forward * limit;
 
     float i = 0.f;
     
     mesher.begin(DRAW_LINES, false)
-          .color(cl);
+          .color(Rgba::white);
     while(i * unitSize < limit) {
       float step = i * unitSize;
 
@@ -482,11 +470,11 @@ const Debug::DrawHandle* Debug::drawGrid(const vec3& center, const vec3& right, 
 }
 
 const Debug::DrawHandle* Debug::drawText(std::string_view text, float size, const vec3& bottomLeft, float duration,
-  const vec3& direction, const vec3& up, const Font* font, const Rgba& cl, const Clock* clockOverride) {
-  return drawMetaText(font, duration, clockOverride, [&](Mesher& mesher) {
+  const vec3& direction, const vec3& up, const Font* font, const Gradient& cl, const Clock* clockOverride) {
+  return drawMetaText(cl, font, duration, clockOverride, [&](Mesher& mesher) {
 
     mesher.begin(DRAW_TRIANGES)
-      .color(cl)
+      .color(Rgba::white)
       .text(text, size, font == nullptr ? Font::Default().get() : font, bottomLeft, direction, up)
       .end();
 

@@ -67,7 +67,7 @@ void SpriteAnim::update(float deltaSeconds) {
 }
 aabb2 SpriteAnim::getCurrentTexCoords() const {
   float secPerUnit = m_definition->m_durationSeconds / float(m_definition->m_frameIndexes.size());
-  int curremtFrameIdx = clamp(int(floor(m_elapsedSeconds / secPerUnit)), 0, m_definition->m_frameIndexes.size() - 1);
+  int curremtFrameIdx = clamp(int(floor(m_elapsedSeconds / secPerUnit)), 0, (int)m_definition->m_frameIndexes.size() - 1);
   
   return m_definition->m_spriteSheet.getTexCoordsByIndex(m_definition->m_frameIndexes[curremtFrameIdx]);
 }

@@ -81,7 +81,7 @@ inline auto none_of(std::string sybs) {
 inline auto many_of(std::string symbols) {
   return [=](parse_input_t s) ->parse_result_t<std::string> {
     if (s.empty()) return {};
-    for (unsigned i = 0, size = s.length(); i < size; i++) {
+    for (size_t i = 0, size = s.length(); i < size; i++) {
       if(std::find(symbols.cbegin(), symbols.cend(), s[i]) == symbols.cend()) {
         if(i==0u) {
           return {};
@@ -100,7 +100,7 @@ inline auto except_of(std::string symbols) {
     if(symbols.empty()) {
       return std::make_pair(s, "");
     }
-    for(unsigned i = 0, size = s.length(); i < size; i++) {
+    for(size_t i = 0, size = s.length(); i < size; i++) {
       if(std::find(symbols.cbegin(), symbols.cend(), s[i]) != symbols.cend()) {
         if(i==0u) {
           return {};

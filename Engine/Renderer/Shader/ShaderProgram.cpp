@@ -63,7 +63,7 @@ void addDefinesToStage(ShaderStage& stage, const char* defineArgs) {
   if (defineArgs == nullptr) return;
   auto defs = split(defineArgs, ";");
   for (auto& def : defs) {
-    uint sp = def.find('=');
+    size_t sp = def.find('=');
 
     if (sp != std::string::npos) {
       stage.define(std::string(def.begin(), def.begin() + sp), std::string(def.begin() + sp + 1, def.end()));

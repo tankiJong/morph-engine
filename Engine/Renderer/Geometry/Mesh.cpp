@@ -43,8 +43,8 @@ Mesh::Mesh(const VertexLayout* layout): mIndices(sizeof(uint)), mLayout(layout) 
 
 Mesh& Mesh::setIndices(span<const uint> indices) {
   mIndices.indexStride = sizeof(uint);
-  mIndices.indexCount = indices.size();
-  mIndices.copyToGpu(sizeof(uint) * indices.size(), indices.data());
+  mIndices.indexCount = (uint)indices.size();
+  mIndices.copyToGpu(sizeof(uint) * (uint)indices.size(), indices.data());
   return *this;
 }
 

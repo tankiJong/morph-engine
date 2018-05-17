@@ -4,11 +4,11 @@
 class Blob {
 public:
   template<typename T>
-  Blob(T* source, unsigned size): buffer(malloc(size)), dataSize(size), bufferSize(size) {
+  Blob(T* source, size_t size): buffer(malloc(size)), dataSize(size), bufferSize(size) {
     memcpy_s(buffer, size, source, size);
   }
 
-  Blob(unsigned size): buffer(malloc(size)), dataSize(0), bufferSize(size) {}
+  Blob(size_t size): buffer(malloc(size)), dataSize(0), bufferSize(size) {}
 
   Blob(): buffer(malloc(0)), dataSize(0), bufferSize(0) {}
 
@@ -43,11 +43,11 @@ public:
     return reinterpret_cast<const T>(buffer);
   }
 
-  inline unsigned size() const { return dataSize; };
-  inline unsigned capacity() const { return bufferSize; };
+  inline size_t size() const { return dataSize; };
+  inline size_t capacity() const { return bufferSize; };
 protected:
   void* buffer = nullptr;
-  unsigned dataSize;
-  unsigned bufferSize;
+  size_t dataSize;
+  size_t bufferSize;
 
 };

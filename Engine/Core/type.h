@@ -9,7 +9,6 @@ typedef int              ptrdiff_t;
 typedef int              intptr_t;
 #endif
 
-
 #ifndef NULL
 #ifdef __cplusplus
 #define NULL 0
@@ -19,7 +18,8 @@ typedef int              intptr_t;
 #endif
 
 enum class byte_t : unsigned char {};
-typedef unsigned int uint;
-typedef long long int64;
 typedef short int16;
-typedef unsigned short uint16;
+typedef long long int64;
+typedef unsigned int uint;
+typedef unsigned short u16;
+typedef unsigned __int64 u64;

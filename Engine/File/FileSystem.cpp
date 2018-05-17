@@ -61,7 +61,7 @@ std::optional<fs::path> FileSystem::locate(const fs::path& vFilePath) {
   EXPECTS(!fs::isDirectory(vFilePath));
   auto paths = map(vFilePath);
   uint i = 0;
-  for (uint size = paths.size(); i<size; ++i) {
+  for (size_t size = paths.size(); i<size; ++i) {
     if (fs::exists(paths[i])) return paths[i];
   }
 
@@ -71,7 +71,7 @@ std::optional<fs::path> FileSystem::locate(const fs::path& vFilePath) {
 std::optional<Blob> FileSystem::asBuffer(const fs::path& file) {
   auto paths = map(file);
   uint i = 0;
-  for(uint size = paths.size(); i<size; ++i) {
+  for(size_t size = paths.size(); i<size; ++i) {
     if (fs::exists(paths[i])) break;
   }
 
@@ -99,7 +99,7 @@ std::optional<Blob> FileSystem::asBuffer(const fs::path& file) {
 std::ifstream FileSystem::asStream(const fs::path& file) {
   auto paths = map(file);
   uint i = 0;
-  for (uint size = paths.size(); i<size; ++i) {
+  for (size_t size = paths.size(); i<size; ++i) {
     if (fs::exists(paths[i])) break;
   }
 

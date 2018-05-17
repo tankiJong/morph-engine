@@ -15,7 +15,7 @@ public:
 public:
   // copy data to the CPU and dirty the buffer
   void putCpu(size_t byteSize, void const *data);
-  void putCpu(uint offset, size_t byteSize, const void* data);
+  void putCpu(size_t offset, size_t byteSize, const void* data);
 
   // update the gpu buffer from the local cpu buffer if dirty
   // and clears the dirty flag

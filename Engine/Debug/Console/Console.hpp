@@ -69,7 +69,7 @@ public:
       mSelection.reset();
     }
     mInputStream.insert(mInputStream.cbegin() + mCursorPosition, val.cbegin(), val.cend());
-    mCursorPosition+=val.length();
+    mCursorPosition+=(uint)val.length();
   }
 
   template<>

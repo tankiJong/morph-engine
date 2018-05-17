@@ -370,6 +370,9 @@
     <ClCompile Include="File\File.cpp">
       <Filter>File</Filter>
     </ClCompile>
+    <ClCompile Include="Debug\Log.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -807,6 +810,9 @@
     </ClInclude>
     <ClInclude Include="File\File.hpp">
       <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\Log.hpp">
+      <Filter>Debug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

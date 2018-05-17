@@ -67,7 +67,7 @@ public:
     setProperty(name, &val, sizeof(T));
   }
 
-  void setProperty(std::string_view name, const void* data, uint size);
+  void setProperty(std::string_view propName, const void* data, uint size);
   void setTexture(uint slot, const Texture* tex, const Sampler* sampler = nullptr, const char* nameid = "");
 
   inline void setTexture(uint slot, const Texture* tex, const char* nameid, const Sampler* sampler = nullptr) {
@@ -75,7 +75,7 @@ public:
   }
 
   void setPropertyBlock(S<const PropertyBlockInfo> layout, void* data);
-  void setPropertyBlock(std::string_view name, void* data, uint size);
+  void setPropertyBlock(std::string_view propName, void* data, uint size);
 
   template<typename T>
   void setPropertyBlock(std::string_view name, const T& data) {

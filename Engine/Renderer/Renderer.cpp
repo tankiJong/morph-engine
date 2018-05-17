@@ -202,7 +202,7 @@ void Renderer::drawText2D(const vec2& drawMins,
 
   vec2 dx(charWidth, 0.f), dy(0.f, cellHeight);
   uint currentChIndex = 0;
-  for(uint j = 0, size = asciiTexts.size(); j < size; j++) {
+  for(size_t j = 0, size = asciiTexts.size(); j < size; j++) {
     const std::string& asciiText = asciiTexts[j];
     const Rgba& tint = tints[j];
     for (uint i = 0; i<asciiText.length(); i++) {
@@ -1001,7 +1001,7 @@ void Renderer::drawMesh(const Mesh& mesh) {
                             toGLType(attribute.type), 
                             attribute.isNormalized ? GL_FALSE : GL_TRUE, 
                             vbo.vertexStride,
-                            (GLvoid*)attribute.offset);
+                            reinterpret_cast<GLvoid*>((u64)attribute.offset));
     }
   }
 //  // position

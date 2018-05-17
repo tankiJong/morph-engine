@@ -37,7 +37,7 @@ void ParticleEmitter::update() {
   emit(toSpawn);
 
 
-  for(uint i = mParticles.size() - 1, count = mParticles.size(); i < count; --i) {
+  for(size_t i = mParticles.size() - 1, count = mParticles.size(); i < count; --i) {
     particle_t& p = mParticles[i];
     updateFunc(p, dsec);
     p.update(dsec);

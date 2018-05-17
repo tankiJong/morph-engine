@@ -72,7 +72,7 @@ void RenderScene::lightContributorsAt(const vec3& position, uint* out_lights, ui
     return a.l->attenuation(position) > b.l->attenuation(position);
   });
 
-  uint lightCount = clamp<uint>(lights.size(), 0u, NUM_MAX_LIGHTS);
+  uint lightCount = clamp<uint>((uint)lights.size(), 0u, NUM_MAX_LIGHTS);
 
   if(out_count) {
     *out_count = lightCount;
@@ -80,7 +80,7 @@ void RenderScene::lightContributorsAt(const vec3& position, uint* out_lights, ui
 
   if(out_lights) {
     for(uint i = 0; i < lightCount; i++) {
-      out_lights[i] = lights[i].index;
+      out_lights[i] = (uint)lights[i].index;
     }
   }
 }

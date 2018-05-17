@@ -48,7 +48,7 @@ bool same(char a, C c) {
 
 template<typename ...Symbols>
 void ignore(std::string& str, Symbols... cs) {
-  for(uint i = 0, size = str.length(); i < size; i++) {
+  for(size_t i = 0, size = str.length(); i < size; i++) {
     if(!same(str[i], cs...)) {
       str.erase(0, i);
       return;
@@ -59,12 +59,12 @@ void ignore(std::string& str, Symbols... cs) {
 }
 
 uint findWhiteSpace(const std::string& str) {
-  uint pos = std::string::npos;
+  size_t pos = std::string::npos;
   for(char c: TOKEN_WHITESPACE) {
     pos = std::min(pos, str.find(c));
   }
 
-  return pos;
+  return (uint)pos;
 }
 
 

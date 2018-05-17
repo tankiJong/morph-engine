@@ -12,11 +12,14 @@ public:
 
   Gradient() { mColors.reserve(10); };
   Gradient(const Rgba& from, const Rgba& to);
+  Gradient(const Rgba& color);
   void clear();
 
   Gradient& add(const Rgba& color, float percent);
 
   Rgba evaluate(float t) const;
+
+  static Gradient white;
 protected:
 
   // should sort according to percent

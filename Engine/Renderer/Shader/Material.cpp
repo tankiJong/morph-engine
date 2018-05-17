@@ -58,9 +58,9 @@ const Shader* Material::shader() const {
   return mShader == nullptr ? mResShader.get() : mShader;
 }
 
-void Material::setProperty(std::string_view name, const void* data, uint size) {
+void Material::setProperty(std::string_view propName, const void* data, uint size) {
   for(MaterialProperty* prop: mProps) {
-    const property_info_t* p = prop->value.info->get(name);
+    const property_info_t* p = prop->value.info->get(propName);
     if(p == nullptr) continue;
 
     EXPECTS(size == p->size);
@@ -99,8 +99,8 @@ void Material::setPropertyBlock(S<const PropertyBlockInfo> layout, void* data) {
   prop = new MaterialProperty(layout->name.data(), layout, data);
 }
 
-void Material::setPropertyBlock(std::string_view name, void* data, uint size) {
-  MaterialProperty* prop = property(name);
+void Material::setPropertyBlock(std::string_view propName, void* data, uint size) {
+  MaterialProperty* prop = property(propName);
   EXPECTS(prop != nullptr);
 
   prop->value.put(size, data);
@@ -169,7 +169,7 @@ owner<Material*> Material::fromYaml(const fs::path& file) {
         propInfo->name = prop.first.as<std::string>();
 
         if(prop.second.IsMap()) {           // property block
-          uint offset = 0u;
+          size_t offset = 0u;
           Blob data(1024u);
           for(auto attr: prop.second) {
             EXPECTS(attr.first.IsSequence()); // bug in cpp yaml

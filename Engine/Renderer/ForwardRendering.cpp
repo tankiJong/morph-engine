@@ -54,15 +54,11 @@ void ForwardRendering::renderView(RenderScene& scene, Camera& cam) {
   }
 
   RenderTask::sort(cam, tasks);
-  GL_CHECK_ERROR();
   prepass(scene, tasks, cam);
-  GL_CHECK_ERROR();
 
   pass(scene, tasks, cam);
-  GL_CHECK_ERROR();
 
   postpass(scene, tasks, cam);
-  GL_CHECK_ERROR();
 
 }
 
