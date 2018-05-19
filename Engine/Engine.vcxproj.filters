@@ -373,6 +373,9 @@
     <ClCompile Include="Debug\Log.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Engine.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -813,6 +816,9 @@
     </ClInclude>
     <ClInclude Include="Debug\Log.hpp">
       <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Engine.hpp">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

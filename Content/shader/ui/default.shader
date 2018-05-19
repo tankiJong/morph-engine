@@ -2,7 +2,7 @@ name: shader/ui/default
 pass:
 -
   program:
-    path: Data/shader/progs/solid
+    path: /$Content/shader/progs/solid
     
   cull: none
   blend:

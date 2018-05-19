@@ -7,36 +7,6 @@ namespace sfs {
   using namespace std::experimental::filesystem;
 }
 
-Blob fileToBuffer(const char* nameWithFullPath) {
-  std::ifstream file(nameWithFullPath, std::ios::binary | std::ios::ate);
-
-  std::streamsize size = file.tellg();
-
-  if(size == -1) {
-    return Blob();
-  }
-  file.seekg(0, std::ios::beg);
-
-  char* buffer = new char[(uint)size + 1];
-
-  if(file.read(buffer, size)) {
-    buffer[size] = 0;
-    Blob b(buffer, (uint)size+1);
-    delete[] buffer;
-    return b;
-  } else {
-    return Blob();
-  }
-//  size_t size = 0U;
-//  fseek(fp, 0L, SEEK_END);
-//  size = ftell(fp);
-//  fseek(fp, 0L, SEEK_SET);
-//  size_t read = fread(buffer, 1, size, fp);
-//  buffer[read] = 0;
-//  fclose(fp);
-//  return Blob(buffer, size+1);
-}
-
 fs::path fs::workingPath() {
   return sfs::current_path();
 }
@@ -51,6 +21,28 @@ bool fs::exists(const path& file) {
 
 bool fs::isDirectory(const path& path) {
   return is_directory(path);
+}
+
+Blob fs::read(const path& filePath) {
+  std::ifstream file(filePath.c_str(), std::ios::binary | std::ios::ate);
+
+  std::streamsize size = file.tellg();
+
+  if (size == -1) {
+    return Blob();
+  }
+  file.seekg(0, std::ios::beg);
+
+  char* buffer = new char[(uint)size + 1];
+
+  if (file.read(buffer, size)) {
+    buffer[size] = 0;
+    Blob b(buffer, (uint)size + 1);
+    delete[] buffer;
+    return b;
+  } else {
+    return Blob();
+  }
 }
 
 // reference from Boost filesystem

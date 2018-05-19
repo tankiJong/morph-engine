@@ -5,7 +5,6 @@
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Application/Window.hpp"
 #include "Engine/Math/Primitives/AABB2.hpp"
-#include "Engine/Renderer/BitmapFont.hpp"
 #include "Engine/Input/Input.hpp"
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Tool/Parser.hpp"
@@ -535,7 +534,7 @@ bool Console::exec() {
   return flag;
 }
 
-Console* Console::get() {
+Console* Console::Get() {
   if(gConsole == nullptr) {
     gConsole = new Console();
   }

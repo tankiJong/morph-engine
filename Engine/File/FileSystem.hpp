@@ -14,12 +14,15 @@ public:
   void mount(const fs::path& virtualDir, const fs::path& physicalPath);
   void unmount(const fs::path& virtualDir);
 
-  std::vector<fs::path> map(const fs::path& virtualPath);
+  std::vector<fs::path> map(const fs::path& virtualPath) const;
   std::optional<File> open(const fs::path& vPath);
-  std::optional<fs::path> locate(const fs::path& vPath);
+  std::optional<fs::path> locate (const fs::path& vPath) const;
   std::optional<Blob> asBuffer(const fs::path& file);
   std::ifstream asStream(const fs::path& file);
-  void foreach(fs::path vpath, const delegate<void(const fs::path&)>& handler, bool recursive = true);
+  void foreach(fs::path vpath, const delegate<void(const fs::path&, const FileSystem&)>& handler, bool recursive = true);
+
+  void config(const fs::path& configFile, bool reset = false);
+
   static FileSystem& Get();
 
 protected:

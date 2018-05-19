@@ -1,12 +1,10 @@
 ﻿#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-//#include <stdio.h>
-//#include <io.h>
-//#include <fcntl.h>
 #include "Window.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Engine/Core/Engine.hpp"
 
 #define GAME_WINDOW_CLASS TEXT("Simple Window Class") 
-static Window* gWindow = nullptr; // Instance Pointer; 
 
 LRESULT CALLBACK gameWndProc(HWND hwnd,
                              UINT msg,
@@ -14,7 +12,7 @@ LRESULT CALLBACK gameWndProc(HWND hwnd,
                              LPARAM lparam) {
   Window* window = Window::Get();
   if(nullptr != window) {
-    auto delegates = gWindow->getMessageDelegates();
+    auto delegates = window->getMessageDelegates();
     for(const WinMsgDelegate& handler: delegates) {
       handler(msg, wparam, lparam);
     }
@@ -158,11 +156,7 @@ void Window::destory() {
 }
 
 Window* Window::Get() {
-  if(gWindow == nullptr) {
-    gWindow = new Window();
-  }
-
-  return gWindow;
+  return Engine::Get().mWindow;
 }
 
 void Window::registerWindowClass() {

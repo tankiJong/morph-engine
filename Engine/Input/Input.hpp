@@ -7,9 +7,13 @@ void runMessagePump();
 class XboxController;
 class Input {
 public:
+  static constexpr int NUM_KEY = 0xff;
+
   Input();
   ~Input();
-  static constexpr int NUM_KEY = 0xff;
+
+  vec2 mDeltaMousePosition;
+
   void onKeyDown(unsigned char keyCode);
   void onKeyUp(unsigned char keyCode);
 
@@ -24,12 +28,12 @@ public:
   void mouseSetPosition(const vec2& clientPosition);
   void mouseLockCursor(bool lock);
 
+  XboxController* getController(XboxControllerID controllerId);
 
   void beforeFrame();
   void afterFrame();
-  XboxController* getController(XboxControllerID controllerId);
 
-  vec2 mDeltaMousePosition;
+  static Input& Get();
 protected:
   void updateKeyboard();
   void updateXboxControllers();

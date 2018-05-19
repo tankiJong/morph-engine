@@ -8,6 +8,7 @@
 #include <optional>
 #include <sstream>
 #include <set>
+#include "Engine/File/FileSystem.hpp"
 
 GLenum glShaderType[NUM_SHADER_TYPE] = {
   GL_VERTEX_SHADER,
@@ -308,7 +309,7 @@ ShaderStage::ShaderStage(eShaderType type) : mType(type) {
 }
 ShaderStage::ShaderStage(eShaderType type, const char* source): mPath(source) {
   init();
-  std::string file(fileToBuffer(source).as<char*>());
+  std::string file(fs::read(source).as<char*>());
   setFromString(type, file);
 }
 
@@ -329,11 +330,13 @@ bool ShaderStage::setFromString(eShaderType type, std::string source) {
 }
 
 bool ShaderStage::setFromFile(eShaderType type, const char* path) {
-  mPath = path;
+  auto realPath = FileSystem::Get().locate(path);
+  ENSURES(realPath);
+  mPath = realPath.value();
   mFromFile = true;
-  Blob f = fileToBuffer(path);
+  Blob f = fs::read(mPath);
 
-  if (f.size() == 0) return false;
+  if (!f.valid()) return false;
   std::string file(f.as<char*>());
   return setFromString(type, file);
 }
@@ -460,7 +463,7 @@ bool ShaderStage::parseBody(const Path& currentFile, std::string& body, uint cur
 //        Path absPath = fs::canonical(includeFile);
         Blob f;
         for(auto it = mIncludeDirectory.rbegin(), rn = mIncludeDirectory.rend(); it != rn; ++it) {
-          f = fileToBuffer((*it / includeFile).string().c_str());
+          f = fs::read((*it / includeFile).string().c_str());
           if (f.size() != 0) {
             mIncludeDirectory.push_back(*it);
             break;

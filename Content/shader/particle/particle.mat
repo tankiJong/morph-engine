@@ -3,14 +3,14 @@ properties:
   cParticle: {
     [Tint, vec4]: '1.f, 1.f, 1.f, 1.f'
   }
-  gTexDiffuse: [0, /image/particle.png, LINEAR]
+  gTexDiffuse: [0, /$Content/image/particle_default.png, LINEAR]
 
 shader:
   pass:
   -
     layer: alpha
     program:
-      path: Data/shader/progs/default
+      path: /$Content/shader/progs/default
     cull: none
     depth:
       write: false

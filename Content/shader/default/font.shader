@@ -2,7 +2,7 @@ name: shader/font
 pass:
 -
   program:
-    path: Data/shader/progs/font_sdf
+    path: /$Content/shader/progs/font_sdf
     
   cull: none
   fill: solid

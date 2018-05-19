@@ -83,7 +83,7 @@ public:
     return define(name, res, file);
   }
 protected:
-  static std::map<std::string, ResourceItem<T>, std::less<>> sDatabase;
+  static std::map<std::string, ResourceItem<T>, std::less<>> sDatabase; 
 
   /*
    * This function is required for the resource system to work.

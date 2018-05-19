@@ -41,8 +41,8 @@ public:
     DEBUG_WARN,
     DEBUG_ERROR,
   };
-  static bool isOpen() { return get()->mIsOpened; };
-  static Console* get();
+  static bool isOpen() { return Get()->mIsOpened; };
+  static Console* Get();
   static void log(const std::string& msg, Severity level);
   static void info(const std::string& msg);
   static void warn(const std::string& msg);

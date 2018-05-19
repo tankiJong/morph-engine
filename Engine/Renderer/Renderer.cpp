@@ -8,8 +8,6 @@
 #include "Engine/Renderer/Texture.hpp"
 #include "Engine/Math/Primitives/AABB2.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "BitmapFont.hpp"
-#include "SpriteSheet.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include <array>
 #include "glFunctions.hpp"
@@ -26,6 +24,7 @@
 #include "Engine/Renderer/Shader/Material.hpp"
 #include "Engine/Renderer/Shader/ShaderPass.hpp"
 #include "Engine/Renderer/RenderTarget.hpp"
+#include "Engine/Core/Engine.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
@@ -38,17 +37,12 @@ Renderer::Renderer() {
 }
 
 Renderer::~Renderer() {
-  for (const auto& kv : mFonts) {
-    delete kv.second;
-  }
-
 	for (const auto& kv: mTextures) {
 		delete kv.second;
 	}
 
   //QA: when to do the shutdown
   wglMakeCurrent(mHdc, nullptr);
-
   ::wglDeleteContext(mGlContext);
   ::ReleaseDC(mGlWnd, mHdc);
 
@@ -157,170 +151,6 @@ void Renderer::drawTexturedAABB2(const aabb2& bounds, const Texture& texture,
   drawTexturedAABB2(bounds, texture, texCoords.mins, texCoords.maxs, tint);
 }
 
-void Renderer::drawText2D(const vec2& drawMins, const std::string& asciiText, 
-                          float cellHeight, const Rgba& tint, 
-                          float aspectScale, const BitmapFont* font) {
-  if(font == nullptr) {
-    font = BitmapFont::getDefaultFont();
-  }
-
-  GUARANTEE_OR_DIE(font != nullptr, "no font assigned");
-
-  float charWidth = font->getStringWidth(asciiText, cellHeight, aspectScale) / asciiText.length();
-  vec2 dx(charWidth, 0.f), dy(0.f, cellHeight);
-
-  for(int i =0; i<(int)asciiText.length(); i++) {
-    vec2 mins = drawMins + float(i) * dx;
-    aabb2 textBounds(mins, mins + dx + dy);
-    aabb2 uv = font->getUVsForGlyph(asciiText[i]);
-    drawTexturedAABB2(textBounds, font->m_spriteSheet.getTexture(), uv, tint);
-  }
-}
-
-void Renderer::drawText2D(const vec2& drawMins, const std::string& asciiText, float cellHeight, const BitmapFont* font, const Rgba& tint, float aspectScale) {
-  drawText2D(drawMins, asciiText, cellHeight, tint, aspectScale, font);
-}
-
-void Renderer::drawText2D(const vec2& drawMins, 
-                          const std::vector<std::string>& asciiTexts, float cellHeight, 
-                          const std::vector<Rgba>& tints, const BitmapFont* font, 
-                          float aspectScale) {
-  EXPECTS(asciiTexts.size() == tints.size());
-  if (font == nullptr) {
-    font = BitmapFont::getDefaultFont();
-  }
-
-  GUARANTEE_OR_DIE(font != nullptr, "no font assigned");
-
-  float charWidth = 0;
-  std::string t;
-  t.reserve(asciiTexts.size() * 100);
-  for(auto& asciiText: asciiTexts) {
-    t.append(asciiText);
-  }
-  charWidth += font->getStringWidth(t, cellHeight, aspectScale) / t.length();
-
-  vec2 dx(charWidth, 0.f), dy(0.f, cellHeight);
-  uint currentChIndex = 0;
-  for(size_t j = 0, size = asciiTexts.size(); j < size; j++) {
-    const std::string& asciiText = asciiTexts[j];
-    const Rgba& tint = tints[j];
-    for (uint i = 0; i<asciiText.length(); i++) {
-      vec2 mins = drawMins + float(currentChIndex++) * dx;
-      aabb2 textBounds(mins, mins + dx + dy);
-      aabb2 uv = font->getUVsForGlyph(asciiText[i]);
-      drawTexturedAABB2(textBounds, font->m_spriteSheet.getTexture(), uv, tint);
-    }
-  }
-}
-
-void Renderer::drawTextInBox2D(const aabb2& bounds, const std::string& asciiText, float cellHeight, vec2 aligns, eTextDrawMode drawMode, const BitmapFont* font, const Rgba& tint, float aspectScale) {
-  auto texts = split(asciiText.c_str(), "\n");
-  std::vector<std::string>* toDraw = nullptr;
-  std::vector<std::string> blocks = {};
-
-  if(drawMode == TEXT_DRAW_SHRINK_TO_FIT) {
-    float scale = 1.f;
-    const std::string& longest 
-      = *std::max_element(texts.begin(), texts.end(),
-                          [&font = font, &cellHeight = cellHeight](auto& a, auto& b) {
-                            return font->getStringWidth(a, cellHeight) < font->getStringWidth(b, cellHeight);
-                          });
-
-    float scaleX = 1.f, scaleY = 1.f;
-
-    float textWidth = font->getStringWidth(longest, cellHeight);
-    if( textWidth > bounds.width()) {
-      scaleX = bounds.width() / textWidth;
-    }
-
-    float textHeight = cellHeight * texts.size();
-    if(textHeight > bounds.height()) {
-      scaleY = bounds.height() / textHeight;
-    }
-
-    scale = std::min<float>(scaleY, scaleX);
-    toDraw = &texts;
-    cellHeight *= scale;
-    goto STEP_DRAW;
-  }
-
-  if(drawMode == TEXT_DRAW_OVERRUN) {
-    toDraw = &texts;
-    goto STEP_DRAW;
-  }
-
-
-  // drawMode == TEXT_DRAW_WORD_WRAP
-  {
-    const int numMaxChar = font->maxCharacterInWidth(bounds.width(), cellHeight);
-    for(const auto& line: texts) {
-      if(line.size() > unsigned int(numMaxChar)) {
-        unsigned int startPos = 0;
-
-//        while(line[startDrawingPos] == ' ') {
-//          startDrawingPos++;
-//        }
-        while(startPos < line.size()) {
-          const int origin = std::min<int>(startPos + numMaxChar, static_cast<int>(line.size()));
-          unsigned int endPos = origin;
-          bool isFound = false;
-          for(; endPos >= startPos; endPos--) {
-            if (line[endPos] == ' ') {
-              isFound = true;
-              break;
-            }
-          }
-          if(!isFound) {
-            endPos = origin;
-            for ( ; endPos < line.size(); endPos++) {
-              if (line[endPos] == ' ') {
-                isFound = true;
-                break;
-              }
-            }
-          }
-          if(isFound) {
-            blocks.push_back(line.substr(startPos, endPos - startPos));
-            startPos = endPos + 1;
-          } else {
-            blocks.push_back(line.substr(startPos, line.size() - startPos));
-            break;
-          }
-//          while (startDrawingPos < line.size() && line[startDrawingPos] == ' ') {
-//            startDrawingPos++;
-//          }
-        }
-      } else {
-        blocks.push_back(line);
-      }
-    }
-
-    toDraw = &blocks;    
-  }
-
-STEP_DRAW:
-  const auto& longest = *std::max_element(toDraw->begin(), toDraw->end(), [](std::string& a, std::string& b) { return a.size() < b.size(); });
-
-  float blockWidth = font->getStringWidth(longest, cellHeight);
-  float blockHeight = cellHeight * toDraw->size();
-
-  vec2 anchor(bounds.mins.x, bounds.maxs.y);
-
-  vec2 padding = bounds.size() - vec2(blockWidth, blockHeight);
-  padding.x *= aligns.x;
-  padding.y *= -aligns.y;
-
-  anchor += padding;
-
-  anchor.y -= cellHeight;
-
-  for(const auto& line: *toDraw) {
-    drawText2D(anchor, line, cellHeight, tint, aspectScale, font);
-    anchor.y -= cellHeight;
-  }
-}
-
 bool Renderer::init(HWND hwnd) {
   if(gGlLibrary == nullptr) {
     // load and get a handle to the opengl dll (dynamic link library)
@@ -370,7 +200,6 @@ void Renderer::postInit() {
   ShaderPass* pass = new ShaderPass();
   pass->prog() = createOrGetShaderProgram("@default");
   mDefaultShader->add(*pass);
-  mCurrentPass = mDefaultShader->pass(0);
 
   mDefaultSampler = new Sampler();
 
@@ -422,11 +251,11 @@ void Renderer::setState(const render_state& state) {
 
 void Renderer::setShader(const Shader* shader, uint passIndex) {
   
-  mCurrentPass = shader == nullptr ? mDefaultShader->pass(0) : &shader->pass(passIndex);
+  const ShaderPass* pass = shader == nullptr ? mDefaultShader->pass(0) : &shader->pass(passIndex);
   
-  glUseProgram(mCurrentPass->prog()->handle());
+  glUseProgram(pass->prog()->handle());
 
-  setState(mCurrentPass->state());
+  setState(pass->state());
 }
 
 void Renderer::setSampler(uint i, const Sampler* sampler) {
@@ -435,7 +264,9 @@ void Renderer::setSampler(uint i, const Sampler* sampler) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const float& value) {
-  GLint loc = glGetUniformLocation(mCurrentPass->prog()->handle(), name);
+  GLint prog;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+  GLint loc = glGetUniformLocation(prog, name);
   if(loc >= 0) {
     glUniform1f(loc, value);
   }
@@ -443,7 +274,9 @@ void Renderer::setUnifrom(const char* name, const float& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const vec2& value) {
-  GLint loc = glGetUniformLocation(mCurrentPass->prog()->handle(), name);
+  GLint prog;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+  GLint loc = glGetUniformLocation(prog, name);
   if (loc >= 0) {
     glUniform2fv(loc, 1, &value.x);
   }
@@ -451,7 +284,9 @@ void Renderer::setUnifrom(const char* name, const vec2& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const vec3& value) {
-  GLint loc = glGetUniformLocation(mCurrentPass->prog()->handle(), name);
+  GLint prog;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+  GLint loc = glGetUniformLocation(prog, name);
   if (loc >= 0) {
     glUniform3fv(loc, 1, &value.x);
   }
@@ -459,7 +294,9 @@ void Renderer::setUnifrom(const char* name, const vec3& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const Rgba& value) {
-  GLint loc = glGetUniformLocation(mCurrentPass->prog()->handle(), name);
+  GLint prog;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+  GLint loc = glGetUniformLocation(prog, name);
   if (loc >= 0) {
     vec4 scaledColor = value.normalized();
     glUniform4fv(loc, 1, scaledColor.data);
@@ -468,7 +305,9 @@ void Renderer::setUnifrom(const char* name, const Rgba& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const vec4& value) {
-  GLint loc = glGetUniformLocation(mCurrentPass->prog()->handle(), name);
+  GLint prog;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+  GLint loc = glGetUniformLocation(prog, name);
   if (loc >= 0) {
     glUniform4fv(loc, 1, value.data);
   }
@@ -476,7 +315,9 @@ void Renderer::setUnifrom(const char* name, const vec4& value) {
 
 template<>
 void Renderer::setUnifrom(const char* name, const mat44& value) {
-  GLint loc = glGetUniformLocation(mCurrentPass->prog()->handle(), name);
+  GLint prog;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+  GLint loc = glGetUniformLocation(prog, name);
   if (loc >= 0) {
     glUniform1fv(loc, 16, value.data);
   }
@@ -494,6 +335,10 @@ void Renderer::updateTime(float gameDeltaSec, float sysDeltaSec) {
   t->gameSeconds += gameDeltaSec;
   t->sysDeltaSeconds = sysDeltaSec;
   t->sysSeconds += sysDeltaSec;
+}
+
+Renderer* Renderer::Get() {
+  return Engine::Get().mRenderer;
 }
 
 void Renderer::clearDepth(float depth) {
@@ -540,25 +385,6 @@ void Renderer::setCamera(Camera* camera) {
 void Renderer::resetAlphaBlending() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-}
-
-bool Renderer::reloadShaderProgram() {
-  bool success = true;
-
-  for(auto& kv: mShaderPrograms) {
-    success = success & kv.second->fromFile(kv.first.c_str());
-  }
-
-  return success;
-}
-
-bool Renderer::reloadShaderProgram(const char* nameWithPath) {
-  std::string name = std::string(nameWithPath);
-  auto it = mShaderPrograms.find(name);
-
-  EXPECTS(it != mShaderPrograms.end());
-
-  return it->second->fromFile(nameWithPath);
 }
 
 void Renderer::setTexture(const Texture* texture) {
@@ -988,8 +814,10 @@ void Renderer::drawMesh(const Mesh& mesh) {
   }
 
   setUniformBuffer(UNIFORM_LIGHT, mUniformLights);
+  GLint prog;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
   for(const VertexAttribute& attribute: mesh.layout().attributes()) {
-    GLint bindIdx = glGetAttribLocation(mCurrentPass->prog()->handle(), attribute.name.c_str());
+    GLint bindIdx = glGetAttribLocation(prog, attribute.name.c_str());
 
     if(bindIdx >= 0) {
       const VertexBuffer& vbo = mesh.vertices(attribute.streamIndex);
@@ -1104,24 +932,6 @@ bool Renderer::copyTexture(Texture* from, uint fromX, uint fromY, Texture* to, u
   GL_CHECK_ERROR();
 
   return GLSucceeded();
-}
-
-BitmapFont* Renderer::createOrGetBitmapFont(const char* bitmapFontName, const char* path) {
-  const char* fullPath = std::string(path).append(bitmapFontName).c_str();
-  return createOrGetBitmapFont(fullPath);
-}
-
-BitmapFont* Renderer::createOrGetBitmapFont(const char* fontNameWithPath) {
-  auto kv = mFonts.find(fontNameWithPath);
-  if (kv != mFonts.end()) {
-    return kv->second;
-  }
-
-  Texture* fontTex = createOrGetTexture(fontNameWithPath);
-  BitmapFont* font = new BitmapFont(fontNameWithPath, *(new SpriteSheet(*fontTex, 16, 16)));
-  mFonts[fontNameWithPath] = font;
-
-  return font;
 }
 
 Texture* Renderer::createOrGetTexture(const std::string& filePath) {

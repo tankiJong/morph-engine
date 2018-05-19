@@ -6,9 +6,6 @@
 
 class Blob;
 
-
-Blob fileToBuffer(const char* nameWithFullPath);
-
 namespace fs {
   // environment
   path workingPath();
@@ -17,7 +14,7 @@ namespace fs {
   bool isDirectory(const path& path);
   
   int64 sizeOf(const path& file);
-  byte_t* read(const path& file);
+  Blob read(const path& filePath);
   bool  read(const path& file, void* buffer, int64 size = -1);
 
   path relative(const path& p, const path& base);

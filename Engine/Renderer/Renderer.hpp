@@ -23,7 +23,6 @@ struct HWND__;
 typedef HWND__* HWND;
 typedef HGLRC__* HGLRC;
 typedef HDC__* HDC;
-class BitmapFont;
 class Rgba;
 class Texture;
 class aabb2;
@@ -48,10 +47,8 @@ class ShaderPass;
  * The coord sys i am using, left hand system. use left hand to do the cross product.
  */
 class Renderer {
+  friend class Engine;
 public:
-  Renderer();
-  ~Renderer();
-
   void afterFrame();
   void beforeFrame();
   void setTexture(uint i, const Texture* texture = nullptr);
@@ -64,8 +61,6 @@ public:
   bool copyFrameBuffer(FrameBuffer* dest, FrameBuffer* src);
   bool copyTexture(Texture* from, Texture* to = nullptr);
   bool copyTexture(Texture* from, uint fromX, uint fromY, Texture* to, uint toX, uint toY, uint width, uint height);
-  BitmapFont* createOrGetBitmapFont(const char* bitmapFontName, const char* path);
-  BitmapFont* createOrGetBitmapFont(const char* fontNameWithPath);
 
   Texture* createOrGetTexture(const std::string& filePath);
   RenderTarget* createRenderTarget(uint width, uint height,
@@ -98,21 +93,6 @@ public:
   void drawTexturedAABB2(const aabb2& bounds, const Texture& texture,
                          const aabb2& texCoords, const Rgba& tint = Rgba::white);
 
-  void drawText2D(const vec2& drawMins, const std::string& asciiText,
-                  float cellHeight, const Rgba& tint = Rgba::white,
-                  float aspectScale = 1.f, const BitmapFont* font = nullptr);
-
-  void drawText2D(const vec2& drawMins, const std::string& asciiText,
-                  float cellHeight, const BitmapFont* font = nullptr,
-                  const Rgba& tint = Rgba::white, float aspectScale = 1.f);
-
-  void drawText2D(const vec2& drawMins, const std::vector<std::string>& asciiTexts,
-                  float cellHeight, const std::vector<Rgba>& tints, const BitmapFont* font = nullptr, float aspectScale = 1.f);
-
-  void drawTextInBox2D(const aabb2& bounds, const std::string& asciiText, float cellHeight,
-                       vec2 aligns = vec2::zero, eTextDrawMode drawMode = TEXT_DRAW_OVERRUN,
-                       const BitmapFont* font = nullptr, const Rgba& tint = Rgba::white, float aspectScale = 1.f);
-
   void enableDepth(eCompare compare, bool shouldWrite);
 
   inline RenderTarget* getDefaultColorTarget() { return mDefaultColorTarget; }
@@ -122,8 +102,6 @@ public:
 
   void postInit();
   void resetAlphaBlending();
-  bool reloadShaderProgram();
-  bool reloadShaderProgram(const char* nameWithPath);
   Image screenShot();
 
   void setAmbient(const Rgba& color, float intensity);
@@ -153,17 +131,18 @@ public:
 
   static HGLRC createRealRenderContext(HDC hdc, int major, int minor);
   static HGLRC createOldRenderContext(HDC hdc);
+  static Renderer* Get();
 protected:
-
+  Renderer();
+  ~Renderer();
   std::map<std::string, Texture*> mTextures = {};
-  std::map<std::string, BitmapFont*> mFonts = {};
-  std::map<std::string, ShaderProgram*> mShaderPrograms = {};
+  std::map<std::string, ShaderProgram*> mShaderPrograms;
 
   RenderBuffer mTempRenderBuffer;
   UniformBuffer mUniformTime;
   UniformBuffer mUniformLights;
   UniformBuffer mUniformTransform;
-  const ShaderPass* mCurrentPass = nullptr;
+  // const ShaderPass* mCurrentPass = nullptr;
   Shader* mDefaultShader = nullptr;
   Camera* mCurrentCamera = nullptr;
   owner<Camera*> mDefaultCamera = nullptr;

@@ -1,9 +1,12 @@
 #define WIN32_LEAN_AND_MEAN		// Always #define this before #including <windows.h>
-#include <windows.h>			// #include this (massive, platform-specific) header in very few places
+#include <windows.h>
 
 #include "Input.hpp"
 #include "Engine/Application/Window.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Engine/Core/Engine.hpp"
+
+Input* gInput = nullptr;
 
 void runMessagePump() {
 	MSG queuedMessage;
@@ -161,7 +164,7 @@ void Input::mouseHideCursor(bool hide) {
   if (mCursorVisible == !hide) return;
   mCursorVisible = !hide;
   int count = ::ShowCursor(!hide);
-  ENSURES(hide == count < 0);
+  // ENSURES(hide == count < 0);
 }
 
 void Input::beforeFrame() {
@@ -176,6 +179,16 @@ void Input::afterFrame() {
     vec2 center = Window::Get()->clientCenter();
     mouseSetPosition(center);
   }
+}
+
+Input& Input::Get() {
+  EXPECTS(Engine::Get().ready());
+
+  if(!gInput) {
+    gInput = new Input();
+  }
+
+  return *gInput;
 }
 
 XboxController* Input::getController(XboxControllerID controllerId) {

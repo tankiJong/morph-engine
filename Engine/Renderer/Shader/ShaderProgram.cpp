@@ -119,7 +119,7 @@ bool ShaderProgram::fromFile(const char* relativePath, const char* defineArgs) {
 
   }
 
-  return commit();
+  return success && commit();
 }
 
 bool ShaderProgram::setStage(eShaderType stageType, const char* stageString, const char* defineArgs) {

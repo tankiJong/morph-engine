@@ -2,9 +2,10 @@
 #include "Utils.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include <fstream>
+#include "Engine/Core/Engine.hpp"
 
 void FileSystem::mount(const fs::path& virtualDir, const fs::path& physicalPath) {
-  Expects(fs::isDirectory(physicalPath));
+  EXPECTS(fs::isDirectory(physicalPath));
 
 
   fs::path fullPath = fs::absolute(physicalPath);
@@ -25,7 +26,7 @@ void FileSystem::unmount(const fs::path& virtualDir) {
   mMounted[virtualDir].clear();
 }
 
-std::vector<fs::path> FileSystem::map(const fs::path& virtualPath) {
+std::vector<fs::path> FileSystem::map(const fs::path& virtualPath) const {
   auto it = virtualPath.begin();
   TODO("case where vpath is not root_directory");
   fs::path p, rest;
@@ -57,7 +58,7 @@ std::vector<fs::path> FileSystem::map(const fs::path& virtualPath) {
   }
 }
 
-std::optional<fs::path> FileSystem::locate(const fs::path& vFilePath) {
+std::optional<fs::path> FileSystem::locate(const fs::path& vFilePath) const {
   EXPECTS(!fs::isDirectory(vFilePath));
   auto paths = map(vFilePath);
   uint i = 0;
@@ -110,31 +111,33 @@ std::ifstream FileSystem::asStream(const fs::path& file) {
   return f;
 }
 
-void FileSystem::foreach(fs::path vpath, const delegate<void(const fs::path&)>& handler, bool recursive) {
+void FileSystem::foreach(fs::path vpath, const delegate<void(const fs::path&, const FileSystem&)>& handler, bool recursive) {
 
   auto physicalPaths = map(vpath);
   if (physicalPaths.size() == 0) return;
 
   EXPECTS(fs::isDirectory(physicalPaths[0]));
-  for(auto& path: physicalPaths) {
-    if(recursive) {
-      for(auto& p: fs::RecursiveDirectoryIterator(path)) {
+  for (auto& path : physicalPaths) {
+    if (recursive) {
+      for (auto& p : fs::RecursiveDirectoryIterator(path)) {
         fs::path vFilePath = vpath / fs::relative(p.path(), path);
-        handler(vFilePath);
+        handler(vFilePath, *this);
       }
     } else {
-      for(auto& p: fs::DirectoryIterator(path)) {
+      for (auto& p : fs::DirectoryIterator(path)) {
         fs::path rela = fs::relative(p.path(), path);
         fs::path vFilePath = vpath / rela;
 
-        handler(vFilePath);
+        handler(vFilePath, *this);
       }
     }
   }
+
 }
 
 static FileSystem* gInstance = nullptr;
 FileSystem& FileSystem::Get() {
+  EXPECTS(Engine::Get().ready());
   if(!gInstance) {
     gInstance = new FileSystem();
   }

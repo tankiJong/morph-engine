@@ -3,7 +3,7 @@ pass:
 - 
   program: 
     define: _LIT;
-    path: Data/shader/progs/default
+    path: /$Content/shader/progs/default
 
   cull: back
   fill: solid

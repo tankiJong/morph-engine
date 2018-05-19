@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <memory>
 #include "Engine/Core/common.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
+
 class Blob {
 public:
   template<typename T>
@@ -29,6 +31,15 @@ public:
     return as<T>();
   }
 
+  operator bool() {
+    return valid();
+  }
+
+  operator const bool() const {
+    return valid();
+  }
+
+
   Blob& operator=(Blob&& other) noexcept;
 
   template<typename T>
@@ -43,6 +54,7 @@ public:
     return reinterpret_cast<const T>(buffer);
   }
 
+  inline bool valid() const { return dataSize != 0; };
   inline size_t size() const { return dataSize; };
   inline size_t capacity() const { return bufferSize; };
 protected:

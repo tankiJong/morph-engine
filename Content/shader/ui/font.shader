@@ -2,7 +2,7 @@ name: shader/ui/font
 pass:
 -
   program:
-    path: Data/shader/progs/font_sdf
+    path: /$Content/shader/progs/font_sdf
     
   cull: none
   blend:

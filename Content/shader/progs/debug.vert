@@ -6,14 +6,13 @@ in vec2 UV;
 #include "../inc/common.glsl"
 
 
-layout(std140, binding = 4) uniform t {
+layout(std140, binding = UNIFORM_USER_1) uniform cTintBlock {
 	vec4 tint;
 };
 
 out vec2 passUV; 
 out vec4 passColor;
 out vec3 passPos;
-out vec4 ViewMat;
 
 void main() 
 {
@@ -22,7 +21,5 @@ void main()
 
    passColor = COLOR * tint; // pass it on. 
    passUV = UV; 
-   passPos = clip_pos.xyz;
-   ViewMat = PROJECTION * VIEW * vec4(0);
    gl_Position = clip_pos; 
 }

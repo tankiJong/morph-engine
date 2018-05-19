@@ -5,7 +5,7 @@ properties:
     [SingleValue, float]: 1,
     [ArrayValue, float]: [1, 2, 3]
   }
-  gTexDiffuse: [0, /image/particle.png, LINEAR]
+  gTexDiffuse: [0, /$Content/image/particle.png, LINEAR]
 
 shader:
   name: shader/default

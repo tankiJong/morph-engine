@@ -9,6 +9,7 @@
 typedef delegate<void(uint msg, size_t wparam, size_t lparam)> WinMsgDelegate;
 
 class Window {
+  friend class Engine;
 public:
   // Do all the window creation work is currently in App
   ~Window();
