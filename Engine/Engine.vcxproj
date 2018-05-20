@@ -756,6 +756,17 @@
     <Text Include="..\..\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Content\font\FiraMono.font" />
+    <None Include="..\Content\font\trebuchet.font" />
+    <None Include="..\Content\shader\debug\debug_draw.shader" />
+    <None Include="..\Content\shader\default\alpha.shader" />
+    <None Include="..\Content\shader\default\default.shader" />
+    <None Include="..\Content\shader\default\default_lit.shader" />
+    <None Include="..\Content\shader\default\font.shader" />
+    <None Include="..\Content\shader\effect\effect_bloom.shader" />
+    <None Include="..\Content\shader\effect\effect_fog.shader" />
+    <None Include="..\Content\shader\ui\default.shader" />
+    <None Include="..\Content\shader\ui\font.shader" />
     <None Include="..\ThirdParty\gsl\gsl" />
     <None Include="..\ThirdParty\gsl\gsl_algorithm" />
     <None Include="..\ThirdParty\gsl\gsl_assert" />
@@ -769,6 +780,11 @@
   <ItemGroup>
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis" />
     <Natvis Include="..\ThirdParty\nlohmann-json\nlohmann_json.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Content\font\FiraMono.png" />
+    <Image Include="..\Content\font\trebuchet.png" />
+    <Image Include="..\Content\image\particle_default.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

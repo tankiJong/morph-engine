@@ -1,26 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Math">
-      <UniqueIdentifier>{3414708f-28cd-40bf-9ae7-5ad67f955f26}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core">
-      <UniqueIdentifier>{1bb7e7c3-0047-43be-9538-e05bb2df9a86}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Renderer">
-      <UniqueIdentifier>{ad2eac7c-cfa4-4f98-838a-799d8c700820}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Input">
-      <UniqueIdentifier>{c13b14c1-3e86-4b6b-8aba-ab270f5427d4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ThirdParty">
       <UniqueIdentifier>{64da1c16-e79a-459c-ab9d-ece4dbf3b2c9}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\stb">
       <UniqueIdentifier>{ecd235e4-a60e-47d7-bf52-93dfe30cb355}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Audio">
-      <UniqueIdentifier>{5cd8c28f-cd73-41af-86fa-13695fbd5153}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\fmod">
       <UniqueIdentifier>{b4ca5da3-5d77-47d1-b6b0-5ab3ff61d5c5}</UniqueIdentifier>
@@ -28,26 +13,11 @@
     <Filter Include="ThirdParty\pugixml">
       <UniqueIdentifier>{22eee405-3868-46f8-9ecc-a294e4e7687e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Math\Noise">
-      <UniqueIdentifier>{44d7ecc3-e84e-4180-84de-87e464395009}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ThirdParty\yaml-cpp">
       <UniqueIdentifier>{eab496f2-fe0a-41b5-8a28-8921c6f0d75d}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\yaml-cpp\contrib">
       <UniqueIdentifier>{c0c8ecbd-51b6-4914-a253-c994469ae800}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Renderer\External">
-      <UniqueIdentifier>{d1bce8d8-4c01-411f-ab2a-c0e4cb20b92c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Renderer\External\gl">
-      <UniqueIdentifier>{963fcc2d-ea1a-4f26-8ff9-f557bcc27e3b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Renderer\Shader">
-      <UniqueIdentifier>{cb708e38-def9-4fbd-be53-d21baa6a4912}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="File">
-      <UniqueIdentifier>{8b6df7c6-a558-41d7-98e7-6f8caaf38b68}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\yaml-cpp\node">
       <UniqueIdentifier>{d07e2844-dc4b-467a-a4ca-5ed85d1bd3df}</UniqueIdentifier>
@@ -55,361 +25,423 @@
     <Filter Include="ThirdParty\yaml-cpp\node\detail">
       <UniqueIdentifier>{df0b84ee-02cb-48c7-8495-e6ad3e3f4b7c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application">
-      <UniqueIdentifier>{065b07b7-9fc3-4b9f-b8db-a54f1d2cb14d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Debug">
-      <UniqueIdentifier>{3b3ab295-91a8-4e8d-b786-17e009e9614c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Debug\Console">
-      <UniqueIdentifier>{4db2c1bd-f3f1-41dd-a2a4-b887e46bae6a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Tool">
-      <UniqueIdentifier>{3c76a7d3-1291-4301-90ff-f4a9e1a09f77}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Math\Primitives">
-      <UniqueIdentifier>{61183449-a585-49e8-af76-28a2a3568fd7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Misc">
-      <UniqueIdentifier>{4e94cd7d-4d60-4162-bb5f-b5bca35f78ad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Time">
-      <UniqueIdentifier>{b0d60807-4c40-44e9-9165-35e7334c1258}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ThirdParty\gsl">
       <UniqueIdentifier>{5d7d5f30-fdb7-4c58-b005-c0d3fca3db2f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Persistence">
-      <UniqueIdentifier>{2d06a7aa-f679-44d5-9469-11ebc5c3a063}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\nlohmann-json">
       <UniqueIdentifier>{fe7226f5-3749-4d39-8de6-810f5eb76bc5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Renderer\Geometry">
-      <UniqueIdentifier>{76d417b5-9f03-4dc0-bf60-a310f5722d8d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ThirdParty\mikktspace">
       <UniqueIdentifier>{0e388fb6-a62c-490a-8995-4a090fc95ee0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Renderer\Renderable">
-      <UniqueIdentifier>{f7cada3c-1b9a-46db-bbe9-701b4b1bcdf4}</UniqueIdentifier>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{875eb640-2e51-416e-aaa0-4b6b617c2fd5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Framework">
-      <UniqueIdentifier>{29d1247b-b02e-40df-8270-d96cf0b4bac0}</UniqueIdentifier>
+    <Filter Include="Engine\Application">
+      <UniqueIdentifier>{065b07b7-9fc3-4b9f-b8db-a54f1d2cb14d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Effect">
+    <Filter Include="Engine\Audio">
+      <UniqueIdentifier>{5cd8c28f-cd73-41af-86fa-13695fbd5153}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Core">
+      <UniqueIdentifier>{1bb7e7c3-0047-43be-9538-e05bb2df9a86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Core\Misc">
+      <UniqueIdentifier>{4e94cd7d-4d60-4162-bb5f-b5bca35f78ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Core\Time">
+      <UniqueIdentifier>{b0d60807-4c40-44e9-9165-35e7334c1258}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Debug">
+      <UniqueIdentifier>{3b3ab295-91a8-4e8d-b786-17e009e9614c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Debug\Console">
+      <UniqueIdentifier>{4db2c1bd-f3f1-41dd-a2a4-b887e46bae6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Effect">
       <UniqueIdentifier>{c0acd46b-8555-43b3-aa10-b3697df4c7f4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Renderer\AfterEffect">
+    <Filter Include="Engine\File">
+      <UniqueIdentifier>{8b6df7c6-a558-41d7-98e7-6f8caaf38b68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Framework">
+      <UniqueIdentifier>{29d1247b-b02e-40df-8270-d96cf0b4bac0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Input">
+      <UniqueIdentifier>{c13b14c1-3e86-4b6b-8aba-ab270f5427d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Math">
+      <UniqueIdentifier>{3414708f-28cd-40bf-9ae7-5ad67f955f26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Math\Noise">
+      <UniqueIdentifier>{44d7ecc3-e84e-4180-84de-87e464395009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Math\Primitives">
+      <UniqueIdentifier>{61183449-a585-49e8-af76-28a2a3568fd7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Persistence">
+      <UniqueIdentifier>{2d06a7aa-f679-44d5-9469-11ebc5c3a063}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer">
+      <UniqueIdentifier>{ad2eac7c-cfa4-4f98-838a-799d8c700820}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer\External">
+      <UniqueIdentifier>{d1bce8d8-4c01-411f-ab2a-c0e4cb20b92c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer\External\gl">
+      <UniqueIdentifier>{963fcc2d-ea1a-4f26-8ff9-f557bcc27e3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer\Shader">
+      <UniqueIdentifier>{cb708e38-def9-4fbd-be53-d21baa6a4912}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer\Geometry">
+      <UniqueIdentifier>{76d417b5-9f03-4dc0-bf60-a310f5722d8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer\Renderable">
+      <UniqueIdentifier>{f7cada3c-1b9a-46db-bbe9-701b4b1bcdf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer\AfterEffect">
       <UniqueIdentifier>{0de6dbe7-d3dc-4495-ac5c-0378aaed858f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Tool">
+      <UniqueIdentifier>{3c76a7d3-1291-4301-90ff-f4a9e1a09f77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content">
+      <UniqueIdentifier>{dfa8cc8e-d3f0-457a-8ea9-8a6d67051717}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\font">
+      <UniqueIdentifier>{41a307dd-104d-4211-8e3f-a2561a9a557d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\shader">
+      <UniqueIdentifier>{5bdc5864-d965-4b17-9f87-5b5ed08498c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\image">
+      <UniqueIdentifier>{e7b92b58-61da-4628-a8b1-d01193312ed0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\shader\debug">
+      <UniqueIdentifier>{35aacbdc-bfcb-47d2-ba84-a55d9682c6d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\shader\default">
+      <UniqueIdentifier>{f41617c2-5584-4c86-8e46-97a1f4c95cd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\shader\effect">
+      <UniqueIdentifier>{d5bafb9f-9f6d-4a85-a57f-2f9003e82078}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\shader\particle">
+      <UniqueIdentifier>{36e251cf-b5c7-4049-90bc-1bb14c49a2d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\shader\ui">
+      <UniqueIdentifier>{d3f50f51-4852-4aec-a204-46c88d96b086}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
-      <Filter>Math</Filter>
+      <Filter>Engine\Math</Filter>
     </ClCompile>
     <ClCompile Include="Core\Rgba.cpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Renderer.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Input\Input.cpp">
-      <Filter>Input</Filter>
+      <Filter>Engine\Input</Filter>
     </ClCompile>
     <ClCompile Include="Input\XboxController.cpp">
-      <Filter>Input</Filter>
+      <Filter>Engine\Input</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Texture.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\ThirdParty\stb\stb_image.c">
       <Filter>ThirdParty\stb</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\SpriteSheet.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Core\StringUtils.cpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClCompile>
     <ClCompile Include="Audio\Audio.cpp">
-      <Filter>Audio</Filter>
+      <Filter>Engine\Audio</Filter>
     </ClCompile>
     <ClCompile Include="..\ThirdParty\pugixml\pugixml.cpp">
       <Filter>ThirdParty\pugixml</Filter>
     </ClCompile>
     <ClCompile Include="Core\Blackboard.cpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClCompile>
     <ClCompile Include="Core\EngineCommon.cpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClCompile>
     <ClCompile Include="Core\Image.cpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\BitmapFont.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\SpriteAnimSet.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\SpriteAnim.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Math\Curves.cpp">
-      <Filter>Math</Filter>
+      <Filter>Engine\Math</Filter>
     </ClCompile>
     <ClCompile Include="Math\Noise\RawNoise.cpp">
-      <Filter>Math\Noise</Filter>
+      <Filter>Engine\Math\Noise</Filter>
     </ClCompile>
     <ClCompile Include="Math\Noise\SmoothNoise.cpp">
-      <Filter>Math\Noise</Filter>
+      <Filter>Engine\Math\Noise</Filter>
     </ClCompile>
     <ClCompile Include="Math\Noise\Noise.cpp">
-      <Filter>Math\Noise</Filter>
+      <Filter>Engine\Math\Noise</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\glFunctions.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\RenderBuffer.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="File\Blob.cpp">
-      <Filter>File</Filter>
+      <Filter>Engine\File</Filter>
     </ClCompile>
     <ClCompile Include="Application\Window.cpp">
-      <Filter>Application</Filter>
+      <Filter>Engine\Application</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Sampler.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="File\Path.cpp">
-      <Filter>File</Filter>
+      <Filter>Engine\File</Filter>
     </ClCompile>
     <ClCompile Include="Debug\Console\Console.cpp">
-      <Filter>Debug\Console</Filter>
+      <Filter>Engine\Debug\Console</Filter>
     </ClCompile>
     <ClCompile Include="Debug\Console\Command.cpp">
-      <Filter>Debug\Console</Filter>
+      <Filter>Engine\Debug\Console</Filter>
     </ClCompile>
     <ClCompile Include="Debug\ErrorWarningAssert.cpp">
-      <Filter>Debug</Filter>
+      <Filter>Engine\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\FrameBuffer.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Camera.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\AABB2.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\Disc2.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\FloatRange.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\IntRange.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\ivec2.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\ivec3.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\mat44.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\uvec2.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\uvec3.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\vec2.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\vec3.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\vec4.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\rect2.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="..\ThirdParty\stb\stb_image_write.c">
       <Filter>ThirdParty\stb</Filter>
     </ClCompile>
     <ClCompile Include="Core\Misc\Uuid.cpp">
-      <Filter>Core\Misc</Filter>
+      <Filter>Engine\Core\Misc</Filter>
     </ClCompile>
     <ClCompile Include="Core\Time\Time.cpp">
-      <Filter>Core\Time</Filter>
+      <Filter>Engine\Core\Time</Filter>
     </ClCompile>
     <ClCompile Include="Core\Time\Clock.cpp">
-      <Filter>Core\Time</Filter>
+      <Filter>Engine\Core\Time</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\UniformBuffer.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Sprite.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="File\Utils.cpp">
-      <Filter>File</Filter>
+      <Filter>Engine\File</Filter>
     </ClCompile>
     <ClCompile Include="File\FileSystem.cpp">
-      <Filter>File</Filter>
+      <Filter>Engine\File</Filter>
     </ClCompile>
     <ClCompile Include="Debug\Draw.cpp">
-      <Filter>Debug</Filter>
+      <Filter>Engine\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Persistence\json.cpp">
-      <Filter>Persistence</Filter>
+      <Filter>Engine\Persistence</Filter>
     </ClCompile>
     <ClCompile Include="Persistence\xml.cpp">
-      <Filter>Persistence</Filter>
+      <Filter>Engine\Persistence</Filter>
     </ClCompile>
     <ClCompile Include="Persistence\yaml.cpp">
-      <Filter>Persistence</Filter>
+      <Filter>Engine\Persistence</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Font.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Core\Resource.cpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Geometry\Mesh.cpp">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Geometry\VertexBuffer.cpp">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Geometry\IndexBuffer.cpp">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Geometry\Vertex.cpp">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Geometry\Mesher.cpp">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Core\Gradient.cpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClCompile>
     <ClCompile Include="Math\Transform.cpp">
-      <Filter>Math</Filter>
+      <Filter>Engine\Math</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Geometry\VertexLayout.cpp">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Shader\ShaderProgram.cpp">
-      <Filter>Renderer\Shader</Filter>
+      <Filter>Engine\Renderer\Shader</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Shader\ShaderStage.cpp">
-      <Filter>Renderer\Shader</Filter>
+      <Filter>Engine\Renderer\Shader</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Shader\Shader.cpp">
-      <Filter>Renderer\Shader</Filter>
+      <Filter>Engine\Renderer\Shader</Filter>
     </ClCompile>
     <ClCompile Include="..\ThirdParty\mikktspace\mikktspace.c">
       <Filter>ThirdParty\mikktspace</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Shader\Material.cpp">
-      <Filter>Renderer\Shader</Filter>
+      <Filter>Engine\Renderer\Shader</Filter>
     </ClCompile>
     <ClCompile Include="Math\Primitives\quaternion.cpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Renderable\Renderable.cpp">
-      <Filter>Renderer\Renderable</Filter>
+      <Filter>Engine\Renderer\Renderable</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\RenderScene.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Light.cpp">
-      <Filter>Framework</Filter>
+      <Filter>Engine\Framework</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Geometry\ObjMeshLoader.cpp">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\type.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\RenderTask.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\ForwardRendering.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Shader\ShaderPass.cpp">
-      <Filter>Renderer\Shader</Filter>
+      <Filter>Engine\Renderer\Shader</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Shader\PropertyBlock.cpp">
-      <Filter>Renderer\Shader</Filter>
+      <Filter>Engine\Renderer\Shader</Filter>
     </ClCompile>
     <ClCompile Include="Effect\ParticleEmitter.cpp">
-      <Filter>Effect</Filter>
+      <Filter>Engine\Effect</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\RenderTarget.cpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\TextureArray.cpp" />
     <ClCompile Include="Renderer\AfterEffect\AfterEffect.cpp">
-      <Filter>Renderer\AfterEffect</Filter>
+      <Filter>Engine\Renderer\AfterEffect</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\AfterEffect\BloomEffect.cpp">
-      <Filter>Renderer\AfterEffect</Filter>
+      <Filter>Engine\Renderer\AfterEffect</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\AfterEffect\FogEffect.cpp">
-      <Filter>Renderer\AfterEffect</Filter>
+      <Filter>Engine\Renderer\AfterEffect</Filter>
     </ClCompile>
     <ClCompile Include="File\File.cpp">
-      <Filter>File</Filter>
+      <Filter>Engine\File</Filter>
     </ClCompile>
     <ClCompile Include="Debug\Log.cpp">
-      <Filter>Debug</Filter>
+      <Filter>Engine\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Core\Engine.cpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\TextureArray.cpp">
+      <Filter>Engine\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
-      <Filter>Math</Filter>
+      <Filter>Engine\Math</Filter>
     </ClInclude>
     <ClInclude Include="Core\Rgba.hpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Renderer.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Input\Input.hpp">
-      <Filter>Input</Filter>
+      <Filter>Engine\Input</Filter>
     </ClInclude>
     <ClInclude Include="Input\KeyState.hpp">
-      <Filter>Input</Filter>
+      <Filter>Engine\Input</Filter>
     </ClInclude>
     <ClInclude Include="Input\XboxController.hpp">
-      <Filter>Input</Filter>
+      <Filter>Engine\Input</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Texture.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\stb\stb_image.h">
       <Filter>ThirdParty\stb</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\SpriteSheet.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Core\StringUtils.hpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClInclude>
     <ClInclude Include="Audio\Audio.hpp">
-      <Filter>Audio</Filter>
+      <Filter>Engine\Audio</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\fmod\fmod.h">
       <Filter>ThirdParty\fmod</Filter>
@@ -442,37 +474,37 @@
       <Filter>ThirdParty\pugixml</Filter>
     </ClInclude>
     <ClInclude Include="Core\Blackboard.hpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\EngineCommon.hpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\Image.hpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\BitmapFont.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\SpriteAnimSet.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\SpriteAnim.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Math\Curves.hpp">
-      <Filter>Math</Filter>
+      <Filter>Engine\Math</Filter>
     </ClInclude>
     <ClInclude Include="Math\Noise\RawNoise.hpp">
-      <Filter>Math\Noise</Filter>
+      <Filter>Engine\Math\Noise</Filter>
     </ClInclude>
     <ClInclude Include="Math\Noise\SmoothNoise.hpp">
-      <Filter>Math\Noise</Filter>
+      <Filter>Engine\Math\Noise</Filter>
     </ClInclude>
     <ClInclude Include="Core\Utils.hpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClInclude>
     <ClInclude Include="Math\Noise\Noise.hpp">
-      <Filter>Math\Noise</Filter>
+      <Filter>Engine\Math\Noise</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\yaml-cpp\anchor.h">
       <Filter>ThirdParty\yaml-cpp</Filter>
@@ -529,22 +561,22 @@
       <Filter>ThirdParty\yaml-cpp</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\External\gl\glcorearb.h">
-      <Filter>Renderer\External\gl</Filter>
+      <Filter>Engine\Renderer\External\gl</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\External\gl\glext.h">
-      <Filter>Renderer\External\gl</Filter>
+      <Filter>Engine\Renderer\External\gl</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\External\gl\wglext.h">
-      <Filter>Renderer\External\gl</Filter>
+      <Filter>Engine\Renderer\External\gl</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\glFunctions.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\RenderBuffer.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="File\Blob.hpp">
-      <Filter>File</Filter>
+      <Filter>Engine\File</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\yaml-cpp\contrib\anchordict.h">
       <Filter>ThirdParty\yaml-cpp\contrib</Filter>
@@ -604,221 +636,223 @@
       <Filter>ThirdParty\yaml-cpp\node\detail</Filter>
     </ClInclude>
     <ClInclude Include="Core\common.hpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\type.h">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClInclude>
     <ClInclude Include="Application\Window.hpp">
-      <Filter>Application</Filter>
+      <Filter>Engine\Application</Filter>
     </ClInclude>
     <ClInclude Include="Core\Delegate.hpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Sampler.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="File\Path.hpp">
-      <Filter>File</Filter>
+      <Filter>Engine\File</Filter>
     </ClInclude>
     <ClInclude Include="Debug\Console\Console.hpp">
-      <Filter>Debug\Console</Filter>
+      <Filter>Engine\Debug\Console</Filter>
     </ClInclude>
     <ClInclude Include="Debug\Console\Command.hpp">
-      <Filter>Debug\Console</Filter>
+      <Filter>Engine\Debug\Console</Filter>
     </ClInclude>
     <ClInclude Include="Debug\ErrorWarningAssert.hpp">
-      <Filter>Debug</Filter>
+      <Filter>Engine\Debug</Filter>
     </ClInclude>
     <ClInclude Include="Tool\Parser.hpp">
-      <Filter>Tool</Filter>
+      <Filter>Engine\Tool</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\FrameBuffer.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Camera.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\AABB2.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\Disc2.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\FloatRange.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\IntRange.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\ivec2.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\ivec3.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\mat44.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\uvec2.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\uvec3.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\vec2.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\vec3.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\vec4.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\rect2.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\stb\stb_image_write.h">
       <Filter>ThirdParty\stb</Filter>
     </ClInclude>
     <ClInclude Include="Core\Misc\Uuid.hpp">
-      <Filter>Core\Misc</Filter>
+      <Filter>Engine\Core\Misc</Filter>
     </ClInclude>
     <ClInclude Include="Core\Time\Time.hpp">
-      <Filter>Core\Time</Filter>
+      <Filter>Engine\Core\Time</Filter>
     </ClInclude>
     <ClInclude Include="Core\Time\Clock.hpp">
-      <Filter>Core\Time</Filter>
+      <Filter>Engine\Core\Time</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\UniformBuffer.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\type.h">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Sprite.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="File\Utils.hpp">
-      <Filter>File</Filter>
+      <Filter>Engine\File</Filter>
     </ClInclude>
     <ClInclude Include="File\FileSystem.hpp">
-      <Filter>File</Filter>
+      <Filter>Engine\File</Filter>
     </ClInclude>
     <ClInclude Include="Debug\Draw.hpp">
-      <Filter>Debug</Filter>
+      <Filter>Engine\Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\nlohmann-json\json.hpp">
       <Filter>ThirdParty\nlohmann-json</Filter>
     </ClInclude>
     <ClInclude Include="Persistence\json.hpp">
-      <Filter>Persistence</Filter>
+      <Filter>Engine\Persistence</Filter>
     </ClInclude>
     <ClInclude Include="Persistence\xml.hpp">
-      <Filter>Persistence</Filter>
+      <Filter>Engine\Persistence</Filter>
     </ClInclude>
     <ClInclude Include="Persistence\yaml.hpp">
-      <Filter>Persistence</Filter>
+      <Filter>Engine\Persistence</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Font.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Persistence\json.forward.hpp">
-      <Filter>Persistence</Filter>
+      <Filter>Engine\Persistence</Filter>
     </ClInclude>
     <ClInclude Include="Core\Resource.hpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Geometry\Mesh.hpp">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Geometry\VertexBuffer.hpp">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Geometry\IndexBuffer.hpp">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Geometry\Vertex.hpp">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Geometry\Mesher.hpp">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Geometry\type.h">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="Core\Gradient.hpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
     </ClInclude>
     <ClInclude Include="Math\Transform.hpp">
-      <Filter>Math</Filter>
+      <Filter>Engine\Math</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Geometry\VertexLayout.hpp">
-      <Filter>Renderer\Geometry</Filter>
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Shader\ShaderProgram.hpp">
-      <Filter>Renderer\Shader</Filter>
+      <Filter>Engine\Renderer\Shader</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Shader\ShaderStage.hpp">
-      <Filter>Renderer\Shader</Filter>
+      <Filter>Engine\Renderer\Shader</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Shader\Shader.hpp">
-      <Filter>Renderer\Shader</Filter>
+      <Filter>Engine\Renderer\Shader</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\mikktspace\mikktspace.h">
       <Filter>ThirdParty\mikktspace</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Shader\Material.hpp">
-      <Filter>Renderer\Shader</Filter>
+      <Filter>Engine\Renderer\Shader</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\quaternion.hpp">
-      <Filter>Math\Primitives</Filter>
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Renderable\Renderable.hpp">
-      <Filter>Renderer\Renderable</Filter>
+      <Filter>Engine\Renderer\Renderable</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\RenderScene.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Light.hpp">
-      <Filter>Framework</Filter>
+      <Filter>Engine\Framework</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\RenderTask.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\ForwardRendering.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Shader\ShaderPass.hpp">
-      <Filter>Renderer\Shader</Filter>
+      <Filter>Engine\Renderer\Shader</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Shader\PropertyBlock.hpp">
-      <Filter>Renderer\Shader</Filter>
+      <Filter>Engine\Renderer\Shader</Filter>
     </ClInclude>
     <ClInclude Include="Effect\ParticleEmitter.hpp">
-      <Filter>Effect</Filter>
+      <Filter>Engine\Effect</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\RenderTarget.hpp">
-      <Filter>Renderer</Filter>
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\TextureArray.hpp" />
     <ClInclude Include="Renderer\AfterEffect\AfterEffect.hpp">
-      <Filter>Renderer\AfterEffect</Filter>
+      <Filter>Engine\Renderer\AfterEffect</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\AfterEffect\BloomEffect.hpp">
-      <Filter>Renderer\AfterEffect</Filter>
+      <Filter>Engine\Renderer\AfterEffect</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\AfterEffect\FogEffect.hpp">
-      <Filter>Renderer\AfterEffect</Filter>
+      <Filter>Engine\Renderer\AfterEffect</Filter>
     </ClInclude>
     <ClInclude Include="File\File.hpp">
-      <Filter>File</Filter>
+      <Filter>Engine\File</Filter>
     </ClInclude>
     <ClInclude Include="Debug\Log.hpp">
-      <Filter>Debug</Filter>
+      <Filter>Engine\Debug</Filter>
     </ClInclude>
     <ClInclude Include="Core\Engine.hpp">
-      <Filter>Core</Filter>
+      <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\TextureArray.hpp">
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -860,6 +894,39 @@
     <None Include="..\ThirdParty\gsl\string_span">
       <Filter>ThirdParty\gsl</Filter>
     </None>
+    <None Include="..\Content\font\FiraMono.font">
+      <Filter>Content\font</Filter>
+    </None>
+    <None Include="..\Content\font\trebuchet.font">
+      <Filter>Content\font</Filter>
+    </None>
+    <None Include="..\Content\shader\debug\debug_draw.shader">
+      <Filter>Content\shader\debug</Filter>
+    </None>
+    <None Include="..\Content\shader\default\alpha.shader">
+      <Filter>Content\shader\default</Filter>
+    </None>
+    <None Include="..\Content\shader\default\default.shader">
+      <Filter>Content\shader\default</Filter>
+    </None>
+    <None Include="..\Content\shader\default\default_lit.shader">
+      <Filter>Content\shader\default</Filter>
+    </None>
+    <None Include="..\Content\shader\default\font.shader">
+      <Filter>Content\shader\default</Filter>
+    </None>
+    <None Include="..\Content\shader\effect\effect_bloom.shader">
+      <Filter>Content\shader\effect</Filter>
+    </None>
+    <None Include="..\Content\shader\effect\effect_fog.shader">
+      <Filter>Content\shader\effect</Filter>
+    </None>
+    <None Include="..\Content\shader\ui\default.shader">
+      <Filter>Content\shader\ui</Filter>
+    </None>
+    <None Include="..\Content\shader\ui\font.shader">
+      <Filter>Content\shader\ui</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis">
@@ -868,5 +935,16 @@
     <Natvis Include="..\ThirdParty\nlohmann-json\nlohmann_json.natvis">
       <Filter>ThirdParty\nlohmann-json</Filter>
     </Natvis>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Content\font\trebuchet.png">
+      <Filter>Content\font</Filter>
+    </Image>
+    <Image Include="..\Content\font\FiraMono.png">
+      <Filter>Content\font</Filter>
+    </Image>
+    <Image Include="..\Content\image\particle_default.png">
+      <Filter>Content\image</Filter>
+    </Image>
   </ItemGroup>
 </Project>
