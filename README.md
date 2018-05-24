@@ -3,6 +3,8 @@ Morph Engine is a morden C++ Game Engine in development.
 
 # Recent update
 ## Renderer
+* all font rendering are now based on [distance field font](https://steamcdn-a.akamaihd.net/apps/valve/2007/SIGGRAPH2007_AlphaTestedMagnification.pdf) textures.
+* support shader/material reloading throw Resource<>::reload()
 * Post effect: support bloom, fog effect.(After effect framework is still not finalized yet)
 * lights have an option to cast shadow(hard coded PCF shadow).(shadow map is in efficient for now because the engine do not have texture view concept yet)
 * Fully support forward rendering path
@@ -28,12 +30,16 @@ Morph Engine is a morden C++ Game Engine in development.
 * support perspective camera
 * Math library refactoring
 
+## debug/profile
+* Debug draw system(2D/3D text, some 2D/3D primitives)
+* Dev Console
+
 ## Other
+* better developing experience: the engine resource folder would get automatically registered so that re-run the project can see all changes immediately.
 * Engine [built-in resource folder](https://github.com/tankiJong/morph-engine/tree/master/Content)
 * file system can traverse the whole mounted file tree and call the call back function provided.
 * render text use metadata and distance field
 * Json, Yaml parser integrated
 * Virtual file system
 * Simple clock&time util for profiler
-* Dev Console
 * Xml tool (feature keep growing)
