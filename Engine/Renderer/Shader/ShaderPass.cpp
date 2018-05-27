@@ -1,6 +1,7 @@
 ﻿#include "ShaderPass.hpp"
 #include "Engine/File/FileSystem.hpp"
 #include "Engine/Persistence/yaml.hpp"
+#include "Engine/File/Utils.hpp"
 /* implemented version:
 x name: shader/example
 program:
@@ -131,8 +132,19 @@ namespace YAML {
       std::string vert = node["program"]["vert"].as<std::string>();
       std::string frag = node["program"]["frag"].as<std::string>();
 
-      prog->setStage(SHADER_TYPE_VERTEX, vert.c_str(), node["program"]["define"] ? node["program"]["define"].as<std::string>().c_str():nullptr);
-      prog->setStage(SHADER_TYPE_FRAGMENT, frag.c_str(), node["program"]["define"] ? node["program"]["define"].as<std::string>().c_str():nullptr);
+      FileSystem& fsys = FileSystem::Get();
+
+      if (vert.find('#') == std::string::npos) {
+        prog->setStage(SHADER_TYPE_VERTEX, vert, node["program"]["define"] ? node["program"]["define"].as<std::string>().c_str() : nullptr);
+      } else {
+        prog->setStage(SHADER_TYPE_VERTEX, vert.c_str(), node["program"]["define"] ? node["program"]["define"].as<std::string>().c_str():nullptr);
+      }
+      if (frag.find('#') == std::string::npos) {
+        prog->setStage(SHADER_TYPE_FRAGMENT, frag, node["program"]["define"] ? node["program"]["define"].as<std::string>().c_str() : nullptr);
+      } else {
+        prog->setStage(SHADER_TYPE_FRAGMENT, frag.c_str(), node["program"]["define"] ? node["program"]["define"].as<std::string>().c_str():nullptr);
+      }
+
       prog->commit();
     }
     prog->genInfo();

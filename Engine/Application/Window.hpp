@@ -12,6 +12,8 @@ class Window {
   friend class Engine;
 public:
   // Do all the window creation work is currently in App
+  Window() = default;
+  Window(int width, int height, const char* windowName = "");
   ~Window();
 
   void init(int width, int height, const char* name = "");
@@ -43,8 +45,6 @@ public:
   vec2 clientCenter() const;
   ivec2 screenToClient(ivec2 pixelPostion) const;
 private:
-  Window(int width, int height, const char* windowName = "");
-  Window() = default;
   void* mHwnd = nullptr; // intptr_t  
 
                 // When the WindowsProcedure is called - let all listeners get first crack at the message

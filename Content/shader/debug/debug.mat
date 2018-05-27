@@ -1,0 +1,8 @@
+name: material/debug/default
+properties:
+  cTintBlock: {             # this is a property block
+    [tint, vec4]: "1.f, 1.f, 1.f, 1.f", # same as defining property
+  }
+
+shader:
+  name: shader/debug

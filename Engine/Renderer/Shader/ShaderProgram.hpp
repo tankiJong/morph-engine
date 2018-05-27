@@ -47,6 +47,7 @@ public:
   ~ShaderProgram() = default;
   bool fromFile(const char*  relativePath, const char* defineArgs = nullptr);
   bool setStage(eShaderType stageType, const char* stageString, const char* defineArgs = nullptr);
+  bool setStage(eShaderType stageType, const std::string& stagePath, const char* defineArgs = nullptr);
   bool reload();
   inline uint handle() const { return mProgId; }
 

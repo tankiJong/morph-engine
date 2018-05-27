@@ -111,7 +111,5 @@ namespace Debug {
   const DrawHandle* drawGlyph(const vec3& bottomLeft, const vec2& size, const aabb2& uvs, Texture* tex, float duration = INF,
                  const Gradient& tint = Gradient::white, const Clock* clockOverride = nullptr);
 
-  const DrawHandle* log(std::string_view info, float duration = INF, const Gradient& color = Gradient::white);
-
   const DrawHandle* drawMesh(const Mesh& mesh, float duration = INF, const Gradient& tint = Gradient::white, const Clock* clockOverride = nullptr);
 }

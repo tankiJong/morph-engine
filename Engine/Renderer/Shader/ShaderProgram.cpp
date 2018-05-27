@@ -128,6 +128,12 @@ bool ShaderProgram::setStage(eShaderType stageType, const char* stageString, con
   return mStages[stageType].setFromString(stageType, stageString);
 }
 
+bool ShaderProgram::setStage(eShaderType stageType, const std::string& stagePath, const char* defineArgs) {
+  addDefinesToStage(mStages[stageType], defineArgs);
+
+  return mStages[stageType].setFromFile(stageType, stagePath.c_str());
+}
+
 bool ShaderProgram::reload() {
 
   bool success = true;
