@@ -13,7 +13,7 @@ Morph Engine is a morden C++ Game Engine in development.
 * `Mesh` support mutiple sub mesh now
 * Multiple passes shader support
 * Introducing `RenderScene`, `RenderTask`, `Renderable`, and a built-in Forward rendering path.
-* Engine support lighting now, up to 8. Also see [lighting.glsl](https://github.com/tankiJong/morph-engine/blob/master/Content/shader/inc/light.glsl) & [default_lit.shader](https://github.com/tankiJong/morph-engine/blob/master/Content/shader/default_lit.shader)(which uses [default.vert](https://github.com/tankiJong/morph-engine/blob/master/Content/shader/progs/default.vert) and [default.frag](https://github.com/tankiJong/morph-engine/blob/master/Content/shader/progs/default.frag))
+* Engine support lighting now, up to 8. Also see [lighting.glsl](https://github.com/tankiJong/morph-engine/blob/master/Content/shader/inc/light.glsl) & [default_lit.shader](https://github.com/tankiJong/morph-engine/blob/master/Content/shader/default/default_lit.shader)(which uses [default.vert](https://github.com/tankiJong/morph-engine/blob/master/Content/shader/progs/default.vert) and [default.frag](https://github.com/tankiJong/morph-engine/blob/master/Content/shader/progs/default.frag))
 * Mikkt integration @ Mesher
 * Mesher support `SurfacePatch`
 * support different vertex types, related concept: **VertexAttribute**, **VertexLayout**
