@@ -44,9 +44,9 @@ public:
   vec3 screenToWorld(uvec2 pixel, float distanceFromCamera);
   uvec2 worldToScreen(vec3 position);
 
-  inline const vec3 right() const { return (mTransform.localToWorld() * vec4(vec3::right, 0)).xyz(); };
-  inline const vec3 up() const { return (mTransform.localToWorld() * vec4(vec3::up, 0)).xyz(); };
-  inline const vec3 forward() const { return (mTransform.localToWorld() * vec4(vec3::forward, 0)).xyz(); };
+  inline vec3 right() const { return (mTransform.localToWorld() * vec4(vec3::right, 0)).xyz(); };
+  inline vec3 up() const { return (mTransform.localToWorld() * vec4(vec3::up, 0)).xyz(); };
+  inline vec3 forward() const { return (mTransform.localToWorld() * vec4(vec3::forward, 0)).xyz(); };
   inline uint width() const { return mFrameBuffer->width(); }
   inline uint height() const { return mFrameBuffer->height(); }
 

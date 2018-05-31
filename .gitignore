@@ -1,19 +1,103 @@
-# gitignore for C++
 # Compiled Object files
 *.slo
 *.lo
 *.o
+*.obj
+!data/*/*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
 
 # Compiled Dynamic libraries
 *.so
 *.dylib
+*.dll
+!data/*.dll
+
+# Fortran module files
+*.mod
 
 # Compiled Static libraries
 *.lai
 *.la
 *.a
+*.lib
 
-# Visual Studio Files
+# Executables
+*.exe
+*.out
+*.app
+
+#codedatabases
+*.db
+*.sdf
+*.opensdf
+
+# =========================
+# Build Folder
+build/
+src/.vs/
+
+# =========================
+# Operating System Files
+# =========================
+
+# OSX
+# =========================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+# =========================
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+*.db
+*.opendb
+*.history
+data/log/
+*.suo
+*.TMP
+data/screenshot/
+*.log
+data/config/user.config
 Debug
 !Engine/Debug
 Release

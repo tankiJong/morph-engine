@@ -116,7 +116,7 @@ void ForwardRendering::postpass(RenderScene& scene, span<RenderTask> tasks, Came
                            *cam.colorTarget(0),
                            *Resource<Shader>::get("shader/effect/bloom"),
                            *cam.colorTarget(1));
-  effect->apply();
+  //effect->apply();
 
   FogEffect fog(*mRenderer,
                 *cam.colorTarget(0),
