@@ -3,7 +3,6 @@
 *.lo
 *.o
 *.obj
-!data/*/*.obj
 
 # Precompiled Headers
 *.gch
@@ -37,7 +36,6 @@
 # =========================
 # Build Folder
 build/
-src/.vs/
 
 # =========================
 # Operating System Files
@@ -93,11 +91,9 @@ $RECYCLE.BIN/
 *.opendb
 *.history
 data/log/
-*.suo
 *.TMP
 data/screenshot/
 *.log
-data/config/user.config
 Debug
 !Engine/Debug
 Release
@@ -106,3 +102,7 @@ Release
 *.vbproj.user
 ipch
 *sdf
+Temporary/
+.vs/
+!Run_Win32/**/*.obj
+Run_Win32/Engine/
