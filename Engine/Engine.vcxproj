@@ -763,6 +763,7 @@
     <None Include="..\Content\shader\default\default.shader" />
     <None Include="..\Content\shader\default\default_lit.shader" />
     <None Include="..\Content\shader\default\font.shader" />
+    <None Include="..\Content\shader\default\solid.shader" />
     <None Include="..\Content\shader\effect\effect_bloom.shader" />
     <None Include="..\Content\shader\effect\effect_fog.shader" />
     <None Include="..\Content\shader\ui\default.shader" />

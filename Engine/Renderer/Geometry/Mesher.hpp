@@ -51,7 +51,8 @@ public:
                const vec3& position, const vec3& right = vec3::right, const vec3& up = vec3::up);
   void obj(fs::path objFile);
   void surfacePatch(const delegate<vec3(const vec2&)>& parametric);
-  void surfacePatch(const FloatRange& u, const FloatRange& v, uint levelX, uint levelY, const delegate<vec3(const vec2&)>& parametric);
+  void surfacePatch(const FloatRange& u, const FloatRange& v, uint levelX, uint levelY, const std::function<vec3(const vec2&)>& parametric);
+  void surfacePatch(const std::function<vec3(const vec2&, const ivec2&)>& parametric, const FloatRange& u, const FloatRange& v, uint levelX, uint levelY);
   void mikkt();
   template<typename VertexType=vertex_lit_t>
   owner<Mesh*> createMesh();

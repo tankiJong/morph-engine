@@ -61,7 +61,6 @@ public:
              model.y().xyz().magnitude(), 
              model.z().xyz().magnitude() };
   };
-
   Transform*& parent() { return mParent; }
 private:
   mat44 worldMat() const;

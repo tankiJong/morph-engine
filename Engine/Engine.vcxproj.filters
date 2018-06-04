@@ -927,6 +927,9 @@
     <None Include="..\Content\shader\ui\font.shader">
       <Filter>Content\shader\ui</Filter>
     </None>
+    <None Include="..\Content\shader\default\solid.shader">
+      <Filter>Content\shader\default</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis">

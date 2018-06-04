@@ -41,7 +41,7 @@ void ForwardRendering::renderView(RenderScene& scene, Camera& cam) {
   TODO("replace with sky box or something")
   ;
   if(cam.queryFlag(CAM_CLEAR_COLOR)) {
-    mRenderer->clearColor(Rgba::black);
+    mRenderer->clearColor(Rgba::gray);
   }
 
   if(cam.queryFlag(CAM_CLEAR_DEPTH)) {
@@ -112,15 +112,15 @@ void ForwardRendering::prepass(RenderScene& scene, span<RenderTask> tasks, Camer
 */
 void ForwardRendering::postpass(RenderScene& scene, span<RenderTask> tasks, Camera& cam) {
   delete effect;
-  effect = new BloomEffect(*mRenderer,
+  /*effect = new BloomEffect(*mRenderer,
                            *cam.colorTarget(0),
                            *Resource<Shader>::get("shader/effect/bloom"),
-                           *cam.colorTarget(1));
+                           *cam.colorTarget(1));*/
   //effect->apply();
 
-  FogEffect fog(*mRenderer,
-                *cam.colorTarget(0),
-                *Resource<Shader>::get("shader/effect/fog"), *cam.depthTarget());
+  //FogEffect fog(*mRenderer,
+  //              *cam.colorTarget(0),
+  //              *Resource<Shader>::get("shader/effect/fog"), *cam.depthTarget());
 
   // fog.apply();
   mRenderer->setCamera(&cam);
