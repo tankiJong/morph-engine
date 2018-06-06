@@ -60,7 +60,7 @@ void detail::Debug::tick() {
 
   commitLogs();
 
-  float frameSec = GetMainClock().frame.second;
+  float frameSec = (float)GetMainClock().frame.second;
   for(uint i = (uint)gLogInfos.size() - 1, size = i + 1; i < size; i--) {
 
     log_info_t& log = gLogInfos[i];

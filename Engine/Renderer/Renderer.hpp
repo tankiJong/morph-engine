@@ -14,6 +14,7 @@
 #include <array>
 
 #include "UniformBuffer.hpp"
+#include "Engine/Debug/Console/Console.hpp"
 
 struct vertex_pcu_t;
 class Mesh;
@@ -128,6 +129,8 @@ public:
 
   void setUniformBuffer(eUniformSlot slot, UniformBuffer& ubo);
   void updateTime(float gameDeltaSec, float sysDeltaSec);
+
+  void drawText2(std::string_view text, float size, const Font* font, const vec3& up = vec3::up);
 
   static HGLRC createRealRenderContext(HDC hdc, int major, int minor);
   static HGLRC createOldRenderContext(HDC hdc);
