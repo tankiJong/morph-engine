@@ -6,7 +6,7 @@
 #include "../inc/light.glsl"
 
 // Scene related
-layout (binding=6, std140) uniform cSpecBlock
+layout (binding=UNIFORM_USER_1, std140) uniform cSpecBlock
 {
    float SPECULAR_AMOUNT; 
    float SPECULAR_POWER;

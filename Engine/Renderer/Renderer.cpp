@@ -25,6 +25,7 @@
 #include "Engine/Renderer/Shader/ShaderPass.hpp"
 #include "Engine/Renderer/RenderTarget.hpp"
 #include "Engine/Core/Engine.hpp"
+#include "Engine/Renderer/Font.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
@@ -335,6 +336,22 @@ void Renderer::updateTime(float gameDeltaSec, float sysDeltaSec) {
   t->gameSeconds += gameDeltaSec;
   t->sysDeltaSeconds = sysDeltaSec;
   t->sysSeconds += sysDeltaSec;
+}
+
+void Renderer::drawText2(std::string_view text, float size, const Font* font, const vec3& up) {
+  Mesher ms;
+
+  ms.begin(DRAW_TRIANGES)
+    .text(text, size, font, up)
+    .end();
+
+  Mesh* mesh = ms.createMesh<vertex_pcu_t>();
+  setMaterial(Resource<Material>::get("material/font_default").get());
+  setTexture(font->texture());
+
+  drawMesh(*mesh);
+
+  delete mesh;
 }
 
 Renderer* Renderer::Get() {

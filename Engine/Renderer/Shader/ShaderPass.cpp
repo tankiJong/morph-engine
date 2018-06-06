@@ -132,7 +132,7 @@ namespace YAML {
       std::string vert = node["program"]["vert"].as<std::string>();
       std::string frag = node["program"]["frag"].as<std::string>();
 
-      FileSystem& fsys = FileSystem::Get();
+      //FileSystem& fsys = FileSystem::Get();
 
       if (vert.find('#') == std::string::npos) {
         prog->setStage(SHADER_TYPE_VERTEX, vert, node["program"]["define"] ? node["program"]["define"].as<std::string>().c_str() : nullptr);

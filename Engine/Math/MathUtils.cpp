@@ -183,6 +183,11 @@ ivec2 clamp(const ivec2& v, ivec2 min, ivec2 max) {
   return { clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y) };
 }
 
+uvec2 clamp(const uvec2& v, uvec2 min, uvec2 max) {
+  return { clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y) };
+}
+
+
 float getFraction(float v, float start, float end) {
 	return (v - start) / (end - start);
 }

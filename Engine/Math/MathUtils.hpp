@@ -3,6 +3,7 @@
 #define PI (3.1415926535897932384626433832795f)
 #include <Math.h>
 
+class uvec2;
 constexpr float fSQRT_3_OVER_3 = 0.577350269f;
 class FloatRange;
 class aabb2;
@@ -53,6 +54,7 @@ float clampf01(float v);
 float clampfInAbs1(float v);
 vec2 clamp(const vec2& v, vec2 min, vec2 max);
 ivec2 clamp(const ivec2& v, ivec2 min, ivec2 max);
+uvec2 clamp(const uvec2& v, uvec2 min, uvec2 max);
 
 template<typename T>
 T clamp(const T& v, const T& min, const T& max) {

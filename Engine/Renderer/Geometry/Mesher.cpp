@@ -4,7 +4,7 @@
 #include "Engine/Renderer/Font.hpp"
 #include "ThirdParty/mikktspace/mikktspace.h"
 #include "Engine/Math/MathUtils.hpp"
-
+#include "Engine/Math/Primitives/ivec2.hpp"
 class MikktBinding : public SMikkTSpaceContext {
 public:
   MikktBinding(Mesher* mesher);
@@ -586,36 +586,45 @@ uint Mesher::currentElementCount() const {
 }
 
 
-void Mesher::surfacePatch(const delegate<vec3(const vec2&)>& parametric) {
-  return surfacePatch({ 0.f, 1.f }, { 0.f, 1.f }, 10u, 10u, parametric);
+void Mesher::surfacePatch(const delegate<vec3(const vec2&)>& parametric, float eps) {
+  return surfacePatch({ 0.f, 1.f }, { 0.f, 1.f }, 10u, 10u, parametric, eps);
 }
 
-void Mesher::surfacePatch(const FloatRange& u, const FloatRange& v, uint levelX, uint levelY, const delegate<vec3(const vec2&)>& parametric) {
-  constexpr float eps = 1e-6f;
+void Mesher::surfacePatch(const FloatRange& u, const FloatRange& v, uint levelX, uint levelY, const std::function<vec3(const vec2&)>& parametric, float eps) {
+  return surfacePatch( [parametric](const vec2& pos, auto...) {
+                          return parametric(pos);
+                        }, u,v,levelX, levelY, eps);
+}
+
+void Mesher::surfacePatch(const std::function<vec3(const vec2&, const ivec2&)>& parametric,
+                          const FloatRange& u,
+                          const FloatRange& v,
+                          uint levelX,
+                          uint levelY, float eps) {
   uint start = mVertices.count();
 
   float stepX = u.length() / float(levelX);
   float stepY = v.length() / float(levelY);
 
-  for (uint j = 0; j <= levelY; j++) {
-    for (uint i = 0; i <= levelX; i++) {
+  for (int j = 0; j <= (int)levelY; j++) {
+    for (int i = 0; i <= (int)levelX; i++) {
       float x = u.min + stepX * (float)i;
       float y = v.min + stepY * (float)j;
       uv(x, y);
-      vec3 tan = (parametric({ x + eps, y }) - parametric({ x - eps, y })) / (2 * eps);
-      vec3 bitan = (parametric({ x, y + eps }) - parametric({ x, y - eps })) / ( 2 * eps);
-      if(tan.magnitude() >= eps) {
+      vec3 tan = (parametric({ x + eps, y }, { i + 1, j }) - parametric({ x - eps, y }, { i -1, j})) / (2 * eps);
+      vec3 bitan = (parametric({ x, y + eps }, { i, j+1 }) - parametric({ x, y - eps }, { i, j-1 })) / (2 * eps);
+      if (tan.magnitude() >= eps) {
         tangent(tan);
         normal(bitan.cross(tan));
       }
-      vertex3f(parametric({ x,y }));
+      vertex3f(parametric({ x,y }, { i,j }));
     }
   }
 
-  for(uint j = 0; j < levelY; j++) {
-    for(uint i = 0; i < levelX; i++) {
-      uint current = start + j * (levelX+1) + i;
-      quad(current, current + 1, current + levelX+1 + 1, current + levelX+1);
+  for (uint j = 0; j < levelY; j++) {
+    for (uint i = 0; i < levelX; i++) {
+      uint current = start + j * (levelX + 1) + i;
+      quad(current, current + 1, current + levelX + 1 + 1, current + levelX + 1);
     }
   }
 }
