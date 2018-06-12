@@ -43,6 +43,7 @@ class Interval {
   friend Interval& createWatch();
 public:
   Interval();
+  ~Interval();
   inline void pause() { isPaused = true; };
   inline void resume() { isPaused = false; }
   
@@ -61,4 +62,3 @@ protected:
 Clock& GetMainClock();
 
 Interval& createWatch();
-bool destoryWatch(Interval& sw);

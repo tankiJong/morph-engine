@@ -62,6 +62,20 @@ vec3 Transform::right() const {
   return (localToWorld() * vec4(vec3::right, 0)).xyz();
 }
 
+mat44 Transform::lookAt(const vec3& position, const vec3& target) {
+  vec3 _forward = (target - position).normalized();
+
+  vec3 _right = vec3::up.cross(_forward).normalized();
+
+  vec3 _up = _forward.cross(_right);
+
+  mat44 r(vec4(_right, 0),
+          vec4(_up, 0),
+          vec4(_forward, 0));
+
+  return mat44::makeTranslation(position) * r;
+}
+
 mat44 Transform::worldMat() const {
   return mParent == nullptr ? mat44::identity : mParent->localToWorld();
 }

@@ -37,7 +37,6 @@ public:
   void localRotate(const Euler& euler);
   void localTranslate(const vec3& offset);
   void setlocalTransform(const mat44& transform);
-  
 
   // accessor
   vec3 forward() const;
@@ -61,10 +60,12 @@ public:
              model.y().xyz().magnitude(), 
              model.z().xyz().magnitude() };
   };
-  Transform*& parent() { return mParent; }
+  const Transform*& parent() { return mParent; }
+
+  static mat44 lookAt(const vec3& position, const vec3& target);
 private:
   mat44 worldMat() const;
   mat44 localMat() const;
   transform_t mLocalTransform;
-  Transform* mParent = nullptr;
+  const Transform* mParent = nullptr;
 };
