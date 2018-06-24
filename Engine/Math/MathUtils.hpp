@@ -121,4 +121,14 @@ void clearBits(unsigned char& flag8, unsigned char mask);
 void clearBits(unsigned int& flag32, unsigned int mask);
 
 constexpr float EPS = 1e-5f;
-inline constexpr bool equal(float a, float b) { return (a - b <= EPS) && (a - b >= -EPS); }
+inline constexpr bool equal(float a, float b) {
+  return (a - b <= EPS) && (a - b >= -EPS);
+}
+
+/** Returns whether a number is a power of two
+*/
+template<typename T>
+inline bool isPow2(T a) {
+  uint64_t t = (uint64_t)a;
+  return (t & (t - 1)) == 0;
+}

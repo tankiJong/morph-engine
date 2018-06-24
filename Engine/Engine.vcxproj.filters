@@ -133,6 +133,15 @@
     <Filter Include="Content\shader\ui">
       <UniqueIdentifier>{d3f50f51-4852-4aec-a204-46c88d96b086}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Graphics">
+      <UniqueIdentifier>{d12f6d0e-a588-4a04-b122-ff428d067f37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Graphics\RHI">
+      <UniqueIdentifier>{d30a8266-cd19-4109-b7ea-0f31959f8a84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Graphics\RHI\Dx12">
+      <UniqueIdentifier>{a74e239e-b04b-42fc-9822-f77a7b6a93e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -407,6 +416,84 @@
     </ClCompile>
     <ClCompile Include="Renderer\TextureArray.cpp">
       <Filter>Engine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\RHI.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\RHIBuffer.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\RHIResource.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\RHIDevice.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\RHIContext.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\DescriptorPool.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Fence.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12DescriptorHeap.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12Device.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\dx12util.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\FencedPool.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\RHIContextData.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12ContextData.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12Buffer.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12Resource.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12Context.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\PipelineState.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\RootSignature.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12RootSignature.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\DescriptorSet.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12PipelineState.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12Fence.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12DescriptorPool.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Dx12DescriptorSet.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\RHITexture.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12Texture.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -853,6 +940,63 @@
     </ClInclude>
     <ClInclude Include="Renderer\TextureArray.hpp">
       <Filter>Engine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\RHI.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\RHIBuffer.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\RHIDevice.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\RHIContext.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\DescriptorPool.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\Fence.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\Dx12\d3d12.h">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\Dx12\Dx12DescriptorHeap.hpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\Dx12\dx12util.hpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\FencedPool.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\RHIContextData.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\Dx12\Dx12MetaData.h">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\Dx12\Dx12Resource.hpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\PipelineState.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\RootSignature.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\DescriptorSet.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\Dx12\Dx12DescriptorData.hpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\RHIResource.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\RHITexture.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

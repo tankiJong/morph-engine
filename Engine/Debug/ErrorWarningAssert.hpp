@@ -236,6 +236,6 @@ int SystemDialogue_YesNoCancel( const std::string& messageTitle, const std::stri
         "|  TODO :   " ##x "\n" \
         " --------------------------------------------------------------------------------------\n" )
 
-#define UNIMPLEMENTED()  TODO( "IMPLEMENT: " QUOTE(__FILE__) " (" QUOTE(__LINE__) ")" )
+#define UNIMPLEMENTED()  TODO( "IMPLEMENT: " QUOTE(__FILE__) " (" QUOTE(__LINE__) ")" );DEBUGBREAK;
 
 #define UNIMPLEMENTED_RETURN(val) TODO( "IMPLEMENT: " QUOTE(__FILE__) " (" QUOTE(__LINE__) ")" ); return val;
