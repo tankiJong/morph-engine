@@ -34,6 +34,7 @@ public:
   Mesher& triangle(uint a, uint b, uint c);
   Mesher& quad();
   Mesher& quad(uint a, uint b, uint c, uint d);
+  inline span<const vec3> normals() { return { mVertices.vertices().normal, mVertices.count() }; }
 
   // d -- c
   // |    |

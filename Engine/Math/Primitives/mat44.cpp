@@ -35,6 +35,13 @@ mat44::mat44(const vec2& iBasis, const vec2& jBasis, const vec2& translation)
   
 }
 
+mat44::mat44(const vec3& right, const vec3& up, const vec3& forward, const vec3& translation) {
+  i = vec4(right, 0);
+  j = vec4(up, 0);
+  k = vec4(forward, 0);
+  t = vec4(translation, 1.f);
+}
+
 mat44::mat44(const vec4& i, const vec4& j, const vec4& k, const vec4& t):
   ix(i.x), jx(j.x), kx(k.x), tx(t.x),
   iy(i.y), jy(j.y), ky(k.y), ty(t.y),
@@ -334,7 +341,7 @@ Euler mat44::euler() const {
   }
 
   e.z = atan2Degree(-ii.y, jj.y);
-  e.y = atan2Degree(-kk.z, kk.x);
+  e.y = atan2Degree(-kk.x, kk.z);
 
   return e;
 }
@@ -360,12 +367,14 @@ mat44 mat44::makeRotation(float x, float y, float z) {
   float cx = cosDegrees(x), cy = cosDegrees(y), cz = cosDegrees(z);
   float sx = sinDegrees(x), sy = sinDegrees(y), sz = sinDegrees(z);
 
-  return mat44{
-    cz*cy - sz*sx*sy,      sz*cy + cz * sx*sy,   -cx * sy,    0,
+  mat44 re{
+    cz*cy - sz*sx*sy,      sz*cy + cz * sx*sy,    -cx * sy,    0,
     -sz * cx,                           cz*cx,         sx,    0,
-    sz*sx*cy + cz * sy, -cz * sx*cy + sz * sy,         cx*cy, 0,
-    0,                                      0,             0, 1
+    sz*sx*cy + cz * sy, -cz * sx*cy + sz * sy,      cx*cy,    0,
+    0,                                      0,          0,    1
   };
+
+  return re;
 
 //  return {
 //    cx*cy, cx*sy*sz - sx*cz, cx*sy*cz + sx*sz, 0,
@@ -470,5 +479,5 @@ mat44 mat44::lookAt(const vec3& position, const vec3& target, const vec3& _up) {
           vec4(newUp, 0),
           vec4(_forward, 0));
 
-  return r.transpose() * mat44::makeTranslation((-1.f*position));
+  return t * r;
 }

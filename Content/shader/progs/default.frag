@@ -4,6 +4,7 @@
 #ifdef _LIT
 
 #include "../inc/light.glsl"
+#include "../inc/math.glsl"
 
 // Scene related
 layout (binding=UNIFORM_USER_1, std140) uniform cSpecBlock
@@ -29,7 +30,7 @@ layout(binding = 2) uniform sampler2D gTexImmersive;
 // Attributes ============================================
 in vec2 passUV; 
 in vec4 passColor; 
-
+in vec4 gl_FragCoord;
 #ifdef _LIT
 in vec3 passWorldPos;   // new
 in vec3 passWorldNormal;// new
@@ -97,7 +98,7 @@ void main( void )
 
     #endif
 
-    outColor = PhongLighting(lights, 
+    outColor = passColor * PhongLighting(lights, 
                 passWorldPos, 
                 normalize(normal.xyz), 
                 SPECULAR_AMOUNT, SPECULAR_POWER, 
@@ -106,5 +107,19 @@ void main( void )
     
 #else
     outColor = texColor * passColor;
+#endif
+
+#ifdef _FOG
+    // vec3 ndc = gl_FragCoord.xyz * gl_FragCoord.w;
+    // outColor = vec4(vec3(ndc.z), 1.f);
+
+    float fogFactor = 
+        clamp(
+            rangeMap(
+                smoothstep(0.f, 1.f, gl_FragCoord.z * gl_FragCoord.w),
+                0, .01f,
+                0, .5f), 0, 1);
+    // fogFactor = (fogFactor + 1.f) * .5f;
+    outColor = mix(vec4(1.f), outColor, fogFactor);
 #endif
 }

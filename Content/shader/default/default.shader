@@ -4,6 +4,7 @@ pass:
   program:
     path: /$Content/shader/progs/default
 
+  layer: opaque
   cull: back
   fill: solid
   frontface: ccw

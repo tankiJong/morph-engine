@@ -50,6 +50,14 @@ void Transform::setlocalTransform(const mat44& transform) {
   mLocalTransform.set(transform);
 }
 
+void Transform::setWorldTransform(const mat44& transform) {
+  mat44 mat =
+    (mParent == nullptr)
+    ? transform
+    : parent()->worldToLocal() * transform;
+  setlocalTransform(mat);
+}
+
 vec3 Transform::forward() const {
   return (localToWorld() * vec4(vec3::forward, 0)).xyz();
 }

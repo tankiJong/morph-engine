@@ -51,7 +51,7 @@ float Light::attenuation(vec3 position) const {
 
 void Light::updateCamera() {
   float fz = 100.f, nz = 0.01f;
-  vec2 size(100.f, 100.f);
+  vec2 size(10.f, 10.f);
 
   switch (type) {
     case LIGHT_UNKNOWN: return;

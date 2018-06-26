@@ -112,7 +112,7 @@ vec2 Input::mouseClientPositon(bool normalized) const {
 
 vec2 Input::mouseDeltaPosition(bool normalized) const {
   if(normalized) {
-    return mDeltaMousePosition / (vec2)Window::Get()->size();
+    return mDeltaMousePosition / (vec2)Window::Get()->bounds().size();
   } else {
     return mDeltaMousePosition;
   }

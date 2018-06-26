@@ -472,6 +472,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Projects\TankWar\Code\Game\Gameplay\Bullet.cpp" />
     <ClCompile Include="..\ThirdParty\mikktspace\mikktspace.c" />
     <ClCompile Include="..\ThirdParty\pugixml\pugixml.cpp" />
     <ClCompile Include="..\ThirdParty\stb\stb_image.c" />
@@ -515,19 +516,26 @@
     <ClCompile Include="Math\Noise\RawNoise.cpp" />
     <ClCompile Include="Math\Noise\SmoothNoise.cpp" />
     <ClCompile Include="Math\Primitives\AABB2.cpp" />
+    <ClCompile Include="Math\Primitives\aabb3.cpp" />
     <ClCompile Include="Math\Primitives\Disc2.cpp" />
     <ClCompile Include="Math\Primitives\FloatRange.cpp" />
+    <ClCompile Include="Math\Primitives\frustum.cpp" />
     <ClCompile Include="Math\Primitives\IntRange.cpp" />
     <ClCompile Include="Math\Primitives\ivec2.cpp" />
     <ClCompile Include="Math\Primitives\ivec3.cpp" />
     <ClCompile Include="Math\Primitives\mat44.cpp" />
+    <ClCompile Include="Math\Primitives\obb3.cpp" />
+    <ClCompile Include="Math\Primitives\plane.cpp" />
     <ClCompile Include="Math\Primitives\quaternion.cpp" />
+    <ClCompile Include="Math\Primitives\ray3.cpp" />
     <ClCompile Include="Math\Primitives\rect2.cpp" />
+    <ClCompile Include="Math\Primitives\sphere.cpp" />
     <ClCompile Include="Math\Primitives\uvec2.cpp" />
     <ClCompile Include="Math\Primitives\uvec3.cpp" />
     <ClCompile Include="Math\Primitives\vec2.cpp" />
     <ClCompile Include="Math\Primitives\vec3.cpp" />
     <ClCompile Include="Math\Primitives\vec4.cpp" />
+    <ClCompile Include="Math\Range.cpp" />
     <ClCompile Include="Math\Transform.cpp" />
     <ClCompile Include="Persistence\json.cpp" />
     <ClCompile Include="Persistence\xml.cpp" />
@@ -677,24 +685,32 @@
     <ClInclude Include="Math\Noise\RawNoise.hpp" />
     <ClInclude Include="Math\Noise\SmoothNoise.hpp" />
     <ClInclude Include="Math\Primitives\AABB2.hpp" />
+    <ClInclude Include="Math\Primitives\aabb3.hpp" />
     <ClInclude Include="Math\Primitives\Disc2.hpp" />
     <ClInclude Include="Math\Primitives\FloatRange.hpp" />
+    <ClInclude Include="Math\Primitives\frustum.hpp" />
     <ClInclude Include="Math\Primitives\IntRange.hpp" />
     <ClInclude Include="Math\Primitives\ivec2.hpp" />
     <ClInclude Include="Math\Primitives\ivec3.hpp" />
     <ClInclude Include="Math\Primitives\mat44.hpp" />
+    <ClInclude Include="Math\Primitives\obb3.hpp" />
+    <ClInclude Include="Math\Primitives\plane.hpp" />
     <ClInclude Include="Math\Primitives\quaternion.hpp" />
+    <ClInclude Include="Math\Primitives\ray3.hpp" />
     <ClInclude Include="Math\Primitives\rect2.hpp" />
+    <ClInclude Include="Math\Primitives\sphere.h" />
     <ClInclude Include="Math\Primitives\uvec2.hpp" />
     <ClInclude Include="Math\Primitives\uvec3.hpp" />
     <ClInclude Include="Math\Primitives\vec2.hpp" />
     <ClInclude Include="Math\Primitives\vec3.hpp" />
     <ClInclude Include="Math\Primitives\vec4.hpp" />
+    <ClInclude Include="Math\Range.hpp" />
     <ClInclude Include="Math\Transform.hpp" />
     <ClInclude Include="Persistence\json.forward.hpp" />
     <ClInclude Include="Persistence\json.hpp" />
     <ClInclude Include="Persistence\xml.hpp" />
     <ClInclude Include="Persistence\yaml.hpp" />
+    <ClInclude Include="Physics\contact3.hpp" />
     <ClInclude Include="Renderer\AfterEffect\AfterEffect.hpp" />
     <ClInclude Include="Renderer\AfterEffect\BloomEffect.hpp" />
     <ClInclude Include="Renderer\AfterEffect\FogEffect.hpp" />

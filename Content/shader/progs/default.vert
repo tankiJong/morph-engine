@@ -46,6 +46,5 @@ void main()
    vec3 eyePos = inverse(VIEW)[3].xyz;
    passEyeDir = eyePos - passWorldPos;
 #endif
-
    gl_Position = clip_pos; // we pass out a clip coordinate
 }

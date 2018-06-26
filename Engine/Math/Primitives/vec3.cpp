@@ -3,6 +3,7 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Math/Primitives/ivec3.hpp"
 
 const vec3 vec3::right(1, 0, 0);
 const vec3 vec3::up(0, 1, 0);
@@ -106,6 +107,23 @@ bool vec3::operator==(const vec3& compare) const {
 bool vec3::operator!=(const vec3& compare) const {
   return x != compare.x || y != compare.y || z != compare.z;
 }
+
+bool vec3::operator>=(const vec3& rhs) const {
+  return x >= rhs.x && y >= rhs.y && z >= rhs.z;
+}
+
+bool vec3::operator<=(const vec3& rhs) const {
+  return x <= rhs.x && y <= rhs.y && z <= rhs.z;
+}
+
+bool vec3::operator>(const vec3& rhs) const {
+  return x > rhs.x && y > rhs.y && z > rhs.z;
+}
+
+bool vec3::operator<(const vec3& rhs) const {
+  return x < rhs.x && y < rhs.y && z < rhs.z;
+}
+
 float vec3::magnitude() const {
   return sqrt(x*x + y*y + z*z);
 }
@@ -114,7 +132,7 @@ float vec3::magnitude2() const {
 }
 float vec3::normalize() {
   float len = magnitude();
-
+  EXPECTS(!equal0(len));
   float revLen = 1.f / len;
   x *= revLen;
   y *= revLen;
@@ -123,7 +141,7 @@ float vec3::normalize() {
 }
 
 float vec3::manhattan() const {
-  return abs(x) + abs(y) + abs(z);
+  return ::abs(x) + ::abs(y) + ::abs(z);
 }
 
 float vec3::manhattan(const vec3& rhs) const {
@@ -168,6 +186,19 @@ vec2 vec3::xz() const {
   return { x,z };
 }
 
+float vec3::angle(const vec3& rhs) const {
+  float l = magnitude() * rhs.magnitude();
+  float dt = dot(rhs);
+  float deg = asinDegrees(clamp(dt / l, -1.f, 1.f));
+
+  EXPECTS(deg <= 180.f && deg >= -180.f);
+  return deg;
+}
+
+vec3 vec3::abs(const vec3& vec) {
+  return { ::abs(vec.x), ::abs(vec.y), ::abs(vec.z) };
+}
+
 float vec3::dot(const vec3& a, const vec3& b) {
   return a.x*b.x + a.y*b.y + a.z*b.z;
 }
@@ -178,6 +209,14 @@ vec3 vec3::fromSpherical(float r, float thetaDeg, float phiDeg) {
     r*sinDegrees(phiDeg),
     r*cosDegrees(thetaDeg)*cosDegrees(phiDeg),
   };
+}
+
+vec3 vec3::max(const vec3& a, const vec3& b) {
+  return {std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z)};
+}
+
+vec3 vec3::min(const vec3& a, const vec3& b) {
+  return {std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z)};
 }
 
 vec3 operator*(float lhs, const vec3& rhs) {

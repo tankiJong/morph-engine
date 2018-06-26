@@ -133,6 +133,9 @@
     <Filter Include="Content\shader\ui">
       <UniqueIdentifier>{d3f50f51-4852-4aec-a204-46c88d96b086}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Physics">
+      <UniqueIdentifier>{b2660484-1792-4c51-b868-1e6496c7aa04}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -407,6 +410,30 @@
     </ClCompile>
     <ClCompile Include="Renderer\TextureArray.cpp">
       <Filter>Engine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\aabb3.cpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\obb3.cpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\frustum.cpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\plane.cpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\ray3.cpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Range.cpp">
+      <Filter>Engine\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\sphere.cpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Projects\TankWar\Code\Game\Gameplay\Bullet.cpp">
+      <Filter>Engine\Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -853,6 +880,30 @@
     </ClInclude>
     <ClInclude Include="Renderer\TextureArray.hpp">
       <Filter>Engine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\aabb3.hpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\obb3.hpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\frustum.hpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\plane.hpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\ray3.hpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\contact3.hpp">
+      <Filter>Engine\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Range.hpp">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\sphere.h">
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

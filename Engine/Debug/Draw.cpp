@@ -444,6 +444,10 @@ const Debug::DrawHandle* Debug::drawBasis(const vec3& position, const vec3& i, c
   return handle;
 }
 
+const Debug::DrawHandle* Debug::drawBasis(const Transform& transform, float duration, Clock* clockOverride) {
+  return drawBasis(transform.position(), transform.right(), transform.up(), transform.forward(), duration, clockOverride);
+}
+
 const Debug::DrawHandle* Debug::drawGrid(const vec3& center, const vec3& right, const vec3 forward, float unitSize,
   float limit, float duration, const Gradient& cl, const Clock* clockOverride) {
 

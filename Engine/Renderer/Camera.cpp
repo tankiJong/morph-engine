@@ -32,9 +32,10 @@ void Camera::prepass() const {
 
 void Camera::lookAt(const vec3& position, const vec3& target, const vec3& up) {
 
-  mViewMatrix = mat44::lookAt(position, target, up);
+  mat44 look = mat44::lookAt(position, target, up);
 
-  mTransform.setlocalTransform(mViewMatrix.inverse());
+  mTransform.setlocalTransform(look);
+  mViewMatrix = look.inverse();
 }
 void Camera::setProjection(const mat44& proj) {
   mProjMatrix = proj;

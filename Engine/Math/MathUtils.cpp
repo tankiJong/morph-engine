@@ -175,19 +175,6 @@ float clampfInAbs1(float v) {
 	return clampf(v, -1.f, 1.f);
 }
 
-vec2 clamp(const vec2& v, vec2 min, vec2 max) {
-  return { clampf(v.x, min.x, max.x), clampf(v.y, min.y, max.y) };
-}
-
-ivec2 clamp(const ivec2& v, ivec2 min, ivec2 max) {
-  return { clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y) };
-}
-
-uvec2 clamp(const uvec2& v, uvec2 min, uvec2 max) {
-  return { clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y) };
-}
-
-
 float getFraction(float v, float start, float end) {
 	return (v - start) / (end - start);
 }
@@ -234,6 +221,17 @@ float smoothStep3(float t) {
 
 float lerpf(float from, float to, float fraction) {
 	return from * ( 1.f - fraction) + fraction * to;
+}
+
+template<>
+mat44 lerp<mat44>(const mat44& from, const mat44& to, float fraction) {
+	vec3 right   = slerp(from.i.xyz(), to.i.xyz(), fraction);
+	vec3 up      = slerp(from.j.xyz(), to.j.xyz(), fraction);
+	vec3 forward = slerp(from.k.xyz(), to.k.xyz(), fraction);
+
+	vec3 translation = lerp(from.t.xyz(), to.t.xyz(), fraction);
+
+  return mat44(right, up, forward, translation);
 }
 
 float lerp(float from, float to, float fraction) {
@@ -293,6 +291,35 @@ const Rgba lerp(const Rgba& from, const Rgba& to, float fraction) {
     lerp(from.b, to.b, fraction),
     lerp(from.a, to.a, fraction)
   );
+}
+
+vec3 slerp(const vec3& from, const vec3& to, float fraction) {
+  float al = from.magnitude();
+  float bl = to.magnitude();
+
+  float len = lerp<float>(al, bl, fraction);
+  vec3 u = slerpUnit(from / al, to / bl, fraction);
+  return len * u;
+}
+
+vec3 slerpUnit(const vec3& from, const vec3& to, float fraction) {
+  float cosangle = clamp(from.dot(to), -1.0f, 1.0f);
+  float angle = acosf(cosangle);
+	if(equal(angle, 180.f)) {
+		// rotate around up
+    float rotateAngle = angle * fraction;
+    return vec3(cosf(rotateAngle), from.y, sinf(rotateAngle)).normalized();
+	}
+
+  if (angle < EPS) {
+    return lerp(from, to, fraction);
+  } else {
+    float pos_num = sinf(fraction * angle);
+    float neg_num = sinf((1.0f - fraction) * angle);
+    float den = sinf(angle);
+
+    return (neg_num / den) * from + (pos_num / den) * to;
+  }
 }
 
 bool areBitsSet(unsigned char flag8, unsigned char mask) {

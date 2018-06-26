@@ -37,7 +37,7 @@ public:
   void localRotate(const Euler& euler);
   void localTranslate(const vec3& offset);
   void setlocalTransform(const mat44& transform);
-
+  void setWorldTransform(const mat44& transform);
   // accessor
   vec3 forward() const;
   vec3 up() const;

@@ -2,6 +2,10 @@
 
 #define PI (3.1415926535897932384626433832795f)
 #include <Math.h>
+#include "Engine/Math/Primitives/vec2.hpp"
+#include "Engine/Math/Primitives/ivec2.hpp"
+#include "Engine/Math/Primitives/uvec2.hpp"
+#include "Engine/Math/Primitives/mat44.hpp"
 
 class uvec2;
 constexpr float fSQRT_3_OVER_3 = 0.577350269f;
@@ -52,14 +56,31 @@ int clamp(int v, int min, int max);
 float clampf(float v, float min, float max);
 float clampf01(float v);
 float clampfInAbs1(float v);
-vec2 clamp(const vec2& v, vec2 min, vec2 max);
-ivec2 clamp(const ivec2& v, ivec2 min, ivec2 max);
-uvec2 clamp(const uvec2& v, uvec2 min, uvec2 max);
 
 template<typename T>
 T clamp(const T& v, const T& min, const T& max) {
   return v > max ? max : (v < min ? min : v);
 }
+
+template<>
+inline vec2 clamp(const vec2& v, const vec2& min, const vec2& max) {
+  return { clampf(v.x, min.x, max.x), clampf(v.y, min.y, max.y) };
+}
+
+template<>
+inline vec3 clamp(const vec3& v, const vec3& min, const vec3& max) {
+  return { clampf(v.x, min.x, max.x), clampf(v.y, min.y, max.y), clampf(v.z, min.z, max.z) };
+}
+
+inline ivec2 clamp(const ivec2& v, const ivec2& min, const ivec2& max) {
+  return { clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y) };
+}
+
+template<>
+inline uvec2 clamp(const uvec2& v, const uvec2& min, const uvec2& max) {
+  return { clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y) };
+}
+
 float getFraction(float v, float start, float end);
 
 float rangeMapf(float v, float inStart, float inEnd, float outStart, float outEnd);
@@ -99,6 +120,9 @@ T lerp(const T& from, const T& to, float fraction) {
   return from * (1.f - fraction) + to * fraction;
 };
 
+template<>
+mat44 lerp(const mat44& from, const mat44& to, float fraction);
+
 float lerp(float from, float to, float fraction);
 const vec2 lerp(const vec2& from, const vec2& to, float fraction);
 const FloatRange lerp(const FloatRange& from, const FloatRange& to, float fraction);
@@ -111,6 +135,8 @@ const ivec2 lerp(const ivec2& from, const ivec2& to, float fraction);
 const IntRange lerp(const IntRange& from, const IntRange& to, float fraction);
 const Rgba lerp(const Rgba& from, const Rgba& to, float fraction);
 
+vec3 slerp(const vec3& from, const vec3& to, float fraction);
+vec3 slerpUnit(const vec3& from, const vec3& to, float fraction);
 
 //---------------------------- Bitwise operation --------------------------------------------
 bool areBitsSet(unsigned char flag8, unsigned char mask);
@@ -122,3 +148,4 @@ void clearBits(unsigned int& flag32, unsigned int mask);
 
 constexpr float EPS = 1e-5f;
 inline constexpr bool equal(float a, float b) { return (a - b <= EPS) && (a - b >= -EPS); }
+inline constexpr bool equal0(float a) { return (a >= 0 && a <= EPS) || (a < 0 && a >= -EPS); }
