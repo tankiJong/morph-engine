@@ -4,7 +4,7 @@
 
 static Clock gMainClock;
 
-std::list<Interval> gStopwatch;
+std::vector<Interval*> gStopwatch;
 
 owner<Clock*> Clock::createChild() {
   return new Clock(this);
@@ -46,8 +46,8 @@ void Clock::stepClock(uint64_t elapsed) {
   }
 
   if(this == &gMainClock) {
-    for(Interval& sw: gStopwatch) {
-      sw.elapse();
+    for(auto sw: gStopwatch) {
+      sw->elapse();
     }
   }
 
@@ -84,6 +84,22 @@ Clock& Interval::clock() const {
 Interval::Interval() {
   mStartTime = gMainClock.total.second;
   mCurrentTime = mStartTime;
+  gStopwatch.push_back(this);
+}
+
+bool destoryWatch(Interval& target) {
+  for (size_t i = gStopwatch.size() - 1; i < gStopwatch.size(); --i) {
+    if (&target == gStopwatch[i]) {
+      std::swap(gStopwatch[i], gStopwatch.back());
+      gStopwatch.pop_back();
+      return true;
+    }
+  }
+  return false;
+}
+
+Interval::~Interval() {
+  destoryWatch(*this);
 }
 
 void Interval::elapse() {
@@ -94,17 +110,4 @@ Clock& GetMainClock() {
   return gMainClock;
 }
 
-Interval& createWatch() {
-  return gStopwatch.emplace_back();
-}
-
-bool destoryWatch(Interval& target) {
-  for(auto it = gStopwatch.begin(); it != gStopwatch.end(); it++) {
-    if(&(*it) == &target) {
-      gStopwatch.erase(it);
-      return true;
-    }
-  }
-  return false;
-}
 

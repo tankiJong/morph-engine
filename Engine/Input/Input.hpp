@@ -33,12 +33,12 @@ public:
   void beforeFrame();
   void afterFrame();
 
+  void mouseHideCursor(bool hide);
   static Input& Get();
 protected:
   void updateKeyboard();
   void updateXboxControllers();
   void updateMousePosition();
-  void mouseHideCursor(bool hide);
 
 protected:
   KeyState mKeyStates[NUM_KEY];

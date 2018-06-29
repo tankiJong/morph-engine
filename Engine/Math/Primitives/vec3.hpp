@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <string>
-#include "ivec3.hpp"
-
+#include "Engine/Core/common.hpp"
+class ivec3;
 class vec2;
 class vec3 {
 public:
@@ -36,6 +36,11 @@ public:
   bool operator==(const vec3& compare) const; // vec3 == vec3
   bool operator!=(const vec3& compare) const; // vec3 != vec3
 
+  bool operator>=(const vec3& rhs) const;
+  bool operator<=(const vec3& rhs) const;
+  bool operator>(const vec3& rhs) const;
+  bool operator<(const vec3& rhs) const;
+
   float magnitude() const;
   float magnitude2() const;
   float normalize();
@@ -50,9 +55,17 @@ public:
   float distance(const vec3& rhs) const;
   vec2 xy() const;
   vec2 xz() const;
+
+  float angle(const vec3& rhs) const;
+
+  static vec3 abs(const vec3& vec);
   static float dot(const vec3& a, const vec3& b);
   static vec3 fromSpherical(float r, float thetaDeg, float phiDeg);
 
+#undef max
+#undef min
+  static vec3 max(const vec3& a, const vec3& b);
+  static vec3 min(const vec3& a, const vec3& b);
   // x, i
   const static vec3 right;
 

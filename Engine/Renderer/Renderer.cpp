@@ -622,7 +622,7 @@ void Renderer::setMaterial(const Material* material, uint passIndex) {
 
   for(MaterialProperty* prop: material->properties()) {
       // check whether is successful
-    auto info = shader->pass(passIndex).prog()->info();
+    auto& info = shader->pass(passIndex).prog()->info();
     const PropertyBlockInfoBinding* binding = info.find(prop->name);
 
     if (binding == nullptr) continue;

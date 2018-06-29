@@ -453,7 +453,7 @@ Mesher& Mesher::cube(const vec3& center, const vec3& dimension) {
 
 Mesher& Mesher::cone(const vec3& origin, const vec3& direction, float length, float angle, uint slide, bool bottomFace) {
 
-  mat44 trans = mat44::lookAt(origin, origin + direction.normalized() * length).inverse();
+  mat44 trans = mat44::lookAt(origin, origin + direction.normalized() * length);
 
   uint top = vertex3f((trans * vec4(vec3::zero, 1)).xyz());
 

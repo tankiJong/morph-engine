@@ -6,6 +6,15 @@
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/File/FileSystem.hpp"
 
+uint calculateMipCount(uint size) {
+  uint i = 0;
+	while(size > 0) {
+    size >>= 1;
+    i++;
+	}
+  return i;
+}
+
 Texture::Texture(eTextureFormat format)
 	: mTextureID(0)
 	, mData(new Image(&Rgba::white, 1, 1))
@@ -101,18 +110,39 @@ void Texture:: PopulateFromData()
 	}
 
 	ENSURES(numComponents == 3 || numComponents == 4);
-	GLenum internalFormat = bufferFormat; // the format we want the texture to be on the card; allows us to translate into a different texture format as we upload to OpenGL
+	// GLenum internalFormat = bufferFormat; // the format we want the texture to be on the card; allows us to translate into a different texture format as we upload to OpenGL
 
-	glTexImage2D(			// Upload this pixel data to our new OpenGL texture
-		GL_TEXTURE_2D,		// Creating this as a 2d texture
-		0,					// Which mipmap level to use as the "root" (0 = the highest-quality, full-res image), if mipmaps are enabled
-		internalFormat,		// Type of texel format we want OpenGL to use for this texture internally on the video card
-		mDimensions.x,			// Texel-width of image; for maximum compatibility, use 2^N + 2^B, where N is some integer in the range [3,11], and B is the border thickness [0,1]
-		mDimensions.y,			// Texel-height of image; for maximum compatibility, use 2^M + 2^B, where M is some integer in the range [3,11], and B is the border thickness [0,1]
-		0,					// Border size, in texels (must be 0 or 1, recommend 0)
-		bufferFormat,		// Pixel format describing the composition of the pixel data in buffer
-		GL_UNSIGNED_BYTE,	// Pixel color components are unsigned bytes (one byte per color channel/component)
-		imageData );		// Address of the actual pixel data bytes/buffer in system memory
+  uint mipCount = calculateMipCount(max(mDimensions.x, mDimensions.y));
+  glTexStorage2D(GL_TEXTURE_2D,
+                 mipCount,       // number of levels (mip-layers)           CHANGED FROM ONE!!
+                 numComponents == 3 ? GL_RGB8 : GL_RGBA8, // how is the memory stored on the GPU
+                 mDimensions.x, mDimensions.y); // dimenions
+
+  GL_CHECK_ERROR();
+
+  glTexSubImage2D(
+    GL_TEXTURE_2D,
+    0,
+    0, 0,
+    mDimensions.x, mDimensions.y,
+    bufferFormat,
+    GL_UNSIGNED_BYTE,
+    imageData);
+  //
+  // glTexImage2D(			// Upload this pixel data to our new OpenGL texture
+		// GL_TEXTURE_2D,		// Creating this as a 2d texture
+		// 0,					// Which mipmap level to use as the "root" (0 = the highest-quality, full-res image), if mipmaps are enabled
+  //              bufferFormat,
+  //              		// Type of texel format we want OpenGL to use for this texture internally on the video card
+		// mDimensions.x,			// Texel-width of image; for maximum compatibility, use 2^N + 2^B, where N is some integer in the range [3,11], and B is the border thickness [0,1]
+		// mDimensions.y,			// Texel-height of image; for maximum compatibility, use 2^M + 2^B, where M is some integer in the range [3,11], and B is the border thickness [0,1]
+		// 0,					// Border size, in texels (must be 0 or 1, recommend 0)
+  //              bufferFormat,		// Pixel format describing the composition of the pixel data in buffer
+		// GL_UNSIGNED_BYTE,	// Pixel color components are unsigned bytes (one byte per color channel/component)
+		// imageData );		// Address of the actual pixel data bytes/buffer in system memory
+  GL_CHECK_ERROR();
+
+  glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 Texture* Texture::clone() const {

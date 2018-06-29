@@ -37,6 +37,7 @@ public:
   float fovAngle() const;
 
   float attenuation(vec3 position) const;
+  void updateCamera(const Camera& view);
   static constexpr uint SHADOW_MAP_SIZE = 1024u;
 protected:
   void updateCamera();

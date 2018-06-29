@@ -142,6 +142,9 @@
     <Filter Include="Engine\Graphics\RHI\Dx12">
       <UniqueIdentifier>{a74e239e-b04b-42fc-9822-f77a7b6a93e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{055a2617-3fed-431a-903a-9ce07bfd5f75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -486,9 +489,6 @@
     <ClCompile Include="Graphics\RHI\Dx12\Dx12DescriptorPool.cpp">
       <Filter>Engine\Graphics\RHI\Dx12</Filter>
     </ClCompile>
-    <ClCompile Include="Dx12DescriptorSet.cpp">
-      <Filter>Engine\Graphics\RHI\Dx12</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\RHI\RHITexture.cpp">
       <Filter>Engine\Graphics\RHI</Filter>
     </ClCompile>
@@ -500,6 +500,30 @@
     </ClCompile>
     <ClCompile Include="Graphics\RHI\ConstantBuffer.cpp">
       <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\aabb3.cpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\frustum.cpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\obb3.cpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\plane.cpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\ray3.cpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Range.cpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Primitives\sphere.cpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12DescriptorSet.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1009,6 +1033,30 @@
     </ClInclude>
     <ClInclude Include="Graphics\RHI\ConstantBuffer.hpp">
       <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\aabb3.hpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\frustum.hpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\obb3.hpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\plane.hpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\ray3.hpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\contact3.hpp">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Range.hpp">
+      <Filter>Engine\Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Primitives\sphere.hpp">
+      <Filter>Engine\Math\Primitives</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

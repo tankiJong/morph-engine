@@ -34,6 +34,7 @@ public:
         float iw, float jw, float kw, float tw);
   explicit mat44(const float* sixteenValuesBasisMajor); // float[16] array in order Ix, Iy...
   explicit mat44(const vec2& iBasis, const vec2& jBasis, const vec2& translation = vec2::zero);
+  explicit mat44(const vec3& right, const vec3& up, const vec3& forward, const vec3& translation);
   explicit mat44(const vec4& right, const vec4& up, const vec4& forward, const vec4& w = vec4(0,0,0,1));
   explicit mat44(const quaternion& q);
   // Accessors

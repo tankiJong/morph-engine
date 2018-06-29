@@ -36,7 +36,16 @@ bool Sampler::create(eTextureSampleMode sampleMode, eTextureWrapMode wrapMode) {
   glSamplerParameteri(mSamplerHandle, GL_TEXTURE_WRAP_R, toGLType(wrapMode));
 
   // filtering; 
-  glSamplerParameteri(mSamplerHandle, GL_TEXTURE_MIN_FILTER, toGLType(sampleMode));
+
+  switch(sampleMode) { 
+    case TEXTURE_SAMPLE_POINT:
+      glSamplerParameteri(mSamplerHandle, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    break;
+    case TEXTURE_SAMPLE_LINEAR:
+      glSamplerParameteri(mSamplerHandle, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    break;
+    default: ;
+  }
   glSamplerParameteri(mSamplerHandle, GL_TEXTURE_MAG_FILTER, toGLType(sampleMode));
 
   return true;

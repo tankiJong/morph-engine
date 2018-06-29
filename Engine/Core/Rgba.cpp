@@ -23,6 +23,10 @@ Rgba::Rgba(unsigned char redByte, unsigned char greenByte, unsigned char blueByt
 	, b(blueByte)
 	, a(alphaByte) {}
 
+Rgba::Rgba(const vec3& rgb, float a) {
+  setByFloats(rgb.x, rgb.y, rgb.z, a);
+}
+
 void Rgba::setByBytes(unsigned char redByte, unsigned char greenByte, unsigned char blueByte, unsigned char alphaByte) {
 	r = redByte;
 	g = greenByte;

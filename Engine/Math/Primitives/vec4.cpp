@@ -1,5 +1,6 @@
 ﻿#include "vec4.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Math/Primitives/vec2.hpp"
 
 const vec4 vec4::right  (1, 0, 0, 0);
 const vec4 vec4::up     (0, 1, 0, 0);
@@ -20,6 +21,12 @@ vec4::vec4(const vec3& xyz, float w)
   : x(xyz.x)
   , y(xyz.y)
   , z(xyz.z)
+  , w(w) {}
+
+vec4::vec4(const vec2& xy, float z, float w)
+  : x(xy.x)
+  , y(xy.y)
+  , z(z)
   , w(w) {}
 
 void vec4::fromString(const char* text) {
