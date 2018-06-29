@@ -495,6 +495,12 @@
     <ClCompile Include="Graphics\RHI\Dx12\Dx12Texture.cpp">
       <Filter>Engine\Graphics\RHI\Dx12</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12ResourceView.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\ConstantBuffer.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -996,6 +1002,12 @@
       <Filter>Engine\Graphics\RHI</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\RHI\RHITexture.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\ResourceView.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\ConstantBuffer.hpp">
       <Filter>Engine\Graphics\RHI</Filter>
     </ClInclude>
   </ItemGroup>

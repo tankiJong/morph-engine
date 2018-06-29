@@ -79,6 +79,4 @@ protected:
 
 enum_class_operators(RHIResource::BindingFlag);
 
-inline RHIResource::~RHIResource() {}
-
 // code structure idea adpot from Falcor Engine: Source/API/Resource.h

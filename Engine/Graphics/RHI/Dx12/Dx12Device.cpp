@@ -189,6 +189,19 @@ bool RHIDevice::createSwapChain() {
   return true;
 }
 
+void RHIDevice::executeDeferredRelease() {
+  // mpResourceAllocator->executeDeferredReleases();
+
+  u64 gpuVal = mFrameFence->gpuVaule();
+
+  while(!mDeferredRelease.empty() && mDeferredRelease.front().frame <= gpuVal) {
+    mDeferredRelease.pop();
+  }
+
+  // mCpuDescriptorPool->executeDeferredRelease();
+  // mGpuDescriptorPool->executeDeferredRelease();
+}
+
 void RHIDevice::present() {
   mFrameFence->gpuSignal(mRenderContext->mContextData->commandQueue());
   d3d_call(mSwapChain->Present(1, 0));

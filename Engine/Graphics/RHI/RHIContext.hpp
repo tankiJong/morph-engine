@@ -28,7 +28,7 @@ public:
 
   //-------------------------------------------------
   void beforeFrame();
-  void afterFrame();
+  void  afterFrame();
   void draw(uint start, uint count);
   void drawInstanced(uint startVert, uint startIns, uint vertCount, uint insCount);
   void setPipelineState(const PipelineState::sptr_t& pso);

@@ -43,6 +43,9 @@ using S = std::shared_ptr<T>;
 template<typename T>
 using U = std::unique_ptr<T>;
 
+template<typename T>
+using W = std::weak_ptr<T>;
+
 #define SAFE_DELETE(p) if((p)) { delete (p); (p) = nullptr; } 
 #define count_of(arr) sizeof(arr) / sizeof(arr[0])
 

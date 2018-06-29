@@ -1,6 +1,6 @@
 #include "dx12util.hpp"
 #include <string>
-#include <locale.h> 
+#include <clocale> 
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 
 #pragma comment(lib, "d3dcompiler.lib")

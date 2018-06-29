@@ -588,6 +588,7 @@
     <ClCompile Include="File\Utils.cpp" />
     <ClCompile Include="File\Path.cpp" />
     <ClCompile Include="Framework\Light.cpp" />
+    <ClCompile Include="Graphics\RHI\ConstantBuffer.cpp" />
     <ClCompile Include="Graphics\RHI\DescriptorPool.cpp" />
     <ClCompile Include="Graphics\RHI\DescriptorSet.cpp" />
     <ClCompile Include="Graphics\RHI\Dx12\Dx12Buffer.cpp" />
@@ -599,6 +600,7 @@
     <ClCompile Include="Graphics\RHI\Dx12\Dx12Fence.cpp" />
     <ClCompile Include="Graphics\RHI\Dx12\Dx12PipelineState.cpp" />
     <ClCompile Include="Graphics\RHI\Dx12\Dx12Resource.cpp" />
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12ResourceView.cpp" />
     <ClCompile Include="Graphics\RHI\Dx12\Dx12RootSignature.cpp" />
     <ClCompile Include="Graphics\RHI\Dx12\Dx12Texture.cpp" />
     <ClCompile Include="Graphics\RHI\Dx12\dx12util.cpp" />
@@ -777,6 +779,7 @@
     <ClInclude Include="File\Utils.hpp" />
     <ClInclude Include="File\Path.hpp" />
     <ClInclude Include="Framework\Light.hpp" />
+    <ClInclude Include="Graphics\RHI\ConstantBuffer.hpp" />
     <ClInclude Include="Graphics\RHI\DescriptorPool.hpp" />
     <ClInclude Include="Graphics\RHI\DescriptorSet.hpp" />
     <ClInclude Include="Graphics\RHI\Dx12\d3d12.h" />
@@ -788,6 +791,7 @@
     <ClInclude Include="Graphics\RHI\Fence.hpp" />
     <ClInclude Include="Graphics\RHI\FencedPool.hpp" />
     <ClInclude Include="Graphics\RHI\PipelineState.hpp" />
+    <ClInclude Include="Graphics\RHI\ResourceView.hpp" />
     <ClInclude Include="Graphics\RHI\RHI.hpp" />
     <ClInclude Include="Graphics\RHI\RHIBuffer.hpp" />
     <ClInclude Include="Graphics\RHI\RHIContext.hpp" />

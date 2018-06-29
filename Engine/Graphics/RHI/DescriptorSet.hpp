@@ -37,7 +37,7 @@ public:
 
     Layout(ShaderVisibility visible = ShaderVisibility::All): mVisibility(visible) {}
 
-    Layout& addRange(Type type, uint baseRegisterIndex, uint descriptorCount, uint registerSpace);
+    Layout& addRange(Type type, uint baseRegisterIndex, uint descriptorCount, uint registerSpace = 0);
 
     size_t rangeCount() const { return mRanges.size(); }
     const Range& range(size_t index) const { return mRanges[index]; }

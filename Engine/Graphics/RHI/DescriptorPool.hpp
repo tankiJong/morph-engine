@@ -46,6 +46,7 @@ public:
 
   rhi_handle_t handle(uint heapIndex) const;
   DescriptorPoolRhiData* rhiData() const { return mData.get(); }
+  void executeDeferredRelease();
   static sptr_t create(const Desc& desc, Fence::sptr_t fence);
 protected:
   DescriptorPool(const Desc& desc, const Fence::sptr_t fence);

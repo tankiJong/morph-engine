@@ -35,7 +35,7 @@ public:
   // for now, I do not use allocator yet, so every buffer will be the brand new whole buffer 
   u64 gpuAddressOffset() const { return 0; };
 
-  u64 gpuAddress();
+  u64 gpuAddress() const;
 
   size_t size() const { return mSize; }
 

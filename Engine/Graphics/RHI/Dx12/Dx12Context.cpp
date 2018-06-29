@@ -2,7 +2,6 @@
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Graphics/RHI/Dx12/Dx12Resource.hpp"
-#include "dx12util.hpp"
 #include "Engine/Graphics/RHI/Dx12/Dx12DescriptorData.hpp"
 #include "Engine/Graphics/RHI/RHITexture.hpp"
 
@@ -195,7 +194,7 @@ void RHIContext::updateTexture(const RHITexture& texture, const void* data) {
 
   auto buffer = RHIBuffer::create(uploadBufferSize, RHIBuffer::BindingFlag::None, RHIBuffer::CPUAccess::Write, data);
 
-  buffer->map(RHIBuffer::MapType::WriteDiscard);
+  // buffer->map(RHIBuffer::MapType::WriteDiscard);
   ID3D12Resource* textureUploadHeap = buffer->handle();
 
   //
@@ -227,6 +226,6 @@ void RHIContext::updateTexture(const RHITexture& texture, const void* data) {
   UpdateSubresources(mContextData->commandList(), texture.handle(), 
                      textureUploadHeap, 0, 0, 1, &textureData);
 
-  buffer->unmap();
-  flush();
+  // buffer->unmap();
+  // flush();
 }

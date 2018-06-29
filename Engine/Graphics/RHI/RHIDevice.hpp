@@ -32,8 +32,15 @@ public:
   static sptr_t get();
   window_handle_t        mWindow;
 protected:
+  struct res_release {
+    size_t frame;
+    rhi_obj_handle_t res;
+  };
+
   bool rhiInit();
   bool createSwapChain();
+  void executeDeferredRelease();
+  std::queue<res_release> mDeferredRelease;
   DescriptorPool::sptr_t mGpuDescriptorPool;
   DescriptorPool::sptr_t mCpuDescriptorPool;
   RHIContext::sptr_t     mRenderContext;
@@ -43,5 +50,6 @@ protected:
   command_queue_handle_t mCommandQueue;
   swapchain_handle_t     mSwapChain;
   double                 mGpuTimestampFrequency;
+
 };
 

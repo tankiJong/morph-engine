@@ -53,7 +53,7 @@ bool RHIBuffer::rhiInit(bool hasInitData) {
   return true;
 }
 
-u64 RHIBuffer::gpuAddress() {
+u64 RHIBuffer::gpuAddress() const {
   return mRhiHandle->GetGPUVirtualAddress();
 }
 

@@ -1,13 +1,14 @@
 #pragma once
 #include "d3d12.h"
-#include <string>
-#include "Engine/Renderer/type.h"
+#include <d3dcompiler.h>
 #include <comdef.h>
 #include <dxgi1_4.h>
-#include <d3dcompiler.h>
 #include <dxgiformat.h>
+#include "Engine/Renderer/type.h"
 
-#define EXPECT_HR_SUCCESSED(hr) EXPECTS(SUCCEEDED(hr))
+class DescriptorSet;
+
+#define EXPECT_HR_SUCCESSED(hr) EXPECTS(SUCCEEDED(hr));
 
 void d3dTraceHR(const std::string& msg, HRESULT hr);
 
@@ -61,8 +62,13 @@ using heap_cpu_handle_t = D3D12_CPU_DESCRIPTOR_HANDLE;
 using heap_gpu_handle_t = D3D12_GPU_DESCRIPTOR_HANDLE;
 using descriptor_heap_handle_t = ID3D12DescriptorHeapPtr;
 using descriptor_set_rhi_handle_t = void*;
-
 using eCommandQueueType = D3D12_COMMAND_LIST_TYPE;
+
+using srv_handle_t = S<DescriptorSet>;
+using rtv_handle_t = S<DescriptorSet>;
+using sampler_handle_t = S<DescriptorSet>;
+using cbv_handle_t = S<DescriptorSet>;
+
 /*************************************************/
 
 template<typename BlobType>

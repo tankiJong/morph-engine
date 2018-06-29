@@ -69,5 +69,11 @@ bool RHIDevice::init() {
 }
 
 void RHIDevice::releaseResource(rhi_obj_handle_t res) {
-  TODO("properly release resource");
+  if(res != nullptr) {
+
+    // Some static objects get here when the application exits
+    if(this) {
+      mDeferredRelease.push({ mFrameFence->cpuValue(), res });
+    }
+  }
 }

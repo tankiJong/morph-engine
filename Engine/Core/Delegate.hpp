@@ -33,13 +33,13 @@ template<
 >
 class delegate; // unspecified
 
-// template<
-//   typename R, typename... Args,
-//   template<size_t, size_t, typename, typename...> class Spec,
-//   size_t size,
-//   size_t align
-// >
-// class delegate<R(Args...), Spec, size, align>;
+template<
+  typename R, typename... Args,
+  template<size_t, size_t, typename, typename...> class Spec,
+  size_t size,
+  size_t align
+>
+class delegate<R(Args...), Spec, size, align>;
 
 
 // ----- IMPLEMENTATION -----

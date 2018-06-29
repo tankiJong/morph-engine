@@ -46,6 +46,7 @@ public:
     PrimitiveType mPrimType = PrimitiveType::Undefined;
   };
 
+  ~PipelineState();
   static sptr_t create(const Desc& desc);
   rhi_handle_t handle() { return mRhiHandle; }
   RootSignature::scptr_t rootSignature() const { return mDesc.mRootSignature; }

@@ -28,7 +28,7 @@ bool DescriptorSet::rhiInit() {
 
     Dx12DescriptorHeap* heap = getHeap(*mPool, type);
 
-    // mRhiData->alloc = heap
+    // mRhiData->alloc = heap->al
     UNIMPLEMENTED_RETURN(false);
   }
 

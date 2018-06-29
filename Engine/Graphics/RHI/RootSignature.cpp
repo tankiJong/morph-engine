@@ -16,12 +16,12 @@ RootSignature::RootSignature(const Desc& desc): mDesc(desc) {
 
 
 RootSignature::sptr_t RootSignature::create(const Desc& desc) {
-  bool empty = desc.mSets.size() == 0;
+  bool empty = desc.mSets.empty();
   if (empty && sEmptySignature) return sEmptySignature;
 
   sptr_t sig = sptr_t(new RootSignature(desc));
   if (sig->rhiInit() == false) {
-    sig == nullptr;
+    sig = nullptr;
   }
 
   if (empty) sEmptySignature = sig;
