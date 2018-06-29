@@ -64,7 +64,7 @@ vec3 aabb3::corner(uint index) const {
   ERROR_AND_DIE("aabb3::corners, index out of bound");
 }
 
-bool aabb3::contains(const vec3& pos) {
+bool aabb3::contains(const vec3& pos) const {
   return pos >= min && pos <= max;
 }
 

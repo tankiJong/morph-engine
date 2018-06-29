@@ -1,9 +1,8 @@
 ﻿#pragma once
 #include "Engine/Math/Primitives/vec3.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
-#include "Game/Gameplay/Map.hpp"
 #include "Engine/Math/Primitives/sphere.h"
-
+#include "Engine/Math/MathUtils.hpp"
 struct contact3;
 struct aabb3;
 

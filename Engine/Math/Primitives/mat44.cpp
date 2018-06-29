@@ -35,11 +35,11 @@ mat44::mat44(const vec2& iBasis, const vec2& jBasis, const vec2& translation)
   
 }
 
-mat44::mat44(const vec3& right, const vec3& up, const vec3& forward, const vec3& translation) {
-  i = vec4(right, 0);
-  j = vec4(up, 0);
-  k = vec4(forward, 0);
-  t = vec4(translation, 1.f);
+mat44::mat44(const vec3& _right, const vec3& _up, const vec3& _forward, const vec3& _translation) {
+  i = vec4(_right, 0);
+  j = vec4(_up, 0);
+  k = vec4(_forward, 0);
+  t = vec4(_translation, 1.f);
 }
 
 mat44::mat44(const vec4& i, const vec4& j, const vec4& k, const vec4& t):
@@ -471,9 +471,17 @@ mat44 mat44::lookAt(const vec3& position, const vec3& target, const vec3& _up) {
 
   vec3 _forward = (target - position).normalized();
 
-  vec3 _right = _up.cross(_forward).normalized();
+  float dot = _forward.dot(_up);
+  vec3 _right;
 
-  vec3 newUp = _forward.cross(_right);
+  vec3 newUp;
+  if(equal(dot, -1.f) || equal(dot, 1.f)) {
+    newUp = _forward.cross(vec3::right).normalized();
+    _right = newUp.cross(_forward).normalized();
+  } else {
+    _right = _up.cross(_forward).normalized();
+    newUp = _forward.cross(_right);
+  }
 
   mat44 r(vec4(_right, 0),
           vec4(newUp, 0),

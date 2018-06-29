@@ -2,6 +2,10 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Math/Primitives/vec3.hpp"
 
+#undef min
+
+#undef max
+
 struct aabb3 {
   aabb3()
     : min(INFINITY)
@@ -31,7 +35,7 @@ struct aabb3 {
 
   inline bool valid() const { return max.x >= min.x; }
 
-  bool contains(const vec3& pos);
+  bool contains(const vec3& pos) const;
   bool grow(const vec3& pos);
   bool grow(const aabb3& bound);
 

@@ -110,7 +110,7 @@ void Texture:: PopulateFromData()
 	}
 
 	ENSURES(numComponents == 3 || numComponents == 4);
-	GLenum internalFormat = bufferFormat; // the format we want the texture to be on the card; allows us to translate into a different texture format as we upload to OpenGL
+	// GLenum internalFormat = bufferFormat; // the format we want the texture to be on the card; allows us to translate into a different texture format as we upload to OpenGL
 
   uint mipCount = calculateMipCount(max(mDimensions.x, mDimensions.y));
   glTexStorage2D(GL_TEXTURE_2D,

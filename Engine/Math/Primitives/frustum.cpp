@@ -1,6 +1,12 @@
 ﻿#include "frustum.hpp"
 #include "Engine/Math/Primitives/aabb3.hpp"
 #include "Engine/Math/Primitives/mat44.hpp"
+#include "plane.hpp"
+frustum_t::frustum_t() {}
+
+frustum_t::frustum_t(const frustum_t& f) {
+  memcpy(this, &f, sizeof(frustum_t));
+}
 
 bool frustum_t::contains(const vec3& pos) const {
   for(uint i = 0; i < 6; ++i) {
@@ -35,4 +41,6 @@ frustum_t frustum_t::fromMat(const mat44& worldToNdc) {
   frustum.top     = plane_t(worldCorners[0], worldCorners[4], worldCorners[2]);
   frustum.back    = plane_t(worldCorners[0], worldCorners[4], worldCorners[2]);
   frustum.font    = plane_t(worldCorners[0], worldCorners[4], worldCorners[2]);
+
+  return frustum;
 }

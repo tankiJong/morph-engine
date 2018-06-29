@@ -5,6 +5,7 @@
 #include "Engine/Math/Primitives/AABB2.hpp"
 #include "Engine/Renderer/Geometry/Mesh.hpp"
 #include "Engine/Core/Gradient.hpp"
+struct aabb3;
 class Transform;
 class Renderer;
 class Texture;
@@ -90,6 +91,8 @@ namespace Debug {
                 const Gradient& cl = Gradient::white, const Clock* clockOverride = nullptr);
   const DrawHandle* drawCube(const vec3& center, float size, bool framed = true, float duration = INF,
                 const Gradient& cl = Gradient::white, const Clock* clockOverride = nullptr);
+  const DrawHandle* drawCube(const aabb3& box, const mat44& localToWorld, bool framed = true, float duration = INF,
+                             const Gradient& cl = Gradient::white, const Clock* clockOverride = nullptr);
 
   const DrawHandle* drawBasis(const vec3& position = vec3::zero, const vec3& i = vec3::right, const vec3& j = vec3::up, const vec3& k = vec3::forward, float duration = INF, Clock* clockOverride = nullptr);
   const DrawHandle* drawBasis(const Transform& transform, float duration = INF, Clock* clockOverride = nullptr);

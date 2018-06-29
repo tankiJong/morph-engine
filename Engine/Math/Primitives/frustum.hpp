@@ -6,7 +6,8 @@ class mat44;
 class vec3;
 
 struct frustum_t {
-  frustum_t() {};
+  frustum_t();
+  frustum_t(const frustum_t&);
   union {
     plane_t planes[6];
     struct {

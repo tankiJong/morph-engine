@@ -62,7 +62,9 @@ void ForwardRendering::renderView(RenderScene& scene, Camera& cam) {
 
 }
 
-void ForwardRendering::createShadowMap(Light& light, span<RenderTask> tasks) {
+void ForwardRendering::createShadowMap(Light& light, const Camera& view, span<RenderTask> tasks) {
+  // light.updateCamera(view);
+  
   mRenderer->setCamera(&light.camera());
   mRenderer->enableDepth(COMPARE_LEQUAL, true);
   mRenderer->clearDepth(1.f);
@@ -89,7 +91,7 @@ void ForwardRendering::prepass(RenderScene& scene, span<RenderTask> tasks, Camer
   mRenderer->setShader(Resource<Shader>::get("shader/default").get(), 0);
   for(Light* lit: scene.lights()) {
     if(lit->castShadow) {
-      createShadowMap(*lit, tasks);
+      createShadowMap(*lit, cam, tasks);
     }
   }
   GL_CHECK_ERROR();

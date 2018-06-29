@@ -11,5 +11,5 @@ struct sphere {
     return (center - rhs.center).magnitude2() < rr*rr;
   };
 
-  inline bool overlap(const aabb3& box) const;
+  bool overlap(const aabb3& box) const;
 };

@@ -8,6 +8,7 @@ public:
 	~Rgba() = default;;
 	explicit Rgba(unsigned char redByte, unsigned char greenByte,
 						unsigned char blueByte, unsigned char alphaByte = 255);
+  Rgba(const vec3& rgb, float a = 1.f);
 	void setByBytes(unsigned char redByte, unsigned char greenByte,
 						  unsigned char blueByte, unsigned char alphaByte = 255);
 

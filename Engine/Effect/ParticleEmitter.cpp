@@ -27,6 +27,7 @@ ParticleEmitter::ParticleEmitter()
   Mesher ms;
   mMesh = ms.createMesh<vertex_pcu_t>();
   mRenderable->mesh() = mMesh;
+  frequency(.1f);
 }
 
 void ParticleEmitter::update() {

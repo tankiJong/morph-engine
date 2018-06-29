@@ -15,7 +15,7 @@ public:
   void render(RenderScene& scene);
 protected:
   void renderView(RenderScene& scene, Camera& cam);
-  void createShadowMap(Light& light, span<RenderTask> tasks);
+  void createShadowMap(Light& light, const Camera& view, span<RenderTask> tasks);
   void prepass(RenderScene& scene, span<RenderTask> tasks, Camera& cam);
   void pass(RenderScene& scene, span<RenderTask> tasks, Camera& cam);
   void postpass(RenderScene& scene, span<RenderTask> tasks, Camera& cam);

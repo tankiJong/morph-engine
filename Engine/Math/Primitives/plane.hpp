@@ -6,7 +6,6 @@ struct plane_t {
   vec3 normal;
   float distance;
 
-  plane_t() = default;
   plane_t(const vec3& a, const vec3& b, const vec3& c);
   bool inFront(const vec3& pos) const;
 };

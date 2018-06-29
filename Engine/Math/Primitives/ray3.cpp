@@ -6,10 +6,9 @@
 #include "Engine/Math/Primitives/plane.hpp"
 
 contact3 ray3::intersect(const aabb3& box) const {
-  float rayLength = (box.center() - start).magnitude();
-  float len = rayLength / direction.magnitude() * 2.f;
+  float rayLength = (box.center() - start).magnitude() * 2;
 
-  vec3 vec = direction * len;
+  vec3 vec = direction * rayLength;
 
   vec2 x(box.min.x, box.max.x), y(box.min.y, box.max.y), z(box.min.z, box.max.z);
 
@@ -30,11 +29,20 @@ contact3 ray3::intersect(const aabb3& box) const {
   Range<float> tz((z.x - start.z) / vec.z, (z.y - start.z) / vec.z);
 
   Range<float> result = tx.intersection(ty).intersection(tz);
+
   if(result.empty()) {
     return contact3();
   }
+  
+   float t = std::max(result.min, result.max);
+   if (t < 0) return contact3();
+
   contact3 re;
-  re.position = evaluate(result.min*len);
+  if(box.contains(start)) {
+    re.position = evaluate(result.max * rayLength);
+  } else {
+    re.position = evaluate(result.min * rayLength);
+  }
 
   vec3 center = box.center();
   vec3 dir = re.position - center;
@@ -55,4 +63,24 @@ contact3 ray3::intersect(const aabb3& box) const {
   re.normal = (dir.dot(plane.normal) > 0) ? plane.normal : -plane.normal;
 
   return re;
+}
+
+contact3 ray3::intersect(const sphere& ball) const {
+  float a = direction.magnitude2();
+  float b = 2 * (
+      direction.x * (start.x - ball.center.x)
+    + direction.y * (start.y - ball.center.y)
+    + direction.z * (start.z - ball.center.z));
+
+  float c = start.distance2(ball.center) - ball.radius * ball.radius;
+
+  if (b*b - 4 * a*c < 0) return contact3();
+
+  float t = (-b + sqrtf(b*b - 4 * a*c)) / (2 * a);
+
+  contact3 cc;
+  cc.position = evaluate(t);
+  cc.normal = (cc.position - ball.center).normalized();
+
+  return cc;
 }

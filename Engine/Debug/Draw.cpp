@@ -6,6 +6,7 @@
 #include "Engine/Renderer/Font.hpp"
 #include "Engine/Renderer/Shader/Material.hpp"
 #include "Engine/Debug/Log.hpp"
+#include "Engine/Math/Primitives/aabb3.hpp"
 
 Renderer* gRenderer = nullptr;
 Camera* gCamera = nullptr;
@@ -416,6 +417,32 @@ const Debug::DrawHandle* Debug::drawCube(const vec3& center, const vec3& dimensi
 const Debug::DrawHandle* Debug::drawCube(const vec3& center, float size, bool framed, float duration, const Gradient& cl,
   const Clock* clockOverride) {
   return drawCube(center, vec3(size), framed, duration, cl, clockOverride);
+}
+
+const Debug::DrawHandle* Debug::drawCube(const aabb3& box,
+  const mat44& localToWorld,
+  bool framed,
+  float duration,
+  const Gradient& cl,
+  const Clock* clockOverride) {
+
+  vec3 corners[8];
+  box.corners(corners);
+
+  for(vec3& corner: corners) {
+    corner = (localToWorld * vec4(corner, 1.f)).xyz();
+  }
+
+  return drawMeta(cl, duration, clockOverride, [&](Mesher& mesher) {
+    mesher.begin(framed ? DRAW_LINES : DRAW_TRIANGES);
+    mesher.quad(corners[3], corners[2], corners[1], corners[0]);
+    mesher.quad(corners[4], corners[5], corners[6], corners[7]);
+    mesher.quad(corners[0], corners[1], corners[5], corners[4]);
+    mesher.quad(corners[1], corners[2], corners[6], corners[5]);
+    mesher.quad(corners[2], corners[3], corners[7], corners[6]);
+    mesher.quad(corners[3], corners[0], corners[4], corners[7]);
+    mesher.end();
+  });
 }
 
 const Debug::DrawHandle* Debug::drawBasis(const vec3& position, const vec3& i, const vec3& j, const vec3& k,

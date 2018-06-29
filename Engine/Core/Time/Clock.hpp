@@ -47,7 +47,9 @@ public:
   inline void pause() { isPaused = true; };
   inline void resume() { isPaused = false; }
   
-  inline bool decrement() { return (mCurrentTime - mStartTime > duration) ? mCurrentTime += duration, true : false; };
+  inline bool decrement() {
+    return (mCurrentTime - mStartTime > duration) ? mStartTime += duration, true : false;
+  };
 
   double duration;
   uint flush();

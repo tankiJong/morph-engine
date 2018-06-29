@@ -104,7 +104,10 @@ void main( void )
                 SPECULAR_AMOUNT, SPECULAR_POWER, 
                 texColor,
                 normalize(passEyeDir));
-    
+
+    // outColor  = texture( gTexShadowMap, passUV );
+    // return;
+
 #else
     outColor = texColor * passColor;
 #endif

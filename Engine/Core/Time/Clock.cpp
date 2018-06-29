@@ -88,7 +88,7 @@ Interval::Interval() {
 }
 
 bool destoryWatch(Interval& target) {
-  for (uint i = gStopwatch.size() - 1; i < gStopwatch.size(); --i) {
+  for (size_t i = gStopwatch.size() - 1; i < gStopwatch.size(); --i) {
     if (&target == gStopwatch[i]) {
       std::swap(gStopwatch[i], gStopwatch.back());
       gStopwatch.pop_back();
