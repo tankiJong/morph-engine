@@ -2,6 +2,7 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RootSignature.hpp"
 #include "Engine/Renderer/Geometry/VertexLayout.hpp"
+#include "Engine/Graphics/RHI/FrameBuffer.hpp"
 
 class PipelineState {
 public:
@@ -35,6 +36,10 @@ public:
       mPrimType = prim; return *this;
     }
 
+    Desc& setFboDesc(const FrameBuffer::Desc& desc) {
+      mFboDesc = desc; return *this;
+    }
+
     bool operator==(const Desc& rhs) const;
   protected:
     friend class PipelineState;
@@ -43,6 +48,7 @@ public:
     RootSignature::sptr_t mRootSignature;
     render_state mRenderState;
     uint mSampleMask = SAMPLE_MASK_ALL;
+    FrameBuffer::Desc mFboDesc;
     PrimitiveType mPrimType = PrimitiveType::Undefined;
   };
 

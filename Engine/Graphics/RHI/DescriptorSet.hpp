@@ -3,8 +3,11 @@
 #include "Engine/Renderer/Shader/Shader.hpp"
 #include "Engine/Graphics/RHI/DescriptorPool.hpp"
 
+class ShaderResourceView;
+class ConstantBufferView;
 class DescriptorSetRhiData;
-
+class RHIContext;
+class RootSignature;
 enum class ShaderVisibility {
   None = 0,
   Vertex = (1 << (uint)eShaderType::SHADER_TYPE_VERTEX),
@@ -24,6 +27,8 @@ class DescriptorSet {
 public:
   using sptr_t = S<DescriptorSet>;
   using Type = DescriptorPool::Type;
+  using cpu_handle_t = DescriptorPool::cpu_handle_t;
+  using gpu_handle_t = DescriptorPool::gpu_handle_t;
   using rhi_handle_t = descriptor_set_rhi_handle_t;
 
   class Layout {
@@ -54,8 +59,13 @@ public:
   heap_cpu_handle_t cpuHandle(uint rangeIndex, uint offset = 0);
   heap_gpu_handle_t gpuHandle(uint rangeIndex, uint offset = 0);
 
+  void setCbv(uint rangeIndex, uint descIndex, const ConstantBufferView& view);
+  void setSrv(uint rangeIndex, uint descIndex, const ShaderResourceView& view);
+
+  void bindForGraphics(const RHIContext& ctx, const RootSignature& root, uint rootIndex = 0);
   static sptr_t create(const DescriptorPool::sptr_t& pool, const Layout& layout);
 
+  ~DescriptorSet();
 protected:
   bool rhiInit();
   DescriptorSet(DescriptorPool::sptr_t pool, const Layout& layout): mPool(pool), mLayout(layout) {}

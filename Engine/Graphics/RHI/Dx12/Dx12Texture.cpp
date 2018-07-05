@@ -1,9 +1,9 @@
-#include "Engine/Graphics/RHI/RHITexture.hpp"
-#include "Engine/Graphics/RHI/Dx12/Dx12Resource.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 #include "Engine/Graphics/RHI/Dx12/Dx12DescriptorData.hpp"
+#include "Engine/Graphics/RHI/Dx12/Dx12Resource.hpp"
+#include "Engine/Graphics/RHI/Texture.hpp"
 
-bool RHITexture::rhiInit(const void* data, size_t size) {
+bool Texture2::rhiInit(const void* data, size_t size) {
   D3D12_RESOURCE_DESC desc = {};
 
   desc.MipLevels = 1;
@@ -39,4 +39,6 @@ bool RHITexture::rhiInit(const void* data, size_t size) {
 
   RHIDevice::get()->nativeDevice()->CreateShaderResourceView(
     mRhiHandle, &srvDesc, pool->rhiData()->heaps[D3D12_DESCRIPTOR_RANGE_TYPE_SRV]->cpuHandleBase());
+
+  return true;
 }

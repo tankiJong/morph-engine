@@ -54,8 +54,8 @@ enum eShaderStageState {
 };
 
 enum eTextureFormat {
+  TEXTURE_FORMAT_UNKNOWN,
   TEXTURE_FORMAT_RGBA8, // default color format
-  TEXTURE_FORMAT_RGB8,
   TEXTURE_FORMAT_RG8,
   TEXTURE_FORMAT_R8,
   TEXTURE_FORMAT_RGBA16, // default color format

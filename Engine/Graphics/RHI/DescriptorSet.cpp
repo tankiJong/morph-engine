@@ -16,3 +16,7 @@ DescriptorSet::sptr_t DescriptorSet::create(const DescriptorPool::sptr_t& pool, 
   return ds->rhiInit() ? ds : nullptr;
 }
 
+DescriptorSet::~DescriptorSet() {
+  mPool->releaseAllocation(mRhiData);
+}
+

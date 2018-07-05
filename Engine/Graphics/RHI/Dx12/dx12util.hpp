@@ -45,6 +45,8 @@ std::wstring make_wstring(const std::string& str);
 
 DXGI_FORMAT toDXGIFormat(eDataDeclType declType, uint count, bool normalized);
 
+DXGI_FORMAT toDXGIFormat(eTextureFormat format);
+
 
 /*****************RHI typedef********************************/
 using window_handle_t = HWND;

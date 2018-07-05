@@ -31,13 +31,15 @@ class ResourceView {
 public:
   using rhi_handle_t = handle_t;
   static const uint MAX_POSSIBLE = -1;
-  virtual ~ResourceView();
+  virtual ~ResourceView() {};
 
   ResourceView(
     W<RHIResource> res, rhi_handle_t handle, 
     uint mostDetailedMip, uint mipCount, uint firstArraySlice, uint arraySize)
     : mRhiHandle(handle), mResource(res)
     , mViewInfo(mostDetailedMip, mipCount, firstArraySlice, arraySize) {}
+
+  const rhi_handle_t& handle() const { return mRhiHandle; }
 protected:
   rhi_handle_t mRhiHandle;
   ResourceViewInfo mViewInfo;

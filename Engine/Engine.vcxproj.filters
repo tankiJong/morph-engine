@@ -237,9 +237,6 @@
     <ClCompile Include="Debug\ErrorWarningAssert.cpp">
       <Filter>Engine\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\FrameBuffer.cpp">
-      <Filter>Engine\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\Camera.cpp">
       <Filter>Engine\Renderer</Filter>
     </ClCompile>
@@ -525,6 +522,15 @@
     <ClCompile Include="Graphics\RHI\Dx12\Dx12DescriptorSet.cpp">
       <Filter>Engine\Graphics\RHI\Dx12</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\RHI\ResourceView.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\FrameBuffer.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Texture.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -781,9 +787,6 @@
     </ClInclude>
     <ClInclude Include="Tool\Parser.hpp">
       <Filter>Engine\Tool</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\FrameBuffer.hpp">
-      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Camera.hpp">
       <Filter>Engine\Renderer</Filter>
@@ -1057,6 +1060,12 @@
     </ClInclude>
     <ClInclude Include="Math\Primitives\sphere.hpp">
       <Filter>Engine\Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\FrameBuffer.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\Texture.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

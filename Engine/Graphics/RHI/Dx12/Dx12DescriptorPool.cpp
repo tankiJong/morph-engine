@@ -51,6 +51,10 @@ bool DescriptorPool::rhiInit() {
   return true;
 }
 
+void DescriptorPool::releaseAllocation(S<DescriptorSetRhiData> alloc) {
+  mDeferredReleases.push({ alloc, mFence->gpuVaule() });
+}
+
 DescriptorPool::rhi_handle_t DescriptorPool::handle(uint heapIndex) const {
   EXPECTS(heapIndex < count_of(mData->heaps));
 

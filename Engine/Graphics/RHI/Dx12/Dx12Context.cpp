@@ -173,7 +173,7 @@ void RHIContext::bindDescriptorHeap() {
   mContextData->commandList()->SetDescriptorHeaps(heapCount, heaps);
 
   // this need a new home, possibly in shader
-  mContextData->commandList()->SetGraphicsRootDescriptorTable(0, RHIDevice::get()->gpuDescriptorPool()->rhiData()->heaps[D3D12_DESCRIPTOR_RANGE_TYPE_SRV]->gpuHandleBase());
+  // mContextData->commandList()->SetGraphicsRootDescriptorTable(0, RHIDevice::get()->gpuDescriptorPool()->rhiData()->heaps[D3D12_DESCRIPTOR_RANGE_TYPE_SRV]->gpuHandleBase());
 }
 
 

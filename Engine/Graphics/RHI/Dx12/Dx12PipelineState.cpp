@@ -2,6 +2,20 @@
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 #include "Engine/File/Utils.hpp"
 
+void setFboDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, FrameBuffer::Desc& fboDesc) {
+  static_assert(FrameBuffer::NUM_MAX_COLOR_TARGET <= 8);
+  uint numRtv = 0;
+  for(uint i = 0; i<FrameBuffer::NUM_MAX_COLOR_TARGET; i++) {
+    desc.RTVFormats[i] = toDXGIFormat(fboDesc.colorTargetFormat(i));
+    if(desc.RTVFormats[i] != DXGI_FORMAT_UNKNOWN) {
+      numRtv = i + 1;
+    }
+  }
+  desc.NumRenderTargets = numRtv;
+}
+
+
+
 void setDx12InputLayout(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, const VertexLayout& layout) {
   D3D12_INPUT_LAYOUT_DESC inputDesc;
   auto attrs = layout.attributes();
@@ -89,7 +103,7 @@ bool PipelineState::rhiInit() {
 
   setDx12InputLayout(desc, *mDesc.mLayout);
   desc.SampleMask = mDesc.mSampleMask;
-  desc.pRootSignature = (mDesc.mRootSignature ? mDesc.mRootSignature->handle() : nullptr);
+  desc.pRootSignature = mDesc.mRootSignature ? mDesc.mRootSignature->handle() : nullptr;
 
   desc.RasterizerState = rasterizerDesc;
   desc.BlendState = blendDesc;

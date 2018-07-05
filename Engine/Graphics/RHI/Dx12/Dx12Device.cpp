@@ -198,11 +198,12 @@ void RHIDevice::executeDeferredRelease() {
     mDeferredRelease.pop();
   }
 
-  // mCpuDescriptorPool->executeDeferredRelease();
-  // mGpuDescriptorPool->executeDeferredRelease();
+  mCpuDescriptorPool->executeDeferredRelease();
+  mGpuDescriptorPool->executeDeferredRelease();
 }
 
 void RHIDevice::present() {
   mFrameFence->gpuSignal(mRenderContext->mContextData->commandQueue());
   d3d_call(mSwapChain->Present(1, 0));
+  executeDeferredRelease();
 }
