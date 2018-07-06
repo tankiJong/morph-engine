@@ -148,7 +148,6 @@ void Report::log(eViewOption option) const {
   };
 
   std::stack<Iter> toProcess;
-  auto& font = Font::Default();
 
   toProcess.push({ &root, 0 });
 

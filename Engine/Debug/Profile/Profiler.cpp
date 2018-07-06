@@ -251,12 +251,12 @@ protected:
   llp_t* mFreeList;
 };
 
-COMMAND_REG("profiler_pause", "", "pause the profiler")(Command& cmd) {
+COMMAND_REG("profiler_pause", "", "pause the profiler")(Command&) {
   Profile::pause();
   return true;
 }
 
-COMMAND_REG("profiler_resume", "", "resume the profiler")(Command& cmd) {
+COMMAND_REG("profiler_resume", "", "resume the profiler")(Command&) {
   Profile::resume();
   return true;
 }

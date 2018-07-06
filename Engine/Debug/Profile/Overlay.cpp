@@ -199,8 +199,6 @@ void Profile::Overlay::update() {
   Mesher ms;
   ms.begin(DRAW_TRIANGES);
 
-  uint topLineNumber = 0;
-
   struct Iter {
     const Report::Entry* entry = nullptr;
     uint depth = 0;
@@ -298,7 +296,7 @@ void Profile::Overlay::Chart::onInput() {
   switch(selectState) { 
     case SELECT_CLEAR: {
       if (bound.contains(positionInChart)) {
-        positionInChart.x = clamp(positionInChart.x, 0, bound.width());
+        positionInChart.x = clamp(positionInChart.x, 0.f, bound.width());
         mSelectedRange.min = positionInChart.x;
         mSelectedRange.max = positionInChart.x + .1f;
         if (Input::Get().isKeyJustDown(MOUSE_LBUTTON)) {
@@ -311,7 +309,7 @@ void Profile::Overlay::Chart::onInput() {
     }
     break;
     case SELECT_SELECTING: {
-      positionInChart.x = clamp(positionInChart.x, 0, bound.width());
+      positionInChart.x = clamp(positionInChart.x, 0.f, bound.width());
       mSelectedRange.max = positionInChart.x;
       if(Input::Get().isKeyJustUp(MOUSE_LBUTTON)) {
         if (mSelectedRange.size() < .1f && mSelectedRange.size() > -.1f) {
@@ -368,8 +366,8 @@ void Profile::Overlay::Chart::update() {
   float min = std::min(mSelectedRange.min, mSelectedRange.max);
   float max = std::max(mSelectedRange.min, mSelectedRange.max);
 
-  frameRange.min = (uint)min / (bound.width() / (float)MAX_FRAME_RECORDED);
-  frameRange.max = (uint)max / (bound.width() / (float)MAX_FRAME_RECORDED);
+  frameRange.min = uint(min / (bound.width() / (float)MAX_FRAME_RECORDED));
+  frameRange.max = uint(max / (bound.width() / (float)MAX_FRAME_RECORDED));
   if(mSelectedRange.size() != 0) {
     ms.color(kChartSelectedBlendColor);
     ms.quad2({ { min, 0 }, { max, bound.height() } });
