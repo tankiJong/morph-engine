@@ -150,3 +150,13 @@ bool Console::hook(const std::string& cmdName, const std::string& paramInfo, con
 
   return true;
 }
+
+
+#define COMMAND_REG(name, param, desc) \
+struct APPEND(__command, __LINE__) { \
+  APPEND(__command, __LINE__)(const std::string& cmdName, const std::string& paramInfo, const std::string& description) { \
+    Console::Get()->hook(cmdName, paramInfo, description, exec); \
+  }; \
+  static bool exec(Command&); \
+} APPEND(__commandIns, __LINE__)(name, param, desc); \
+inline bool APPEND(__command, __LINE__)::exec

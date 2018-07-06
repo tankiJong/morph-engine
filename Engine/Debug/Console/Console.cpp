@@ -363,6 +363,7 @@ void Console::render() const {
   const aabb2& screenBounds = { vec2::zero, vec2{(float)mCamera->width(), (float)mCamera->height()}};
 
   mRenderer->setCamera(mCamera);
+  mRenderer->setModelMatrix(mat44::identity);
   static const Shader* defaultShader = Resource<Shader>::get("shader/ui/default").get();
   mRenderer->setShader(defaultShader);
   mRenderer->setTexture();

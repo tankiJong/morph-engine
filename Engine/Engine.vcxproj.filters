@@ -136,6 +136,9 @@
     <Filter Include="Engine\Physics">
       <UniqueIdentifier>{b2660484-1792-4c51-b868-1e6496c7aa04}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Debug\Profile">
+      <UniqueIdentifier>{13673ed3-6407-4f5c-845e-d74c3e9d137f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -432,8 +435,14 @@
     <ClCompile Include="Math\Primitives\sphere.cpp">
       <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Projects\TankWar\Code\Game\Gameplay\Bullet.cpp">
-      <Filter>Engine\Input</Filter>
+    <ClCompile Include="Debug\Profile\Profiler.cpp">
+      <Filter>Engine\Debug\Profile</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\Profile\Report.cpp">
+      <Filter>Engine\Debug\Profile</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\Profile\Overlay.cpp">
+      <Filter>Engine\Debug\Profile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -904,6 +913,18 @@
     </ClInclude>
     <ClInclude Include="Math\Primitives\sphere.h">
       <Filter>Engine\Math\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\Profile\Profiler.hpp">
+      <Filter>Engine\Debug\Profile</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\Profile\Report.hpp">
+      <Filter>Engine\Debug\Profile</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\Profile\Overlay.hpp">
+      <Filter>Engine\Debug\Profile</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.hpp">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

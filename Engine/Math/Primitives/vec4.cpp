@@ -1,7 +1,7 @@
 ﻿#include "vec4.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/Primitives/vec2.hpp"
-
+#include "Engine/Math/Primitives/vec3.hpp"
 const vec4 vec4::right  (1, 0, 0, 0);
 const vec4 vec4::up     (0, 1, 0, 0);
 const vec4 vec4::forward(0, 0, 1, 0);
@@ -9,6 +9,10 @@ const vec4 vec4::zero   (0, 0, 0, 0);
 
 vec3 vec4::xyz() const {
   return { x,y,z };
+}
+
+vec2 vec4::xy() const {
+  return { x,y };
 }
 
 vec4::vec4(const vec3& copy) 

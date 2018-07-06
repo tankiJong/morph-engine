@@ -18,8 +18,8 @@ public:
 	void translate(float translationX, float translationY);
 
   std::array<vec2,4> vertices() const;
-	bool isPointInside(float x, float y) const; // is “x,y” within box’s interior?
-	bool isPointInside(const vec2& point) const; // is “point” within box’s interior?
+	bool contains(float x, float y) const; // is “x,y” within box’s interior?
+	bool contains(const vec2& point) const; // is “point” within box’s interior?
 	vec2 getCenter() const; // return the center position of the box
   float width() const;
   float height() const;

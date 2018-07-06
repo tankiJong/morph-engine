@@ -26,7 +26,9 @@ public:
   vec2 mouseDeltaPosition(bool normalized = false) const;
   vec2 mouseDeltaDirection() const;
   void mouseSetPosition(const vec2& clientPosition);
+  bool isMouseLocked() const { return mIsMouseLocked; }
   void mouseLockCursor(bool lock);
+  void toggleMouseLockCursor();
 
   XboxController* getController(XboxControllerID controllerId);
 
@@ -34,6 +36,7 @@ public:
   void afterFrame();
 
   void mouseHideCursor(bool hide);
+  void toggleMouseVisible();
   static Input& Get();
 protected:
   void updateKeyboard();

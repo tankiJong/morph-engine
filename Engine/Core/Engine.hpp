@@ -1,6 +1,4 @@
 ﻿#pragma once
-#include "Engine/Core/common.hpp"
-#include "Engine/File/FileSystem.hpp"
 
 class Renderer;
 class Input;

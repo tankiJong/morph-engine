@@ -472,7 +472,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Projects\TankWar\Code\Game\Gameplay\Bullet.cpp" />
     <ClCompile Include="..\ThirdParty\mikktspace\mikktspace.c" />
     <ClCompile Include="..\ThirdParty\pugixml\pugixml.cpp" />
     <ClCompile Include="..\ThirdParty\stb\stb_image.c" />
@@ -495,6 +494,30 @@
     <ClCompile Include="Debug\Draw.cpp" />
     <ClCompile Include="Debug\ErrorWarningAssert.cpp" />
     <ClCompile Include="Debug\Log.cpp" />
+    <ClCompile Include="Debug\Profile\Overlay.cpp" />
+    <ClCompile Include="Debug\Profile\Profiler.cpp" />
+    <ClCompile Include="Debug\Profile\Report.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Effect\ParticleEmitter.cpp" />
     <ClCompile Include="File\Blob.cpp" />
     <ClCompile Include="File\File.cpp" />
@@ -643,6 +666,7 @@
     <ClInclude Include="..\ThirdParty\yaml-cpp\yaml.h" />
     <ClInclude Include="Application\Window.hpp" />
     <ClInclude Include="Audio\Audio.hpp" />
+    <ClInclude Include="Config.hpp" />
     <ClInclude Include="Core\Blackboard.hpp" />
     <ClInclude Include="Core\common.hpp" />
     <ClInclude Include="Core\Delegate.hpp" />
@@ -663,6 +687,30 @@
     <ClInclude Include="Debug\Draw.hpp" />
     <ClInclude Include="Debug\ErrorWarningAssert.hpp" />
     <ClInclude Include="Debug\Log.hpp" />
+    <ClInclude Include="Debug\Profile\Overlay.hpp" />
+    <ClInclude Include="Debug\Profile\Profiler.hpp" />
+    <ClInclude Include="Debug\Profile\Report.hpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Effect\ParticleEmitter.hpp" />
     <ClInclude Include="File\Blob.hpp" />
     <ClInclude Include="File\File.hpp" />

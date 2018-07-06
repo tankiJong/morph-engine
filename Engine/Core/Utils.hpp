@@ -41,4 +41,7 @@ char tid<T>::_id = 0;
 template<typename T>
 using S = std::shared_ptr<T>;
 
-#define SAFE_DELETE(p) if((p)) { delete (p); (p) = nullptr; } 
+#define SAFE_DELETE(p) if((p)) { delete (p); (p) = nullptr; }
+
+#define ___APPEND_IMPL(a, b) a##b
+#define APPEND(a, b) ___APPEND_IMPL(a, b)

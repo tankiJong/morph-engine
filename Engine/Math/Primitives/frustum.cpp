@@ -2,6 +2,8 @@
 #include "Engine/Math/Primitives/aabb3.hpp"
 #include "Engine/Math/Primitives/mat44.hpp"
 #include "plane.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
+
 frustum_t::frustum_t() {}
 
 frustum_t::frustum_t(const frustum_t& f) {
@@ -42,5 +44,6 @@ frustum_t frustum_t::fromMat(const mat44& worldToNdc) {
   frustum.back    = plane_t(worldCorners[0], worldCorners[4], worldCorners[2]);
   frustum.font    = plane_t(worldCorners[0], worldCorners[4], worldCorners[2]);
 
+  UNIMPLEMENTED();
   return frustum;
 }

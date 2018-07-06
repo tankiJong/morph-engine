@@ -29,6 +29,7 @@ public:
 
   Mesher& genNormal();
   Mesher& line(const vec3& from, const vec3& to);
+  Mesher& line2(const vec2& from, const vec2& to, float z = 0.f);
   Mesher& sphere(const vec3& center, float size, uint levelX = 10u, uint levelY = 10u);
   Mesher& triangle();
   Mesher& triangle(uint a, uint b, uint c);

@@ -22,11 +22,4 @@ uint64_t __fastcall GetPerformanceCounter();
 
 double PerformanceCountToSecond(uint64_t count);
 
-class ProfileLogScope {
-public:
-  ProfileLogScope(const char* tag);
-  ~ProfileLogScope();
-public:
-  const char* mTag;
-  uint64_t mStartHPC;
-};
+std::string beautifySeconds(double seconds);

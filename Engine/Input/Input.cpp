@@ -159,12 +159,18 @@ void Input::mouseLockCursor(bool lock) {
   mIsMouseLocked = lock;
 }
 
+void Input::toggleMouseLockCursor() {
+  mouseLockCursor(!mIsMouseLocked);
+}
+
 void Input::mouseHideCursor(bool hide) {
 
   if (mCursorVisible == !hide) return;
   mCursorVisible = !hide;
-  //int count = ::ShowCursor(!hide);
-  // ENSURES(hide == count < 0);
+  int count = ::ShowCursor(!hide);
+  while(hide != count < 0) {
+    count = ::ShowCursor(!hide);
+  }
 }
 
 void Input::beforeFrame() {

@@ -13,6 +13,13 @@ public:
   std::string msg;
 };
 
+class InvalidArgumentException : public std::exception {
+
+public:
+  explicit InvalidArgumentException(uint n) :msg(Stringf("argument at position %u is invalid", n)) {}
+  inline char const* what() const override { return msg.c_str(); };
+  std::string msg;
+};
 class Command {
   struct Arg {
     char name[64]{'\0'};
@@ -43,6 +50,15 @@ public:
       throw ArgumentNotFoundException(N);
     }
     return ::parse<T>(mArgs[N].value);
+  }
+
+  template<uint N>
+  std::string arg() {
+    //    EXPECTS(N < mArgs.size());
+    if (N >= mArgs.size()) {
+      throw ArgumentNotFoundException(N);
+    }
+    return mArgs[N].value;
   }
 
   template<>

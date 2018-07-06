@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
-#include "Vec3.hpp"
 
+class vec3;
+class vec2;
 struct vec4 {
 public:
   union {
@@ -18,7 +19,8 @@ public:
     float data[4];
   };
   vec4() {}
-  vec3 xyz() const;;
+  vec3 xyz() const;
+  vec2 xy() const;
   vec4(float x, float y, float z, float w)
     : x(x)
     , y(y)
