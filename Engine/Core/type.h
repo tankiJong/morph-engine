@@ -23,3 +23,4 @@ typedef long long int64;
 typedef unsigned int uint;
 typedef unsigned short u16;
 typedef unsigned __int64 u64;
+typedef unsigned char u8;

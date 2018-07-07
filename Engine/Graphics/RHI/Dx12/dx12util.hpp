@@ -47,7 +47,7 @@ DXGI_FORMAT toDXGIFormat(eDataDeclType declType, uint count, bool normalized);
 
 DXGI_FORMAT toDXGIFormat(eTextureFormat format);
 
-
+eTextureFormat toTextureFormat(DXGI_FORMAT format);
 /*****************RHI typedef********************************/
 using window_handle_t = HWND;
 using rhi_obj_handle_t = IUnknownPtr;

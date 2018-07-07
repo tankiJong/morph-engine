@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RHITexture.hpp"
+#include "Engine/Graphics/RHI/Texture.hpp"
 
 class FrameBuffer {
 public:
@@ -37,21 +38,23 @@ public:
     target_info_t depthTarget;
   };
 
+  FrameBuffer(const Desc& desc) : mDesc(desc) {};
+  FrameBuffer() {};
+
   uint width() const;
   uint height() const;
 
-  void setColorTarget(RHITexture::sptr_t tex, uint index,
-                      uint mipLevel = 0, uint firstArraySlice = 0, uint arraySize = kAttachEntireMipLevel);
-  void setDepthStencilTarget(RHITexture::sptr_t tex, uint mipLevel = 0, uint firstArraySlice = 0, uint arraySize = kAttachEntireMipLevel);
+  void setColorTarget(Texture2::sptr_t tex, uint index);
+  void setDepthStencilTarget(Texture2::sptr_t tex);
+  
+  const Texture2::sptr_t& colorTarget(uint index) const { return mColorTarget[index]; }
 
+  const Texture2::sptr_t& depthStencilTarget() const { return mDepthTarget; }
 protected:
-  FrameBuffer(const Desc& desc) : mDesc(desc) {};
-  FrameBuffer() {};
   Desc mDesc {};
-  std::array<RHITexture::sptr_t, NUM_MAX_COLOR_TARGET> mColorTarget;
-  RHITexture::sptr_t mDepthTarget;
+  std::array<Texture2::sptr_t, NUM_MAX_COLOR_TARGET> mColorTarget;
+  Texture2::sptr_t mDepthTarget;
   bool mEnableDepth = false;
-  ~FrameBuffer();
 
 
 };

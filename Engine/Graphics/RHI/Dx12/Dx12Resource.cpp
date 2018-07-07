@@ -75,6 +75,31 @@ D3D12_RESOURCE_FLAGS asDx12ResourceFlags(RHIResource::BindingFlag flags) {
 
   return d3d;
 }
+
+RHIResource::BindingFlag asRHIResourceFlags(D3D12_RESOURCE_FLAGS flags) {
+  RHIResource::BindingFlag rhiFlag = RHIResource::BindingFlag::None;
+  if (flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET)
+    rhiFlag |= RHIResource::BindingFlag::RenderTarget;
+
+  if (flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) {
+    rhiFlag |= RHIResource::BindingFlag::DepthStencil;
+    if((flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == false) {
+      rhiFlag |= RHIResource::BindingFlag::ShaderResource;
+    }
+  }
+
+  if (flags & D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS)
+    rhiFlag |= RHIResource::BindingFlag::UnorderedAccess;
+
+  if (flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
+    rhiFlag |= RHIResource::BindingFlag::DepthStencil;
+
+  if (flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
+    rhiFlag |= RHIResource::BindingFlag::DepthStencil;
+
+  return rhiFlag;
+}
+
 D3D12_RESOURCE_STATES asDx12ResourceState(RHIResource::State state) {
   switch (state) {
     case RHIResource::State::Undefined:
@@ -120,4 +145,32 @@ D3D12_RESOURCE_STATES asDx12ResourceState(RHIResource::State state) {
     default:
       ERROR_AND_DIE("unexpected state type");
   }
+}
+
+
+RHIResource::RHIResource(rhi_resource_handle_t res) {
+  mRhiHandle = res;
+  D3D12_RESOURCE_DESC desc = res->GetDesc();
+
+  switch (desc.Dimension) {
+    case D3D12_RESOURCE_DIMENSION_UNKNOWN:
+      mType = Type::Unknown;
+      break;
+    case D3D12_RESOURCE_DIMENSION_BUFFER:
+      mType = Type::Buffer;
+      break;
+    case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
+      mType = Type::Texture1D;
+      break;
+    case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
+      mType = Type::Texture2D;
+      break;
+    case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
+      mType = Type::Texture3D;
+      break;
+    default:
+      ERROR_AND_DIE("should not reach here");
+  };
+
+  mBindingFlags = asRHIResourceFlags(desc.Flags);
 }

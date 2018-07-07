@@ -3,6 +3,40 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 RHIDevice::sptr_t gDevice;
 
+void RHIDevice::cleanup() {
+
+  mRenderContext->flush();
+
+  mGpuDescriptorPool.reset();
+  mCpuDescriptorPool.reset();
+  mRenderContext.reset();
+  SAFE_DELETE(mDeviceData);
+
+  for (auto& b : mBackBuffers) {
+    b.reset();
+  }
+
+  for (auto& b : mDepthBuffer) {
+    b.reset();
+  }
+
+  while(!mDeferredRelease.empty()) {
+    mDeferredRelease.pop();
+  }
+
+  mFrameFence.reset();
+}
+
+Texture2::sptr_t& RHIDevice::backBuffer() {
+  return mBackBuffers[mCurrentBackBufferIndex];
+}
+
+Texture2::sptr_t& RHIDevice::depthBuffer() {
+  return mDepthBuffer[mCurrentBackBufferIndex];
+}
+
+RHIDevice::~RHIDevice() {
+}
 
 RHIDevice::sptr_t RHIDevice::create() {
   if(gDevice) {
@@ -13,6 +47,8 @@ RHIDevice::sptr_t RHIDevice::create() {
   if(gDevice->init() == false) {
     gDevice = nullptr;
   }
+
+  gDevice->rhiPostInit();
 
   return gDevice;
 }
@@ -57,8 +93,6 @@ bool RHIDevice::init() {
 
   mCpuDescriptorPool = DescriptorPool::create(poolDesc, mRenderContext->contextData()->fence());
 
-  mRenderContext->flush();
-
   // later may be also init resource allocator for better performance,
   // all rhiRes will allocate from Allocator instead of Directly from RHI
 
@@ -72,7 +106,7 @@ void RHIDevice::releaseResource(rhi_obj_handle_t res) {
   if(res != nullptr) {
 
     // Some static objects get here when the application exits
-    if(this) {
+    if(this && !this->mPendingDelete) {
       mDeferredRelease.push({ mFrameFence->cpuValue(), res });
     }
   }

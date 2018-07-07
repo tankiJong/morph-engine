@@ -2,6 +2,7 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/DescriptorPool.hpp"
 #include "Engine/Graphics/RHI/RHIContext.hpp"
+#include "Engine/Graphics/RHI/Texture.hpp"
 
 class RHIContext;
 struct DeviceData;
@@ -27,6 +28,12 @@ public:
 
   DescriptorPool::sptr_t cpuDescriptorPool() { return mCpuDescriptorPool; };
   DescriptorPool::sptr_t gpuDescriptorPool() { return mGpuDescriptorPool; }
+
+  Texture2::sptr_t& backBuffer();
+  Texture2::sptr_t& depthBuffer();
+
+  ~RHIDevice();
+  void cleanup();
   static sptr_t create();
 
   static sptr_t get();
@@ -38,6 +45,7 @@ protected:
   };
 
   bool rhiInit();
+  bool rhiPostInit();
   bool createSwapChain();
   void executeDeferredRelease();
   std::queue<res_release> mDeferredRelease;
@@ -49,7 +57,10 @@ protected:
   rhi_handle_t           mRhiHandle;
   command_queue_handle_t mCommandQueue;
   swapchain_handle_t     mSwapChain;
+  Texture2::sptr_t       mBackBuffers[FRAME_COUNT];
+  Texture2::sptr_t       mDepthBuffer[FRAME_COUNT];
   double                 mGpuTimestampFrequency;
-
+  bool mPendingDelete = false;
+  uint mCurrentBackBufferIndex = 0;
 };
 

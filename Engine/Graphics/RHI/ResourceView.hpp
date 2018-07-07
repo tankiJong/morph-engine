@@ -5,6 +5,7 @@
 
 class RHIResource;
 class RHIBuffer;
+class RHITexture;
 
 struct ResourceViewInfo {
   uint mostDetailedMip;
@@ -30,7 +31,7 @@ template<typename handle_t>
 class ResourceView {
 public:
   using rhi_handle_t = handle_t;
-  static const uint MAX_POSSIBLE = -1;
+  static const uint MAX_POSSIBLE = uint(-1);
   virtual ~ResourceView() {};
 
   ResourceView(
@@ -39,6 +40,7 @@ public:
     : mRhiHandle(handle), mResource(res)
     , mViewInfo(mostDetailedMip, mipCount, firstArraySlice, arraySize) {}
 
+  W<RHIResource> res() const { return mResource; }
   const rhi_handle_t& handle() const { return mRhiHandle; }
 protected:
   rhi_handle_t mRhiHandle;
@@ -51,8 +53,10 @@ public:
   using sptr_t = S<ShaderResourceView>;
   using scptr_t = S<const ShaderResourceView>;
 
-  static sptr_t create(W<RHIResource> res,
+  static sptr_t create(W<RHITexture> res,
                        uint mostDetailedMip = 0, uint mipCount = MAX_POSSIBLE, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
+  // static sptr_t create(W<RHIBuffer> res,
+  //                      uint mostDetailedMip = 0, uint mipCount = MAX_POSSIBLE, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
   static sptr_t nullView();
 protected:
   ShaderResourceView(W<RHIResource> res, rhi_handle_t handle, 
@@ -76,3 +80,30 @@ protected:
   static sptr_t sNullView;
 };
 
+class RenderTargetView: public ResourceView<rtv_handle_t> {
+public:
+  using sptr_t = S<RenderTargetView>;
+  using scptr_t = S<const RenderTargetView>;
+
+  static sptr_t create(W<RHITexture> res, uint mipLevel = 0, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
+  static sptr_t nullView();
+
+protected:
+  RenderTargetView(W<RHIResource> res, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize): ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize) {}
+
+  static sptr_t sNullView;
+};
+
+class DepthStencilView : public ResourceView<rtv_handle_t> {
+public:
+  using sptr_t = S<DepthStencilView>;
+  using scptr_t = S<const DepthStencilView>;
+
+  static sptr_t create(W<RHITexture> res, uint mipLevel = 0, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
+  static sptr_t nullView();
+
+protected:
+  DepthStencilView(W<RHIResource> res, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize) : ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize) {}
+
+  static sptr_t sNullView;
+};

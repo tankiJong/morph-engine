@@ -26,6 +26,7 @@ public:
   /** Resource types. Notice there are no array types. Array are controlled using the array size parameter on texture creation.
    */
   enum class Type {
+    Unknown,
     Buffer,                 ///< Buffer. Can be bound to all shader-stages
     Texture1D,              ///< 1D texture. Can be bound as render-target, shader-resource and UAV
     Texture2D,              ///< 2D texture. Can be bound as render-target, shader-resource and UAV
@@ -70,11 +71,11 @@ public:
   virtual ~RHIResource();
 protected:
   RHIResource(Type type, BindingFlag bindings): mType(type), mBindingFlags(bindings) {}
-
+  RHIResource(rhi_resource_handle_t res);
   handle_t mRhiHandle;
   Type mType;
   BindingFlag mBindingFlags;
-  mutable State mState;
+  mutable State mState = State::Common;
 };
 
 enum_class_operators(RHIResource::BindingFlag);

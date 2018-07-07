@@ -7,7 +7,7 @@ bool Texture2::rhiInit(const void* data, size_t size) {
   D3D12_RESOURCE_DESC desc = {};
 
   desc.MipLevels = 1;
-  desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  desc.Format = toDXGIFormat(mFormat);
   desc.Width = mWidth;
   desc.Height = mHeight;
   desc.Flags = asDx12ResourceFlags(mBindingFlags);
@@ -18,27 +18,35 @@ bool Texture2::rhiInit(const void* data, size_t size) {
   desc.Alignment = 0;
   desc.DepthOrArraySize = 1;
 
-  d3d_call(RHIDevice::get()->nativeDevice()->CreateCommittedResource(
-    &DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COMMON,
-    nullptr, IID_PPV_ARGS(&mRhiHandle)
-  ));
+  if(mFormat == TEXTURE_FORMAT_D24S8) {
+    D3D12_CLEAR_VALUE clearVal;
+    clearVal.Format = desc.Format;
+    clearVal.DepthStencil.Depth = 1.f;
+    clearVal.DepthStencil.Stencil = 0;
+    d3d_call(RHIDevice::get()->nativeDevice()->CreateCommittedResource(
+      &DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COMMON,
+      &clearVal, IID_PPV_ARGS(&mRhiHandle)
+    ));
+  } else {
+    d3d_call(RHIDevice::get()->nativeDevice()->CreateCommittedResource(
+      &DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COMMON,
+      nullptr, IID_PPV_ARGS(&mRhiHandle)
+    ));
+  }
+
   mRhiHandle->SetName(L"Texture");
   if(data) {
     RHIDevice::get()->defaultRenderContext()->updateTexture(*this, data);
   }
 
-  // automatically create srv for now
-
-  auto pool = RHIDevice::get()->gpuDescriptorPool();
-
-  D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-  srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-  srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-  srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-  srvDesc.Texture2D.MipLevels = 1;
-
-  RHIDevice::get()->nativeDevice()->CreateShaderResourceView(
-    mRhiHandle, &srvDesc, pool->rhiData()->heaps[D3D12_DESCRIPTOR_RANGE_TYPE_SRV]->cpuHandleBase());
-
   return true;
+}
+
+
+RHITexture::RHITexture(rhi_resource_handle_t res): RHIResource(res) {
+  D3D12_RESOURCE_DESC desc = res->GetDesc();
+  mFormat = toTextureFormat(desc.Format);
+  mWidth = (uint)desc.Width;
+  mHeight = (uint)desc.Height;
+  mDepth = (uint)desc.DepthOrArraySize;
 }

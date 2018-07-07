@@ -3,5 +3,7 @@
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 
 RHIResource::~RHIResource() {
-  RHIDevice::get()->releaseResource(mRhiHandle);
+  if(RHIDevice::get())
+    RHIDevice::get()->releaseResource(mRhiHandle);
 }
+

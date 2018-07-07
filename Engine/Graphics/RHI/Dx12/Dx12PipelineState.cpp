@@ -12,6 +12,30 @@ void setFboDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, FrameBuffer::Desc& fbo
     }
   }
   desc.NumRenderTargets = numRtv;
+
+   if(fboDesc.depthTargetFormat() != TEXTURE_FORMAT_UNKNOWN) {
+     desc.DSVFormat = toDXGIFormat(fboDesc.depthTargetFormat());
+     desc.DepthStencilState.DepthEnable = TRUE;
+     desc.DepthStencilState.StencilEnable = TRUE;
+  
+     desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+     desc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+     
+     desc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
+     desc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
+  
+     D3D12_DEPTH_STENCILOP_DESC face;
+     face.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+     face.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+     face.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+     face.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+     desc.DepthStencilState.FrontFace = face;
+     desc.DepthStencilState.BackFace = face;
+  
+   } else {
+     desc.DepthStencilState.DepthEnable = FALSE;
+     desc.DepthStencilState.StencilEnable = FALSE;
+   }
 }
 
 
@@ -102,16 +126,13 @@ bool PipelineState::rhiInit() {
 
 
   setDx12InputLayout(desc, *mDesc.mLayout);
+  setFboDesc(desc, mDesc.mFboDesc);
   desc.SampleMask = mDesc.mSampleMask;
   desc.pRootSignature = mDesc.mRootSignature ? mDesc.mRootSignature->handle() : nullptr;
 
   desc.RasterizerState = rasterizerDesc;
   desc.BlendState = blendDesc;
-  desc.DepthStencilState.DepthEnable = FALSE;
-  desc.DepthStencilState.StencilEnable = FALSE;
   desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-  desc.NumRenderTargets = 1;
-  desc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
   desc.SampleDesc.Count = 1;
 
   d3d_call(RHIDevice::get()->nativeDevice()->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&mRhiHandle)))

@@ -15,14 +15,16 @@ struct DxgiFormatDesc {
 
 DxgiFormatDesc<eTextureFormat> DxgiFormatDescMap[] = {
   { TEXTURE_FORMAT_UNKNOWN, DXGI_FORMAT_UNKNOWN },    
-  { TEXTURE_FORMAT_RGBA8,   DXGI_FORMAT_R8G8B8A8_UINT },   // default color format
-  { TEXTURE_FORMAT_RG8,     DXGI_FORMAT_R8G8_UINT },
-  { TEXTURE_FORMAT_R8,      DXGI_FORMAT_R8_UINT },
+  { TEXTURE_FORMAT_RGBA8,   DXGI_FORMAT_R8G8B8A8_UNORM },   // default color format
+  { TEXTURE_FORMAT_RG8,     DXGI_FORMAT_R8G8_UNORM },
+  { TEXTURE_FORMAT_R8,      DXGI_FORMAT_R8_UNORM },
   { TEXTURE_FORMAT_RGBA16,  DXGI_FORMAT_R16G16B16A16_FLOAT },
   { TEXTURE_FORMAT_RG16,    DXGI_FORMAT_R16G16_FLOAT },  
   { TEXTURE_FORMAT_R16,     DXGI_FORMAT_R16_FLOAT },
   { TEXTURE_FORMAT_D24S8,   DXGI_FORMAT_D24_UNORM_S8_UINT },
 };
+
+
 
 std::wstring make_wstring(const std::string& str) {
   setlocale(LC_CTYPE, "");
@@ -108,4 +110,11 @@ DXGI_FORMAT toDXGIFormat(eDataDeclType declType, uint count, bool normalized) {
 DXGI_FORMAT toDXGIFormat(eTextureFormat format) {
   EXPECTS(DxgiFormatDescMap[format].key == format);
   return DxgiFormatDescMap[format].val;
+}
+
+eTextureFormat toTextureFormat(DXGI_FORMAT format) {
+  for(DxgiFormatDesc<eTextureFormat>& entry: DxgiFormatDescMap) {
+    if (entry.val == format) return entry.key;
+  }
+  return TEXTURE_FORMAT_UNKNOWN;
 }

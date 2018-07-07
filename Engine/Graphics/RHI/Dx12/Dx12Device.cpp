@@ -132,6 +132,24 @@ bool RHIDevice::rhiInit() {
   return createSwapChain();
 }
 
+bool RHIDevice::rhiPostInit() {
+
+  DXGI_SWAP_CHAIN_DESC1 desc;
+  mSwapChain->GetDesc1(&desc);
+  for (uint i = 0; i < FRAME_COUNT; i++) {
+    ID3D12Resource* res;
+    mSwapChain->GetBuffer(i, IID_PPV_ARGS(&res));
+    mBackBuffers[i] = Texture2::create(res);
+    // mRenderContext->resourceBarrier(mBackBuffers[i].get(), RHIResource::State::RenderTarget);
+    mDepthBuffer[i] = Texture2::create(desc.Width, desc.Height, TEXTURE_FORMAT_D24S8, RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::DepthStencil);
+    // mRenderContext->resourceBarrier(mDepthBuffer[i].get(), RHIResource::State::RenderTarget);
+  }
+
+  mCurrentBackBufferIndex = mSwapChain->GetCurrentBackBufferIndex();
+  mRenderContext->resourceBarrier(mBackBuffers[mCurrentBackBufferIndex].get(), RHIResource::State::RenderTarget);
+  mRenderContext->resourceBarrier(mDepthBuffer[mCurrentBackBufferIndex].get(), RHIResource::State::DepthStencil);
+}
+
 bool RHIDevice::createSwapChain() {
   constexpr uint width = 1280, height = 720;
 
@@ -203,7 +221,13 @@ void RHIDevice::executeDeferredRelease() {
 }
 
 void RHIDevice::present() {
+  mRenderContext->resourceBarrier(backBuffer().get(), RHIResource::State::Present);
+  mRenderContext->flush();
   mFrameFence->gpuSignal(mRenderContext->mContextData->commandQueue());
   d3d_call(mSwapChain->Present(1, 0));
   executeDeferredRelease();
+
+  mCurrentBackBufferIndex = mSwapChain->GetCurrentBackBufferIndex();
+  mRenderContext->resourceBarrier(backBuffer().get(), RHIResource::State::RenderTarget);
+  mRenderContext->resourceBarrier(depthBuffer().get(), RHIResource::State::DepthStencil);
 }

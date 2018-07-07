@@ -8,18 +8,27 @@ public:
   using sptr_t = std::shared_ptr<Texture2>;
   using inherit_shared_from_this<RHITexture, Texture2>::shared_from_this;
 
-  static Texture2::sptr_t create(uint width, uint height,
-                          BindingFlag flag = BindingFlag::ShaderResource,
-                          const void* data = nullptr, size_t size = 0);
+  const RenderTargetView& rtv();
+  const DepthStencilView* dsv();
+  static Texture2::sptr_t create(
+    uint width, uint height, eTextureFormat format, 
+    BindingFlag flag =  BindingFlag::ShaderResource, 
+    const void* data = nullptr, size_t size = 0);
+  static Texture2::sptr_t create(rhi_resource_handle_t res);
+
 
 protected:
+  RenderTargetView::sptr_t mRtv;
+  DepthStencilView::sptr_t mDsv;
   template<typename TexType, typename ...Args>
   friend typename TexType::sptr_t createOrFail(const void* data, size_t size, Args ... args);
-  Texture2(uint width, uint height,
+  Texture2(uint width, uint height, eTextureFormat format,
            BindingFlag flag = BindingFlag::ShaderResource,
            const void* data = nullptr, size_t size = 0)
-    :RHITexture(Type::Texture2D, width, height, 1, flag, data, size) {
+    :RHITexture(Type::Texture2D, width, height, 1, format, flag, data, size) {
   }
+  Texture2(rhi_resource_handle_t res)
+    :RHITexture(res) {}
   bool rhiInit(const void* data, size_t size) override;
 };
 
@@ -34,10 +43,10 @@ public:
 protected:
   template<typename TexType, typename ...Args>
   friend typename TexType::sptr_t createOrFail(const void* data, size_t size, Args ... args);
-  Texture3(uint width, uint height, uint depth,
+  Texture3(uint width, uint height, uint depth, eTextureFormat format, 
            BindingFlag flag = BindingFlag::ShaderResource,
            const void* data = nullptr, size_t size = 0)
-    :RHITexture(Type::Texture2D, width, height, depth, flag, data, size) {};
+    :RHITexture(Type::Texture2D, width, height, depth, format, flag, data, size) {};
   bool rhiInit(const void* data, size_t size) override;
 };
 

@@ -1,6 +1,6 @@
 ﻿#include "RHIContext.hpp"
 
-void RHIContext::updateBuffer(const RHIBuffer* buffer, const void* data, size_t offset, size_t byteCount) {
+void RHIContext::updateBuffer(RHIBuffer* buffer, const void* data, size_t offset, size_t byteCount) {
   if (byteCount == 0) {
     byteCount = buffer->size() - offset;
   }
@@ -13,6 +13,11 @@ void RHIContext::updateBuffer(const RHIBuffer* buffer, const void* data, size_t 
   // Allocate a buffer on the upload heap
 
   byte* start = (byte*)data + offset;
+
+  if(buffer->cpuAccess() == RHIBuffer::CPUAccess::Write) {
+    buffer->updateData(data, offset, byteCount);
+    return;
+  }
 
   RHIBuffer::sptr_t uploadBuffer = RHIBuffer::create(byteCount, RHIBuffer::BindingFlag::None, RHIBuffer::CPUAccess::Write, start);
 
