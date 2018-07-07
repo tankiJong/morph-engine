@@ -145,7 +145,11 @@ void Profile::Overlay::onInput() {
   }
 
   if (Input::Get().isKeyJustDown('M')) {
-    Input::Get().toggleMouseLockCursor();
+    bool locked = Input::Get().isMouseLocked();
+
+    while(locked == Input::Get().isMouseLocked()) {
+      Input::Get().mouseLockCursor(!locked);
+    }
   }
 
   mChart.onInput();
@@ -332,8 +336,6 @@ void Profile::Overlay::Chart::onInput() {
 }
 
 void Profile::Overlay::Chart::update() {
-  Input::Get().mouseLockCursor(false);
-
   Mesher ms;
 
   std::array<vec3, MAX_FRAME_RECORDED> dataToDraw;

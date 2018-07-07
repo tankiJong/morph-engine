@@ -127,7 +127,7 @@ void Console::update(float deltaSecond) {
     if (!mInputStream.empty()) {
       erase(0, (uint)mInputStream.size());
     } else {
-      mIsOpened = false;
+      close();
     }
   }
   mCursorFlashSec += deltaSecond;
@@ -493,6 +493,21 @@ void Console::render() const {
   mRenderer->drawMesh(*text);
 
   delete text;
+}
+
+void Console::open() {
+  mIsOpened = true;
+  Input::Get().mouseLockCursor(!mIsOpened);
+}
+
+void Console::close() {
+  mIsOpened = false;
+  Input::Get().mouseLockCursor(!mIsOpened);
+}
+
+void Console::toggle() {
+  mIsOpened = !mIsOpened;
+  Input::Get().mouseLockCursor(!mIsOpened);
 }
 
 bool Console::exec(const std::string& cmd) {

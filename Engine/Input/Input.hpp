@@ -27,6 +27,7 @@ public:
   vec2 mouseDeltaDirection() const;
   void mouseSetPosition(const vec2& clientPosition);
   bool isMouseLocked() const { return mIsMouseLocked; }
+  bool isMouseVisible() const { return mMouseVisible >= 0; }
   void mouseLockCursor(bool lock);
   void toggleMouseLockCursor();
 
@@ -48,7 +49,7 @@ protected:
   XboxController* mXboxControllers[NUM_XBOXCONTROLLER]{nullptr};
   vec2 mMousePosition;
   bool mIsMouseLocked = false;
-  bool mCursorVisible = true;
+  int mMouseVisible = 0;
 };
 
 

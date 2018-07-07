@@ -26,9 +26,20 @@ Input::Input() {
   mMousePosition = win->clientCenter();
   mouseSetPosition(mMousePosition);
 
-  // some how ShowCursor count is one more bigger;
-  ::ShowCursor(false);
+  mMouseVisible = ::ShowCursor(true);
 
+  // force to show mouse
+  if(mMouseVisible < 0) {
+    while(mMouseVisible != 0) {
+      mMouseVisible = ::ShowCursor(true);
+    }
+  } else if(mMouseVisible > 0) {
+    while (mMouseVisible != 0) {
+      mMouseVisible = ::ShowCursor(false);
+    }
+  }
+
+  ENSURES(mMouseVisible == 0);
   win->addWinMessageHandler([this](uint msg, size_t wparam, size_t /*lParam*/) {
     switch (msg) {
       // Raw physical keyboard "key-was-just-depressed" event (case-insensitive, not translated)
@@ -164,13 +175,7 @@ void Input::toggleMouseLockCursor() {
 }
 
 void Input::mouseHideCursor(bool hide) {
-
-  if (mCursorVisible == !hide) return;
-  mCursorVisible = !hide;
-  int count = ::ShowCursor(!hide);
-  while(hide != count < 0) {
-    count = ::ShowCursor(!hide);
-  }
+  mMouseVisible = ::ShowCursor(!hide);
 }
 
 void Input::beforeFrame() {

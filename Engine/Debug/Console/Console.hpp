@@ -85,10 +85,11 @@ public:
   void replaceInput(std::string str);
   void update(float deltaSecond);
   void render() const;
-        
-  inline void open() { mIsOpened = true; };
-  inline void close() { mIsOpened = false; };
-  inline void toggle() { mIsOpened = !mIsOpened; };
+
+  void open();
+  void close();
+  void toggle();
+
   inline bool opened() const { return mIsOpened; }
   bool exec(const std::string& cmd);
   bool exec();
