@@ -145,6 +145,9 @@
     <Filter Include="Physics">
       <UniqueIdentifier>{055a2617-3fed-431a-903a-9ce07bfd5f75}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Graphics\Model">
+      <UniqueIdentifier>{b522710b-5750-431e-a9ab-d0ae415c6267}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -342,9 +345,6 @@
     <ClCompile Include="Math\Transform.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Geometry\VertexLayout.cpp">
-      <Filter>Engine\Renderer\Geometry</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\Shader\ShaderProgram.cpp">
       <Filter>Engine\Renderer\Shader</Filter>
     </ClCompile>
@@ -530,6 +530,18 @@
     </ClCompile>
     <ClCompile Include="Graphics\RHI\Texture.cpp">
       <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Model\Mesh.cpp">
+      <Filter>Engine\Graphics\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Model\Vertex.cpp">
+      <Filter>Engine\Graphics\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\VertexLayout.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Geometry\VertexLayout.cpp">
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -905,9 +917,6 @@
     <ClInclude Include="Math\Transform.hpp">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Geometry\VertexLayout.hpp">
-      <Filter>Engine\Renderer\Geometry</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\Shader\ShaderProgram.hpp">
       <Filter>Engine\Renderer\Shader</Filter>
     </ClInclude>
@@ -1066,6 +1075,21 @@
     </ClInclude>
     <ClInclude Include="Graphics\RHI\Texture.hpp">
       <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Model\Mesh.hpp">
+      <Filter>Engine\Graphics\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Model\Vertex.hpp">
+      <Filter>Engine\Graphics\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\VertexLayout.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\RHIType.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Geometry\VertexLayout.hpp">
+      <Filter>Engine\Renderer\Geometry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

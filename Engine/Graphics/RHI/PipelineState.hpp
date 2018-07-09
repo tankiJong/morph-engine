@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RootSignature.hpp"
-#include "Engine/Renderer/Geometry/VertexLayout.hpp"
+#include "Engine/Graphics/RHI/VertexLayout.hpp"
 #include "Engine/Graphics/RHI/FrameBuffer.hpp"
 
 class PipelineState {

@@ -4,8 +4,7 @@
 #include <comdef.h>
 #include <dxgi1_4.h>
 #include <dxgiformat.h>
-#include "Engine/Renderer/type.h"
-
+#include "Engine/Graphics/RHI/RHIType.hpp"
 class DescriptorSet;
 
 #define EXPECT_HR_SUCCESSED(hr) EXPECTS(SUCCEEDED(hr));
