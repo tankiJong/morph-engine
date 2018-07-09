@@ -580,6 +580,9 @@
     <ClCompile Include="Debug\Draw.cpp" />
     <ClCompile Include="Debug\ErrorWarningAssert.cpp" />
     <ClCompile Include="Debug\Log.cpp" />
+    <ClCompile Include="Debug\Profile\Overlay.cpp" />
+    <ClCompile Include="Debug\Profile\Profiler.cpp" />
+    <ClCompile Include="Debug\Profile\Report.cpp" />
     <ClCompile Include="Effect\ParticleEmitter.cpp" />
     <ClCompile Include="File\Blob.cpp" />
     <ClCompile Include="File\File.cpp" />
@@ -1206,6 +1209,7 @@
     <ClInclude Include="..\ThirdParty\yaml-cpp\yaml.h" />
     <ClInclude Include="Application\Window.hpp" />
     <ClInclude Include="Audio\Audio.hpp" />
+    <ClInclude Include="Config.hpp" />
     <ClInclude Include="Core\Blackboard.hpp" />
     <ClInclude Include="Core\common.hpp" />
     <ClInclude Include="Core\Delegate.hpp" />
@@ -1226,6 +1230,9 @@
     <ClInclude Include="Debug\Draw.hpp" />
     <ClInclude Include="Debug\ErrorWarningAssert.hpp" />
     <ClInclude Include="Debug\Log.hpp" />
+    <ClInclude Include="Debug\Profile\Overlay.hpp" />
+    <ClInclude Include="Debug\Profile\Profiler.hpp" />
+    <ClInclude Include="Debug\Profile\Report.hpp" />
     <ClInclude Include="Effect\ParticleEmitter.hpp" />
     <ClInclude Include="File\Blob.hpp" />
     <ClInclude Include="File\File.hpp" />

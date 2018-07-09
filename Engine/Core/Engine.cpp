@@ -8,6 +8,8 @@
 #include "Engine/Debug/Console/Console.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Application/Window.hpp"
+#include "Engine/Debug/Profile/Profiler.hpp"
+#include "Engine/File/FileSystem.hpp"
 
 Engine* gEngine = nullptr;
 
@@ -70,7 +72,7 @@ void Engine::init() {
     }
   });
 
-
+  Profile::startup();
 
   // Blob config = fs::read(".fs");
   // if(config.valid()) {

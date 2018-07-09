@@ -85,10 +85,11 @@ public:
   void replaceInput(std::string str);
   void update(float deltaSecond);
   void render() const;
-        
-  inline void open() { mIsOpened = true; };
-  inline void close() { mIsOpened = false; };
-  inline void toggle() { mIsOpened = !mIsOpened; };
+
+  void open();
+  void close();
+  void toggle();
+
   inline bool opened() const { return mIsOpened; }
   bool exec(const std::string& cmd);
   bool exec();
@@ -150,3 +151,13 @@ bool Console::hook(const std::string& cmdName, const std::string& paramInfo, con
 
   return true;
 }
+
+
+#define COMMAND_REG(name, param, desc) \
+struct APPEND(__command, __LINE__) { \
+  APPEND(__command, __LINE__)(const std::string& cmdName, const std::string& paramInfo, const std::string& description) { \
+    Console::Get()->hook(cmdName, paramInfo, description, exec); \
+  }; \
+  static bool exec(Command&); \
+} APPEND(__commandIns, __LINE__)(name, param, desc); \
+inline bool APPEND(__command, __LINE__)::exec

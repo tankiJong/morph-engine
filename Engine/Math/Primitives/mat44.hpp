@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "Engine//Math/Primitives/vec2.hpp"
-#include "Engine//Math/Primitives/vec4.hpp"
-
+#include "Engine/Math/Primitives/vec2.hpp"
+#include "Engine/Math/Primitives/vec4.hpp"
+#include "Engine/Math/Primitives/vec3.hpp"
 class quaternion;
 class mat44 {
 public:

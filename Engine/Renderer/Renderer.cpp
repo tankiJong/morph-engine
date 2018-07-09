@@ -26,6 +26,7 @@
 #include "Engine/Renderer/RenderTarget.hpp"
 #include "Engine/Core/Engine.hpp"
 #include "Engine/Renderer/Font.hpp"
+#include "Engine/Debug/Profile/Profiler.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
@@ -544,15 +545,11 @@ Image Renderer::screenShot() {
   Rgba* data = new Rgba[x * y];
 
   glBindFramebuffer(GL_READ_FRAMEBUFFER, mDefaultCamera->getFrameBufferHandle());
-  GL_CHECK_ERROR();
   glReadBuffer(GL_COLOR_ATTACHMENT0);
-  GL_CHECK_ERROR();
 
   glReadPixels(0, 0, x, y, GL_RGBA, GL_UNSIGNED_BYTE, data);
-  GL_CHECK_ERROR();
 
   glBindFramebuffer(GL_READ_FRAMEBUFFER, NULL);
-  GL_CHECK_ERROR();
 
   Image img(data, (uint)x, (uint)y);
 
@@ -642,7 +639,6 @@ void Renderer::setMaterial(const Material* material, uint passIndex) {
 }
 
 bool Renderer::copyFrameBuffer(FrameBuffer* dest, FrameBuffer* src) {
-  GL_CHECK_ERROR();
 
   // we need at least the src.
   if (src == nullptr) {
@@ -660,7 +656,6 @@ bool Renderer::copyFrameBuffer(FrameBuffer* dest, FrameBuffer* src) {
   if (dst_fbo == src_fbo) {
     return false;
   }
-  GL_CHECK_ERROR();
 
   // the GL_READ_FRAMEBUFFER is where we copy from
   glBindFramebuffer(GL_READ_FRAMEBUFFER, src_fbo);
@@ -693,30 +688,20 @@ bool Renderer::copyFrameBuffer(FrameBuffer* dest, FrameBuffer* src) {
 }
 
 void Renderer::drawAABB2(const aabb2& bounds, const Rgba& color, bool filled) {
+  Mesher ms;
   if (filled) {
-    vertex_pcu_t verts[6] = {
-      { bounds.mins, color, vec2::zero },
-      { vec2{ bounds.maxs.x, bounds.mins.y }, color, vec2::right },
-      { bounds.maxs, color, vec2::one },
-
-      { bounds.mins, color, vec2::zero },
-      { bounds.maxs, color, vec2::one },
-      { vec2{ bounds.mins.x, bounds.maxs.y }, color, vec2::top },
-    };
-    drawMeshImmediate(verts, 6, DRAW_TRIANGES);
+    ms.begin(DRAW_TRIANGES);
   } else {
-    auto vertices = bounds.vertices();
-    vertex_pcu_t verts[8] = {
-      { vec3(vertices[0]), color, vec2{ 0,0 } },
-      { vec3(vertices[1]), color,vec2{ 0,0 } },
-      { vec3(vertices[1]), color,vec2{ 0,0 } },
-      { vec3(vertices[2]), color,vec2{ 0,0 } },
-      { vec3(vertices[2]), color,vec2{ 0,0 } },
-      { vec3(vertices[3]), color, vec2{ 0,0 } },
-      { vec3(vertices[0]), color, vec2{ 0,0 } },
-    };
-    drawMeshImmediate(verts, 4, DRAW_LINES);
+    ms.begin(DRAW_LINES);
   }
+  ms.color(color);
+  ms.quad2(bounds, 0);
+  ms.end();
+
+  Mesh* immediateMesh = ms.createMesh<vertex_pcu_t>();
+  drawMesh(*immediateMesh);
+
+  delete immediateMesh;
 }
 
 void Renderer::drawCircle(const vec2& center, float radius, const Rgba& color, bool filled) {
@@ -825,7 +810,7 @@ void Renderer::drawCube(const vec3& bottomCenter, const vec3& dimension,
 }
 
 void Renderer::drawMesh(const Mesh& mesh) {
-  GL_CHECK_ERROR();
+  PROF_FUNC();
   for(int i = 0; i<mesh.layout().attributes().size();i++) {
     glDisableVertexAttribArray(i);
   }
@@ -886,8 +871,8 @@ void Renderer::drawMesh(const Mesh& mesh) {
 }
 
 void Renderer::drawMeshImmediate(const vertex_pcu_t* vertices, size_t numVerts, eDrawPrimitive drawPrimitive) {
-  static auto immediateMesh = new VertexMesh<vertex_pcu_t>();
   static Vertex v;
+  VertexMesh<vertex_pcu_t> immediateMesh;
 
   v.clear();
 
@@ -896,10 +881,10 @@ void Renderer::drawMeshImmediate(const vertex_pcu_t* vertices, size_t numVerts, 
     v.push({ vert.position, vert.color, vert.uvs });
   }
 
-  immediateMesh->setVertices(v);
-  immediateMesh->pushInstruction(drawPrimitive, false, 0, v.count());
+  immediateMesh.setVertices(v);
+  immediateMesh.pushInstruction(drawPrimitive, false, 0, v.count());
 
-  drawMesh(*immediateMesh);
+  drawMesh(immediateMesh);
 }
 
 void Renderer::cleanScreen(const Rgba& color) {
@@ -935,7 +920,6 @@ bool Renderer::copyTexture(Texture* from, uint fromX, uint fromY, Texture* to, u
 
   glBindFramebuffer(GL_READ_FRAMEBUFFER, src.mHandle);
 
-  GL_CHECK_ERROR();
   uint internalformat;
   uint channels;
   uint layout;
@@ -943,10 +927,8 @@ bool Renderer::copyTexture(Texture* from, uint fromX, uint fromY, Texture* to, u
   glBindTexture(GL_TEXTURE_2D, to->mTextureID);
   GLTexFormat(from->mFormat, internalformat, channels, layout);
   glCopyTexSubImage2D(GL_TEXTURE_2D, 0, toX, toY, fromX, fromY, width, height);
-  GL_CHECK_ERROR();
 
   glBindFramebuffer(GL_READ_FRAMEBUFFER, NULL);
-  GL_CHECK_ERROR();
 
   return GLSucceeded();
 }

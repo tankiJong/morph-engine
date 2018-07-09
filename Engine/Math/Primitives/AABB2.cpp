@@ -63,12 +63,12 @@ std::array<vec2, 4> aabb2::vertices() const {
   };
 }
 
-bool aabb2::isPointInside(float x, float y) const {
+bool aabb2::contains(float x, float y) const {
 	return x > mins.x && x < maxs.x && y > mins.y && y < maxs.y;
 }
 
-bool aabb2::isPointInside(const vec2& point) const {
-	return isPointInside(point.x, point.y);
+bool aabb2::contains(const vec2& point) const {
+	return contains(point.x, point.y);
 }
 
 vec2 aabb2::getCenter() const {

@@ -50,5 +50,10 @@ public:
   inline Range<T> intersection(const Range<T>& rhs) const {
     return { std::max(min, rhs.min), std::min(max, rhs.max) };
   }
-  inline T size() const { return max - min; };
+  inline T size() const { return max - min; }
+
+  void grow(const T& x) {
+    min = std::min(x, min);
+    max = std::max(x, max);
+  }
 };

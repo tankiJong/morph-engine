@@ -277,6 +277,10 @@ Mesher& Mesher::line(const vec3& from, const vec3& to) {
   return *this;
 }
 
+Mesher& Mesher::line2(const vec2& from, const vec2& to, float z) {
+  return line({ from, z }, { to, z });
+}
+
 Mesher& Mesher::sphere(const vec3& center, float size, uint levelX, uint levelY) {
 //  mIns.prim = DRAW_POINTS;
 //  mIns.useIndices = false;

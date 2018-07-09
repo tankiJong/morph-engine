@@ -10,12 +10,12 @@ out vec4 passColor;
 
 void main( void )
 {
-   vec4 local_pos = vec4( POSITION, 1.0f );	
+	vec4 local_pos = vec4( POSITION, 1.0f );	
 
-   vec4 world_pos = MODEL * local_pos; // assume local is world for now; 
-   vec4 camera_pos = VIEW * local_pos; 
-   vec4 clip_pos = PROJECTION * camera_pos; 
+	vec4 world_pos = MODEL * local_pos;
+	vec4 camera_pos = VIEW * world_pos; 
+	vec4 clip_pos = PROJECTION * camera_pos; 
 
-   passColor = COLOR; 
+	passColor = COLOR; 
 	gl_Position = clip_pos; // we pass out a clip coordinate
 }

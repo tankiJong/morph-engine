@@ -62,7 +62,7 @@ bool FrameBuffer::finalize() {
     }
   }
   glDrawBuffers(NUM_MAX_TARGET, targets);
-  GL_CHECK_ERROR();
+
   // Bind depth if available;
   if (mDepthTarget == nullptr) {
     glFramebufferTexture(GL_FRAMEBUFFER,

@@ -49,6 +49,9 @@ using W = std::weak_ptr<T>;
 #define SAFE_DELETE(p) if((p)) { delete (p); (p) = nullptr; } 
 #define count_of(arr) sizeof(arr) / sizeof(arr[0])
 
+#define ___APPEND_IMPL(a, b) a##b
+#define APPEND(a, b) ___APPEND_IMPL(a, b)
+
 // Adopted from Falcor
 
 // This is a helper class which should be used in case a class derives from a base class which derives from enable_shared_from_this
@@ -75,3 +78,6 @@ public:
     inline e_& operator&= (e_& a, e_ b) { a = a & b; return a; };   \
     inline e_  operator~ (e_ a) { return static_cast<e_>(~static_cast<int>(a));}   \
     inline bool is_set(e_ val, e_ flag) { return (val & flag) != (e_)0;}
+
+
+

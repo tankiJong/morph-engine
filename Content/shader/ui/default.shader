@@ -13,7 +13,7 @@ pass:
     alpha:
       op: add
       src: one
-      dest: zero
+      dest: one
   depth:
     write: false
     test: always

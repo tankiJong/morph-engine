@@ -12,6 +12,7 @@
 #include "Engine/Renderer/glFunctions.hpp"
 #include "Engine/Renderer/AfterEffect/BloomEffect.hpp"
 #include "Engine/Renderer/AfterEffect/FogEffect.hpp"
+#include "Engine/Debug/Profile/Profiler.hpp"
 
 ForwardRendering::ForwardRendering(Renderer* renderer): mRenderer(renderer) {
   mShadowInfo = new RenderTarget(Light::SHADOW_MAP_SIZE * NUM_MAX_LIGHTS, Light::SHADOW_MAP_SIZE, TEXTURE_FORMAT_D24S8);
@@ -34,6 +35,7 @@ void ForwardRendering::render(RenderScene& scene) {
  * - postpass
  */
 void ForwardRendering::renderView(RenderScene& scene, Camera& cam) {
+  PROF_FUNC();
   std::vector<RenderTask> tasks;
   tasks.clear();
   mRenderer->setCamera(&cam);
@@ -65,6 +67,7 @@ void ForwardRendering::renderView(RenderScene& scene, Camera& cam) {
 void ForwardRendering::createShadowMap(Light& light, const Camera& view, span<RenderTask> tasks) {
   // light.updateCamera(view);
   
+  PROF_FUNC();
   mRenderer->setCamera(&light.camera());
   mRenderer->enableDepth(COMPARE_LEQUAL, true);
   mRenderer->clearDepth(1.f);
@@ -86,7 +89,6 @@ void ForwardRendering::createShadowMap(Light& light, const Camera& view, span<Re
 */
 void ForwardRendering::prepass(RenderScene& scene, span<RenderTask> tasks, Camera& cam) {
   cam.prepass();
-  GL_CHECK_ERROR();
 
   mRenderer->setShader(Resource<Shader>::get("shader/default").get(), 0);
   for(Light* lit: scene.lights()) {
@@ -94,11 +96,9 @@ void ForwardRendering::prepass(RenderScene& scene, span<RenderTask> tasks, Camer
       createShadowMap(*lit, cam, tasks);
     }
   }
-  GL_CHECK_ERROR();
 
   Camera tempCam;
   tempCam.setDepthStencilTarget(mShadowInfo);
-  GL_CHECK_ERROR();
   mRenderer->setCamera(&tempCam);
   mRenderer->clearDepth(1.f);
 
@@ -137,28 +137,36 @@ ForwardRendering::~ForwardRendering() {
  * - draw
  */
 void ForwardRendering::pass(RenderScene& scene, span<RenderTask> tasks, Camera& cam) {
-  
+  PROF_FUNC();
+
   // draw
   mRenderer->setCamera(&cam);
   auto lights = scene.lights();
   for (const RenderTask& task : tasks) {
-    mRenderer->setModelMatrix(task.transform->localToWorld());
-    for (uint i = 0; i < task.lightCount; ++i) {
-      Light* lit = lights[task.lightIndices[i]];
-      if(lit->castShadow) {
-        mRenderer->copyTexture(&lit->shadowMap(), 0, 0,
-                               mShadowInfo, Light::SHADOW_MAP_SIZE * i, 0, 
-                               Light::SHADOW_MAP_SIZE, Light::SHADOW_MAP_SIZE);
+    {
+      PROF_SCOPE("ForwardRendering::pass::light");
+      mRenderer->setModelMatrix(task.transform->localToWorld());
+      for (uint i = 0; i < task.lightCount; ++i) {
+        Light* lit = lights[task.lightIndices[i]];
+        if(lit->castShadow) {
+          mRenderer->copyTexture(&lit->shadowMap(), 0, 0,
+                                 mShadowInfo, Light::SHADOW_MAP_SIZE * i, 0, 
+                                 Light::SHADOW_MAP_SIZE, Light::SHADOW_MAP_SIZE);
+        }
+        mRenderer->setLight(i, lit->info());
       }
-      mRenderer->setLight(i, lit->info());
     }
-
-    mRenderer->setMaterial(task.material, task.passIndex);
-    const eTextureSlot binding = task.material->shader()->pass(task.passIndex).prog()->info().texture("gTexShadowMap");
-    if(binding < NUM_TEXTURE_SLOT) {
-      mRenderer->setTexture(binding, mShadowInfo);
+    {
+      mRenderer->setMaterial(task.material, task.passIndex);
+      const eTextureSlot binding = task.material->shader()->pass(task.passIndex).prog()->info().texture("gTexShadowMap");
+      if(binding < NUM_TEXTURE_SLOT) {
+        mRenderer->setTexture(binding, mShadowInfo);
+      }
+      {
+        PROF_SCOPE("ForwardRendering::pass::draw mesh");
+        mRenderer->drawMesh(*task.mesh);
+      }
     }
-    mRenderer->drawMesh(*task.mesh);
   }
 }
   

@@ -127,7 +127,7 @@ void Console::update(float deltaSecond) {
     if (!mInputStream.empty()) {
       erase(0, (uint)mInputStream.size());
     } else {
-      mIsOpened = false;
+      close();
     }
   }
   mCursorFlashSec += deltaSecond;
@@ -363,6 +363,7 @@ void Console::render() const {
   const aabb2& screenBounds = { vec2::zero, vec2{(float)mCamera->width(), (float)mCamera->height()}};
 
   mRenderer->setCamera(mCamera);
+  mRenderer->setModelMatrix(mat44::identity);
   static const Shader* defaultShader = Resource<Shader>::get("shader/ui/default").get();
   mRenderer->setShader(defaultShader);
   mRenderer->setTexture();
@@ -492,6 +493,21 @@ void Console::render() const {
   mRenderer->drawMesh(*text);
 
   delete text;
+}
+
+void Console::open() {
+  mIsOpened = true;
+  Input::Get().mouseLockCursor(!mIsOpened);
+}
+
+void Console::close() {
+  mIsOpened = false;
+  Input::Get().mouseLockCursor(!mIsOpened);
+}
+
+void Console::toggle() {
+  mIsOpened = !mIsOpened;
+  Input::Get().mouseLockCursor(!mIsOpened);
 }
 
 bool Console::exec(const std::string& cmd) {

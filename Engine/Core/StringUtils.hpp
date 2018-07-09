@@ -56,7 +56,7 @@ inline float parse(const char* str) {
 
 template<>
 inline bool parse(const char* str) {
-  return strcmp(str, "true")==0 ? true : false;
+  return strcmp(str, "true") == 0 || strcmp(str, "1") == 0 ? true : false;
 }
 
 template<typename T, typename A = std::allocator<T>>

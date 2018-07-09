@@ -7,6 +7,7 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "Engine/Core/StringUtils.hpp"
 
 Time::Time() {
   memset(this, 0, sizeof(Time));
@@ -56,7 +57,7 @@ double GetCurrentTimeSeconds()
 
 	double currentSeconds = static_cast< double >( elapsedCountsSinceInitialTime ) * secondsPerCount;
 	return currentSeconds;
-}
+} 
 
 uint64_t __fastcall GetPerformanceCounter() {
   LARGE_INTEGER li;
@@ -69,13 +70,15 @@ double PerformanceCountToSecond(uint64_t count) {
   return (double)count * g_timeSystem.mSecondsPerCount;
 }
 
-ProfileLogScope::ProfileLogScope(const char* tag) {
-  mTag = tag;
-  mStartHPC = GetPerformanceCounter();
-}
-ProfileLogScope::~ProfileLogScope() {
-  uint64_t elapsed = GetPerformanceCounter() - mStartHPC;
-  DebuggerPrintf("[ %s ] took %f seconds.", mTag, PerformanceCountToSecond(elapsed));
-}
+std::string beautifySeconds(double seconds) {
+  double absSec = abs(seconds);
+  if(absSec < 1e-3) {
+    return Stringf("%.3lf us", seconds * 1.0e6);
+  }
 
+  if(absSec < 1e-1) {
+    return Stringf("%.3lf ms", seconds * 1.0e3);
+  }
 
+  return Stringf("%.3lf s", seconds);
+}

@@ -9,7 +9,7 @@
 
 constexpr float VIEW_FONT_SIZE = 16.f;
 
-const float PADDING = 4.f;
+static const float PADDING = 4.f;
 struct log_info_t {
 
   Rgba color;
