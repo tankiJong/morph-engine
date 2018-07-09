@@ -68,12 +68,12 @@ void Report::Entry::sort(eSortOption option) {
   switch(option) {
     case SORT_TOTAL_TIME:
       std::sort(mChildren.begin(), mChildren.end(), [](eleType& a, eleType& b) {
-        return a.second->totalTime > b.second->totalTime;
+        return a.second->totalTime < b.second->totalTime;
       });
     break;
     case SORT_SELF_TIME:
       std::sort(mChildren.begin(), mChildren.end(), [](eleType& a, eleType& b) {
-        return a.second->selfTime > b.second->selfTime;
+        return a.second->selfTime < b.second->selfTime;
       });
     break;
     default:
