@@ -7,6 +7,7 @@
 #include "Engine/Core/type.h"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 //-----------------------------------------------------------------------------------------------
+const std::string Stringv(const char* format, va_list args);
 const std::string Stringf( const char* format, ... );
 const std::string Stringf( const int maxLength, const char* format, ... );
 std::vector<std::string> split(const char* data, const char* tokens);

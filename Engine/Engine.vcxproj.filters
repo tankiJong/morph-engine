@@ -139,6 +139,9 @@
     <Filter Include="Engine\Debug\Profile">
       <UniqueIdentifier>{13673ed3-6407-4f5c-845e-d74c3e9d137f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Async">
+      <UniqueIdentifier>{d4e6bfdb-c0a0-4935-8949-7f0f6e90734c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -443,6 +446,9 @@
     </ClCompile>
     <ClCompile Include="Debug\Profile\Overlay.cpp">
       <Filter>Engine\Debug\Profile</Filter>
+    </ClCompile>
+    <ClCompile Include="Async\Thread.cpp">
+      <Filter>Engine\Async</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -925,6 +931,9 @@
     </ClInclude>
     <ClInclude Include="Config.hpp">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Async\Thread.hpp">
+      <Filter>Engine\Async</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

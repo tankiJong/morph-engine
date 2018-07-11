@@ -267,16 +267,13 @@ uint ShaderProgram::createAndLinkProgram(uint vs, uint fs, uint& handle) {
   glAttachShader(programId, vs);
   glAttachShader(programId, fs);
 
-  GL_CHECK_ERROR();
   // Link the program (create the GPU program)
   glLinkProgram(programId);
-  GL_CHECK_ERROR();
 
   // Check for link errors - usually a result
   // of incompatibility between stages.
   GLint linkStatus;
   glGetProgramiv(programId, GL_LINK_STATUS, &linkStatus);
-  GL_CHECK_ERROR();
 
   if (linkStatus == GL_FALSE) {
     logProgramError(programId);
@@ -288,8 +285,6 @@ uint ShaderProgram::createAndLinkProgram(uint vs, uint fs, uint& handle) {
   // (not necessary)
   // glDetachShader(programId, vs);
   // glDetachShader(programId, fs);
-  GL_CHECK_ERROR();
-
   vs = 0;
   fs = 0;
   handle = programId;

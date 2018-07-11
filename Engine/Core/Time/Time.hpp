@@ -23,3 +23,9 @@ uint64_t __fastcall GetPerformanceCounter();
 double PerformanceCountToSecond(uint64_t count);
 
 std::string beautifySeconds(double seconds);
+
+struct Timestamp {
+  int64 stamp;
+  Timestamp();
+  std::string toString() const;
+};

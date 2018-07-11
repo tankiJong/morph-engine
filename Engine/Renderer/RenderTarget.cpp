@@ -39,7 +39,6 @@ bool RenderTarget::setup(uint width, uint height, eTextureFormat format) {
                nullptr);     // don't need to pass it initialization data 
 
                              // make sure it suceeded
-  GL_CHECK_ERROR();
   
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
   // cleanup after myself; 

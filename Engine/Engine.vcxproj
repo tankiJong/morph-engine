@@ -477,6 +477,7 @@
     <ClCompile Include="..\ThirdParty\stb\stb_image.c" />
     <ClCompile Include="..\ThirdParty\stb\stb_image_write.c" />
     <ClCompile Include="Application\Window.cpp" />
+    <ClCompile Include="Async\Thread.cpp" />
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Blackboard.cpp" />
     <ClCompile Include="Core\Engine.cpp" />
@@ -665,6 +666,7 @@
     <ClInclude Include="..\ThirdParty\yaml-cpp\traits.h" />
     <ClInclude Include="..\ThirdParty\yaml-cpp\yaml.h" />
     <ClInclude Include="Application\Window.hpp" />
+    <ClInclude Include="Async\Thread.hpp" />
     <ClInclude Include="Audio\Audio.hpp" />
     <ClInclude Include="Config.hpp" />
     <ClInclude Include="Core\Blackboard.hpp" />

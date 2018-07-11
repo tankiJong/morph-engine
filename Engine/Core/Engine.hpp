@@ -12,6 +12,8 @@ public:
   inline bool ready() const { return mReady; };
 
   static Engine& Get();
+
+  ~Engine();
 protected:
   Engine() = default;
   void init();

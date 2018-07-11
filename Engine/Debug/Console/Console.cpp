@@ -117,9 +117,11 @@ void Console::replaceInput(std::string str) {
 
 void Console::update(float deltaSecond) {
   static uint startSlection = 0;
-
-  while(mLogStream.size() > MAX_LOG_NUMBER) {
-    mLogStream.pop_front();
+  {
+    std::scoped_lock l(mLogStreamLock);
+    while(mLogStream.size() > MAX_LOG_NUMBER) {
+      mLogStream.pop_front();
+    }
   }
   if (!mIsOpened) return;
 
@@ -141,7 +143,7 @@ void Console::consoleCharHandler(unsigned msg, size_t wParam, size_t) {
   if (msg != WM_CHAR ) return;
   if (!mIsOpened) return;
 //  if (lParam&JUST_KEYDOWN_STATE)
-  DebuggerPrintf("Key %c(%i) pressed\n", (char)wParam, wParam);
+  //DebuggerPrintf("Key %c(%i) pressed\n", (char)wParam, wParam);
   if(wParam >=32 && wParam <= 126) {
     input(char(wParam));
     return;
@@ -266,6 +268,7 @@ void Console::print(const CommandDef& cmdDef) {
 }
 
 void Console::record(const std::string& msg, Severity level) {
+  std::scoped_lock l(mLogStreamLock);
   switch (level) {
     case DEBUG_INFO:
       mLogStream.push_back("\x1b[92m" + msg + "\x1b[0m");
@@ -277,6 +280,15 @@ void Console::record(const std::string& msg, Severity level) {
       mLogStream.push_back("\x1b[255m" + msg + "\x1b[0m");
       break;
   }
+
+  if (mLineNumberAtBottom != 0 && mLineNumberAtBottom + mTotalLineLogCanRender < mLogStream.size()) {
+    mLineNumberAtBottom++;
+  }
+}
+
+void Console::record(const std::string& msg, const Rgba& color) {
+  std::scoped_lock l(mLogStreamLock);
+  mLogStream.push_back(Stringf("\x1b[%um%s\x1b[0m", color.hue(), msg.c_str()));
 
   if (mLineNumberAtBottom != 0 && mLineNumberAtBottom + mTotalLineLogCanRender < mLogStream.size()) {
     mLineNumberAtBottom++;
@@ -316,14 +328,20 @@ void Console::hookInBuiltInCommand() {
   hook("echo_with_color", "[hue] unsigned char, [info] string", "print info with color Hue.", [this](Command& command) {
     unsigned char color = command.arg<0,unsigned char>();
     std::string info = command.arg<1, std::string>();
-
-    mLogStream.push_back(Stringf("\x1b[%um%s\x1b[0m", color, info.data()));
+    {
+      std::scoped_lock l(mLogStreamLock);
+      mLogStream.push_back(Stringf("\x1b[%um%s\x1b[0m", color, info.data()));  
+    }
     return true;
   });
 
   hook("save_log", "[path] string", "save the console log to path.", [this](Command& command) {
     std::string path = std::move(command.arg<0, std::string>());
-    bool flag = saveLog(path, mLogStream);
+    bool flag;
+    {
+      std::scoped_lock l(mLogStreamLock);
+      flag = saveLog(path, mLogStream);
+    }
     if(flag) {
       log("save file to " + path + " successed!", DEBUG_INFO);
     } else {
@@ -396,8 +414,13 @@ void Console::render() const {
 
   // bar
   float barAreaHeight = scrollBarMaxs.y - scrollBarMins.y;
-  float barHeight = (float)mTotalLineLogCanRender / (float)mLogStream.size() * barAreaHeight;
-  float barPadding = (float)mLineNumberAtBottom / (float)mLogStream.size() *barAreaHeight;
+  float barHeight;
+  float barPadding;
+  {
+    std::scoped_lock l(mLogStreamLock);
+    barHeight = (float)mTotalLineLogCanRender / (float)mLogStream.size() * barAreaHeight;
+    barPadding = (float)mLineNumberAtBottom / (float)mLogStream.size() *barAreaHeight;
+  }
   ms.color(Rgba(255, 255, 255, 150));
   ms.quad2({ scrollBarMins + vec2{ 0, barPadding },
              scrollBarMins + vec2{ SCROLLBAR_WIDTH, barHeight + barPadding } }, -.1f);
@@ -464,22 +487,25 @@ void Console::render() const {
      stringChunks.push_back(str);
      colors.push_back(color);
     };
+    {
+      std::scoped_lock l(mLogStreamLock);
 
-    for (auto it = mLogStream.rbegin() + mLineNumberAtBottom; it != mLogStream.rend(); ++it) {
-      std::string aLog = *it;
-      stringChunks.clear();
-      colors.clear();
-      float startX = 0.f;
-      consumeConsoleText(aLog, prepareTextRenderData);
-      for(uint i = 0; i<stringChunks.size(); i++) {
-        std::string& txt = stringChunks[i];
-        printer.color(colors[i]);
-        printer.text(txt, FONT_SIZE, mFont.get(), vec3{ startX, startY + descender, 0 });
-        startX += mFont->advance(txt, FONT_SIZE);
+      for (auto it = mLogStream.rbegin() + mLineNumberAtBottom; it != mLogStream.rend(); ++it) {
+        std::string aLog = *it;
+        stringChunks.clear();
+        colors.clear();
+        float startX = 0.f;
+        consumeConsoleText(aLog, prepareTextRenderData);
+        for(uint i = 0; i<stringChunks.size(); i++) {
+          std::string& txt = stringChunks[i];
+          printer.color(colors[i]);
+          printer.text(txt, FONT_SIZE, mFont.get(), vec3{ startX, startY + descender, 0 });
+          startX += mFont->advance(txt, FONT_SIZE);
+        }
+        startY += inputBoxHeight;
+        stringChunks.clear();
+        colors.clear();
       }
-      startY += inputBoxHeight;
-      stringChunks.clear();
-      colors.clear();
     }
   }
 
@@ -562,6 +588,10 @@ void Console::log(const std::string& msg, Severity level) {
   gConsole->record(msg, level);
 }
 
+void Console::log(const std::string& msg, const Rgba& color) {
+  gConsole->record(msg, color);
+}
+
 void Console::info(const std::string& msg) {
   Console::log(msg, Console::DEBUG_INFO);
 }
@@ -575,6 +605,7 @@ void Console::error(const std::string& msg) {
 }
 
 bool Console::clear() {
+  std::scoped_lock l(mLogStreamLock);
   mLogStream.clear();
   mLineNumberAtBottom = 0;
   return true;

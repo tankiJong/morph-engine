@@ -91,6 +91,31 @@ void Rgba::fromRgbString(const char* data) {
   }
 }
 
+unsigned char Rgba::hue() const {
+  float min = (float)std::min(std::min(r, g), b);
+  float max = (float)std::max(std::max(r, g), b);
+
+  if (min == max) {
+    return 0;
+  }
+
+  float hue = 0.f;
+  if (max == r) {
+    hue = (g - b) / (max - min);
+
+  } else if (max == g) {
+    hue = 2.f + (b - r) / (max - min);
+
+  } else {
+    hue = 4.f + (r - g) / (max - min);
+  }
+
+  hue = hue * 60;
+  if (hue < 0) hue = hue + 360;
+
+  return unsigned char(hue / 360.f * 255.f);
+}
+
 Rgba Rgba::operator*(float rhs) const {
   return rhs * (*this);
 }

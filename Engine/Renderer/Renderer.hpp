@@ -103,7 +103,7 @@ public:
 
   void postInit();
   void resetAlphaBlending();
-  Image screenShot();
+  void screenShot(const char* path);
 
   void setAmbient(const Rgba& color, float intensity);
   void setAmbient(const vec4 ambience);

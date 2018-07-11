@@ -73,7 +73,7 @@ void Engine::init() {
   });
 
   Profile::startup();
-
+  Log::startUp();
   // Blob config = fs::read(".fs");
   // if(config.valid()) {
   //   fs.config(config);
@@ -88,4 +88,10 @@ Engine& Engine::Get() {
   }
 
   return *gEngine;
+}
+
+Engine::~Engine() {
+  Log::shutDown();
+  SAFE_DELETE(mRenderer);
+  SAFE_DELETE(mWindow);
 }

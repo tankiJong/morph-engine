@@ -27,6 +27,7 @@
 #include "Engine/Core/Engine.hpp"
 #include "Engine/Renderer/Font.hpp"
 #include "Engine/Debug/Profile/Profiler.hpp"
+#include "Engine/Async/Thread.hpp"
 
 #pragma comment( lib, "opengl32" )	// Link in the OpenGL32.lib static library
 
@@ -326,6 +327,7 @@ void Renderer::setUnifrom(const char* name, const mat44& value) {
 }
 
 void Renderer::setUniformBuffer(eUniformSlot slot, UniformBuffer& ubo) {
+  PROF_FUNC();
   ubo.putGpu();
   glBindBufferBase(GL_UNIFORM_BUFFER, slot, ubo.handle());
 }
@@ -540,7 +542,7 @@ HGLRC Renderer::createOldRenderContext(HDC hdc) {
   return context;
 }
 
-Image Renderer::screenShot() {
+void Renderer::screenShot(const char* path) {
   int x = mDefaultColorTarget->mDimensions.x, y = mDefaultColorTarget->mDimensions.y;
   Rgba* data = new Rgba[x * y];
 
@@ -551,11 +553,12 @@ Image Renderer::screenShot() {
 
   glBindFramebuffer(GL_READ_FRAMEBUFFER, NULL);
 
-  Image img(data, (uint)x, (uint)y);
+  Thread([data, path, x, y]() {
+    Image img(data, (uint)x, (uint)y);
+    img.save(path);
 
-  delete []data;
-
-  return img;
+    delete []data;
+  });
 }
 
 void Renderer::setAmbient(const Rgba& color, float intensity) {
@@ -819,6 +822,7 @@ void Renderer::drawMesh(const Mesh& mesh) {
   GLint prog;
   glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
   for(const VertexAttribute& attribute: mesh.layout().attributes()) {
+
     GLint bindIdx = glGetAttribLocation(prog, attribute.name.c_str());
 
     if(bindIdx >= 0) {
@@ -855,16 +859,18 @@ void Renderer::drawMesh(const Mesh& mesh) {
 
   setUniformBuffer(UNIFORM_CAMERA, *ubo);
 
-
-  glBindFramebuffer(GL_FRAMEBUFFER, mCurrentCamera->getFrameBufferHandle());
-  for (const draw_instr_t& ins : mesh.instructions()) {
-    if (ins.useIndices) {
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.indices().handle());
-//      glDrawRangeElements(toGLType(ins.prim), ins.startIndex, ins.startIndex + ins.elementCount - 1, ins.elementCount, GL_UNSIGNED_INT, 0);
-//      GL_CHECK_ERROR();
-      glDrawElements(toGLType(ins.prim), ins.elementCount, GL_UNSIGNED_INT, (void*)(ins.startIndex*sizeof(uint)));
-    } else {
-      glDrawArrays(toGLType(ins.prim), ins.startIndex, ins.elementCount);
+  {
+    PROF_SCOPE("GL draw") 
+    glBindFramebuffer(GL_FRAMEBUFFER, mCurrentCamera->getFrameBufferHandle());
+    for (const draw_instr_t& ins : mesh.instructions()) {
+      if (ins.useIndices) {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.indices().handle());
+  //      glDrawRangeElements(toGLType(ins.prim), ins.startIndex, ins.startIndex + ins.elementCount - 1, ins.elementCount, GL_UNSIGNED_INT, 0);
+  //      GL_CHECK_ERROR();
+        glDrawElements(toGLType(ins.prim), ins.elementCount, GL_UNSIGNED_INT, (void*)(ins.startIndex*sizeof(uint)));
+      } else {
+        glDrawArrays(toGLType(ins.prim), ins.startIndex, ins.elementCount);
+      }
     }
   }
 

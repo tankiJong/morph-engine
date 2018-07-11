@@ -24,6 +24,7 @@ public:
   void fromString(const char* data);
   void fromHexString(const char* data);
   void fromRgbString(const char* data);
+  unsigned char hue() const;
   Rgba operator*(float rhs) const;
   friend Rgba operator*(float, const Rgba&);
   std::string toString(bool withAlpha = true);

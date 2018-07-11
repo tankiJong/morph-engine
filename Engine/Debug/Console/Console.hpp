@@ -8,6 +8,7 @@
 #include "Engine/Core/Utils.hpp"
 #include "Engine/Math/Primitives/IntRange.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include <mutex>
 
 class Command;
 class Renderer;
@@ -44,6 +45,7 @@ public:
   static bool isOpen() { return Get()->mIsOpened; };
   static Console* Get();
   static void log(const std::string& msg, Severity level);
+  static void log(const std::string& msg, const Rgba& color);
   static void info(const std::string& msg);
   static void warn(const std::string& msg);
   static void error(const std::string& msg);
@@ -52,7 +54,7 @@ public:
   static constexpr float FONT_ASPECT = 0.7f;
   static constexpr float WORD_PADDING = 1;
   static constexpr float SCROLLBAR_WIDTH = 3;
-  static constexpr uint MAX_LOG_NUMBER = 200u;
+  static constexpr uint MAX_LOG_NUMBER = 100u;
   float LINE_HEIGHT = 0.f;
 public:
   void init(Renderer& renderer, Input& input);;
@@ -107,6 +109,7 @@ protected:
   void print(const CommandDef& cmdDef);
 
   void record(const std::string& msg, Severity level);
+  void record(const std::string& msg, const Rgba& color);
 
   void erase(uint from, uint to);
 
@@ -135,6 +138,7 @@ protected:
   uint mNumCurrentCommand = 0;
   uint mNextCommandLogIndex = 0;
   Camera* mCamera = nullptr;
+  mutable std::mutex mLogStreamLock;
   S<const Font> mFont;
 private:
   void hookInBuiltInCommand();
