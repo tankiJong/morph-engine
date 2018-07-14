@@ -4,6 +4,7 @@
 #include "Engine/Graphics/RHI/Dx12/Dx12Resource.hpp"
 #include "Engine/Graphics/RHI/Dx12/Dx12DescriptorData.hpp"
 #include "Engine/Graphics/RHI/RHITexture.hpp"
+#include "Engine/Application/Window.hpp"
 
 RHIContext::sptr_t RHIContext::create(command_queue_handle_t commandQueue) {
   sptr_t ctx = sptr_t(new RHIContext());
@@ -84,15 +85,15 @@ void RHIContext::beforeFrame() {
 
   mViewport.TopLeftX = 0;
   mViewport.TopLeftY = 0;
-  mViewport.Width = 1280;
-  mViewport.Height = 720;
+  mViewport.Width = Window::Get()->bounds().width();
+  mViewport.Height = Window::Get()->bounds().height();
   mViewport.MinDepth = D3D12_MIN_DEPTH;
   mViewport.MaxDepth = D3D12_MAX_DEPTH;
 
   mScissorRect.left = 0;
   mScissorRect.top = 0;
-  mScissorRect.right = 1280;
-  mScissorRect.bottom = 720;
+  mScissorRect.right = Window::Get()->bounds().width();
+  mScissorRect.bottom = Window::Get()->bounds().height();
 
   mContextData->commandList()->RSSetViewports(1, &mViewport);
   mContextData->commandList()->RSSetScissorRects(1, &mScissorRect);
@@ -129,10 +130,15 @@ void RHIContext::draw(uint start, uint count) {
   drawInstanced(start, 0, count, 1);
 }
 
+void RHIContext::drawIndexed(uint vertStart, uint idxStart, uint count) {
+  mContextData->commandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+  mContextData->commandList()->DrawIndexedInstanced(count, 1, idxStart, vertStart, 0);
+  mCommandsPending = true;
+}
+
 void RHIContext::drawInstanced(uint startVert, uint startIns, uint vertCount, uint insCount) {
   mContextData->commandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   mContextData->commandList()->DrawInstanced(vertCount, insCount, startVert, startIns);
-
   mCommandsPending = true;
 }
 
@@ -172,6 +178,15 @@ void RHIContext::setVertexBuffer(const S<RHIBuffer>& vbo, uint elementSize, uint
   vb.SizeInBytes = vbo->size();
 
   mContextData->commandList()->IASetVertexBuffers(streamIndex, 1, &vb);
+}
+
+void RHIContext::setIndexBuffer(const S<RHIBuffer>& ibo) {
+  D3D12_INDEX_BUFFER_VIEW ib = {};
+
+  ib.BufferLocation = ibo->gpuAddress();
+  ib.SizeInBytes = ibo->size();
+  ib.Format = DXGI_FORMAT_R32_UINT;
+  mContextData->commandList()->IASetIndexBuffer(&ib);
 }
 
 void RHIContext::bindDescriptorHeap() {

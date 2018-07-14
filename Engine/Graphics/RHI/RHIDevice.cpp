@@ -38,11 +38,12 @@ Texture2::sptr_t& RHIDevice::depthBuffer() {
 RHIDevice::~RHIDevice() {
 }
 
-RHIDevice::sptr_t RHIDevice::create() {
+RHIDevice::sptr_t RHIDevice::create(window_handle_t winHandle) {
   if(gDevice) {
     ERROR_AND_DIE("only support one device");
   }
   gDevice = sptr_t(new RHIDevice);
+  gDevice->mWindow = winHandle;
 
   if(gDevice->init() == false) {
     gDevice = nullptr;

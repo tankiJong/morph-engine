@@ -1,28 +1,13 @@
 #include "Engine/Graphics/RHI/RHI.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Engine/Application/Window.hpp"
 
 struct DeviceData {
   IDXGIFactory4Ptr dxgiFactory = nullptr;
   IDXGISwapChain3Ptr swapChain = nullptr;
   bool isWindowIncluded = false;
 };
-
-bool gQuit = false;
-LRESULT CALLBACK windowProc(HWND window, uint message, WPARAM wparam, LPARAM lparam) {
-  switch (message) {
-    case WM_DESTROY:
-    case WM_CLOSE:
-    {
-      gQuit = true;
-      break;; // "Consumes" this message (tells Windows "okay, we handled it")
-    }
-    default:
-
-      break;
-  }
-  return ::DefWindowProc(window, message, wparam, lparam);
-}
 
 void d3dTraceHR(const std::string& msg, HRESULT hr) {
   char hr_msg[512];
@@ -151,34 +136,34 @@ bool RHIDevice::rhiPostInit() {
 }
 
 bool RHIDevice::createSwapChain() {
-  constexpr uint width = 1280, height = 720;
+  //constexpr uint width = 1280, height = 720;
 
-  WNDCLASSEX windowClassDescription;
-  memset(&windowClassDescription, 0, sizeof(windowClassDescription));
-  windowClassDescription.cbSize = sizeof(windowClassDescription);
-  windowClassDescription.style = CS_OWNDC; // Redraw on move, request own Display Context
-  windowClassDescription.lpfnWndProc = windowProc;
-  // Register our Windows message-handling function
-  windowClassDescription.hInstance = GetModuleHandle(NULL);
-  windowClassDescription.hIcon = NULL;
-  windowClassDescription.hCursor = NULL;
-  windowClassDescription.lpszClassName = L"dx12test";
-  RegisterClassEx(&windowClassDescription);
+  //WNDCLASSEX windowClassDescription;
+  //memset(&windowClassDescription, 0, sizeof(windowClassDescription));
+  //windowClassDescription.cbSize = sizeof(windowClassDescription);
+  //windowClassDescription.style = CS_OWNDC; // Redraw on move, request own Display Context
+  //windowClassDescription.lpfnWndProc = windowProc;
+  //// Register our Windows message-handling function
+  //windowClassDescription.hInstance = GetModuleHandle(NULL);
+  //windowClassDescription.hIcon = NULL;
+  //windowClassDescription.hCursor = NULL;
+  //windowClassDescription.lpszClassName = L"dx12test";
+  //RegisterClassEx(&windowClassDescription);
 
-  mWindow = CreateWindowEx(
-    WS_EX_APPWINDOW,
-    L"dx12test",
-    L"dx12test",
-    WS_CAPTION | WS_BORDER | WS_THICKFRAME | WS_SYSMENU | WS_OVERLAPPED,
-    CW_USEDEFAULT,
-    CW_USEDEFAULT,
-    width,
-    height,
-    NULL,
-    NULL,
-    GetModuleHandle(NULL),
-    NULL);
-  ShowWindow(mWindow, SW_SHOW);
+  //mWindow = CreateWindowEx(
+  //  WS_EX_APPWINDOW,
+  //  L"dx12test",
+  //  L"dx12test",
+  //  WS_CAPTION | WS_BORDER | WS_THICKFRAME | WS_SYSMENU | WS_OVERLAPPED,
+  //  CW_USEDEFAULT,
+  //  CW_USEDEFAULT,
+  //  width,
+  //  height,
+  //  NULL,
+  //  NULL,
+  //  GetModuleHandle(NULL),
+  //  NULL);
+  //ShowWindow(mWindow, SW_SHOW);
 
 
   IDXGISwapChain1* sc;

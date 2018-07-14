@@ -34,7 +34,7 @@ public:
 
   ~RHIDevice();
   void cleanup();
-  static sptr_t create();
+  static sptr_t create(window_handle_t winHandle);
 
   static sptr_t get();
   window_handle_t        mWindow;

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <vector>
 #include "Engine/Core/common.hpp"
-#include "Engine/Renderer/type.h"
+#include "Engine/Graphics/RHI/RHI.hpp"
 
 class VertexBuffer;
 

@@ -1,10 +1,10 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Vertex.hpp"
-#include "type.h"
 #include "Engine/File/Path.hpp"
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Math/Primitives/FloatRange.hpp"
+#include "Engine/Graphics/Model/Mesh.hpp"
 
 class aabb2;
 class Mesh;
@@ -12,7 +12,7 @@ class Font;
 class Mesher {
   friend class MikktBinding;
 public:
-  Mesher& begin(eDrawPrimitive prim, bool useIndices = true);
+  Mesher & begin(eDrawPrimitive prim, bool useIndices = true);
   void end();
   void clear();
   Mesher& color(const Rgba& c);
@@ -43,8 +43,8 @@ public:
   Mesher& quad(const vec3& center, const vec3& xDir, const vec3& yDir, const vec2& size);
   Mesher& quad2(const aabb2& bound, float z = 0);
   Mesher& cube(const vec3& center, const vec3& dimension);
-  Mesher& cone(const vec3& origin, const vec3& direction, float length, float angle, uint slide = 10, bool bottomFace= true);
-  Mesher& text(const span<const std::string_view> asciiTexts, float size, const Font* font, 
+  Mesher& cone(const vec3& origin, const vec3& direction, float length, float angle, uint slide = 10, bool bottomFace = true);
+  Mesher& text(const span<const std::string_view> asciiTexts, float size, const Font* font,
                const vec3& position, const vec3& right = vec3::right, const vec3& up = vec3::up);
   Mesher& text(const std::string_view asciiText, float size, const Font* font,
                const vec3& position, const vec3& right = vec3::right, const vec3& up = vec3::up);
@@ -55,18 +55,18 @@ public:
   void surfacePatch(const FloatRange& u, const FloatRange& v, uint levelX, uint levelY, const std::function<vec3(const vec2&)>& parametric, float eps = .001f);
   void surfacePatch(const std::function<vec3(const vec2&, const ivec2&)>& parametric, const FloatRange& u, const FloatRange& v, uint levelX, uint levelY, float eps = .001f);
   void mikkt();
-  template<typename VertexType=vertex_lit_t>
+  template<typename VertexType = vertex_lit_t>
   owner<Mesh*> createMesh();
 
   template<typename VertexType = vertex_lit_t>
   void resetMesh(Mesh& mesh);
 
   Vertex mVertices;
+  std::vector<uint> mIndices;
 protected:
   vec3 normalOf(uint a, uint b, uint c);
   uint currentElementCount() const;
   vertex_t mStamp;
-  std::vector<uint> mIndices;
   std::vector<draw_instr_t> mIns;
   draw_instr_t mCurrentIns;
   bool isDrawing = false;

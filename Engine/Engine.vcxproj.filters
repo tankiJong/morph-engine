@@ -555,6 +555,12 @@
     <ClCompile Include="Debug\Profile\Report.cpp">
       <Filter>Engine\Debug\Profile</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Camera.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Model\Mesher.cpp">
+      <Filter>Engine\Graphics\Model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -1115,6 +1121,12 @@
     <ClInclude Include="Config.hpp">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Camera.hpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Model\Mesher.hpp">
+      <Filter>Engine\Graphics\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\ThirdParty\fmod\fmod_vc.lib">
@@ -1207,10 +1219,5 @@
     <Image Include="..\Content\image\particle_default.png">
       <Filter>Content\image</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\..\ReadMe.txt">
-      <Filter>Engine\Debug\Profile</Filter>
-    </Text>
   </ItemGroup>
 </Project>

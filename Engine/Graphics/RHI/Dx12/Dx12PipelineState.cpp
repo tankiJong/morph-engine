@@ -19,7 +19,7 @@ void setFboDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, FrameBuffer::Desc& fbo
      desc.DepthStencilState.StencilEnable = TRUE;
   
      desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-     desc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+     desc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
      
      desc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
      desc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;

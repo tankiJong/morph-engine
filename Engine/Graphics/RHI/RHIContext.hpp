@@ -29,10 +29,12 @@ public:
   void beforeFrame();
   void  afterFrame();
   void draw(uint start, uint count);
+  void drawIndexed(uint vertStart, uint idxStart, uint count);
   void drawInstanced(uint startVert, uint startIns, uint vertCount, uint insCount);
   void setPipelineState(const PipelineState::sptr_t& pso);
   void setFrameBuffer(const FrameBuffer& fbo);
   void setVertexBuffer(const S<RHIBuffer>& vbo, uint elementSize, uint streamIndex);
+  void setIndexBuffer(const S<RHIBuffer>& ibo);
   void bindDescriptorHeap();
 
   void clearRenderTarget(const RenderTargetView& rtv, const Rgba& rgba);
