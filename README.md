@@ -31,6 +31,8 @@ Morph Engine is a morden C++ Game Engine in development.
 * Math library refactoring
 
 ## debug/profile
+* Threaded Logger
+* Instrimental profiler and visual layout
 * Debug draw system(2D/3D text, some 2D/3D primitives)
 * Dev Console
 
