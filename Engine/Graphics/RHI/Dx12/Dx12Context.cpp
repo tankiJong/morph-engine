@@ -204,9 +204,6 @@ void RHIContext::bindDescriptorHeap() {
   }
 
   mContextData->commandList()->SetDescriptorHeaps(heapCount, heaps);
-
-  // this need a new home, possibly in shader
-  // mContextData->commandList()->SetGraphicsRootDescriptorTable(0, RHIDevice::get()->gpuDescriptorPool()->rhiData()->heaps[D3D12_DESCRIPTOR_RANGE_TYPE_SRV]->gpuHandleBase());
 }
 
 void RHIContext::clearRenderTarget(const RenderTargetView& rtv, const Rgba& rgba) {
@@ -253,35 +250,47 @@ void RHIContext::updateTexture(const RHITexture& texture, const void* data) {
 
   u64 uploadBufferSize = GetRequiredIntermediateSize(texture.handle(), 0, 1);
 
-  auto buffer = RHIBuffer::create(uploadBufferSize, RHIBuffer::BindingFlag::None, RHIBuffer::CPUAccess::Write, data);
+  auto buffer = RHIBuffer::create(uploadBufferSize, RHIBuffer::BindingFlag::None, RHIBuffer::CPUAccess::Write, nullptr);
 
-  // buffer->map(RHIBuffer::MapType::WriteDiscard);
+
   ID3D12Resource* textureUploadHeap = buffer->handle();
 
   //
-  // D3D12_RESOURCE_DESC textureResourceDesc;
-  // textureResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-  // textureResourceDesc.Alignment = 0;
-  // textureResourceDesc.Width = uploadBufferSize;
-  // textureResourceDesc.Height = 1;
-  // textureResourceDesc.DepthOrArraySize = 1;
-  // textureResourceDesc.MipLevels = 1;
-  // textureResourceDesc.Format = DXGI_FORMAT_UNKNOWN;
-  // textureResourceDesc.SampleDesc.Count = 1;
-  // textureResourceDesc.SampleDesc.Quality = 0;
-  // textureResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-  // textureResourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-  //
-  // RHIDevice::get()->nativeDevice()->CreateCommittedResource(
-  //   &DefaultHeapProps, 
-  //   D3D12_HEAP_FLAG_NONE, 
-  //   &textureResourceDesc, 
-  //   D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&textureUploadHeap));
   resourceBarrier(&texture, RHIResource::State::CopyDest);
 
+  uint pixelSize;
+
+  switch(texture.format()) { 
+    case TEXTURE_FORMAT_UNKNOWN:
+      pixelSize = 0;
+    break;
+    case TEXTURE_FORMAT_RGBA8: 
+      pixelSize = 4;
+    break;
+    case TEXTURE_FORMAT_RG8: 
+      pixelSize = 2;
+    break;
+    case TEXTURE_FORMAT_R8:
+      pixelSize = 1;
+    break;
+    case TEXTURE_FORMAT_RGBA16: 
+      pixelSize = 8;
+    break;
+    case TEXTURE_FORMAT_RG16: 
+      pixelSize = 4;
+    break;
+    case TEXTURE_FORMAT_R16: 
+      pixelSize = 2;
+    break;
+    case TEXTURE_FORMAT_D24S8:
+      pixelSize = 4;
+    break;
+    default:
+      ERROR_AND_DIE("missing format");
+  }
   D3D12_SUBRESOURCE_DATA textureData = {};
   textureData.pData = data;
-  textureData.RowPitch = texture.width() * texture.height();
+  textureData.RowPitch = texture.width() * pixelSize;
   textureData.SlicePitch = textureData.RowPitch * texture.height();
 
   UpdateSubresources(mContextData->commandList(), texture.handle(), 
@@ -290,3 +299,11 @@ void RHIContext::updateTexture(const RHITexture& texture, const void* data) {
   // buffer->unmap();
   // flush();
 }
+
+template<typename T>
+class foo {
+  template<typename U>
+  operator foo<U>() {
+    return *this;
+  }
+};

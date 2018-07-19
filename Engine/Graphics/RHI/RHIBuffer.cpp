@@ -11,7 +11,6 @@ RHIBuffer::sptr_t RHIBuffer::create(
 
   RHIBuffer::sptr_t buffer = sptr_t(new RHIBuffer(size, binding, cpuAccess));
 
-  EXPECTS(data != nullptr);
   if(buffer->rhiInit(data != nullptr)) {
     if (data) buffer->updateData(data, 0, size);
     return buffer;

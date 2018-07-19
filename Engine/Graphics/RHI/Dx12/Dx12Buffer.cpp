@@ -34,7 +34,8 @@ bool RHIBuffer::rhiInit(bool hasInitData) {
     mState = State::GenericRead;
 
     if(!hasInitData) {
-      UNIMPLEMENTED();
+      mRhiHandle = createBuffer(mState, mSize, UploadHeapProps, mBindingFlags);
+
     }
     mRhiHandle = createBuffer(mState, mSize, UploadHeapProps, mBindingFlags);
   } else if(mCpuAccess == CPUAccess::Read && mBindingFlags == BindingFlag::None) {

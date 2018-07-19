@@ -2,7 +2,7 @@
 ShaderResourceView::sptr_t ShaderResourceView::create(
   W<RHITexture> res, uint mostDetailedMip, uint mipCount, uint firstArraySlice, uint arraySize) {
   
-  RHIResource::sptr_t ptr = res.lock();
+  RHITexture::sptr_t ptr = res.lock();
 
   if(!ptr && sNullView) {
     return sNullView;
@@ -14,7 +14,12 @@ ShaderResourceView::sptr_t ShaderResourceView::create(
   if(ptr) {
     // this is simple hacky version for texture 2d
     desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    if(ptr->format() == TEXTURE_FORMAT_D24S8) {
+      desc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+    } else {
+      desc.Format = toDXGIFormat(ptr->format());
+
+    }
     desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     desc.Texture2D.MipLevels = 1;
 
@@ -120,7 +125,7 @@ DepthStencilView::sptr_t DepthStencilView::create(W<RHITexture> res, uint mipLev
   RHIResource::handle_t resHandle = nullptr;
 
   if(ptr) {
-    desc.Format = toDXGIFormat(ptr->format());
+    desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
     desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
     desc.Texture2D.MipSlice = mipLevel;
     resHandle = ptr->handle();

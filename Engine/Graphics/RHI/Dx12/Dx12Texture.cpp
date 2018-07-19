@@ -18,21 +18,24 @@ bool Texture2::rhiInit(const void* data, size_t size) {
   desc.Alignment = 0;
   desc.DepthOrArraySize = 1;
 
-  if(mFormat == TEXTURE_FORMAT_D24S8) {
-    D3D12_CLEAR_VALUE clearVal;
-    clearVal.Format = desc.Format;
-    clearVal.DepthStencil.Depth = 1.f;
-    clearVal.DepthStencil.Stencil = 0;
-    d3d_call(RHIDevice::get()->nativeDevice()->CreateCommittedResource(
-      &DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COMMON,
-      &clearVal, IID_PPV_ARGS(&mRhiHandle)
-    ));
-  } else {
-    d3d_call(RHIDevice::get()->nativeDevice()->CreateCommittedResource(
-      &DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COMMON,
-      nullptr, IID_PPV_ARGS(&mRhiHandle)
-    ));
+  D3D12_CLEAR_VALUE clearValue = {};
+  D3D12_CLEAR_VALUE* clearValPtr = {};
+
+  if((mBindingFlags & (Texture2::BindingFlag::RenderTarget | Texture2::BindingFlag::DepthStencil)) != Texture2::BindingFlag::None) {
+
+    clearValue.Format = desc.Format;
+    if((mBindingFlags & Texture2::BindingFlag::DepthStencil) != Texture2::BindingFlag::None) {
+      clearValue.DepthStencil.Depth = 1.f;
+    }
+    clearValPtr = &clearValue;
   }
+
+  if(mFormat == TEXTURE_FORMAT_D24S8 && is_set(mBindingFlags, Texture2::BindingFlag::ShaderResource | Texture2::BindingFlag::UnorderedAccess)) {
+    TODO(set to typeless later when do the unorder access);
+    clearValPtr = nullptr;
+  }
+
+  d3d_call(RHIDevice::get()->nativeDevice()->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COMMON, clearValPtr, IID_PPV_ARGS(&mRhiHandle)));
 
   mRhiHandle->SetName(L"Texture");
   if(data) {
@@ -41,7 +44,6 @@ bool Texture2::rhiInit(const void* data, size_t size) {
 
   return true;
 }
-
 
 RHITexture::RHITexture(rhi_resource_handle_t res): RHIResource(res) {
   D3D12_RESOURCE_DESC desc = res->GetDesc();

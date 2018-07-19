@@ -62,6 +62,7 @@ void setDx12InputLayout(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, const VertexLa
 }
 
 bool PipelineState::rhiInit() {
+  static uint i = 0;
   D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {};
 
 
@@ -75,14 +76,16 @@ bool PipelineState::rhiInit() {
 #else
   UINT compileFlags = 0;
 #endif
-
-  fs::path shaderPath = fs::absolute("shaders.hlsl");
+  fs::path shaderPath;
+  if(i == 0) {
+    shaderPath = fs::absolute("shaders.hlsl");
+    i++;
+  } else {
+    shaderPath = fs::absolute("ssao.hlsl");
+  }
   d3d_call(D3DCompileFromFile(shaderPath.c_str(), nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr));
   d3d_call(D3DCompileFromFile(shaderPath.c_str(), nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr));
-  // create vertex input layout
-  // setInputLayout(*VertexLayout::For<vertex_pcu_t>());
 
-  // Describe and create the graphics pipeline state object (PSO).
   D3D12_SHADER_BYTECODE VS, PS;
   VS.pShaderBytecode = vertexShader->GetBufferPointer();
   VS.BytecodeLength = vertexShader->GetBufferSize();
