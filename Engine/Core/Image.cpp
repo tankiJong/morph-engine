@@ -7,6 +7,7 @@
 #include "Image.hpp"
 #include "Engine/Math/Primitives/Ivec2.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Engine/Async/Thread.hpp"
 
 Image::Image(const std::string& imageFilePath) {
   int numComponents = 0;
@@ -22,9 +23,13 @@ Image::Image(const std::string& imageFilePath) {
 }
 
 Image::Image(const Rgba* data, uint width, uint height)
-  : mDimensions(width, height)
-  , mTexels(data, data+width*height) {
-  
+  : mDimensions(width, height) 
+  , mTexels(data, data + width * height){
+}
+
+Image::Image(uint width, uint height) 
+  : mDimensions(width, height) {
+  mTexels.resize(width * height);
 }
 
 Rgba Image::getTexel(int x, int y) const {

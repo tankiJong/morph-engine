@@ -15,7 +15,7 @@ public:
   void unmount(const fs::path& virtualDir);
 
   std::vector<fs::path> map(const fs::path& virtualPath) const;
-  std::optional<File> open(const fs::path& vPath);
+  void save(const fs::path vPath, const void* data, size_t size);
   std::optional<fs::path> locate (const fs::path& vPath) const;
   std::optional<Blob> asBuffer(const fs::path& file);
   std::ifstream asStream(const fs::path& file);

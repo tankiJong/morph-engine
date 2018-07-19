@@ -8,6 +8,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Engine/Core/StringUtils.hpp"
+#include <time.h>
 
 Time::Time() {
   memset(this, 0, sizeof(Time));
@@ -81,4 +82,22 @@ std::string beautifySeconds(double seconds) {
   }
 
   return Stringf("%.3lf s", seconds);
+}
+
+Timestamp::Timestamp() {
+  time_t t;
+  ::time(&t);
+  stamp = (int64)t;
+}
+
+std::string Timestamp::toString() const {
+  tm t;
+  localtime_s(&t, &stamp);
+
+  return Stringf("%i-%i-%i-%i-%i-%i",   t.tm_year + 1900,
+                                        t.tm_mon + 1,
+                                        t.tm_mday,
+                                        t.tm_hour,
+                                        t.tm_min,
+                                        t.tm_sec);
 }

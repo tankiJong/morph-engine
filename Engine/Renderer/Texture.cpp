@@ -93,14 +93,12 @@ void Texture:: PopulateFromData()
 //  GL_CHECK_ERROR();
 	// Tell OpenGL that our pixel data is single-byte aligned
 	glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
-  GL_CHECK_ERROR();
 
   if( mTextureID == NULL) {
 	  // Ask OpenGL for an unused texName (ID number) to use for this texture
 	  glGenTextures( 1, (GLuint*) &mTextureID );
   }
 
-  GL_CHECK_ERROR();
 	// Tell OpenGL to bind (set) this as the currently active texture
 	glBindTexture( GL_TEXTURE_2D, mTextureID );
 
@@ -118,7 +116,6 @@ void Texture:: PopulateFromData()
                  numComponents == 3 ? GL_RGB8 : GL_RGBA8, // how is the memory stored on the GPU
                  mDimensions.x, mDimensions.y); // dimenions
 
-  GL_CHECK_ERROR();
 
   glTexSubImage2D(
     GL_TEXTURE_2D,
@@ -140,7 +137,6 @@ void Texture:: PopulateFromData()
   //              bufferFormat,		// Pixel format describing the composition of the pixel data in buffer
 		// GL_UNSIGNED_BYTE,	// Pixel color components are unsigned bytes (one byte per color channel/component)
 		// imageData );		// Address of the actual pixel data bytes/buffer in system memory
-  GL_CHECK_ERROR();
 
   glGenerateMipmap(GL_TEXTURE_2D);
 }

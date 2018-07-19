@@ -13,8 +13,6 @@ public:
   inline T* as() { return mData; }
 
 protected:
-  File(FileSystem& sys);
-  FileSystem& mFileSystem;
   fs::path mPath;
   Blob mData;
 };

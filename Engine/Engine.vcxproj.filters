@@ -151,6 +151,9 @@
     <Filter Include="Engine\Physics">
       <UniqueIdentifier>{055a2617-3fed-431a-903a-9ce07bfd5f75}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Async">
+      <UniqueIdentifier>{bb50a879-b402-48dd-8d84-403e5e2990d1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -560,6 +563,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\Model\Mesher.cpp">
       <Filter>Engine\Graphics\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Async\Thread.cpp">
+      <Filter>Engine\Async</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1126,6 +1132,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\Model\Mesher.hpp">
       <Filter>Engine\Graphics\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Async\Thread.hpp">
+      <Filter>Engine\Async</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

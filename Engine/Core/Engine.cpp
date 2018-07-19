@@ -4,6 +4,7 @@
 #include "Engine/Application/Window.hpp"
 #include "Engine/File/FileSystem.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
+#include "Engine/Debug/Log.hpp"
 
 Engine* gEngine = nullptr;
 
@@ -66,7 +67,7 @@ void Engine::init() {
 //  });
 //
 //  Profile::startup();
-//
+//  Log::startUp();
   // Blob config = fs::read(".fs");
   // if(config.valid()) {
   //   fs.config(config);
@@ -82,3 +83,10 @@ Engine& Engine::Get() {
 
   return *gEngine;
 }
+
+Engine::~Engine() {
+  //Log::shutDown();
+  //SAFE_DELETE(mRenderer);
+  SAFE_DELETE(mWindow);
+}
+

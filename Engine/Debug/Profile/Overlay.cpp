@@ -199,7 +199,9 @@ void Profile::Overlay::update() {
       if(sample != nullptr) report->accumlateSample(sample, viewType);
     }
   }
-  
+
+  if (report) report->sort(sortType);
+
   Mesher ms;
   ms.begin(DRAW_TRIANGES);
 

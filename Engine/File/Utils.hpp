@@ -15,8 +15,10 @@ namespace fs {
   
   int64 sizeOf(const path& file);
   Blob read(const path& filePath);
-  bool  read(const path& file, void* buffer, int64 size = -1);
+  bool read(const path& file, void* buffer, int64 size = -1);
 
+  void write(const path& filePath, const void* buffer, size_t size);
+  void append(const path& filePath, const void* buffer, size_t size);
   path relative(const path& p, const path& base);
 
   const path& dotPath();

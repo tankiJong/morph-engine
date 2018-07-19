@@ -68,12 +68,12 @@ void Report::Entry::sort(eSortOption option) {
   switch(option) {
     case SORT_TOTAL_TIME:
       std::sort(mChildren.begin(), mChildren.end(), [](eleType& a, eleType& b) {
-        return a.second->totalTime > b.second->totalTime;
+        return a.second->totalTime < b.second->totalTime;
       });
     break;
     case SORT_SELF_TIME:
       std::sort(mChildren.begin(), mChildren.end(), [](eleType& a, eleType& b) {
-        return a.second->selfTime > b.second->selfTime;
+        return a.second->selfTime < b.second->selfTime;
       });
     break;
     default:
@@ -152,7 +152,7 @@ void Report::log(eViewOption option) const {
   toProcess.push({ &root, 0 });
 
   
-  Debug::log(Stringf(
+  Log::log(Stringf(
     "[ ]%-*s%-10s%-30s%-30s\n",
     57, "Function Name", "Call",
     option == SORT_TOTAL_TIME ? "--Total(Time)--" : "Total(Time)",
@@ -168,7 +168,7 @@ void Report::log(eViewOption option) const {
     // vec3 indentedPosition = position;
     // indentedPosition.x += font->advance(' ', ' ', kFontSize) * float(top.depth) ;
 
-    Debug::log(Stringf(
+    Log::log(Stringf(
       "%-*s%-*s%-10u%-30s%-30s",
       top.depth + 3, top.entry->children().empty() ? "   " : "[-]",
       57 - top.depth, top.entry->name.data(),

@@ -5,7 +5,6 @@
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Font.hpp"
 #include "Engine/Renderer/Shader/Material.hpp"
-#include "Engine/Debug/Log.hpp"
 #include "Engine/Math/Primitives/aabb3.hpp"
 
 Renderer* gRenderer = nullptr;
@@ -207,7 +206,6 @@ Debug::DrawHandle* drawMetaText(const Gradient& color, const Font* font, float d
 }
 
 void Debug::drawNow() {
-  detail::Debug::tick();
   if(!gEnabled) return;
   // will change to material later
   if(!gDebugMaterial) {

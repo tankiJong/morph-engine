@@ -45,6 +45,22 @@ Blob fs::read(const path& filePath) {
   }
 }
 
+void fs::write(const path& filePath, const void* buffer, size_t size) {
+  std::ofstream file(filePath.c_str(), std::ofstream::out | std::ofstream::trunc);
+
+  file.write((const char*)buffer, size);
+  
+  file.close();
+}
+
+void fs::append(const path& filePath, const void* buffer, size_t size) {
+  std::ofstream file(filePath.c_str(), std::ofstream::out | std::ofstream::app);
+
+  file.write((const char*)buffer, size);
+
+  file.close();
+}
+
 // reference from Boost filesystem
 fs::path fs::relative(const path& p, const path& base) {
   std::pair<path::iterator, path::iterator> mm

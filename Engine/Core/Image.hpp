@@ -10,6 +10,7 @@ public:
   Image() {}
   Image(const std::string& imageFilePath);
   Image(const Rgba* data, uint width, uint height);
+  Image(uint width, uint height);
 
   TODO("move optimization");
   Rgba getTexel(int x, int y) const; // (0,0) is top-left
