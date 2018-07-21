@@ -24,6 +24,7 @@ constexpr float SCREEN_HEIGHT = SCREEN_HALF_HEIGHT * 2.f; // units
 
 
 void Engine::init() {
+  Log::startUp();
 
   mRenderer = new Renderer();
   mWindow = new Window();
@@ -73,7 +74,6 @@ void Engine::init() {
   });
 
   Profile::startup();
-  Log::startUp();
   // Blob config = fs::read(".fs");
   // if(config.valid()) {
   //   fs.config(config);

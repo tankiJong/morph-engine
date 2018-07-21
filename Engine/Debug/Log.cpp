@@ -61,7 +61,7 @@ protected:
   std::atomic<bool> mFull = false;
 };
 
-static LogFileOutput gFileOutput;
+static LogFileOutput* gFileOutput;
 
 namespace Log {
   class LogBuffer {
@@ -219,7 +219,7 @@ namespace Log {
         }
       }
     }
-    gFileOutput.flush();
+    gFileOutput->flush();
     mIsFlushing = false;
   }
 
@@ -289,6 +289,22 @@ namespace Log {
     va_end(args);
   }
 
+  void showAll() {
+    gLogger->showAll();
+  }
+
+  void hideAll() {
+    gLogger->hideAll();
+  }
+
+  void show(const char* tag) {
+    gLogger->show(tag);
+  }
+
+  void hide(const char* tag) {
+    gLogger->hide(tag);
+  }
+
   void flush() {
     gLogger->setFlushFlag();
     while (gLogger->isFlushing());
@@ -310,6 +326,7 @@ namespace Log {
   void startUp() {
     if (gLogger != nullptr) return;
     gLogger = new Logger();
+    gFileOutput = new LogFileOutput();
     gLogger->workingThread = new Thread(worker);
   }
 
@@ -379,42 +396,15 @@ namespace Log {
 
 void LogFileOutput::out(const std::string& line) {
   {
-    std::scoped_lock l(mCacheLock);
-    mCaches[mIndex] = line;
-    uint oldIndex = mIndex;
-    mIndex = (mIndex + 1) % MAX_FILE_LINE;
-    mFull = (mIndex != oldIndex + 1);
+    file << line;
+    fileStamped << line;
   }
 
 }
 
 void LogFileOutput::flush() {
-  if (mIndex == 0 && mFull == false) return;
-
-  {
-    std::scoped_lock l(mCacheLock);
-    if(mFull) {
-      uint current = mIndex;
-      do {
-        file << mCaches[current];
-        fileStamped << mCaches[current];
-        current = (current + 1) % MAX_FILE_LINE;
-      } while (current + 1 != mIndex);
-    } else {
-      uint current = 0;
-      while (current != mIndex) {
-        file << mCaches[current];
-        fileStamped << mCaches[current];
-        current++;
-      }
-    }
-    mIndex = 0;
-    mFull = false;
-  }
-
   file.flush();
   fileStamped.flush();
-
 }
 
 COMMAND_REG("log_filter", "name: string, display: bool", "display/hide log with certain tag") (Command& cmd) {
@@ -449,7 +439,7 @@ COMMAND_REG("block_log", "blocked: bool", "toggle whether to block log output") 
 }
 
 LOG_CB_REG(const Log::log_t& log) {
-  gFileOutput.out(log.toString());
+  gFileOutput->out(log.toString());
 }
 
 void logTest(uint threadCount) {
@@ -478,6 +468,16 @@ void logFlushTest() {
 
 COMMAND_REG("log_test", "", "") (Command&){
   logTest(4);
+  return true;
+}
+
+COMMAND_REG("disable_log", "tag: string", "filter display log with tag") (Command& cmd) {
+  Log::hide(cmd.arg<0, std::string>().c_str());
+  return true;
+}
+
+COMMAND_REG("enable_log", "tag: string", "display log with tag") (Command& cmd) {
+  Log::show(cmd.arg<0, std::string>().c_str());
   return true;
 }
 

@@ -501,7 +501,7 @@ std::string ShaderStage::makelineDirective(uint version, uint line, const Path& 
     line++;
   }
 
-  return Stringf("#line %u \"%s\"\n", line, filename.generic_string().c_str());
+  return Stringf("", line, filename.generic_string().c_str());
 }
 
 int ShaderStage::compile(const char* shaderStr, eShaderType type) {
