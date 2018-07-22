@@ -1,5 +1,6 @@
 ﻿#include "PipelineState.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 PipelineState::~PipelineState() {
   RHIDevice::get()->releaseResource(mRhiHandle);

@@ -1,12 +1,17 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RHIContextData.hpp"
-#include "Engine/Graphics/RHI/DescriptorPool.hpp"
-#include "Engine/Graphics/RHI/RHIBuffer.hpp"
 #include "Engine/Graphics/RHI/TypedBuffer.hpp"
-#include "Engine/Graphics/RHI/PipelineState.hpp"
 
+class DepthStencilView;
+class RenderTargetView;
+class FrameBuffer;
+class PipelineState;
+class RHIResource;
 class RHITexture;
+class RHIBuffer;
+class RHITexture;
+
 class RHIContext: std::enable_shared_from_this<RHIContext> {
 public:
   using sptr_t = S<RHIContext>;
@@ -31,10 +36,10 @@ public:
   void draw(uint start, uint count);
   void drawIndexed(uint vertStart, uint idxStart, uint count);
   void drawInstanced(uint startVert, uint startIns, uint vertCount, uint insCount);
-  void setPipelineState(const PipelineState::sptr_t& pso);
+  void setPipelineState(const PipelineState& pso);
   void setFrameBuffer(const FrameBuffer& fbo);
-  void setVertexBuffer(const VertexBuffer::sptr_t& vbo, uint streamIndex);
-  void setIndexBuffer(const IndexBuffer::sptr_t& ibo);
+  void setVertexBuffer(const VertexBuffer& vbo, uint streamIndex);
+  void setIndexBuffer(const IndexBuffer& ibo);
   void bindDescriptorHeap();
 
   void clearRenderTarget(const RenderTargetView& rtv, const Rgba& rgba);

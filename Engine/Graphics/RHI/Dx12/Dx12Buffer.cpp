@@ -1,6 +1,7 @@
 #include "Engine/Graphics/RHI/RHIBuffer.hpp"
 #include "Engine/Graphics/RHI/Dx12/Dx12Resource.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 ID3D12ResourcePtr createBuffer(RHIBuffer::State initState, size_t size, const D3D12_HEAP_PROPERTIES& heapProps, RHIBuffer::BindingFlag bindFlags) {
   // Create the buffer

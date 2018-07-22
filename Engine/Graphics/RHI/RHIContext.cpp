@@ -1,5 +1,6 @@
-﻿#include "RHIContext.hpp"
-
+﻿#include "Engine/Graphics/RHI/RHIBuffer.hpp"
+#include "Engine/Graphics/RHI/RHIResource.hpp"
+#include "RHIContext.hpp"
 void RHIContext::updateBuffer(RHIBuffer* buffer, const void* data, size_t offset, size_t byteCount) {
   if (byteCount == 0) {
     byteCount = buffer->size() - offset;

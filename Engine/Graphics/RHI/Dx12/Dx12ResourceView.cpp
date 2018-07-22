@@ -1,4 +1,6 @@
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
+#include "Engine/Graphics/RHI/DescriptorSet.hpp"
+
 ShaderResourceView::sptr_t ShaderResourceView::create(
   W<RHITexture> res, uint mostDetailedMip, uint mipCount, uint firstArraySlice, uint arraySize) {
   

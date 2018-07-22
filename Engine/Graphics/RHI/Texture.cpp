@@ -1,3 +1,4 @@
+#include "Engine/Graphics/RHI/ResourceView.hpp"
 #include "Texture.hpp"
 
 template<typename TexType, typename ...Args>

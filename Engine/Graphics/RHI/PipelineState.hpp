@@ -1,8 +1,9 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RootSignature.hpp"
-#include "Engine/Graphics/RHI/VertexLayout.hpp"
 #include "Engine/Graphics/RHI/FrameBuffer.hpp"
+
+class VertexLayout;
 
 class PipelineState {
 public:
@@ -54,7 +55,7 @@ public:
 
   ~PipelineState();
   static sptr_t create(const Desc& desc);
-  rhi_handle_t handle() { return mRhiHandle; }
+  rhi_handle_t handle() const { return mRhiHandle; }
   RootSignature::scptr_t rootSignature() const { return mDesc.mRootSignature; }
 protected:
   PipelineState(const Desc& desc) : mDesc(desc) {}

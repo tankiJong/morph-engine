@@ -6,6 +6,10 @@
 #include "Engine/Graphics/RHI/RHITexture.hpp"
 #include "Engine/Application/Window.hpp"
 #include "Engine/Graphics/RHI/TypedBuffer.hpp"
+#include "Engine/Graphics/RHI/RHIContextData.hpp"
+#include "Engine/Graphics/RHI/DescriptorPool.hpp"
+#include "Engine/Graphics/RHI/RHIBuffer.hpp"
+#include "Engine/Graphics/RHI/PipelineState.hpp"
 
 RHIContext::sptr_t RHIContext::create(command_queue_handle_t commandQueue) {
   sptr_t ctx = sptr_t(new RHIContext());
@@ -143,9 +147,9 @@ void RHIContext::drawInstanced(uint startVert, uint startIns, uint vertCount, ui
   mCommandsPending = true;
 }
 
-void RHIContext::setPipelineState(const PipelineState::sptr_t& pso) {
-  mContextData->commandList()->SetGraphicsRootSignature(pso->rootSignature()->handle());
-  mContextData->commandList()->SetPipelineState(pso->handle());
+void RHIContext::setPipelineState(const PipelineState& pso) {
+  mContextData->commandList()->SetGraphicsRootSignature(pso.rootSignature()->handle());
+  mContextData->commandList()->SetPipelineState(pso.handle());
 }
 
 void RHIContext::setFrameBuffer(const FrameBuffer& fbo) {
@@ -171,21 +175,21 @@ void RHIContext::setFrameBuffer(const FrameBuffer& fbo) {
   mCommandsPending = true;
 }
 
-void RHIContext::setVertexBuffer(const VertexBuffer::sptr_t& vbo, uint streamIndex) {
+void RHIContext::setVertexBuffer(const VertexBuffer& vbo, uint streamIndex) {
   D3D12_VERTEX_BUFFER_VIEW vb = {};
 
-  vb.BufferLocation = vbo->res().gpuAddress();
-  vb.StrideInBytes = vbo->stride();
-  vb.SizeInBytes = vbo->res().size();
+  vb.BufferLocation = vbo.res().gpuAddress();
+  vb.StrideInBytes = vbo.stride();
+  vb.SizeInBytes = vbo.res().size();
 
   mContextData->commandList()->IASetVertexBuffers(streamIndex, 1, &vb);
 }
 
-void RHIContext::setIndexBuffer(const IndexBuffer::sptr_t& ibo) {
+void RHIContext::setIndexBuffer(const IndexBuffer& ibo) {
   D3D12_INDEX_BUFFER_VIEW ib = {};
 
-  ib.BufferLocation = ibo->res().gpuAddress();
-  ib.SizeInBytes = ibo->res().size();
+  ib.BufferLocation = ibo.res().gpuAddress();
+  ib.SizeInBytes = ibo.res().size();
   ib.Format = DXGI_FORMAT_R32_UINT;
   mContextData->commandList()->IASetIndexBuffer(&ib);
 }
