@@ -1,4 +1,5 @@
 ﻿#include "RootSignature.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 u64 RootSignature::sObjectCoount = 0;
 RootSignature::sptr_t RootSignature::sEmptySignature;

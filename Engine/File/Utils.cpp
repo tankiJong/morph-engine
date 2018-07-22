@@ -45,6 +45,27 @@ Blob fs::read(const path& filePath) {
   }
 }
 
+bool fs::read(const path& filePath, const char*& outBuffer, size_t& outSize) {
+  std::ifstream file(filePath.c_str(), std::ios::binary | std::ios::ate);
+
+  std::streamsize size = file.tellg();
+
+  if (size == -1) {
+    return false;
+  }
+  file.seekg(0, std::ios::beg);
+
+  char* buffer = new char[(uint)size + 1];
+  if (file.read(buffer, size)) {
+    buffer[size] = 0;
+    outBuffer = buffer;
+    outSize = size;
+    return true;
+  } else {
+    return false;
+  }
+}
+
 void fs::write(const path& filePath, const void* buffer, size_t size) {
   std::ofstream file(filePath.c_str(), std::ofstream::out | std::ofstream::trunc);
 

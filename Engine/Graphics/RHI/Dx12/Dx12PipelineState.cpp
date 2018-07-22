@@ -1,6 +1,8 @@
 #include "Engine/Graphics/RHI/PipelineState.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 #include "Engine/File/Utils.hpp"
+#include "Engine/Graphics/RHI/Shader.hpp"
+
 
 void setFboDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, FrameBuffer::Desc& fboDesc) {
   static_assert(FrameBuffer::NUM_MAX_COLOR_TARGET <= 8);
@@ -14,7 +16,7 @@ void setFboDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, FrameBuffer::Desc& fbo
   desc.NumRenderTargets = numRtv;
 
    if(fboDesc.depthTargetFormat() != TEXTURE_FORMAT_UNKNOWN) {
-     desc.DSVFormat = toDXGIFormat(fboDesc.depthTargetFormat());
+     desc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
      desc.DepthStencilState.DepthEnable = TRUE;
      desc.DepthStencilState.StencilEnable = TRUE;
   
@@ -67,30 +69,51 @@ bool PipelineState::rhiInit() {
 
 
   // hard coded shader
-  ID3DBlob* vertexShader = nullptr;
-  ID3DBlob* pixelShader = nullptr;
+  // ID3DBlob* vertexShader = nullptr;
+  // ID3DBlob* pixelShader = nullptr;
 
-#if defined(_DEBUG)
-  // Enable better shader debugging with the graphics debugging tools.
-  UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#else
-  UINT compileFlags = 0;
-#endif
-  fs::path shaderPath;
+// #if defined(_DEBUG)
+//   // Enable better shader debugging with the graphics debugging tools.
+//   UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+// #else
+//   UINT compileFlags = 0;
+// #endif
+  std::string shaderPath;
   if(i == 0) {
-    shaderPath = fs::absolute("shaders.hlsl");
+    shaderPath = "shaders.hlsl";
     i++;
   } else {
-    shaderPath = fs::absolute("ssao.hlsl");
+    shaderPath = "ssao.hlsl";
   }
-  d3d_call(D3DCompileFromFile(shaderPath.c_str(), nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr));
-  d3d_call(D3DCompileFromFile(shaderPath.c_str(), nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr));
+
+  Shader::sptr_t vertexShader = Shader::create(shaderPath, "VSMain", SHADER_TYPE_VERTEX);
+  Shader::sptr_t pixelShader = Shader::create(shaderPath, "PSMain", SHADER_TYPE_FRAGMENT);
+
+  //shader->define("TEST", "1");
+  //shader->define("TET");
+
+  vertexShader->compile();
+  pixelShader->compile();
+
+  // d3d_call(D3DCompileFromFile(shaderPath.c_str(), nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr));
+  // d3d_call(D3DCompileFromFile(shaderPath.c_str(), nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr));
+
+  // ID3D12ShaderReflection* reflactor = nullptr;
+  // HRESULT re = D3DReflect(pixelShader->GetBufferPointer(), pixelShader->GetBufferSize(), IID_PPV_ARGS(&reflactor));
+  //
+  // D3D12_SHADER_INPUT_BIND_DESC bindingDesc;
+  // D3D12_SHADER_DESC shaderDesc;
+  // reflactor->GetDesc(&shaderDesc);
+  // for (uint i = 0; i < shaderDesc.BoundResources; i++) {
+  //   reflactor->GetResourceBindingDesc(i, &bindingDesc);
+  // }
+  // auto const0 = reflactor->GetResourceBindingDesc(0, &bindingDesc);
 
   D3D12_SHADER_BYTECODE VS, PS;
-  VS.pShaderBytecode = vertexShader->GetBufferPointer();
-  VS.BytecodeLength = vertexShader->GetBufferSize();
-  PS.pShaderBytecode = pixelShader->GetBufferPointer();
-  PS.BytecodeLength = pixelShader->GetBufferSize();
+  VS.pShaderBytecode = vertexShader->handle();
+  VS.BytecodeLength = vertexShader->size();
+  PS.pShaderBytecode = pixelShader->handle();
+  PS.BytecodeLength = pixelShader->size();
 
   desc.VS = VS;
   desc.PS = PS;

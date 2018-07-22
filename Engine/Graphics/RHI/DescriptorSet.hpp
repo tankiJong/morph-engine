@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
-#include "Engine/Renderer/Shader/Shader.hpp"
 #include "Engine/Graphics/RHI/DescriptorPool.hpp"
 
 class ShaderResourceView;

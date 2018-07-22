@@ -3,8 +3,6 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RHI.hpp"
 
-class VertexBuffer;
-
 struct VertexAttribute {
   uint streamIndex = 0;
   std::string name;
@@ -15,7 +13,7 @@ struct VertexAttribute {
   uint offsetInVertexArray;
   VertexAttribute(uint streamIndex, std::string name, eDataDeclType type, uint count, uint offset, bool isNormalized, uint offsetInVertexArray);
 
-  void initVertexBuffer(VertexBuffer& vbo) const;
+  //void initVertexBuffer(VertexBuffer& vbo) const { }
 
   uint stride() const;
 };

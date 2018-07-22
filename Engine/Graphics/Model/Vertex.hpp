@@ -23,6 +23,7 @@ DeclVertexType(vertex_lit_t) {
   vec2 uvs{ 0.f };
 
   vec3 normal;
+  vec3 tangent;
 };
 
 struct vertex_t {

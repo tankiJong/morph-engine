@@ -41,6 +41,7 @@ enum eTextDrawMode {
 };
 
 enum eShaderType {
+  SHADER_TYPE_UNKNOWN,
   SHADER_TYPE_VERTEX,
   SHADER_TYPE_FRAGMENT,
   NUM_SHADER_TYPE,

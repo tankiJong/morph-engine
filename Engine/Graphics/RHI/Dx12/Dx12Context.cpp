@@ -5,6 +5,7 @@
 #include "Engine/Graphics/RHI/Dx12/Dx12DescriptorData.hpp"
 #include "Engine/Graphics/RHI/RHITexture.hpp"
 #include "Engine/Application/Window.hpp"
+#include "Engine/Graphics/RHI/TypedBuffer.hpp"
 
 RHIContext::sptr_t RHIContext::create(command_queue_handle_t commandQueue) {
   sptr_t ctx = sptr_t(new RHIContext());
@@ -170,21 +171,21 @@ void RHIContext::setFrameBuffer(const FrameBuffer& fbo) {
   mCommandsPending = true;
 }
 
-void RHIContext::setVertexBuffer(const S<RHIBuffer>& vbo, uint elementSize, uint streamIndex) {
+void RHIContext::setVertexBuffer(const VertexBuffer::sptr_t& vbo, uint streamIndex) {
   D3D12_VERTEX_BUFFER_VIEW vb = {};
 
-  vb.BufferLocation = vbo->gpuAddress();
-  vb.StrideInBytes = elementSize;
-  vb.SizeInBytes = vbo->size();
+  vb.BufferLocation = vbo->res().gpuAddress();
+  vb.StrideInBytes = vbo->stride();
+  vb.SizeInBytes = vbo->res().size();
 
   mContextData->commandList()->IASetVertexBuffers(streamIndex, 1, &vb);
 }
 
-void RHIContext::setIndexBuffer(const S<RHIBuffer>& ibo) {
+void RHIContext::setIndexBuffer(const IndexBuffer::sptr_t& ibo) {
   D3D12_INDEX_BUFFER_VIEW ib = {};
 
-  ib.BufferLocation = ibo->gpuAddress();
-  ib.SizeInBytes = ibo->size();
+  ib.BufferLocation = ibo->res().gpuAddress();
+  ib.SizeInBytes = ibo->res().size();
   ib.Format = DXGI_FORMAT_R32_UINT;
   mContextData->commandList()->IASetIndexBuffer(&ib);
 }

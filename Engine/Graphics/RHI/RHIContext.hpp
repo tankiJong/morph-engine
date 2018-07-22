@@ -3,10 +3,10 @@
 #include "Engine/Graphics/RHI/RHIContextData.hpp"
 #include "Engine/Graphics/RHI/DescriptorPool.hpp"
 #include "Engine/Graphics/RHI/RHIBuffer.hpp"
+#include "Engine/Graphics/RHI/TypedBuffer.hpp"
 #include "Engine/Graphics/RHI/PipelineState.hpp"
 
 class RHITexture;
-
 class RHIContext: std::enable_shared_from_this<RHIContext> {
 public:
   using sptr_t = S<RHIContext>;
@@ -33,8 +33,8 @@ public:
   void drawInstanced(uint startVert, uint startIns, uint vertCount, uint insCount);
   void setPipelineState(const PipelineState::sptr_t& pso);
   void setFrameBuffer(const FrameBuffer& fbo);
-  void setVertexBuffer(const S<RHIBuffer>& vbo, uint elementSize, uint streamIndex);
-  void setIndexBuffer(const S<RHIBuffer>& ibo);
+  void setVertexBuffer(const VertexBuffer::sptr_t& vbo, uint streamIndex);
+  void setIndexBuffer(const IndexBuffer::sptr_t& ibo);
   void bindDescriptorHeap();
 
   void clearRenderTarget(const RenderTargetView& rtv, const Rgba& rgba);

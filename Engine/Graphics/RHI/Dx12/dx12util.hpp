@@ -7,6 +7,8 @@
 #include "Engine/Graphics/RHI/RHIType.hpp"
 class DescriptorSet;
 
+static_assert(D3D_COMPILER_VERSION >= 47);
+
 #define EXPECT_HR_SUCCESSED(hr) EXPECTS(SUCCEEDED(hr));
 
 void d3dTraceHR(const std::string& msg, HRESULT hr);

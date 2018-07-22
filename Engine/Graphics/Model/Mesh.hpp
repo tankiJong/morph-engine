@@ -4,7 +4,7 @@
 #include "Vertex.hpp"
 #include "Engine/Core/Resource.hpp"
 #include "Engine/Graphics/RHI/RHIBuffer.hpp"
-
+#include "Engine/Graphics/RHI/TypedBuffer.hpp"
 struct draw_instr_t {
   eDrawPrimitive prim = DRAW_TRIANGES;
   bool useIndices = true;
@@ -26,17 +26,18 @@ public:
   inline Mesh& setInstructions(const std::vector<draw_instr_t>& ins) { mIns = ins; return *this; };
   Mesh& resetInstruction(uint index);
 
-  const RHIBuffer::sptr_t& vertices(uint streamIndex) const { return mVertices[streamIndex]; }
-  const RHIBuffer::sptr_t& indices() const { return mIndices; }
+  const VertexBuffer::sptr_t& vertices(uint streamIndex) const { return mVertices[streamIndex]; }
+  const IndexBuffer::sptr_t& indices() const { return mIndices; }
   const draw_instr_t& instruction(uint i = 0) const { return mIns[i]; }
   span<const draw_instr_t> instructions() const { return mIns; }
   draw_instr_t& instruction(uint i = 0) { return mIns[i]; }
   const VertexLayout& layout() const { return *mLayout; }
   uint subMeshCount() const { return (uint)mIns.size(); }
+
+  std::vector<VertexBuffer::sptr_t> mVertices;
+  IndexBuffer::sptr_t  mIndices;
 protected:
   Mesh(const VertexLayout* layout);
-  std::vector<RHIBuffer::sptr_t> mVertices;
-  RHIBuffer::sptr_t  mIndices;
   std::vector<draw_instr_t> mIns;
   const VertexLayout* mLayout = nullptr;
 
@@ -62,5 +63,5 @@ public:
   }
 };
 
-template<>
-ResDef<Mesh> Resource<Mesh>::load(const std::string& file);
+//template<>
+//ResDef<Mesh> Resource<Mesh>::load(const std::string& file);
