@@ -2,7 +2,8 @@
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 #include "Engine/File/Utils.hpp"
 #include "Engine/Graphics/RHI/Shader.hpp"
-
+#include "Engine/Graphics/Program/Program.hpp"
+#include "Engine/Graphics/Model/Vertex.hpp"
 
 void setFboDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, FrameBuffer::Desc& fboDesc) {
   static_assert(FrameBuffer::NUM_MAX_COLOR_TARGET <= 8);
@@ -89,12 +90,14 @@ bool PipelineState::rhiInit() {
   Shader::sptr_t vertexShader = Shader::create(shaderPath, "VSMain", SHADER_TYPE_VERTEX);
   Shader::sptr_t pixelShader = Shader::create(shaderPath, "PSMain", SHADER_TYPE_FRAGMENT);
 
+  Program prog;
+
+  prog.stage(SHADER_TYPE_VERTEX).setFromFile(shaderPath, "VSMain");
+  prog.stage(SHADER_TYPE_FRAGMENT).setFromFile(shaderPath, "PSMain");
   //shader->define("TEST", "1");
   //shader->define("TET");
 
-  vertexShader->compile();
-  pixelShader->compile();
-
+  prog.compile();
   // d3d_call(D3DCompileFromFile(shaderPath.c_str(), nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr));
   // d3d_call(D3DCompileFromFile(shaderPath.c_str(), nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr));
 
@@ -110,10 +113,10 @@ bool PipelineState::rhiInit() {
   // auto const0 = reflactor->GetResourceBindingDesc(0, &bindingDesc);
 
   D3D12_SHADER_BYTECODE VS, PS;
-  VS.pShaderBytecode = vertexShader->handle();
-  VS.BytecodeLength = vertexShader->size();
-  PS.pShaderBytecode = pixelShader->handle();
-  PS.BytecodeLength = pixelShader->size();
+  VS.pShaderBytecode = prog.stage(SHADER_TYPE_VERTEX).handle();
+  VS.BytecodeLength = prog.stage(SHADER_TYPE_VERTEX).size();
+  PS.pShaderBytecode = prog.stage(SHADER_TYPE_FRAGMENT).handle();
+  PS.BytecodeLength = prog.stage(SHADER_TYPE_FRAGMENT).size();
 
   desc.VS = VS;
   desc.PS = PS;

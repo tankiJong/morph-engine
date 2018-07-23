@@ -1,6 +1,5 @@
 #include "Engine/Graphics/RHI/RHI.hpp"
 #include "Engine/Graphics/RHI/Shader.hpp"
-#include <stack>
 #include "Engine/File/Utils.hpp"
 #include <optional>
 
@@ -54,6 +53,7 @@ public:
 static Dx12Include gIncluder;
 
 void Shader::compile() {
+  if (!mSource.valid()) return;
   D3D_SHADER_MACRO* defines
     = mDefineDirectives.empty()
     ? nullptr
@@ -87,9 +87,8 @@ void Shader::compile() {
   ID3DBlob* bin = nullptr;
   ID3DBlob* err = nullptr;
 
-  std::wstring path = make_wstring(mFilePath);
-  HRESULT re = D3DCompileFromFile(path.c_str(), defines, &gIncluder,
-                     mEntryPoint.c_str(), target, compileFlags, 0, &bin, &err);
+  HRESULT re = D3DCompile(mSource, mSource.size(), mFilePath.c_str(), defines, &gIncluder,
+             mEntryPoint.c_str(), target, compileFlags, 0, &bin, &err);
 
   if(re != S_OK) {
     ERROR_AND_DIE((char*)err->GetBufferPointer());

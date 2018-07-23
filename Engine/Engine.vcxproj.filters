@@ -154,6 +154,9 @@
     <Filter Include="Engine\Async">
       <UniqueIdentifier>{bb50a879-b402-48dd-8d84-403e5e2990d1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Graphics\Program">
+      <UniqueIdentifier>{120d53e1-ff5b-4681-8598-4f9b99b39277}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -572,6 +575,12 @@
     </ClCompile>
     <ClCompile Include="Graphics\RHI\Dx12\Dx12Shader.cpp">
       <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Program\Program.cpp">
+      <Filter>Engine\Graphics\Program</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Program\Material.cpp">
+      <Filter>Engine\Graphics\Program</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1144,6 +1153,12 @@
     </ClInclude>
     <ClInclude Include="Graphics\RHI\Shader.hpp">
       <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Program\Program.hpp">
+      <Filter>Engine\Graphics\Program</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Program\Material.hpp">
+      <Filter>Engine\Graphics\Program</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
