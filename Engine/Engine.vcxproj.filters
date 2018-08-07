@@ -157,6 +157,12 @@
     <Filter Include="Engine\Graphics\Program">
       <UniqueIdentifier>{120d53e1-ff5b-4681-8598-4f9b99b39277}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ThirdParty\d3d12">
+      <UniqueIdentifier>{f5fe72b5-0c0c-4669-a2eb-b03fcc721ddd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\d3d12\FallbackLayer">
+      <UniqueIdentifier>{84a64db2-9e5d-4fd9-b86e-14e750118db5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -1040,9 +1046,6 @@
     <ClInclude Include="Graphics\RHI\Fence.hpp">
       <Filter>Engine\Graphics\RHI</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\RHI\Dx12\d3d12.h">
-      <Filter>Engine\Graphics\RHI\Dx12</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\RHI\Dx12\Dx12DescriptorHeap.hpp">
       <Filter>Engine\Graphics\RHI\Dx12</Filter>
     </ClInclude>
@@ -1160,6 +1163,30 @@
     <ClInclude Include="Graphics\Program\Material.hpp">
       <Filter>Engine\Graphics\Program</Filter>
     </ClInclude>
+    <ClInclude Include="..\ThirdParty\d3d12\FallbackLayer\d3d12.h">
+      <Filter>ThirdParty\d3d12\FallbackLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\d3d12\FallbackLayer\d3d12_1.h">
+      <Filter>ThirdParty\d3d12\FallbackLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\d3d12\FallbackLayer\D3D12RaytracingFallback.h">
+      <Filter>ThirdParty\d3d12\FallbackLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\d3d12\FallbackLayer\D3D12RaytracingPrototypeHelpers.hpp">
+      <Filter>ThirdParty\d3d12\FallbackLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\d3d12\FallbackLayer\d3d12video.h">
+      <Filter>ThirdParty\d3d12\FallbackLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\d3d12\FallbackLayer\d3dx12.h">
+      <Filter>ThirdParty\d3d12\FallbackLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\d3d12\FallbackLayer\dxcapi.h">
+      <Filter>ThirdParty\d3d12\FallbackLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\Dx12\d3d12.h">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\ThirdParty\fmod\fmod_vc.lib">
@@ -1232,6 +1259,9 @@
     </None>
     <None Include="..\Content\shader\default\solid.shader">
       <Filter>Content\shader\default</Filter>
+    </None>
+    <None Include="..\ThirdParty\d3d12\FallbackLayer\FallbackLayer_debug.pdb">
+      <Filter>ThirdParty\d3d12\FallbackLayer</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

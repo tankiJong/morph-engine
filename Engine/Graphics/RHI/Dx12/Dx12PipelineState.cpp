@@ -64,8 +64,7 @@ void setDx12InputLayout(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, const VertexLa
   desc.InputLayout = { eles, (uint)attrs.size() };
 }
 
-bool PipelineState::rhiInit() {
-  static uint i = 0;
+bool GraphicsState::rhiInit() {
   D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {};
 
 
@@ -79,25 +78,7 @@ bool PipelineState::rhiInit() {
 // #else
 //   UINT compileFlags = 0;
 // #endif
-  std::string shaderPath;
-  if(i == 0) {
-    shaderPath = "shaders.hlsl";
-    i++;
-  } else {
-    shaderPath = "ssao.hlsl";
-  }
 
-  Shader::sptr_t vertexShader = Shader::create(shaderPath, "VSMain", SHADER_TYPE_VERTEX);
-  Shader::sptr_t pixelShader = Shader::create(shaderPath, "PSMain", SHADER_TYPE_FRAGMENT);
-
-  Program prog;
-
-  prog.stage(SHADER_TYPE_VERTEX).setFromFile(shaderPath, "VSMain");
-  prog.stage(SHADER_TYPE_FRAGMENT).setFromFile(shaderPath, "PSMain");
-  //shader->define("TEST", "1");
-  //shader->define("TET");
-
-  prog.compile();
   // d3d_call(D3DCompileFromFile(shaderPath.c_str(), nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr));
   // d3d_call(D3DCompileFromFile(shaderPath.c_str(), nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr));
 
@@ -113,10 +94,10 @@ bool PipelineState::rhiInit() {
   // auto const0 = reflactor->GetResourceBindingDesc(0, &bindingDesc);
 
   D3D12_SHADER_BYTECODE VS, PS;
-  VS.pShaderBytecode = prog.stage(SHADER_TYPE_VERTEX).handle();
-  VS.BytecodeLength = prog.stage(SHADER_TYPE_VERTEX).size();
-  PS.pShaderBytecode = prog.stage(SHADER_TYPE_FRAGMENT).handle();
-  PS.BytecodeLength = prog.stage(SHADER_TYPE_FRAGMENT).size();
+  VS.pShaderBytecode = mDesc.mProgram->stage(SHADER_TYPE_VERTEX).handle();
+  VS.BytecodeLength = mDesc.mProgram->stage(SHADER_TYPE_VERTEX).size();
+  PS.pShaderBytecode = mDesc.mProgram->stage(SHADER_TYPE_FRAGMENT).handle();
+  PS.BytecodeLength = mDesc.mProgram->stage(SHADER_TYPE_FRAGMENT).size();
 
   desc.VS = VS;
   desc.PS = PS;
@@ -164,6 +145,31 @@ bool PipelineState::rhiInit() {
   desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
   desc.SampleDesc.Count = 1;
 
-  d3d_call(RHIDevice::get()->nativeDevice()->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&mRhiHandle)))
+  d3d_call(RHIDevice::get()->nativeDevice()->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&mRhiHandle)));
+  return true;
+}
+
+ComputeState::sptr_t ComputeState::create(const Desc& desc) {
+  sptr_t pps = sptr_t(new ComputeState(desc));
+
+  if (!pps->rhiInit()) return nullptr;
+
+  return pps;
+}
+
+bool ComputeState::rhiInit() {
+  D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
+
+  Shader::sptr_t shader = Shader::create("compute.hlsl", "main", SHADER_TYPE_COMPUTE);
+
+  shader->compile();
+
+  D3D12_SHADER_BYTECODE CS;
+  CS.pShaderBytecode = shader->handle();
+  CS.BytecodeLength = shader->size();
+
+  desc.CS = CS;
+  desc.pRootSignature = mDesc.mRootSignature ? mDesc.mRootSignature->handle() : nullptr;
+  d3d_call(RHIDevice::get()->nativeDevice()->CreateComputePipelineState(&desc, IID_PPV_ARGS(&mRhiHandle)));
   return true;
 }

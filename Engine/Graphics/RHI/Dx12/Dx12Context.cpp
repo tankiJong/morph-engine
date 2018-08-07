@@ -131,6 +131,10 @@ void RHIContext::afterFrame() {
   // mContextData->commandList()->ResourceBarrier(1, &rtBarrier);
 }
 
+void RHIContext::dispatch(uint threadGroupX, uint threadGroupY, uint threadGroupCount) {
+  mContextData->commandList()->Dispatch(threadGroupX, threadGroupY, threadGroupCount);
+}
+
 void RHIContext::draw(uint start, uint count) {
   drawInstanced(start, 0, count, 1);
 }
@@ -147,8 +151,13 @@ void RHIContext::drawInstanced(uint startVert, uint startIns, uint vertCount, ui
   mCommandsPending = true;
 }
 
-void RHIContext::setPipelineState(const PipelineState& pso) {
+void RHIContext::setGraphicsState(const GraphicsState& pso) {
   mContextData->commandList()->SetGraphicsRootSignature(pso.rootSignature()->handle());
+  mContextData->commandList()->SetPipelineState(pso.handle());
+}
+
+void RHIContext::setComputeState(const ComputeState& pso) {
+  mContextData->commandList()->SetComputeRootSignature(pso.rootSignature()->handle());
   mContextData->commandList()->SetPipelineState(pso.handle());
 }
 

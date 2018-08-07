@@ -1,7 +1,7 @@
 #include "Engine/Graphics/RHI/RootSignature.hpp"
 #include <vector>
 #include "Engine/Math/MathUtils.hpp"
-#include "Game/dx12/dx12util.hpp"
+#include "Engine/Graphics/RHI/Dx12/dx12util.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 
 uint mSizeInByte;
@@ -108,13 +108,7 @@ bool RootSignature::rhiInit() {
   ID3DBlobPtr sigBlob;
   ID3DBlobPtr errBlob;
 
-  HRESULT hr = D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1_0, &sigBlob, &errBlob);
-
-  if(HR_FAILED(hr)) {
-    std::string msg = convertBlobToString(errBlob.GetInterfacePtr());
-    DEBUGBREAK;
-    return false;
-  }
+  d3d_call(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1_0, &sigBlob, &errBlob));
 
   if(mSizeInBytes > sizeof(uint) + D3D12_MAX_ROOT_COST) {
     ERROR_AND_DIE("Root-signature cost is too high. D3D12 root-signatures are limited to 64 DWORDs, trying to create a signature with" + std::to_string(mSizeInBytes / sizeof(uint)) + "DWORDS");

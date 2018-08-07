@@ -1,5 +1,6 @@
 #pragma once
 #include "RHI.hpp"
+#include "Engine/Graphics/RHI/ResourceView.hpp"
 
 class RHIResource: public std::enable_shared_from_this<RHIResource> {
   friend class RHIContext;
@@ -21,6 +22,9 @@ public:
     RenderTarget = 0x40,    ///< The resource will be bound as a render-target
     DepthStencil = 0x80,    ///< The resource will be bound as a depth-stencil buffer
     IndirectArg = 0x100,    ///< The resource will be bound as an indirect argument buffer
+#ifdef MORPH_DXR
+    AccelerationStructure = 0x80000000,
+#endif
   };
 
   /** Resource types. Notice there are no array types. Array are controlled using the array size parameter on texture creation.
@@ -68,6 +72,7 @@ public:
   inline State state() const { return mState; }
   inline Type type() const { return mType; }
 
+  virtual const UnorderedAccessView* uav() { return nullptr; };
   virtual ~RHIResource();
 protected:
   RHIResource(Type type, BindingFlag bindings): mType(type), mBindingFlags(bindings) {}
@@ -75,6 +80,7 @@ protected:
   handle_t mRhiHandle;
   Type mType;
   BindingFlag mBindingFlags;
+  UnorderedAccessView::sptr_t mUav;
   mutable State mState = State::Common;
 };
 

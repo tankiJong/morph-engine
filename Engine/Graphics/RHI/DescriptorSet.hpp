@@ -2,6 +2,7 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/DescriptorPool.hpp"
 
+class UnorderedAccessView;
 class ShaderResourceView;
 class ConstantBufferView;
 class DescriptorSetRhiData;
@@ -60,8 +61,9 @@ public:
 
   void setCbv(uint rangeIndex, uint descIndex, const ConstantBufferView& view);
   void setSrv(uint rangeIndex, uint descIndex, const ShaderResourceView& view);
-
+  void setUav(uint rangeIndex, uint descIndex, const UnorderedAccessView& view);
   void bindForGraphics(const RHIContext& ctx, const RootSignature& root, uint rootIndex = 0);
+  void bindForCompute(const RHIContext& ctx, const RootSignature& root, uint rootIndex = 0);
   static sptr_t create(const DescriptorPool::sptr_t& pool, const Layout& layout);
 
   ~DescriptorSet();

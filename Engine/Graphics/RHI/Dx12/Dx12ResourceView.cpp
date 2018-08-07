@@ -152,3 +152,40 @@ DepthStencilView::sptr_t DepthStencilView::create(W<RHITexture> res, uint mipLev
 
   return dsv;
 }
+
+
+UnorderedAccessView::sptr_t UnorderedAccessView::create(W<Texture2> res, uint mipLevel) {
+  Texture2::scptr_t ptr = res.lock();
+
+  if(!ptr && sNullView) {
+    return sNullView;
+  }
+
+  D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
+  desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+  
+  RHIResource::handle_t resHandle = nullptr;
+  RHIResource::handle_t counterHandle = nullptr;
+
+  if(ptr) {
+    desc.Format = toDXGIFormat(ptr->format());
+    desc.Texture2D.MipSlice = mipLevel;
+    resHandle = ptr->handle();
+  } else {
+    desc.Format = DXGI_FORMAT_UNKNOWN;
+  }
+
+  DescriptorSet::Layout layout;
+  layout.addRange(DescriptorSet::Type::TextureUav, 0, 1);
+  rhi_handle_t handle = DescriptorSet::create(RHIDevice::get()->cpuDescriptorPool(), layout);
+  ENSURES(handle);
+
+  TODO("uav will need a counter res if we actually care about");
+  RHIDevice::get()->nativeDevice()->CreateUnorderedAccessView(resHandle, counterHandle, &desc, handle->cpuHandle(0));
+
+  sptr_t obj;
+  sptr_t uav = ptr ? obj : sNullView;
+  uav = sptr_t(new UnorderedAccessView(res, handle, mipLevel, 0, 1));
+
+  return uav;
+}

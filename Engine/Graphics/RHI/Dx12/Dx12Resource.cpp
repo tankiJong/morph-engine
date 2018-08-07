@@ -139,7 +139,7 @@ D3D12_RESOURCE_STATES asDx12ResourceState(RHIResource::State state) {
     case RHIResource::State::NonPixelShader:
       return D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 #ifdef MORPH_DXR
-    case Resource::State::AccelerationStructure:
+    case RHIResource::State::AccelerationStructure:
       return D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE;
 #endif
     default:

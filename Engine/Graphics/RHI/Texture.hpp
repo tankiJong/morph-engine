@@ -2,14 +2,16 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RHITexture.hpp"
 
-
 class Texture2: public RHITexture, public inherit_shared_from_this<RHITexture, Texture2> {
 public:
   using sptr_t = std::shared_ptr<Texture2>;
+  using scptr_t = std::shared_ptr<const Texture2>;
   using inherit_shared_from_this<RHITexture, Texture2>::shared_from_this;
 
   const RenderTargetView& rtv();
   const DepthStencilView* dsv();
+
+  virtual const UnorderedAccessView* uav() override;
   static Texture2::sptr_t create(
     uint width, uint height, eTextureFormat format, 
     BindingFlag flag =  BindingFlag::ShaderResource, 

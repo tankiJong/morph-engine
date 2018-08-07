@@ -8,6 +8,10 @@
     <LocalDebuggerWorkingDirectory>$(SolutionDir)Run_win32\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">
+    <LocalDebuggerWorkingDirectory>$(SolutionDir)Run_win32\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-DX12|Win32'">
     <LocalDebuggerWorkingDirectory>$(SolutionDir)Run_win32\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
@@ -29,6 +33,10 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">
+    <LocalDebuggerWorkingDirectory>$(SolutionDir)Run_win32\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">
     <LocalDebuggerWorkingDirectory>$(SolutionDir)Run_win32\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>

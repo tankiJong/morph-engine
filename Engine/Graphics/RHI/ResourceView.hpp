@@ -6,6 +6,7 @@
 class RHIResource;
 class RHIBuffer;
 class RHITexture;
+class Texture2;
 
 struct ResourceViewInfo {
   uint mostDetailedMip;
@@ -94,7 +95,7 @@ protected:
   static sptr_t sNullView;
 };
 
-class DepthStencilView : public ResourceView<rtv_handle_t> {
+class DepthStencilView : public ResourceView<dsv_handle_t> {
 public:
   using sptr_t = S<DepthStencilView>;
   using scptr_t = S<const DepthStencilView>;
@@ -104,6 +105,20 @@ public:
 
 protected:
   DepthStencilView(W<RHIResource> res, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize) : ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize) {}
+
+  static sptr_t sNullView;
+};
+
+class UnorderedAccessView : public ResourceView<uav_handle_t> {
+public:
+  using sptr_t = S<UnorderedAccessView>;
+  using scptr_t = S<const UnorderedAccessView>;
+
+  static sptr_t create(W<Texture2> res, uint mipLevel = 0);
+  static sptr_t nullView();
+
+protected:
+  UnorderedAccessView(W<RHIResource> res, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize) : ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize) {}
 
   static sptr_t sNullView;
 };

@@ -1,4 +1,3 @@
-#include "Engine/Graphics/RHI/Shader.hpp"
 #include "Program.hpp"
 
 Program::Program() {

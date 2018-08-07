@@ -20,6 +20,7 @@ public:
   public:
     Desc& defineColorTarget(uint index, eTextureFormat format, bool allowUav = false) {
       colorTargets[index] = { format, allowUav };
+      return *this;
     }
 
     eTextureFormat colorTargetFormat(uint index) const {
@@ -31,6 +32,7 @@ public:
     }
     Desc& defineDepthTarget(eTextureFormat format, bool allowUav = false) {
       depthTarget = { format, allowUav };
+      return *this;
     }
 
   protected:

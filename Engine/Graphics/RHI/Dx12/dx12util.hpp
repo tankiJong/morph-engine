@@ -1,10 +1,21 @@
 #pragma once
-#include "d3d12.h"
-#include <d3dcompiler.h>
+
+#ifdef MORPH_DXR
+
+#if defined( _WIN64 )
+#include "ThirdParty/d3d12/FallbackLayer/d3dx12.h"
+#include "ThirdParty/d3d12/FallbackLayer/D3D12RaytracingFallback.h"
+#endif
+
+#else
+#include "./d3d12.h"
+#endif
+
 #include <comdef.h>
 #include <dxgi1_4.h>
 #include <dxgiformat.h>
 #include "Engine/Graphics/RHI/RHIType.hpp"
+#include <d3dcompiler.h>
 class DescriptorSet;
 
 static_assert(D3D_COMPILER_VERSION >= 47);
@@ -69,6 +80,8 @@ using eCommandQueueType = D3D12_COMMAND_LIST_TYPE;
 
 using srv_handle_t = S<DescriptorSet>;
 using rtv_handle_t = S<DescriptorSet>;
+using dsv_handle_t = S<DescriptorSet>;
+using uav_handle_t = S<DescriptorSet>;
 using sampler_handle_t = S<DescriptorSet>;
 using cbv_handle_t = S<DescriptorSet>;
 

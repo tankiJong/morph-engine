@@ -2,12 +2,12 @@
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 
-PipelineState::~PipelineState() {
+GraphicsState::~GraphicsState() {
   RHIDevice::get()->releaseResource(mRhiHandle);
 }
 
-PipelineState::sptr_t PipelineState::create(const Desc& desc) {
-  sptr_t state = sptr_t(new PipelineState(desc));
+GraphicsState::sptr_t GraphicsState::create(const Desc& desc) {
+  sptr_t state = sptr_t(new GraphicsState(desc));
 
   if(state->rhiInit() == false) {
     DEBUGBREAK;

@@ -63,10 +63,13 @@ void Shader::compile() {
 
   switch(mShaderType) {
     case SHADER_TYPE_VERTEX:
-      target = "vs_5_0";
+      target = "vs_5_1";
     break;
     case SHADER_TYPE_FRAGMENT:
-      target = "ps_5_0";
+      target = "ps_5_1";
+    break;
+    case SHADER_TYPE_COMPUTE:
+      target = "cs_5_0";
     break;
     default: ;
   }

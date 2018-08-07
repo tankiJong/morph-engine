@@ -15,6 +15,8 @@ public:
   void setType(eShaderType type);
   void setFromFile(const std::string_view file, std::string_view entry);
   void setFromString(const std::string_view source, std::string_view entry);
+  void compile();
+
   void* handle() const;
   size_t size() const;
   static sptr_t create(const std::string_view file, std::string_view entry, eShaderType type);
@@ -22,7 +24,6 @@ public:
   Shader(const std::string_view file, std::string_view entry, eShaderType type);
   Shader() = default;
 protected:
-  void compile();
   std::string mFilePath;
   Blob mSource;
   std::string mEntryPoint;

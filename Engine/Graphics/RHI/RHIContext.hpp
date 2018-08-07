@@ -3,10 +3,11 @@
 #include "Engine/Graphics/RHI/RHIContextData.hpp"
 #include "Engine/Graphics/RHI/TypedBuffer.hpp"
 
+class ComputeState;
 class DepthStencilView;
 class RenderTargetView;
 class FrameBuffer;
-class PipelineState;
+class GraphicsState;
 class RHIResource;
 class RHITexture;
 class RHIBuffer;
@@ -33,10 +34,14 @@ public:
   //-------------------------------------------------
   void beforeFrame();
   void  afterFrame();
+
+  void dispatch(uint threadGroupX, uint threadGroupY, uint threadGroupCount);
+
   void draw(uint start, uint count);
   void drawIndexed(uint vertStart, uint idxStart, uint count);
   void drawInstanced(uint startVert, uint startIns, uint vertCount, uint insCount);
-  void setPipelineState(const PipelineState& pso);
+  void setGraphicsState(const GraphicsState& pso);
+  void setComputeState(const ComputeState& pso);
   void setFrameBuffer(const FrameBuffer& fbo);
   void setVertexBuffer(const VertexBuffer& vbo, uint streamIndex);
   void setIndexBuffer(const IndexBuffer& ibo);
@@ -46,7 +51,6 @@ public:
   void clearDepthStencilTarget(const DepthStencilView& dsv, 
                                bool clearDepth = true, bool clearStencil = true,
                                float depth = 1.f, u8 stencil = 0);
-
   static sptr_t create(command_queue_handle_t commandQueue);
 
 protected:

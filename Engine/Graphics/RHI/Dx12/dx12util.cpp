@@ -3,6 +3,14 @@
 #include <clocale> 
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 
+#if defined( MORPH_DXR )
+#if defined(_DEBUG)
+#pragma comment( lib, "ThirdParty/d3d12/FallbackLayer/FallbackLayer_debug.lib" )
+#else 
+#pragma comment( lib, "ThirdParty/d3d12/FallbackLayer/FallbackLayer_release.lib" )
+#endif
+#endif
+
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")

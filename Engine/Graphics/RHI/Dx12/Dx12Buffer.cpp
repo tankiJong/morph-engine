@@ -45,7 +45,7 @@ bool RHIBuffer::rhiInit(bool hasInitData) {
   } else {
     mState = State::Common;
 #ifdef MORPH_DXR
-    if (is_set(mBindFlags, BindFlags::AccelerationStructure)) mState = Resource::State::AccelerationStructure;
+    if (is_set(mBindingFlags, BindingFlag::AccelerationStructure)) mState = RHIResource::State::AccelerationStructure;
 #endif
     mRhiHandle = createBuffer(mState, mSize, DefaultHeapProps, mBindingFlags);
   }
