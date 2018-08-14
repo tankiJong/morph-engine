@@ -2,11 +2,11 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Math/Primitives/AABB2.hpp"
 
-class Texture;
+class Texture2;
 
-class Sprite {
+struct Sprite {
 public:
-  Texture* texture = nullptr;
+  const Texture2* texture = nullptr;
   aabb2    uv;
   vec2     dimension;
   vec2     pivot = vec2(.5f, .5f);

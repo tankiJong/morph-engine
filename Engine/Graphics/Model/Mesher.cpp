@@ -400,23 +400,36 @@ Mesher& Mesher::quad(uint a, uint b, uint c, uint d) {
 }
 
 Mesher& Mesher::quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d) {
-  ASSERT_OR_DIE(mCurrentIns.useIndices, "use indices!");
   tangent(b - a, 1);
   normal((d - a).cross(b - a));
+  if(mCurrentIns.useIndices) {
+    uint start =
+      uv({ 0,0 })
+      .vertex3f(a);
 
-  uint start =
+    uv({ 1,0 })
+      .vertex3f(b);
+    uv({ 1,1 })
+      .vertex3f(c);
+    uv({ 0,1 })
+      .vertex3f(d);
+
+    quad(start + 0, start + 1, start + 2, start + 3);
+  } else {
     uv({ 0,0 })
-    .vertex3f(a);
+      .vertex3f(a);
+    uv({ 1,0 })
+      .vertex3f(b);
+    uv({ 1,1 })
+      .vertex3f(c);
 
-  uv({ 1,0 })
-    .vertex3f(b);
-
-  uv({ 1,1 })
-    .vertex3f(c);
-
-  uv({ 0,1 })
-    .vertex3f(d);
-  quad(start + 0, start + 1, start + 2, start + 3);
+    uv({ 0,0 })
+      .vertex3f(a);
+    uv({ 1,1 })
+      .vertex3f(c);
+    uv({ 0,1 })
+      .vertex3f(d);
+  }
 
   return *this;
 }

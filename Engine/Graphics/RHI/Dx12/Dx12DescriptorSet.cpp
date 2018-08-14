@@ -1,3 +1,4 @@
+#include "Engine/Graphics/RHI/RHI.hpp"
 #include "Engine/Graphics/RHI/DescriptorSet.hpp"
 #include "Engine/Graphics/RHI/Dx12/Dx12DescriptorData.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"

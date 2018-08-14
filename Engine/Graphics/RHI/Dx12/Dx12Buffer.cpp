@@ -1,3 +1,4 @@
+#include "Engine/Graphics/RHI/RHI.hpp"
 #include "Engine/Graphics/RHI/RHIBuffer.hpp"
 #include "Engine/Graphics/RHI/Dx12/Dx12Resource.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
@@ -26,22 +27,42 @@ ID3D12ResourcePtr createBuffer(RHIBuffer::State initState, size_t size, const D3
   return handle;
 }
 
+const ConstantBufferView* RHIBuffer::cbv() {
+  if (!mCbv) {
+    mCbv = ConstantBufferView::create(shared_from_this());
+  }
+
+  return mCbv.get();
+}
+
+const UnorderedAccessView* RHIBuffer::uav() {
+  if(!mUav) {
+    mUav = UnorderedAccessView::create(shared_from_this());
+  }
+
+  return mUav.get();
+}
+
 bool RHIBuffer::rhiInit(bool hasInitData) {
   if(mBindingFlags == BindingFlag::ConstantBuffer) {
     mSize = align_to(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT, mSize);
   }
 
   if(mCpuAccess == CPUAccess::Write) {
-    mState = State::GenericRead;
 
+    mState = State::GenericRead;
     if(!hasInitData) {
       mRhiHandle = createBuffer(mState, mSize, UploadHeapProps, mBindingFlags);
 
+    } else {
+      mRhiHandle = createBuffer(mState, mSize, UploadHeapProps, mBindingFlags);
     }
-    mRhiHandle = createBuffer(mState, mSize, UploadHeapProps, mBindingFlags);
+
   } else if(mCpuAccess == CPUAccess::Read && mBindingFlags == BindingFlag::None) {
+
     mState = State::CopyDest;
     mRhiHandle = createBuffer(mState, mSize, ReadbackHeapProps, mBindingFlags);
+
   } else {
     mState = State::Common;
 #ifdef MORPH_DXR

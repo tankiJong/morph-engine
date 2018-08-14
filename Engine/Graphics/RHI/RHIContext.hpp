@@ -3,6 +3,7 @@
 #include "Engine/Graphics/RHI/RHIContextData.hpp"
 #include "Engine/Graphics/RHI/TypedBuffer.hpp"
 
+class aabb2;
 class ComputeState;
 class DepthStencilView;
 class RenderTargetView;
@@ -23,12 +24,13 @@ public:
   //-------------- resource operations --------------
 
   void copyBufferRegion(const RHIBuffer* dst, size_t dstOffset, RHIBuffer* src, size_t srcOffset, size_t byteCount);
-
   void updateBuffer(RHIBuffer* buffer, const void* data, size_t offset = 0, size_t byteCount = 0);
 
   void updateTextureSubresources(const RHITexture& texture, uint firstSubresource, uint subresourceCount, const void* data);
-
   void updateTexture(const RHITexture& texture, const void* data);
+
+  void copyResource(const RHIResource& from, RHIResource& to);
+
   virtual void resourceBarrier(const RHIResource* res, RHIResource::State newState);
 
   //-------------------------------------------------
@@ -45,12 +47,15 @@ public:
   void setFrameBuffer(const FrameBuffer& fbo);
   void setVertexBuffer(const VertexBuffer& vbo, uint streamIndex);
   void setIndexBuffer(const IndexBuffer& ibo);
+
+  void setViewport(const aabb2& bounds);
   void bindDescriptorHeap();
 
   void clearRenderTarget(const RenderTargetView& rtv, const Rgba& rgba);
   void clearDepthStencilTarget(const DepthStencilView& dsv, 
                                bool clearDepth = true, bool clearStencil = true,
                                float depth = 1.f, u8 stencil = 0);
+
   static sptr_t create(command_queue_handle_t commandQueue);
 
 protected:

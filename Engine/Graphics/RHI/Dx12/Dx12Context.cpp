@@ -203,6 +203,20 @@ void RHIContext::setIndexBuffer(const IndexBuffer& ibo) {
   mContextData->commandList()->IASetIndexBuffer(&ib);
 }
 
+void RHIContext::setViewport(const aabb2& bounds) {
+  D3D12_VIEWPORT viewport;
+
+  viewport.TopLeftX = 0;
+  viewport.TopLeftY = 0;
+  viewport.Width = bounds.width();
+  viewport.Height = bounds.height();
+  viewport.MinDepth = D3D12_MIN_DEPTH;
+  viewport.MaxDepth = D3D12_MAX_DEPTH;
+
+
+  mContextData->commandList()->RSSetViewports(1, &viewport);
+}
+
 void RHIContext::bindDescriptorHeap() {
   DescriptorPool::sptr_t pool = RHIDevice::get()->gpuDescriptorPool();
   DescriptorPoolRhiData* rhiData = pool->rhiData();
@@ -308,10 +322,21 @@ void RHIContext::updateTexture(const RHITexture& texture, const void* data) {
   textureData.SlicePitch = textureData.RowPitch * texture.height();
 
   UpdateSubresources(mContextData->commandList(), texture.handle(), 
-                     textureUploadHeap, 0, 0, 1, &textureData);
+                      textureUploadHeap, 0, 0, 1, &textureData);
+
+  
 
   // buffer->unmap();
   // flush();
+}
+
+void RHIContext::copyResource(const RHIResource& from, RHIResource& to) {
+  resourceBarrier(&from, RHIResource::State::CopySource);
+  resourceBarrier(&to, RHIResource::State::CopyDest);
+
+  mContextData->commandList()->CopyResource(to.handle(), from.handle());
+
+  mCommandsPending = true;
 }
 
 template<typename T>

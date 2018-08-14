@@ -1,3 +1,4 @@
+#include "Engine/Graphics/RHI/RHI.hpp"
 #include "Engine/Graphics/RHI/ResourceView.hpp"
 #include "Texture.hpp"
 

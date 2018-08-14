@@ -1,5 +1,6 @@
 #pragma once
-#include "RHI.hpp"
+
+#include "Engine/Graphics/RHI/RHI.hpp"
 #include "Engine/Graphics/RHI/ResourceView.hpp"
 
 class RHIResource: public std::enable_shared_from_this<RHIResource> {
@@ -73,6 +74,7 @@ public:
   inline Type type() const { return mType; }
 
   virtual const UnorderedAccessView* uav() { return nullptr; };
+  virtual const ConstantBufferView* cbv() { return nullptr; };
   virtual ~RHIResource();
 protected:
   RHIResource(Type type, BindingFlag bindings): mType(type), mBindingFlags(bindings) {}
@@ -81,6 +83,7 @@ protected:
   Type mType;
   BindingFlag mBindingFlags;
   UnorderedAccessView::sptr_t mUav;
+  ConstantBufferView::sptr_t mCbv;
   mutable State mState = State::Common;
 };
 

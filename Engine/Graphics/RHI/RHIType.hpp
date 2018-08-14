@@ -68,7 +68,7 @@ enum eTextureFormat {
 };
 
 enum eUniformSlot : uint {
-  UNIFORM_TIME = 1,
+  UNIFORM_TIME,
   UNIFORM_CAMERA,
   UNIFORM_TRANSFORM,
   UNIFORM_LIGHT,
@@ -76,13 +76,10 @@ enum eUniformSlot : uint {
 };
 
 enum eTextureSlot : uint {
+  TEXTURE_AO,
   TEXTURE_DIFFUSE,
   TEXTURE_NORMAL,
   TEXTURE_SPECULAR,
-  TEXTURE_METALLIC,
-  TEXTURE_EMMISSIVE,
-  TEXTURE_AO,
-  TEXTURE_OPACITY,
   TEXTURE_USER_1,
   TEXTURE_USER_2,
   NUM_TEXTURE_SLOT = 16,

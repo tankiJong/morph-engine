@@ -2,6 +2,9 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RHITexture.hpp"
 
+class RenderTargetview;
+class DepthStencilView;
+
 class Texture2: public RHITexture, public inherit_shared_from_this<RHITexture, Texture2> {
 public:
   using sptr_t = std::shared_ptr<Texture2>;

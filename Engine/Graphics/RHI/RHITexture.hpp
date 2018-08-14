@@ -1,7 +1,9 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RHIResource.hpp"
-#include "Engine/Graphics/RHI/ResourceView.hpp"
+#include "Engine/Graphics/RHI/RHIType.hpp"
+
+class ShaderResourceView;
 
 class RHITexture: public RHIResource, public inherit_shared_from_this<RHIResource, RHITexture> {
 public:

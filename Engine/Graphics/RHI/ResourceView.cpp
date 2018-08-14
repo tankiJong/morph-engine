@@ -1,3 +1,4 @@
+#include "Engine/Graphics/RHI/RHI.hpp"
 #include "ResourceView.hpp"
 
 ShaderResourceView::sptr_t ShaderResourceView::sNullView;

@@ -76,10 +76,13 @@ template< typename VertexType >
 owner<Mesh*> Mesher::createMesh() {
   GUARANTEE_OR_DIE(isDrawing == false, "createMesh called without calling end()");
   VertexMesh<VertexType>* m = new VertexMesh<VertexType>();
+  
   m->setInstructions(mIns);
-
   m->setVertices(mVertices);
-  m->setIndices(mIndices);
+  
+  if(mCurrentIns.useIndices) {
+    m->setIndices(mIndices);
+  }
 
   return m;
 }

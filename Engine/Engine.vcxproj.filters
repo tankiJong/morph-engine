@@ -588,6 +588,12 @@
     <ClCompile Include="Graphics\Program\Material.cpp">
       <Filter>Engine\Graphics\Program</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Font.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ImmediateRenderer.cpp">
+      <Filter>Engine\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -1186,6 +1192,12 @@
     </ClInclude>
     <ClInclude Include="Graphics\RHI\Dx12\d3d12.h">
       <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Font.hpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\ImmediateRenderer.hpp">
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

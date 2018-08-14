@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Engine/Core/common.hpp"
-#include "Engine/Graphics/RHI/RHI.hpp"
 
 class RHIResource;
 class RHIBuffer;
@@ -115,6 +114,7 @@ public:
   using scptr_t = S<const UnorderedAccessView>;
 
   static sptr_t create(W<Texture2> res, uint mipLevel = 0);
+  static sptr_t create(W<RHIBuffer> res);
   static sptr_t nullView();
 
 protected:
