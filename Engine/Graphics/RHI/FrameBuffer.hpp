@@ -40,22 +40,27 @@ public:
     target_info_t depthTarget;
   };
 
-  FrameBuffer(const Desc& desc) : mDesc(desc) {};
-  FrameBuffer() {};
+  FrameBuffer(const Desc& desc);
+
+  const FrameBuffer::Desc& desc() const;
+
+  FrameBuffer();;
 
   uint width() const;
   uint height() const;
 
-  void setColorTarget(Texture2::sptr_t tex, uint index);
+  void setColorTarget(const RenderTargetView* rtv, uint index);
+  void setColorTarget(const Texture2::sptr_t& tex, uint index);
   void setDepthStencilTarget(Texture2::sptr_t tex);
+  void setDepthStencilTarget(const DepthStencilView* dsv);
   
-  const Texture2::sptr_t& colorTarget(uint index) const { return mColorTarget[index]; }
+  const RenderTargetView* colorTarget(uint index) const { return mColorTarget[index]; }
 
-  const Texture2::sptr_t& depthStencilTarget() const { return mDepthTarget; }
+  const DepthStencilView* depthStencilTarget() const { return mDepthTarget; }
 protected:
   Desc mDesc {};
-  std::array<Texture2::sptr_t, NUM_MAX_COLOR_TARGET> mColorTarget;
-  Texture2::sptr_t mDepthTarget;
+  std::array<const RenderTargetView*, NUM_MAX_COLOR_TARGET> mColorTarget;
+  const DepthStencilView* mDepthTarget = nullptr;
   bool mEnableDepth = false;
 
 

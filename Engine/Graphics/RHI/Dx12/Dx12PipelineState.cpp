@@ -64,6 +64,119 @@ void setDx12InputLayout(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, const VertexLa
   desc.InputLayout = { eles, (uint)attrs.size() };
 }
 
+void setRasterizerState(const RenderState& renderState, D3D12_RASTERIZER_DESC& rs) {
+
+  switch(renderState.fillMode) { 
+    case FILL_SOLID:
+      rs.FillMode = D3D12_FILL_MODE_SOLID;
+    break;
+    case FILL_WIRE:
+      rs.FillMode = D3D12_FILL_MODE_WIREFRAME;
+    break;
+    case NUM_FILL_MODE:
+    default: 
+      BAD_CODE_PATH();
+  }
+
+  switch(renderState.cullMode) { 
+    case CULL_BACK:
+      rs.CullMode = D3D12_CULL_MODE_BACK;
+    break;
+    case CULL_FRONT: 
+      rs.CullMode = D3D12_CULL_MODE_FRONT;
+    break;
+    case CULL_NONE:
+      rs.CullMode = D3D12_CULL_MODE_NONE;
+    break;
+    case NUM_CULL_MODE:
+    default:
+      BAD_CODE_PATH();
+
+  }
+
+  switch(renderState.frontFace) { 
+    case WIND_CLOCKWISE:
+      rs.FrontCounterClockwise = FALSE;
+    break;
+    case WIND_COUNTER_CLOCKWISE:
+      rs.FrontCounterClockwise = TRUE;
+    break;
+    case NUM_WIND_ORDER: 
+    default:
+      BAD_CODE_PATH();
+  }
+
+  rs.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
+  rs.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+  rs.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+  rs.DepthClipEnable = TRUE;
+  rs.MultisampleEnable = FALSE;
+  rs.AntialiasedLineEnable = FALSE;
+  rs.ForcedSampleCount = 0;
+  rs.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+}
+
+D3D12_BLEND toDx12Blend(eBlendFactor f) {
+  switch(f) { 
+    case BLEND_F_ONE:
+    return D3D12_BLEND_ONE;
+    case BLEND_F_ZERO: 
+    return D3D12_BLEND_ZERO;
+    case BLEND_F_SRC_ALPHA: 
+    return D3D12_BLEND_SRC_ALPHA;
+    case BLEND_F_DST_ALPHA: 
+    return D3D12_BLEND_DEST_ALPHA;
+    case BLEND_F_INV_SRC_ALPHA: 
+    return D3D12_BLEND_SRC_ALPHA;
+    case BLEND_F_INV_DST_ALPHA: 
+    return D3D12_BLEND_INV_DEST_ALPHA;
+  }
+  BAD_CODE_PATH();
+}
+
+D3D12_BLEND_OP toDx12BlendOp(eBlendOp op) {
+  switch(op) {
+    case BLEND_OP_ADD:
+    return D3D12_BLEND_OP_ADD;
+    case BLEND_OP_SUB: 
+    return D3D12_BLEND_OP_SUBTRACT;
+    case BLEND_OP_REV_SUB: 
+    return D3D12_BLEND_OP_REV_SUBTRACT;
+    case BLEND_OP_MIN: 
+    return D3D12_BLEND_OP_MIN;
+    case BLEND_OP_MAX: 
+    return D3D12_BLEND_OP_MAX;
+  }
+  BAD_CODE_PATH();
+}
+
+void setDx12BlendState(const RenderState& rs, D3D12_RENDER_TARGET_BLEND_DESC& bs) {
+  bs = {
+    FALSE,FALSE,
+    D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+    D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+    D3D12_LOGIC_OP_NOOP,
+    D3D12_COLOR_WRITE_ENABLE_ALL,
+  };
+
+  if(rs.alphaBlendOp == BLEND_OP_DISABLE || rs.colorBlendOp == BLEND_OP_DISABLE) {
+    EXPECTS(rs.alphaBlendOp == rs.colorBlendOp);
+    bs.BlendEnable = FALSE;
+    return;
+  }
+
+  bs.BlendEnable = TRUE;
+  bs.LogicOpEnable = FALSE;
+
+  bs.SrcBlend = toDx12Blend(rs.colorSrcFactor);
+  bs.DestBlend = toDx12Blend(rs.colorDstFactor);
+  bs.BlendOp = toDx12BlendOp(rs.colorBlendOp);
+
+  bs.SrcBlendAlpha = toDx12Blend(rs.alphaSrcFactor);
+  bs.DestBlendAlpha = toDx12Blend(rs.alphaDstFactor);
+  bs.BlendOpAlpha = toDx12BlendOp(rs.alphaBlendOp);
+
+}
 bool GraphicsState::rhiInit() {
   D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {};
 
@@ -105,42 +218,25 @@ bool GraphicsState::rhiInit() {
   TODO("set up render state, rtv");
 
   // default rasterizer
-  D3D12_RASTERIZER_DESC rasterizerDesc;
-  rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-  rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
-  rasterizerDesc.FrontCounterClockwise = FALSE;
-  rasterizerDesc.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
-  rasterizerDesc.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
-  rasterizerDesc.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
-  rasterizerDesc.DepthClipEnable = TRUE;
-  rasterizerDesc.MultisampleEnable = FALSE;
-  rasterizerDesc.AntialiasedLineEnable = FALSE;
-  rasterizerDesc.ForcedSampleCount = 0;
-  rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
   // default Blend
   D3D12_BLEND_DESC blendDesc;
   blendDesc.AlphaToCoverageEnable = FALSE;
   blendDesc.IndependentBlendEnable = FALSE;
-  const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc =
-  {
-    FALSE,FALSE,
-    D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
-    D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
-    D3D12_LOGIC_OP_NOOP,
-    D3D12_COLOR_WRITE_ENABLE_ALL,
-  };
+
+  D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc;
+  setDx12BlendState(mDesc.mProgram->renderState(), defaultRenderTargetBlendDesc);
 
   for (UINT i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
     blendDesc.RenderTarget[i] = defaultRenderTargetBlendDesc;
 
 
   setDx12InputLayout(desc, *mDesc.mLayout);
+  setRasterizerState(mDesc.mProgram->renderState(), desc.RasterizerState);
   setFboDesc(desc, mDesc.mFboDesc);
   desc.SampleMask = mDesc.mSampleMask;
   desc.pRootSignature = mDesc.mRootSignature ? mDesc.mRootSignature->handle() : nullptr;
 
-  desc.RasterizerState = rasterizerDesc;
   desc.BlendState = blendDesc;
   desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
   desc.SampleDesc.Count = 1;

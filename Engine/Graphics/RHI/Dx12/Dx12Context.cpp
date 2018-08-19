@@ -85,22 +85,22 @@ void RHIContext::resourceBarrier(const RHIResource* res, RHIResource::State newS
 }
 
 void RHIContext::beforeFrame() {
-  D3D12_VIEWPORT mViewport;
+  // D3D12_VIEWPORT mViewport;
   D3D12_RECT mScissorRect;
 
-  mViewport.TopLeftX = 0;
-  mViewport.TopLeftY = 0;
-  mViewport.Width = Window::Get()->bounds().width();
-  mViewport.Height = Window::Get()->bounds().height();
-  mViewport.MinDepth = D3D12_MIN_DEPTH;
-  mViewport.MaxDepth = D3D12_MAX_DEPTH;
+  // mViewport.TopLeftX = 0;
+  // mViewport.TopLeftY = 0;
+  // mViewport.Width = Window::Get()->bounds().width();
+  // mViewport.Height = Window::Get()->bounds().height();
+  // mViewport.MinDepth = D3D12_MIN_DEPTH;
+  // mViewport.MaxDepth = D3D12_MAX_DEPTH;
 
   mScissorRect.left = 0;
   mScissorRect.top = 0;
   mScissorRect.right = Window::Get()->bounds().width();
   mScissorRect.bottom = Window::Get()->bounds().height();
 
-  mContextData->commandList()->RSSetViewports(1, &mViewport);
+  // mContextData->commandList()->RSSetViewports(1, &mViewport);
   mContextData->commandList()->RSSetScissorRects(1, &mScissorRect);
 
   // D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(
@@ -120,15 +120,6 @@ void RHIContext::beforeFrame() {
   //
   // const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
   // mContextData->commandList()->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-}
-
-void RHIContext::afterFrame() {
-  // uint frameIndex = RHIDevice::get()->mSwapChain->GetCurrentBackBufferIndex();
-  // rtBarrier.Transition.pResource = rt[frameIndex];
-  // rtBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-  // rtBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-  // // Indicate that the back buffer will be used as a render target.
-  // mContextData->commandList()->ResourceBarrier(1, &rtBarrier);
 }
 
 void RHIContext::dispatch(uint threadGroupX, uint threadGroupY, uint threadGroupCount) {
@@ -151,6 +142,14 @@ void RHIContext::drawInstanced(uint startVert, uint startIns, uint vertCount, ui
   mCommandsPending = true;
 }
 
+void RHIContext::setGraphicsRootSignature(const RootSignature& rootSig) {
+  mContextData->commandList()->SetGraphicsRootSignature(rootSig.handle());
+}
+
+void RHIContext::setComputeRootSignature(const RootSignature& rootSig) {
+  mContextData->commandList()->SetComputeRootSignature(rootSig.handle());
+}
+
 void RHIContext::setGraphicsState(const GraphicsState& pso) {
   mContextData->commandList()->SetGraphicsRootSignature(pso.rootSignature()->handle());
   mContextData->commandList()->SetPipelineState(pso.handle());
@@ -164,9 +163,12 @@ void RHIContext::setComputeState(const ComputeState& pso) {
 void RHIContext::setFrameBuffer(const FrameBuffer& fbo) {
 
   D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[FrameBuffer::NUM_MAX_COLOR_TARGET];
-  for(int                     i = 0; i < FrameBuffer::NUM_MAX_COLOR_TARGET; i++) {
-    if(fbo.colorTarget(i)) {
-      rtvHandles[i] = fbo.colorTarget(i)->rtv().handle()->cpuHandle(0);
+  for(int i = 0; i < FrameBuffer::NUM_MAX_COLOR_TARGET; i++) {
+    const RenderTargetView* rtv = fbo.colorTarget(i);
+    if(rtv) {
+      rtvHandles[i] = rtv->handle()->cpuHandle(0);
+      RHIResource::sptr_t res = rtv->res().lock();
+      resourceBarrier(res.get(), RHIResource::State::RenderTarget);
     } else {
       rtvHandles[i] = RenderTargetView::nullView()->handle()->cpuHandle(0);
     }
@@ -174,7 +176,10 @@ void RHIContext::setFrameBuffer(const FrameBuffer& fbo) {
 
   D3D12_CPU_DESCRIPTOR_HANDLE rtvDepthHandle;
   if(fbo.depthStencilTarget()) {
-    rtvDepthHandle = fbo.depthStencilTarget()->dsv()->handle()->cpuHandle(0);
+    rtvDepthHandle = fbo.depthStencilTarget()->handle()->cpuHandle(0);
+
+    RHIResource::sptr_t res = fbo.depthStencilTarget()->res().lock();
+    resourceBarrier(res.get(), RHIResource::State::DepthStencil);
 
   } else {
     rtvDepthHandle = DepthStencilView::nullView()->handle()->cpuHandle(0);
@@ -194,11 +199,12 @@ void RHIContext::setVertexBuffer(const VertexBuffer& vbo, uint streamIndex) {
   mContextData->commandList()->IASetVertexBuffers(streamIndex, 1, &vb);
 }
 
-void RHIContext::setIndexBuffer(const IndexBuffer& ibo) {
+void RHIContext::setIndexBuffer(const IndexBuffer* ibo) {
+  if (ibo == nullptr) return;
   D3D12_INDEX_BUFFER_VIEW ib = {};
 
-  ib.BufferLocation = ibo.res().gpuAddress();
-  ib.SizeInBytes = ibo.res().size();
+  ib.BufferLocation = ibo->res().gpuAddress();
+  ib.SizeInBytes = ibo->res().size();
   ib.Format = DXGI_FORMAT_R32_UINT;
   mContextData->commandList()->IASetIndexBuffer(&ib);
 }

@@ -1,6 +1,7 @@
 #include "Engine/Graphics/RHI/RHI.hpp"
 #include "Engine/Graphics/RHI/ResourceView.hpp"
 #include "Texture.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 template<typename TexType, typename ...Args>
 typename TexType::sptr_t createOrFail(const void* data, size_t size, Args ... args) {
@@ -25,7 +26,10 @@ const RenderTargetView& Texture2::rtv() {
 }
 
 const DepthStencilView* Texture2::dsv() {
-  if (mFormat != TEXTURE_FORMAT_D24S8) return nullptr;
+  if (mFormat != TEXTURE_FORMAT_D24S8) {
+    INFO("try to access a texture which is not supposed to have dsv");
+    return nullptr;
+  }
 
   if(!mDsv) {
     mDsv = DepthStencilView::create(shared_from_this());

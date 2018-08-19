@@ -126,3 +126,10 @@ void RootSignature::initHandle(ID3DBlobPtr sigBlob) {
   d3d_call(device->CreateRootSignature(0, sigBlob->GetBufferPointer(), sigBlob->GetBufferSize(), IID_PPV_ARGS(&mRhiHandle)));
 }
 
+void RootSignature::initHandle(const Blob& sigBlob) {
+
+  RHIDevice::rhi_handle_t device = RHIDevice::get()->nativeDevice();
+
+  d3d_call(device->CreateRootSignature(0, sigBlob, sigBlob.size(), IID_PPV_ARGS(&mRhiHandle)));
+}
+

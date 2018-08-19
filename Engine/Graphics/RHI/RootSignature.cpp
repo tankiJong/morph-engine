@@ -29,3 +29,31 @@ RootSignature::sptr_t RootSignature::create(const Desc& desc) {
 
   return sig;
 }
+
+RootSignature::sptr_t RootSignature::create(const Blob& data) {
+
+  sptr_t sig = sptr_t(new RootSignature());
+  sig->mFromBlob = true;
+
+  sig->initHandle(data);
+
+  return sig;
+}
+
+S<const RootSignature> RootSignature::emptyRootSignature() {
+  if(!sEmptySignature) {
+    Desc desc;
+    sptr_t sig = sptr_t(new RootSignature(desc));
+    if (sig->rhiInit() == false) {
+      BAD_CODE_PATH();
+    }
+
+    sEmptySignature = sig;
+  }
+
+  return sEmptySignature;
+}
+
+bool RootSignature::operator==(const RootSignature& rhs) const {
+  return mRhiHandle.GetInterfacePtr() == rhs.mRhiHandle.GetInterfacePtr();
+}

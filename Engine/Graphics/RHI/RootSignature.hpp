@@ -2,6 +2,8 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/DescriptorSet.hpp"
 
+class Blob;
+
 class RootSignature {
 public:
   using sptr_t = S<RootSignature>;
@@ -22,13 +24,20 @@ public:
   rhi_handle_t handle() const { return mRhiHandle; };
 
   static sptr_t create(const Desc& desc);
+#ifdef MORPH_D3D12
+  static sptr_t create(const Blob& data);
+#endif
+  static S<const RootSignature> emptyRootSignature();
+
+  bool operator==(const RootSignature& rhs) const;
 protected:
   bool rhiInit();
 #ifdef MORPH_D3D12
   virtual void initHandle(ID3DBlobPtr sigBlob);
+  virtual void initHandle(const Blob& sigBlob);
 #endif
   RootSignature(const Desc& desc);
-
+  RootSignature() = default;
 
   Desc mDesc;
   static sptr_t sEmptySignature;
@@ -36,4 +45,5 @@ protected:
   uint mSizeInBytes;
   rhi_handle_t mRhiHandle;
   std::vector<uint> mElementByteOffset;
+  bool mFromBlob = false;
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Graphics/RHI/RHI.hpp"
 #include "Engine/Core/common.hpp"
 
 class RHIResource;

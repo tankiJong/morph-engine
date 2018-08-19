@@ -57,10 +57,10 @@ void light_info_t::asSpotLight(const vec3& pos,
   this->dotOuterAngle = cosDegrees(outerAngle);
 }
 
-bool render_state::operator!=(const render_state& rhs) const {
+bool RenderState::operator!=(const RenderState& rhs) const {
   return !(*this == rhs);
 }
 
-bool render_state::operator==(const render_state& rhs) const {
-  return memcmp(this, &rhs, sizeof(render_state)) == 0;
+bool RenderState::operator==(const RenderState& rhs) const {
+  return memcmp(this, &rhs, sizeof(RenderState)) == 0;
 }

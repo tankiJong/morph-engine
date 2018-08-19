@@ -92,10 +92,24 @@ void Shader::compile() {
 
   HRESULT re = D3DCompile(mSource, mSource.size(), mFilePath.c_str(), defines, &gIncluder,
              mEntryPoint.c_str(), target, compileFlags, 0, &bin, &err);
-
   if(re != S_OK) {
     ERROR_AND_DIE((char*)err->GetBufferPointer());
   }
 
+  ID3DBlob* rootBlob;
+  re = D3DGetBlobPart(
+    bin->GetBufferPointer(),
+    bin->GetBufferSize(),
+    D3D_BLOB_ROOT_SIGNATURE, 0, &rootBlob);
+
+  if(re >= 0) {
+    Blob b(rootBlob->GetBufferPointer(), rootBlob->GetBufferSize());
+    mRootSignature = RootSignature::create(b);
+  }
+
   mBinary.set(bin->GetBufferPointer(), bin->GetBufferSize());
+}
+
+S<const RootSignature> Shader::rootSignature() const {
+  return mRootSignature;
 }

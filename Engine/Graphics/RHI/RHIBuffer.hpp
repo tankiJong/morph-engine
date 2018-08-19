@@ -32,6 +32,12 @@ public:
 
   void updateData(const void* data, size_t offset, size_t size);
 
+  template<typename T>
+  void updateData(const T& data, size_t offset = 0) {
+    static_assert(!std::is_pointer_v<T>);
+    updateData(&data, offset, sizeof(T));
+  }
+
   // for now, I do not use allocator yet, so every buffer will be the brand new whole buffer 
   u64 gpuAddressOffset() const { return 0; };
 

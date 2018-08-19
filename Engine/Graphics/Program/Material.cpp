@@ -14,8 +14,10 @@ void Material::init(uint cboRegisterIndexStart, uint cboRegisterCount) {
   DescriptorSet::Layout layout;
 
   // after I have the shader reflaction, the layout will be on the shader
-  layout.addRange(DescriptorSet::Type::TextureSrv, TEXTURE_DIFFUSE, 3);
+  layout.addRange(DescriptorSet::Type::TextureSrv, TEXTURE_DIFFUSE, NUM_TEXTURE_SLOT);
   if(cboRegisterCount != 0) {
+    EXPECTS(cboRegisterIndexStart <= NUM_UNIFORM_SLOT);
+    EXPECTS(cboRegisterIndexStart + cboRegisterCount <= NUM_UNIFORM_SLOT);
     layout.addRange(DescriptorSet::Type::Cbv, cboRegisterIndexStart, cboRegisterCount);
     mConstBufferRegisterBase = cboRegisterIndexStart;
   }

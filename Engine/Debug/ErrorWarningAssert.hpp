@@ -217,10 +217,17 @@ int SystemDialogue_YesNoCancel( const std::string& messageTitle, const std::stri
 #endif
 
 #if defined( DISABLE_ASSERTS )
-#define ENSURES( condition )
+#define INFO( msg )
 #else
 #define INFO( msg ) SystemDialogue_Okay("Info", msg, SEVERITY_INFORMATION);
 #endif
+
+#if defined( DISABLE_ASSERTS )
+#define BAD_CODE_PATH()
+#else
+#define BAD_CODE_PATH() ERROR_AND_DIE("Should not be here")
+#endif
+
 
 #define DEBUGBREAK __debugbreak()
 #define _QUOTE(x) # x

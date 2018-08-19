@@ -73,6 +73,7 @@ enum eUniformSlot : uint {
   UNIFORM_TRANSFORM,
   UNIFORM_LIGHT,
   UNIFORM_USER_1 = 12,
+  NUM_UNIFORM_SLOT = 12,
 };
 
 enum eTextureSlot : uint {
@@ -199,7 +200,7 @@ private:
   vec2 __pad00;
 };
 
-struct render_state {
+struct RenderState {
   // Raster State Control
   eCullMode cullMode = CULL_BACK;      // CULL_BACK
   eFillMode fillMode = FILL_SOLID;      // FILL_SOLID
@@ -218,7 +219,7 @@ struct render_state {
   eBlendFactor alphaSrcFactor = BLEND_F_ONE;    // BLEND_ONE
   eBlendFactor alphaDstFactor = BLEND_F_ZERO;    // BLEND_ONE
 
-  bool operator!=(const render_state& rhs) const;
-  bool operator==(const render_state& rhs) const;
+  bool operator!=(const RenderState& rhs) const;
+  bool operator==(const RenderState& rhs) const;
 };
 

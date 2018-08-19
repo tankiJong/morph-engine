@@ -13,6 +13,7 @@ class RHIResource;
 class RHITexture;
 class RHIBuffer;
 class RHITexture;
+class RootSignature;
 
 class RHIContext: std::enable_shared_from_this<RHIContext> {
 public:
@@ -35,18 +36,20 @@ public:
 
   //-------------------------------------------------
   void beforeFrame();
-  void  afterFrame();
+  // void  afterFrame();
 
   void dispatch(uint threadGroupX, uint threadGroupY, uint threadGroupCount);
 
   void draw(uint start, uint count);
   void drawIndexed(uint vertStart, uint idxStart, uint count);
   void drawInstanced(uint startVert, uint startIns, uint vertCount, uint insCount);
+  void setGraphicsRootSignature(const RootSignature& rootSig);
+  void setComputeRootSignature(const RootSignature& rootSig);
   void setGraphicsState(const GraphicsState& pso);
   void setComputeState(const ComputeState& pso);
   void setFrameBuffer(const FrameBuffer& fbo);
   void setVertexBuffer(const VertexBuffer& vbo, uint streamIndex);
-  void setIndexBuffer(const IndexBuffer& ibo);
+  void setIndexBuffer(const IndexBuffer* ibo);
 
   void setViewport(const aabb2& bounds);
   void bindDescriptorHeap();

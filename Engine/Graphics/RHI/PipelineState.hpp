@@ -2,9 +2,9 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RootSignature.hpp"
 #include "Engine/Graphics/RHI/FrameBuffer.hpp"
-#include "Engine/Graphics/Program/Program.hpp"
 
 class VertexLayout;
+class Program;
 
 class GraphicsState {
 public:
@@ -22,16 +22,12 @@ public:
 
   class Desc {
   public:
-    Desc& setRootSignature(RootSignature::sptr_t signature) {
+    Desc& setRootSignature(RootSignature::scptr_t signature) {
       mRootSignature = signature; return *this;
     }
 
     Desc& setVertexLayout(const VertexLayout* layout) {
       mLayout = layout; return *this;
-    }
-
-    Desc& setRenderState(const render_state state) {
-      mRenderState = state; return *this;
     }
 
     Desc& setPrimTye(const PrimitiveType prim) {
@@ -42,7 +38,7 @@ public:
       mFboDesc = desc; return *this;
     }
 
-    Desc& setProgram(const Program::sptr_t& prog) {
+    Desc& setProgram(const S<Program>& prog) {
       mProgram = prog; return *this;
     }
 
@@ -51,12 +47,11 @@ public:
     friend class GraphicsState;
 
     const VertexLayout* mLayout = nullptr;
-    RootSignature::sptr_t mRootSignature;
-    render_state mRenderState;
+    RootSignature::scptr_t mRootSignature;
     uint mSampleMask = SAMPLE_MASK_ALL;
     FrameBuffer::Desc mFboDesc;
     PrimitiveType mPrimType = PrimitiveType::Undefined;
-    Program::sptr_t mProgram;
+    S<Program> mProgram;
   };
 
   ~GraphicsState();
