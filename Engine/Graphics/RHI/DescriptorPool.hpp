@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RHI.hpp"
-#include "Engine/Graphics/RHI/Fence.hpp"
 #include <queue>
 
 struct DescriptorPoolRhiData;
 struct DescriptorSetRhiData;
+class Fence;
 class DescriptorPool: public std::enable_shared_from_this<DescriptorPool> {
 public:
   using sptr_t = S<DescriptorPool>;
@@ -50,10 +50,10 @@ public:
   rhi_handle_t handle(uint heapIndex) const;
   DescriptorPoolRhiData* rhiData() const { return mData.get(); }
   void executeDeferredRelease();
-  static sptr_t create(const Desc& desc, Fence::sptr_t fence);
+  static sptr_t create(const Desc& desc, S<Fence> fence);
 protected:
   friend DescriptorSet;
-  DescriptorPool(const Desc& desc, const Fence::sptr_t fence);
+  DescriptorPool(const Desc& desc, const S<Fence> fence);
   bool rhiInit();
   void releaseAllocation(S<DescriptorSetRhiData> alloc);
 
@@ -65,7 +65,7 @@ protected:
     }
   };
   Desc mDesc;
-  Fence::sptr_t mFence;
+  S<Fence> mFence;
   std::shared_ptr<DescriptorPoolRhiData> mData;
   std::priority_queue<alloc_release, std::vector<alloc_release>, std::greater<>> mDeferredReleases;
 };

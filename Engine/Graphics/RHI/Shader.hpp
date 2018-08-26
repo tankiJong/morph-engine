@@ -16,6 +16,7 @@ public:
   void setType(eShaderType type);
   void setFromFile(const std::string_view file, std::string_view entry);
   void setFromString(const std::string_view source, std::string_view entry);
+  void Shader::setFromBinary(const void* data, size_t size);
   void compile();
   S<const RootSignature> rootSignature() const;
   void* handle() const;

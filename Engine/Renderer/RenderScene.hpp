@@ -12,22 +12,17 @@ public:
   void add(Light& l);
 
   // add and sort the camera immediately
-  void add(Camera& c);
+  void set(Camera& c);
 
   void remove(Renderable& r);
   void remove(Light& l);
-  void remove(Camera& c);
 
-  span<Camera* const> cameras() const { return mCameras; }
+  Camera* camera() const { return mCamera; }
   span<Light* const> lights() const { return mLights; }
   span<Renderable* const> Renderables() const { return mRenderables; }
-
-  void lightContributorsAt(const vec3& position, uint* out_lights, uint* out_count) const;
-
-  void sortCamera();
 
 protected:
   std::vector<Renderable*> mRenderables;
   std::vector<Light*> mLights;
-  std::vector<Camera*> mCameras;
+  Camera* mCamera;
 };

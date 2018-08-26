@@ -163,6 +163,18 @@
     <Filter Include="ThirdParty\d3d12\FallbackLayer">
       <UniqueIdentifier>{84a64db2-9e5d-4fd9-b86e-14e750118db5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Renderer\SceneRenderer">
+      <UniqueIdentifier>{0d89f65c-7bdc-4dc7-840e-309f4712771e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\WinPixEventRuntime">
+      <UniqueIdentifier>{518d4bd5-e58c-491c-bc72-cb8b77592c59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\WinPixEventRuntime\bin">
+      <UniqueIdentifier>{1bcfa468-e99e-4e80-adab-66b8530e88d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\WinPixEventRuntime\include">
+      <UniqueIdentifier>{80227814-43ff-461f-bd36-ddbc0aa8ef0a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -593,6 +605,9 @@
     </ClCompile>
     <ClCompile Include="Renderer\ImmediateRenderer.cpp">
       <Filter>Engine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\SceneRenderer\SceneRenderer.cpp">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1199,6 +1214,21 @@
     <ClInclude Include="Renderer\ImmediateRenderer.hpp">
       <Filter>Engine\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="..\ThirdParty\WinPixEventRuntime\Include\pix3.h">
+      <Filter>ThirdParty\WinPixEventRuntime\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\WinPixEventRuntime\Include\pix3_win.h">
+      <Filter>ThirdParty\WinPixEventRuntime\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\WinPixEventRuntime\Include\PIXEventsCommon.h">
+      <Filter>ThirdParty\WinPixEventRuntime\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\WinPixEventRuntime\Include\PIXEventsGenerated.h">
+      <Filter>ThirdParty\WinPixEventRuntime\include</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\SceneRenderer\SceneRenderer.hpp">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\ThirdParty\fmod\fmod_vc.lib">
@@ -1206,6 +1236,12 @@
     </Library>
     <Library Include="..\ThirdParty\fmod\fmod64_vc.lib">
       <Filter>ThirdParty\fmod</Filter>
+    </Library>
+    <Library Include="..\ThirdParty\WinPixEventRuntime\bin\WinPixEventRuntime.lib">
+      <Filter>ThirdParty\WinPixEventRuntime\bin</Filter>
+    </Library>
+    <Library Include="..\ThirdParty\WinPixEventRuntime\bin\WinPixEventRuntime_UAP.lib">
+      <Filter>ThirdParty\WinPixEventRuntime\bin</Filter>
     </Library>
   </ItemGroup>
   <ItemGroup>
@@ -1275,6 +1311,16 @@
     <None Include="..\ThirdParty\d3d12\FallbackLayer\FallbackLayer_debug.pdb">
       <Filter>ThirdParty\d3d12\FallbackLayer</Filter>
     </None>
+    <None Include="packages.config" />
+    <None Include="..\ThirdParty\WinPixEventRuntime\bin\WinPixEventRuntime.dll">
+      <Filter>ThirdParty\WinPixEventRuntime\bin</Filter>
+    </None>
+    <None Include="..\ThirdParty\WinPixEventRuntime\bin\WinPixEventRuntime_UAP.dll">
+      <Filter>ThirdParty\WinPixEventRuntime\bin</Filter>
+    </None>
+    <None Include="Renderer\SceneRenderer\GenGBuffer.hlsli">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis">
@@ -1294,5 +1340,25 @@
     <Image Include="..\Content\image\particle_default.png">
       <Filter>Content\image</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Renderer\SceneRenderer\Common.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\Shader\Resource.hlsl">
+      <Filter>Engine\Renderer\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\Shader\Light.hlsl">
+      <Filter>Engine\Renderer\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\GenGBuffer_ps.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\GenGBuffer_vs.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\DeferredLighting_cs.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

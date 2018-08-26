@@ -1,4 +1,5 @@
 ﻿#include "Mesh.hpp"
+#include "Engine/Graphics/RHI/RHIContext.hpp"
 
 Mesh& Mesh::setVertices(uint streamIndex, uint stride, uint count, const void* vertices) {
   if (!mVertices[streamIndex]) {
@@ -40,6 +41,15 @@ Mesh& Mesh::setIndices(span<const uint> indices) {
   mIndices->uploadGpu();
   return *this;
 }
+
+void Mesh::bindForContext(RHIContext & ctx) const {
+  for(uint i = 0; i < mVertices.size(); ++i) {
+    ctx.setVertexBuffer(*mVertices[i], i);
+  }
+
+  ctx.setIndexBuffer(mIndices.get());
+}
+
 
 //
 //template<>

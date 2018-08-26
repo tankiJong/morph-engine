@@ -2,9 +2,9 @@
 #include "Engine/Graphics/RHI/DescriptorSet.hpp"
 
 ShaderResourceView::sptr_t ShaderResourceView::create(
-  W<RHITexture> res, uint mostDetailedMip, uint mipCount, uint firstArraySlice, uint arraySize) {
+  W<const RHITexture> res, uint mostDetailedMip, uint mipCount, uint firstArraySlice, uint arraySize) {
   
-  RHITexture::sptr_t ptr = res.lock();
+  RHITexture::scptr_t ptr = res.lock();
 
   if(!ptr && sNullView) {
     return sNullView;
@@ -41,13 +41,13 @@ ShaderResourceView::sptr_t ShaderResourceView::create(
   ENSURES(handle);
 
   RHIDevice::get()->nativeDevice()->CreateShaderResourceView(
-    ptr ? ptr->handle() : nullptr, &desc, handle->cpuHandle(0));
+    ptr ? ptr->handle().Get() : nullptr, &desc, handle->cpuHandle(0));
 
   srv = sptr_t(new ShaderResourceView(res, handle, mostDetailedMip, mipCount, firstArraySlice, arraySize));
   return srv;
 }
 
-ConstantBufferView::sptr_t ConstantBufferView::create(W<RHIBuffer> res) {
+ConstantBufferView::sptr_t ConstantBufferView::create(W<const RHIBuffer> res) {
   RHIBuffer::scptr_t ptr = res.lock();
 
   if(!ptr && sNullView) {
@@ -77,7 +77,7 @@ ConstantBufferView::sptr_t ConstantBufferView::create(W<RHIBuffer> res) {
   return cbv;
 }
 
-RenderTargetView::sptr_t RenderTargetView::create(W<RHITexture> res, uint mipLevel, uint firstArraySlice, uint arraySize) {
+RenderTargetView::sptr_t RenderTargetView::create(W<const RHITexture> res, uint mipLevel, uint firstArraySlice, uint arraySize) {
 
   RHITexture::scptr_t ptr = res.lock();
 
@@ -104,7 +104,7 @@ RenderTargetView::sptr_t RenderTargetView::create(W<RHITexture> res, uint mipLev
   rhi_handle_t handle = DescriptorSet::create(RHIDevice::get()->cpuDescriptorPool(), layout);
   ENSURES(handle);
 
-  RHIDevice::get()->nativeDevice()->CreateRenderTargetView(resHandle, &desc, handle->cpuHandle(0));
+  RHIDevice::get()->nativeDevice()->CreateRenderTargetView(resHandle.Get(), &desc, handle->cpuHandle(0));
 
   sptr_t obj;
 
@@ -115,7 +115,7 @@ RenderTargetView::sptr_t RenderTargetView::create(W<RHITexture> res, uint mipLev
   return rtv;
 }
 
-DepthStencilView::sptr_t DepthStencilView::create(W<RHITexture> res, uint mipLevel, uint firstArraySlice, uint arraySize) {
+DepthStencilView::sptr_t DepthStencilView::create(W<const RHITexture> res, uint mipLevel, uint firstArraySlice, uint arraySize) {
   
   RHITexture::scptr_t ptr = res.lock();
 
@@ -142,7 +142,7 @@ DepthStencilView::sptr_t DepthStencilView::create(W<RHITexture> res, uint mipLev
   rhi_handle_t handle = DescriptorSet::create(RHIDevice::get()->cpuDescriptorPool(), layout);
   ENSURES(handle);
 
-  RHIDevice::get()->nativeDevice()->CreateDepthStencilView(resHandle, &desc, handle->cpuHandle(0));
+  RHIDevice::get()->nativeDevice()->CreateDepthStencilView(resHandle.Get(), &desc, handle->cpuHandle(0));
 
   sptr_t obj;
 
@@ -182,7 +182,7 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(W<RHIBuffer> res) {
   ENSURES(handle);
 
   TODO("uav will need a counter res if we actually care about");
-  RHIDevice::get()->nativeDevice()->CreateUnorderedAccessView(resHandle, counterHandle, &desc, handle->cpuHandle(0));
+  RHIDevice::get()->nativeDevice()->CreateUnorderedAccessView(resHandle.Get(), counterHandle.Get(), &desc, handle->cpuHandle(0));
 
   sptr_t obj;
   sptr_t uav = ptr ? obj : sNullView;
@@ -190,7 +190,7 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(W<RHIBuffer> res) {
 
   return uav;
 }
-UnorderedAccessView::sptr_t UnorderedAccessView::create(W<Texture2> res, uint mipLevel) {
+UnorderedAccessView::sptr_t UnorderedAccessView::create(W<const Texture2> res, uint mipLevel) {
   Texture2::scptr_t ptr = res.lock();
 
   if(!ptr && sNullView) {
@@ -217,7 +217,7 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(W<Texture2> res, uint mi
   ENSURES(handle);
 
   TODO("uav will need a counter res if we actually care about");
-  RHIDevice::get()->nativeDevice()->CreateUnorderedAccessView(resHandle, counterHandle, &desc, handle->cpuHandle(0));
+  RHIDevice::get()->nativeDevice()->CreateUnorderedAccessView(resHandle.Get(), counterHandle.Get(), &desc, handle->cpuHandle(0));
 
   sptr_t obj;
   sptr_t uav = ptr ? obj : sNullView;

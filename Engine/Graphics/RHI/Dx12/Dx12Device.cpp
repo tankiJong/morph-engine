@@ -54,6 +54,30 @@ eCommandQueueType asCommandQueueType(RHIContextData::CommandQueueType type) {
   }
 }
 
+void RHIDevice::cleanup() {
+
+  mRenderContext->flush();
+
+  mGpuDescriptorPool.reset();
+  mCpuDescriptorPool.reset();
+  mRenderContext.reset();
+  SAFE_DELETE(mDeviceData);
+
+  for (auto& b : mBackBuffers) {
+    b.reset();
+  }
+
+  for (auto& b : mDepthBuffer) {
+    b.reset();
+  }
+
+  while (!mDeferredRelease.empty()) {
+    mDeferredRelease.pop();
+  }
+
+  mFrameFence.reset();
+}
+
 
 bool RHIDevice::rhiInit() {
   DeviceData* data = new DeviceData;
@@ -77,7 +101,7 @@ bool RHIDevice::rhiInit() {
 
 
   IDXGIAdapter1* hardwareAdapter = nullptr;
-  getHardwareAdapter(data->dxgiFactory, hardwareAdapter);
+  getHardwareAdapter(data->dxgiFactory.Get(), hardwareAdapter);
 
   // no hardware support for dx12 then use a wrap device
   if (hardwareAdapter == nullptr) {
@@ -133,6 +157,8 @@ bool RHIDevice::rhiPostInit() {
   mCurrentBackBufferIndex = mSwapChain->GetCurrentBackBufferIndex();
   mRenderContext->resourceBarrier(mBackBuffers[mCurrentBackBufferIndex].get(), RHIResource::State::RenderTarget);
   mRenderContext->resourceBarrier(mDepthBuffer[mCurrentBackBufferIndex].get(), RHIResource::State::DepthStencil);
+
+  return true;
 }
 
 bool RHIDevice::createSwapChain() {
@@ -179,7 +205,7 @@ bool RHIDevice::createSwapChain() {
 
   d3d_call(
     mDeviceData->dxgiFactory->CreateSwapChainForHwnd(
-    mCommandQueue,
+    mCommandQueue.Get(),
     mWindow, &swapChainDesc, nullptr, nullptr, &sc
   ));
 

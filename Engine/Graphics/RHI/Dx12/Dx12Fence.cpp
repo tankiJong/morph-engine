@@ -28,7 +28,7 @@ u64 Fence::gpuVaule() const {
 }
 
 u64 Fence::gpuSignal(command_queue_handle_t cq) {
-  d3d_call(cq->Signal(mHandle, mCpuValue));
+  d3d_call(cq->Signal(mHandle.Get(), mCpuValue));
   mCpuValue++;
   return mCpuValue - 1;
 }
@@ -42,5 +42,5 @@ void Fence::syncCpu() {
 }
 
 void Fence::syncGpu(command_queue_handle_t cq) {
-  d3d_call(cq->Wait(mHandle, mCpuValue - 1));
+  d3d_call(cq->Wait(mHandle.Get(), mCpuValue - 1));
 }

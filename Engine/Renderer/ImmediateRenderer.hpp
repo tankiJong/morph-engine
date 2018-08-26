@@ -1,18 +1,24 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RHIType.hpp"
-#include "Engine/Graphics/RHI/ResourceView.hpp"
-#include "Engine/Graphics/Model/Vertex.hpp"
-#include "Engine/Graphics/RHI/RHIContext.hpp"
-#include "Engine/Graphics/Camera.hpp"
+#include "Engine/Graphics/RHI/RHIBuffer.hpp"
 
 class Mesh;
 class Material;
 class FrameBuffer;
 class Program;
+class Camera;
 class FrameBuffer;
 class RootSignature;
 class GraphicsState;
+class DepthStencilView;
+class RenderTargetView;
+class ShaderResourceView;
+class ConstantBufferView;
+class vertex_lit_t;
+class DescriptorSet;
+class RHIContext;
+
 class ImmediateRenderer {
 public:
   void startUp();
@@ -33,10 +39,12 @@ public:
   void setTexture(eTextureSlot slot, const ShaderResourceView& srv);
   void setUniform(eUniformSlot slot, const ConstantBufferView& cbv);
   void setView(const Camera& cam);
-  DepthStencilView& defaultDsv();
-  RenderTargetView& defaultRtv();
+  const DepthStencilView* defaultDsv() const;
+  const RenderTargetView& defaultRtv() const;
 
   S<Program>& program() { return mProgram; }
+
+  static ImmediateRenderer& get();
 
 protected:
   S<FrameBuffer>    mFrameBuffer       = nullptr;

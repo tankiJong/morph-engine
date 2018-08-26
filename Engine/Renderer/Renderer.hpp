@@ -10,7 +10,7 @@ public:
   virtual ~Renderer() {};
 
   virtual void onLoad(RHIContext& ctx) {}
-  virtual void onRenderFrame(RHIContext& ctx, FrameBuffer& fbo) {}
+  virtual void onRenderFrame(RHIContext& ctx) {}
   virtual void onRenderGui(RHIContext& ctx /*, Gui* gui*/) {}
 
   Renderer(const Renderer&) = delete;

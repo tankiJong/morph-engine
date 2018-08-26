@@ -34,3 +34,10 @@ void Shader::setFromString(const std::string_view source, std::string_view entry
   mEntryPoint = entry;
   mSource.set(source.data(), source.size());
 }
+
+void Shader::setFromBinary(const void * data, size_t size) {
+  mFilePath = "";
+  mEntryPoint = "";
+  mBinary.set(data, size);
+}
+

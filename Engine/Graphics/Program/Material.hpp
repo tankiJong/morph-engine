@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
-
-
+#include "Engine/Graphics/RHI/RHIType.hpp"
 /*
  * Shader binding:
  * 
@@ -25,21 +24,24 @@
  * 
  * 
  */
-
-
+class RHIBuffer;
+class DescriptorSet;
+class Texture2;
+class RHIContext;
+class RootSignature;
 class Material {
   static constexpr uint NUM_MAT_TEXTURE = TEXTURE_SPECULAR - TEXTURE_DIFFUSE + 1;
   static constexpr uint MAT_TEXTURE_SLOT_START = TEXTURE_DIFFUSE;
   struct Prop {
     eUniformSlot slot;
     std::string name;
-    RHIBuffer::sptr_t buffer;
+    S<RHIBuffer> buffer;
 
     Prop();
   };
 public:
   void init(uint cboRegisterIndexStart = UNIFORM_USER_1, uint cboRegisterCount = 0);
-  void setTexture(eTextureSlot prop, Texture2::sptr_t tex);
+  void setTexture(eTextureSlot prop, S<Texture2> tex);
   void setProperty(eUniformSlot registerIndex, const void* data, size_t size);
   void bindForGraphics(const RHIContext& ctx, const RootSignature& root, uint rootIndex = 0);
   void bindForCompute(const RHIContext& ctx, const RootSignature& root, uint rootIndex = 0);
@@ -47,7 +49,7 @@ public:
 protected:
   void finialize();
   uint mConstBufferRegisterBase = uint(-1);
-  std::array<Texture2::sptr_t, NUM_MAT_TEXTURE> mPropertyTextures;
+  std::array<S<Texture2>, NUM_MAT_TEXTURE> mPropertyTextures;
   std::vector<Prop> mConstProperties;
-  DescriptorSet::sptr_t mDescriptorSet;
+  S<DescriptorSet> mDescriptorSet;
 };

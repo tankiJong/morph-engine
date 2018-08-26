@@ -55,5 +55,5 @@ S<const RootSignature> RootSignature::emptyRootSignature() {
 }
 
 bool RootSignature::operator==(const RootSignature& rhs) const {
-  return mRhiHandle.GetInterfacePtr() == rhs.mRhiHandle.GetInterfacePtr();
+  return mRhiHandle.Get() == rhs.mRhiHandle.Get();
 }

@@ -4,7 +4,7 @@
 #include "Engine/Math/Primitives/vec4.hpp"
 #include "Engine/Framework/Light.hpp"
 #include "Engine/Math/Curves.hpp"
-#include "Engine/Renderer/Camera.hpp"
+#include "Engine/Graphics/Camera.hpp"
 
 template<typename T>
 inline bool notInList(std::vector<T*>& list, T* ele) {
@@ -35,11 +35,15 @@ void RenderScene::add(Light& l) {
   mLights.push_back(&l);
 }
 
-void RenderScene::add(Camera& c) {
-  EXPECTS(notInList(mCameras, &c));
-
-  mCameras.push_back(&c);
+void RenderScene::set(Camera& c) {
+  mCamera = &c;
 }
+
+// void RenderScene::add(Camera& c) {
+//   EXPECTS(notInList(mCameras, &c));
+//
+//   mCameras.push_back(&c);
+// }
 
 void RenderScene::remove(Renderable& r) {
   removeAndShrink(mRenderables, &r);
@@ -48,48 +52,48 @@ void RenderScene::remove(Renderable& r) {
 void RenderScene::remove(Light& l) {
   removeAndShrink(mLights, &l);
 }
-
-void RenderScene::remove(Camera& c) {
-  removeAndShrink(mCameras, &c);
-}
-
-void RenderScene::lightContributorsAt(const vec3& position, uint* out_lights, uint* out_count) const {
-  if (out_lights == nullptr && out_count == nullptr) return;
-
-  struct indexedLight {
-    Light* l = nullptr;
-    size_t index = 0;
-  };
-  std::vector<indexedLight> lights;
-
-  lights.reserve(mLights.size());
-
-  for(size_t i = 0; i < mLights.size(); i++) {
-    lights.push_back({mLights[i], i});
-  }
-
-  std::sort(lights.begin(), lights.end(), [&position](const indexedLight& a, const indexedLight& b) {
-    return a.l->attenuation(position) > b.l->attenuation(position);
-  });
-
-  uint lightCount = clamp<uint>((uint)lights.size(), 0u, NUM_MAX_LIGHTS);
-
-  if(out_count) {
-    *out_count = lightCount;
-  }
-
-  if(out_lights) {
-    for(uint i = 0; i < lightCount; i++) {
-      out_lights[i] = (uint)lights[i].index;
-    }
-  }
-}
-
-void RenderScene::sortCamera() {
-  static auto comp = [](Camera* a, Camera* b) {
-    return a->sort < b->sort;
-  };
-  if (std::is_sorted(mCameras.begin(), mCameras.end(), comp)) return;
-  std::sort(mCameras.begin(), mCameras.end(), comp);
-}
-
+//
+// void RenderScene::remove(Camera& c) {
+//   removeAndShrink(mCameras, &c);
+// }
+//
+// void RenderScene::lightContributorsAt(const vec3& position, uint* out_lights, uint* out_count) const {
+//   if (out_lights == nullptr && out_count == nullptr) return;
+//
+//   struct indexedLight {
+//     Light* l = nullptr;
+//     size_t index = 0;
+//   };
+//   std::vector<indexedLight> lights;
+//
+//   lights.reserve(mLights.size());
+//
+//   for(size_t i = 0; i < mLights.size(); i++) {
+//     lights.push_back({mLights[i], i});
+//   }
+//
+//   std::sort(lights.begin(), lights.end(), [&position](const indexedLight& a, const indexedLight& b) {
+//     return a.l->attenuation(position) > b.l->attenuation(position);
+//   });
+//
+//   uint lightCount = clamp<uint>((uint)lights.size(), 0u, NUM_MAX_LIGHTS);
+//
+//   if(out_count) {
+//     *out_count = lightCount;
+//   }
+//
+//   if(out_lights) {
+//     for(uint i = 0; i < lightCount; i++) {
+//       out_lights[i] = (uint)lights[i].index;
+//     }
+//   }
+// }
+//
+// void RenderScene::sortCamera() {
+//   static auto comp = [](Camera* a, Camera* b) {
+//     return a->sort < b->sort;
+//   };
+//   if (std::is_sorted(mCameras.begin(), mCameras.end(), comp)) return;
+//   std::sort(mCameras.begin(), mCameras.end(), comp);
+// }
+//

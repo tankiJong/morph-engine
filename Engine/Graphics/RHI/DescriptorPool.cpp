@@ -1,4 +1,6 @@
-﻿#include "DescriptorPool.hpp"
+﻿#include "Engine/Graphics/RHI/RHI.hpp"
+#include "DescriptorPool.hpp"
+#include "Engine/Graphics/RHI/Fence.hpp"
 
 void DescriptorPool::executeDeferredRelease() {
   u64 gpuVal = mFence->gpuVaule();

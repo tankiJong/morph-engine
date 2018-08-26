@@ -61,7 +61,7 @@ RHIContextData::sptr_t RHIContextData::create(CommandQueueType type, command_que
   ctxData->mAllocator = ctxData->mMetaData->allocatorPool->aquire();
   
   d3d_call(RHIDevice::get()->nativeDevice()
-            ->CreateCommandList(0, tt, ctxData->mAllocator, 
+            ->CreateCommandList(0, tt, ctxData->mAllocator.Get(), 
                                 nullptr, IID_PPV_ARGS(&ctxData->mList)));
 
   return ctxData;
@@ -69,11 +69,11 @@ RHIContextData::sptr_t RHIContextData::create(CommandQueueType type, command_que
 
 void RHIContextData::flush() {
   d3d_call(mList->Close());
-  ID3D12CommandList* list = mList.GetInterfacePtr();
+  ID3D12CommandList* list = mList.Get();
   mQueue->ExecuteCommandLists(1, &list);
   mFence->gpuSignal(mQueue);
   // Memory leak here, because fence is not managed, so never get chance to release alloc
   mAllocator = mMetaData->allocatorPool->aquire();
   d3d_call(mAllocator->Reset());
-  d3d_call(mList->Reset(mAllocator, nullptr));
+  d3d_call(mList->Reset(mAllocator.Get(), nullptr));
 }

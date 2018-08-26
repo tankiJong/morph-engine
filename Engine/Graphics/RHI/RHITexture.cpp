@@ -3,7 +3,7 @@
 #include "RHITexture.hpp"
 
 
-ShaderResourceView& RHITexture::srv() {
+const ShaderResourceView& RHITexture::srv() const {
 
   if (!mSrv) {
     mSrv = ShaderResourceView::create(shared_from_this());

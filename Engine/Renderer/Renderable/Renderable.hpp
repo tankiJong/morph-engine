@@ -9,6 +9,7 @@ class Mesh;
 class RenderTask;
 class RenderScene;
 class Camera;
+class Program;
 
 class Renderable {
 public:
@@ -30,7 +31,6 @@ public:
   inline const Transform& transform() const { return *mTransform; }
   inline const Transform*& transform() { return mTransform; }
 
-  void pushRenderTask(std::vector<RenderTask>& tasks, const RenderScene& scene, Camera& cam) const;
 protected:
   S<const Material> mResMaterial = nullptr;
   owner<Material*> mMaterial = nullptr;

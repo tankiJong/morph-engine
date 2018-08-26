@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/DescriptorPool.hpp"
+#include "Engine/Graphics/RHI/RHIType.hpp"
 
 class UnorderedAccessView;
 class ShaderResourceView;

@@ -7,6 +7,9 @@
 #include "Engine/Graphics/RHI/PipelineState.hpp"
 #include "Engine/Graphics/Model/Mesh.hpp"
 #include "Engine/Math/Primitives/AABB2.hpp"
+#include "Engine/Graphics/RHI/ResourceView.hpp"
+#include "Engine/Graphics/Model/Vertex.hpp"
+#include "Engine/Graphics/Camera.hpp"
 
 void ImmediateRenderer::startUp() {
   {
@@ -117,16 +120,34 @@ void ImmediateRenderer::setRenderTarget(const RenderTargetView* rtv, uint index)
 }
 
 void ImmediateRenderer::setTexture(eTextureSlot slot, const ShaderResourceView& srv) {
-  RHIResource::sptr_t res = srv.res().lock();
+  RHIResource::scptr_t res = srv.res().lock();
   mDescriptorSet->setSrv(1, slot, srv);
 }
 
 void ImmediateRenderer::setUniform(eUniformSlot slot, const ConstantBufferView& cbv) {
-  RHIResource::sptr_t res = cbv.res().lock();
+  RHIResource::scptr_t res = cbv.res().lock();
   mDescriptorSet->setCbv(0, slot, cbv);
 }
 
 void ImmediateRenderer::setView(const Camera& cam) {
   mRhiContext->setViewport(aabb2{ vec2::zero, vec2(cam.width(), cam.height()) });
   mCameraBuffer->updateData(&cam.ubo(), 0, sizeof(camera_t));
+}
+
+const DepthStencilView* ImmediateRenderer::defaultDsv() const {
+  return RHIDevice::get()->depthBuffer()->dsv();
+}
+
+const RenderTargetView& ImmediateRenderer::defaultRtv() const {
+  return RHIDevice::get()->backBuffer()->rtv();
+}
+
+ImmediateRenderer* gImmediateRenderer = nullptr;
+
+ImmediateRenderer& ImmediateRenderer::get() {
+  if(gImmediateRenderer == nullptr) {
+    gImmediateRenderer = new ImmediateRenderer();
+  }
+
+  return *gImmediateRenderer;
 }

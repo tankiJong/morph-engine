@@ -2,6 +2,7 @@
 #include "Mesher.hpp"
 #include "Engine/File/Utils.hpp"
 #include "Engine/File/FileSystem.hpp"
+#include "..\..\Graphics\Model\Mesh.hpp"
 
 
 
@@ -61,3 +62,4 @@ ResDef<Mesh> Resource<Mesh>::load(const std::string& file) {
 
   return { file, ms.createMesh() };
 }
+

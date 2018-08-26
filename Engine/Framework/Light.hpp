@@ -4,7 +4,7 @@
 #include "Engine/Math/Transform.hpp"
 #include "Engine/Renderer/type.h"
 #include "Engine/Renderer/RenderTarget.hpp"
-#include "Engine/Renderer/Camera.hpp"
+#include "Engine/Graphics/Camera.hpp"
 
 class Rgba;
 enum eLightType {
@@ -32,16 +32,16 @@ public:
 
   light_info_t& info();
 
-  RenderTarget& shadowMap();
-  Camera& camera();
+  // RenderTarget& shadowMap();
+  // Camera& camera();
   float fovAngle() const;
 
   float attenuation(vec3 position) const;
-  void updateCamera(const Camera& view);
+  // void updateCamera(const Camera& view);
   static constexpr uint SHADOW_MAP_SIZE = 1024u;
 protected:
   void updateCamera();
   light_info_t mInfo;
-  RenderTarget* mShadowMap = nullptr;
+  // RenderTarget* mShadowMap = nullptr;
   Camera mCamera;
 };

@@ -59,6 +59,8 @@ public:
                                bool clearDepth = true, bool clearStencil = true,
                                float depth = 1.f, u8 stencil = 0);
 
+  void beginEvent(const char* name);
+  void endEvent();
   static sptr_t create(command_queue_handle_t commandQueue);
 
 protected:

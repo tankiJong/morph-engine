@@ -3,7 +3,7 @@
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/Math/Primitives/vec3.hpp"
 #include "Engine/Math/Primitives/AABB2.hpp"
-#include "Engine/Renderer/Geometry/Mesh.hpp"
+#include "Engine/Graphics/Model/Mesh.hpp"
 #include "Engine/Core/Gradient.hpp"
 struct aabb3;
 class Transform;

@@ -64,3 +64,15 @@ protected:
   uint mCurrentBackBufferIndex = 0;
 };
 
+
+class __SCOPED_GPU_EVENT {
+public:
+  __SCOPED_GPU_EVENT(const char* name) {
+    RHIDevice::get()->defaultRenderContext()->beginEvent(name);
+  }
+  ~__SCOPED_GPU_EVENT() {
+    RHIDevice::get()->defaultRenderContext()->endEvent();
+  }
+};
+#define SCOPED_GPU_EVENT(name) __SCOPED_GPU_EVENT APPEND(__GPU_EVENT, __LINE__)(name)
+#define GPU_FUNCTION_EVENT() SCOPED_GPU_EVENT(__FUNCTION__)

@@ -12,6 +12,7 @@ struct draw_instr_t {
   uint elementCount = 0;
 };
 
+class RHIContext;
 
 /**
 * \brief Abstraction of Mesh type.
@@ -33,6 +34,8 @@ public:
   draw_instr_t& instruction(uint i = 0) { return mIns[i]; }
   const VertexLayout& layout() const { return *mLayout; }
   uint subMeshCount() const { return (uint)mIns.size(); }
+
+  void bindForContext(RHIContext& ctx) const;
 
   std::vector<VertexBuffer::sptr_t> mVertices;
   IndexBuffer::sptr_t  mIndices;

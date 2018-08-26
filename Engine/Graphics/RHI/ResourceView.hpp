@@ -36,17 +36,17 @@ public:
   virtual ~ResourceView() {};
 
   ResourceView(
-    W<RHIResource> res, rhi_handle_t handle, 
+    W<const RHIResource> res, rhi_handle_t handle, 
     uint mostDetailedMip, uint mipCount, uint firstArraySlice, uint arraySize)
     : mRhiHandle(handle), mResource(res)
     , mViewInfo(mostDetailedMip, mipCount, firstArraySlice, arraySize) {}
 
-  W<RHIResource> res() const { return mResource; }
+  W<const RHIResource> res() const { return mResource; }
   const rhi_handle_t& handle() const { return mRhiHandle; }
 protected:
   rhi_handle_t mRhiHandle;
   ResourceViewInfo mViewInfo;
-  W<RHIResource> mResource;
+  W<const RHIResource> mResource;
 };
 
 class ShaderResourceView: public ResourceView<srv_handle_t> {
@@ -54,13 +54,13 @@ public:
   using sptr_t = S<ShaderResourceView>;
   using scptr_t = S<const ShaderResourceView>;
 
-  static sptr_t create(W<RHITexture> res,
+  static sptr_t create(W<const RHITexture> res,
                        uint mostDetailedMip = 0, uint mipCount = MAX_POSSIBLE, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
   // static sptr_t create(W<RHIBuffer> res,
   //                      uint mostDetailedMip = 0, uint mipCount = MAX_POSSIBLE, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
   static sptr_t nullView();
 protected:
-  ShaderResourceView(W<RHIResource> res, rhi_handle_t handle, 
+  ShaderResourceView(W<const RHIResource> res, rhi_handle_t handle, 
                      uint mostDetailedMip, uint mipCount, uint firstArraySlice, uint arraySize)
     : ResourceView(res, handle, mostDetailedMip, mipCount, firstArraySlice, arraySize) {}
   static sptr_t sNullView;
@@ -71,11 +71,11 @@ public:
   using sptr_t = S<ConstantBufferView>;
   using scptr_t = S<const ConstantBufferView>;
 
-  static sptr_t create(W<RHIBuffer> res);
+  static sptr_t create(W<const RHIBuffer> res);
   static sptr_t nullView();
 
 protected:
-  ConstantBufferView(W<RHIResource> res, rhi_handle_t handle)
+  ConstantBufferView(W<const RHIResource> res, rhi_handle_t handle)
     : ResourceView(res, handle, 0, 1, 0, 1) {}
 
   static sptr_t sNullView;
@@ -86,11 +86,11 @@ public:
   using sptr_t = S<RenderTargetView>;
   using scptr_t = S<const RenderTargetView>;
 
-  static sptr_t create(W<RHITexture> res, uint mipLevel = 0, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
+  static sptr_t create(W<const RHITexture> res, uint mipLevel = 0, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
   static sptr_t nullView();
 
 protected:
-  RenderTargetView(W<RHIResource> res, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize): ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize) {}
+  RenderTargetView(W<const RHIResource> res, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize): ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize) {}
 
   static sptr_t sNullView;
 };
@@ -100,11 +100,11 @@ public:
   using sptr_t = S<DepthStencilView>;
   using scptr_t = S<const DepthStencilView>;
 
-  static sptr_t create(W<RHITexture> res, uint mipLevel = 0, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
+  static sptr_t create(W<const RHITexture> res, uint mipLevel = 0, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
   static sptr_t nullView();
 
 protected:
-  DepthStencilView(W<RHIResource> res, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize) : ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize) {}
+  DepthStencilView(W<const RHIResource> res, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize) : ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize) {}
 
   static sptr_t sNullView;
 };
@@ -114,12 +114,12 @@ public:
   using sptr_t = S<UnorderedAccessView>;
   using scptr_t = S<const UnorderedAccessView>;
 
-  static sptr_t create(W<Texture2> res, uint mipLevel = 0);
+  static sptr_t create(W<const Texture2> res, uint mipLevel = 0);
   static sptr_t create(W<RHIBuffer> res);
   static sptr_t nullView();
 
 protected:
-  UnorderedAccessView(W<RHIResource> res, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize) : ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize) {}
+  UnorderedAccessView(W<const RHIResource> res, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize) : ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize) {}
 
   static sptr_t sNullView;
 };

@@ -68,7 +68,7 @@ enum eTextureFormat {
 };
 
 enum eUniformSlot : uint {
-  UNIFORM_TIME,
+  UNIFORM_FRAME,
   UNIFORM_CAMERA,
   UNIFORM_TRANSFORM,
   UNIFORM_LIGHT,
@@ -223,3 +223,9 @@ struct RenderState {
   bool operator==(const RenderState& rhs) const;
 };
 
+struct frame_data_t {
+  float time;
+  float frameCount;
+protected:
+  vec2 __padding;
+};

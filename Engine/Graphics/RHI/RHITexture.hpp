@@ -14,7 +14,7 @@ public:
   uint width() const { return mWidth; }
   uint height() const { return mHeight; }
   eTextureFormat format() const { return mFormat; }
-  ShaderResourceView& srv();
+  const ShaderResourceView& srv() const;
 protected:
   RHITexture(RHIResource::Type type, uint width, uint height, 
              uint depth, eTextureFormat format, BindingFlag flags, const void* data, size_t size)
@@ -25,7 +25,7 @@ protected:
   uint mWidth = 0;
   uint mHeight = 0;
   uint mDepth = 0;
-  ShaderResourceView::sptr_t mSrv;
+  mutable ShaderResourceView::sptr_t mSrv;
   eTextureFormat mFormat = TEXTURE_FORMAT_RGBA8;
 };
 

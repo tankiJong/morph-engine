@@ -10,6 +10,10 @@ const FrameBuffer::Desc& FrameBuffer::desc() const {
   return mDesc;
 }
 
+FrameBuffer::Desc& FrameBuffer::desc() {
+  return mDesc;
+}
+
 FrameBuffer::FrameBuffer() {
   mColorTarget.fill(nullptr);
 }
@@ -35,5 +39,9 @@ void FrameBuffer::setDepthStencilTarget(Texture2::sptr_t tex) {
 void FrameBuffer::setDepthStencilTarget(const DepthStencilView* dsv) {
   mDepthTarget = dsv;
 
+}
+
+void FrameBuffer::setDesc(const Desc& desc) {
+  mDesc = desc;
 };
 

@@ -235,7 +235,7 @@ bool GraphicsState::rhiInit() {
   setRasterizerState(mDesc.mProgram->renderState(), desc.RasterizerState);
   setFboDesc(desc, mDesc.mFboDesc);
   desc.SampleMask = mDesc.mSampleMask;
-  desc.pRootSignature = mDesc.mRootSignature ? mDesc.mRootSignature->handle() : nullptr;
+  desc.pRootSignature = mDesc.mRootSignature ? mDesc.mRootSignature->handle().Get() : nullptr;
 
   desc.BlendState = blendDesc;
   desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -265,7 +265,7 @@ bool ComputeState::rhiInit() {
   CS.BytecodeLength = shader->size();
 
   desc.CS = CS;
-  desc.pRootSignature = mDesc.mRootSignature ? mDesc.mRootSignature->handle() : nullptr;
+  desc.pRootSignature = mDesc.mRootSignature ? mDesc.mRootSignature->handle().Get() : nullptr;
   d3d_call(RHIDevice::get()->nativeDevice()->CreateComputePipelineState(&desc, IID_PPV_ARGS(&mRhiHandle)));
   return true;
 }

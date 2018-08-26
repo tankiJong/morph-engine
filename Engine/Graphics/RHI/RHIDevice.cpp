@@ -3,30 +3,6 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 RHIDevice::sptr_t gDevice;
 
-void RHIDevice::cleanup() {
-
-  mRenderContext->flush();
-
-  mGpuDescriptorPool.reset();
-  mCpuDescriptorPool.reset();
-  mRenderContext.reset();
-  SAFE_DELETE(mDeviceData);
-
-  for (auto& b : mBackBuffers) {
-    b.reset();
-  }
-
-  for (auto& b : mDepthBuffer) {
-    b.reset();
-  }
-
-  while(!mDeferredRelease.empty()) {
-    mDeferredRelease.pop();
-  }
-
-  mFrameFence.reset();
-}
-
 Texture2::sptr_t& RHIDevice::backBuffer() {
   return mBackBuffers[mCurrentBackBufferIndex];
 }

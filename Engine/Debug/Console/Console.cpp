@@ -2,23 +2,25 @@
 #include <fstream>
 #include "Engine/Debug/Console/Command.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
-#include "Engine/Renderer/Renderer.hpp"
+#include "Engine/Debug/Draw.hpp"
 #include "Engine/Application/Window.hpp"
 #include "Engine/Math/Primitives/AABB2.hpp"
 #include "Engine/Input/Input.hpp"
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Tool/Parser.hpp"
-#include "Engine/Renderer/Camera.hpp"
-#include "Engine/Debug/Draw.hpp"
-#include "Engine/Renderer/Shader/Shader.hpp"
-#include "Engine/Renderer/Geometry/Mesher.hpp"
-#include "Engine/Renderer/Font.hpp"
-#include "Engine/Renderer/Sampler.hpp"
+#include "Engine/Graphics/Camera.hpp"
+#include "Engine/Graphics/Font.hpp"
+#include "Engine/Renderer/ImmediateRenderer.hpp"
+#include "Engine/Graphics/Program/Program.hpp"
+#include "Engine/Graphics/Model/Mesher.hpp"
+#include "Engine/Graphics/RHI/Texture.hpp"
 
 #define WM_CHAR                 0x0102
 #define WM_KEYDOWN              0x0100
 #define WM_KEYUP                0x0101
 #define JUST_KEYDOWN_STATE      0x80000000
+#undef min
+#undef max
 
 static const Rgba& DEFAULT_TEXT_COLOR = Rgba::white;
 static Console* gConsole = nullptr;
@@ -97,14 +99,10 @@ bool saveLog(std::string path, const std::deque<std::string>& logStream) {
 
 }
 
-void Console::init(Renderer& renderer, Input& input) {
-  mRenderer = &renderer;
-  mInput = &input;
-
+void Console::init() {
   const aabb2& bounds = Window::Get()->bounds();
   mCamera = new Camera();
-  mCamera->setProjection(mat44::makeOrtho(0, bounds.width(), 0, bounds.height(), -1.f, 1.f));
-  mCamera->setColorTarget(mRenderer->getDefaultColorTarget());
+  mCamera->setProjectionOrtho(bounds.width(), bounds.height(), -1.f, 1.f);
 //  mCamera->setDepthStencilTarget(mRenderer->getDefaultDepthTarget());
 
   mTotalLineLogCanRender = uint((bounds.height() - LINE_HEIGHT) / LINE_HEIGHT);
@@ -125,7 +123,7 @@ void Console::update(float deltaSecond) {
   }
   if (!mIsOpened) return;
 
-  if(mInput->isKeyJustDown(KEYBOARD_ESCAPE)) {
+  if(Input::Get().isKeyJustDown(KEYBOARD_ESCAPE)) {
     if (!mInputStream.empty()) {
       erase(0, (uint)mInputStream.size());
     } else {
@@ -375,16 +373,15 @@ void Console::hookInBuiltInCommand() {
 }
 
 void Console::render() const {
-
+  ImmediateRenderer& renderer = ImmediateRenderer::get();
   float inputBoxHeight = LINE_HEIGHT;
   float descender = mFont->descender(FONT_SIZE);
   const aabb2& screenBounds = { vec2::zero, vec2{(float)mCamera->width(), (float)mCamera->height()}};
-
-  mRenderer->setCamera(mCamera);
-  mRenderer->setModelMatrix(mat44::identity);
+  renderer.setView(*mCamera);
+  renderer.setModelMatrix(mat44::identity);
   static const Shader* defaultShader = Resource<Shader>::get("shader/ui/default").get();
-  mRenderer->setShader(defaultShader);
-  mRenderer->setTexture();
+  renderer.setShader(defaultShader);
+  renderer.setTexture(TEXTURE_DIFFUSE, mFont->texture(0)->srv());
 
   Mesher ms;
 
@@ -463,7 +460,7 @@ void Console::render() const {
   }
 
   Mesh* layout = ms.createMesh<vertex_pcu_t>();
-  mRenderer->drawMesh(*layout);
+  renderer.drawMesh(*layout);
   delete layout;
 
   // ###### render text
@@ -513,10 +510,10 @@ void Console::render() const {
 
   Mesh* text = printer.createMesh<vertex_pcu_t>();
   static const Shader* fontShader = Resource<Shader>::get("shader/ui/font").get();
-  mRenderer->setShader(fontShader);
-  mRenderer->setTexture(mFont->texture(0));
-  mRenderer->setSampler(0, &Sampler::Linear());
-  mRenderer->drawMesh(*text);
+  renderer.setShader(fontShader);
+  renderer.setTexture(mFont->texture(0));
+  renderer.setSampler(0, &Sampler::Linear());
+  renderer.drawMesh(*text);
 
   delete text;
 }

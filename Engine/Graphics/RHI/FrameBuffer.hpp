@@ -43,8 +43,9 @@ public:
   FrameBuffer(const Desc& desc);
 
   const FrameBuffer::Desc& desc() const;
+  FrameBuffer::Desc& desc();
 
-  FrameBuffer();;
+  FrameBuffer();
 
   uint width() const;
   uint height() const;
@@ -53,7 +54,8 @@ public:
   void setColorTarget(const Texture2::sptr_t& tex, uint index);
   void setDepthStencilTarget(Texture2::sptr_t tex);
   void setDepthStencilTarget(const DepthStencilView* dsv);
-  
+  void setDesc(const Desc& desc);
+
   const RenderTargetView* colorTarget(uint index) const { return mColorTarget[index]; }
 
   const DepthStencilView* depthStencilTarget() const { return mDepthTarget; }

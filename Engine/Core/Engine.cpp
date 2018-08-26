@@ -5,6 +5,7 @@
 #include "Engine/File/FileSystem.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 #include "Engine/Debug/Log.hpp"
+#include "Engine/Renderer/ImmediateRenderer.hpp"
 
 Engine* gEngine = nullptr;
 
@@ -23,7 +24,7 @@ void Engine::init() {
   mWindow = new Window();
   mWindow->init((const int)SCREEN_WIDTH, (const int)SCREEN_HEIGHT, "Game");
   RHIDevice::create((HWND)Window::Get()->getHandle());
-
+  ImmediateRenderer::get().startUp();
   mReady = true;
 
 

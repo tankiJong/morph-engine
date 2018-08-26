@@ -1,7 +1,7 @@
+#include "Engine/Graphics/RHI/Fence.hpp"
 #include "Engine/Graphics/RHI/DescriptorPool.hpp"
 #include "Engine/Graphics/RHI/Dx12/Dx12DescriptorData.hpp"
 #include "Engine/Graphics/RHI/Dx12/Dx12DescriptorHeap.hpp"
-
 D3D12_DESCRIPTOR_HEAP_TYPE asoDx12DescriptorHeapType(DescriptorPool::Type t) {
   switch (t) {
     case DescriptorPool::Type::TextureSrv:

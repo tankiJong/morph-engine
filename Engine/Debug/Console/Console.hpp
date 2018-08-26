@@ -1,7 +1,6 @@
 #pragma once
 #include <array>
 #include <deque>
-#include <sstream>
 #include "Engine/Core/common.hpp"
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Core/Rgba.hpp"
@@ -11,8 +10,6 @@
 #include <mutex>
 
 class Command;
-class Renderer;
-class Input;
 class Camera;
 class Font;
 
@@ -57,7 +54,7 @@ public:
   static constexpr uint MAX_LOG_NUMBER = 100u;
   float LINE_HEIGHT = 0.f;
 public:
-  void init(Renderer& renderer, Input& input);;
+  void init();;
   template<typename T>
   void input(const T& val) {
     std::string str = toString(val);
@@ -114,8 +111,6 @@ protected:
   void erase(uint from, uint to);
 
   bool mIsOpened = false;
-  Renderer* mRenderer = nullptr;
-  Input* mInput = nullptr;
 
   // input state control
   std::string mAutoCompleteText;

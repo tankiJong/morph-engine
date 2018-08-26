@@ -10,6 +10,9 @@
 #include "Engine/Graphics/RHI/DescriptorPool.hpp"
 #include "Engine/Graphics/RHI/RHIBuffer.hpp"
 #include "Engine/Graphics/RHI/PipelineState.hpp"
+#include "ThirdParty/WinPixEventRuntime/Include/pix3.h"
+
+#pragma comment(lib, "ThirdParty/WinPixEventRuntime/bin/WinPixEventRuntime.lib")
 
 RHIContext::sptr_t RHIContext::create(command_queue_handle_t commandQueue) {
   sptr_t ctx = sptr_t(new RHIContext());
@@ -56,8 +59,8 @@ void RHIContext::copyBufferRegion(const RHIBuffer* dst, size_t dstOffset, RHIBuf
   resourceBarrier(dst, RHIResource::State::CopyDest);
   resourceBarrier(src, RHIResource::State::CopySource);
   mContextData->commandList()->CopyBufferRegion(
-    dst->handle(), dstOffset, 
-    src->handle(), src->gpuAddressOffset() + srcOffset, 
+    dst->handle().Get(), dstOffset, 
+    src->handle().Get(), src->gpuAddressOffset() + srcOffset, 
     byteCount);
   mCommandsPending = true;
 }
@@ -72,7 +75,7 @@ void RHIContext::resourceBarrier(const RHIResource* res, RHIResource::State newS
     D3D12_RESOURCE_BARRIER barrier;
     barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
     barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-    barrier.Transition.pResource = res->handle();
+    barrier.Transition.pResource = res->handle().Get();
     barrier.Transition.StateBefore = asDx12ResourceState(res->state());
     barrier.Transition.StateAfter = asDx12ResourceState(newState);
     barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -143,21 +146,21 @@ void RHIContext::drawInstanced(uint startVert, uint startIns, uint vertCount, ui
 }
 
 void RHIContext::setGraphicsRootSignature(const RootSignature& rootSig) {
-  mContextData->commandList()->SetGraphicsRootSignature(rootSig.handle());
+  mContextData->commandList()->SetGraphicsRootSignature(rootSig.handle().Get());
 }
 
 void RHIContext::setComputeRootSignature(const RootSignature& rootSig) {
-  mContextData->commandList()->SetComputeRootSignature(rootSig.handle());
+  mContextData->commandList()->SetComputeRootSignature(rootSig.handle().Get());
 }
 
 void RHIContext::setGraphicsState(const GraphicsState& pso) {
-  mContextData->commandList()->SetGraphicsRootSignature(pso.rootSignature()->handle());
-  mContextData->commandList()->SetPipelineState(pso.handle());
+  mContextData->commandList()->SetGraphicsRootSignature(pso.rootSignature()->handle().Get());
+  mContextData->commandList()->SetPipelineState(pso.handle().Get());
 }
 
 void RHIContext::setComputeState(const ComputeState& pso) {
-  mContextData->commandList()->SetComputeRootSignature(pso.rootSignature()->handle());
-  mContextData->commandList()->SetPipelineState(pso.handle());
+  mContextData->commandList()->SetComputeRootSignature(pso.rootSignature()->handle().Get());
+  mContextData->commandList()->SetPipelineState(pso.handle().Get());
 }
 
 void RHIContext::setFrameBuffer(const FrameBuffer& fbo) {
@@ -167,7 +170,7 @@ void RHIContext::setFrameBuffer(const FrameBuffer& fbo) {
     const RenderTargetView* rtv = fbo.colorTarget(i);
     if(rtv) {
       rtvHandles[i] = rtv->handle()->cpuHandle(0);
-      RHIResource::sptr_t res = rtv->res().lock();
+      RHIResource::scptr_t res = rtv->res().lock();
       resourceBarrier(res.get(), RHIResource::State::RenderTarget);
     } else {
       rtvHandles[i] = RenderTargetView::nullView()->handle()->cpuHandle(0);
@@ -178,7 +181,7 @@ void RHIContext::setFrameBuffer(const FrameBuffer& fbo) {
   if(fbo.depthStencilTarget()) {
     rtvDepthHandle = fbo.depthStencilTarget()->handle()->cpuHandle(0);
 
-    RHIResource::sptr_t res = fbo.depthStencilTarget()->res().lock();
+    RHIResource::scptr_t res = fbo.depthStencilTarget()->res().lock();
     resourceBarrier(res.get(), RHIResource::State::DepthStencil);
 
   } else {
@@ -233,7 +236,7 @@ void RHIContext::bindDescriptorHeap() {
   uint heapCount = 0;
   for(uint i = 0; i <count_of(rhiData->heaps); i++) {
     if(rhiData->heaps[i]) {
-      heaps[heapCount++] = rhiData->heaps[i]->handle();
+      heaps[heapCount++] = rhiData->heaps[i]->handle().Get();
     }
   }
 
@@ -241,7 +244,7 @@ void RHIContext::bindDescriptorHeap() {
 }
 
 void RHIContext::clearRenderTarget(const RenderTargetView& rtv, const Rgba& rgba) {
-  S<RHIResource> ptr = rtv.res().lock();
+  RHIResource::scptr_t ptr = rtv.res().lock();
 
   vec4 color = rgba.normalized();
   EXPECTS(ptr);
@@ -258,7 +261,7 @@ void RHIContext::clearDepthStencilTarget(const DepthStencilView& dsv, bool clear
 
   if (flag == 0) return;
 
-  S<RHIResource> res = dsv.res().lock();
+  RHIResource::scptr_t res = dsv.res().lock();
   resourceBarrier(res.get(), RHIResource::State::DepthStencil);
 
   mContextData->commandList()
@@ -268,6 +271,14 @@ void RHIContext::clearDepthStencilTarget(const DepthStencilView& dsv, bool clear
   mCommandsPending = true;
 }
 
+//https://blogs.msdn.microsoft.com/pix/winpixeventruntime/
+void RHIContext::beginEvent(const char* name) {
+  PIXBeginEvent(mContextData->commandList().Get(), PIX_COLOR_DEFAULT, name);
+}
+
+void RHIContext::endEvent() {
+  PIXEndEvent(mContextData->commandList().Get());
+}
 
 void RHIContext::updateTextureSubresources(const RHITexture& texture, uint firstSubresource, uint subresourceCount, const void* data) {
   // mCommandsPending = true;
@@ -282,12 +293,12 @@ void RHIContext::updateTextureSubresources(const RHITexture& texture, uint first
 void RHIContext::updateTexture(const RHITexture& texture, const void* data) {
   mCommandsPending = true;
 
-  u64 uploadBufferSize = GetRequiredIntermediateSize(texture.handle(), 0, 1);
+  u64 uploadBufferSize = GetRequiredIntermediateSize(texture.handle().Get(), 0, 1);
 
   auto buffer = RHIBuffer::create(uploadBufferSize, RHIBuffer::BindingFlag::None, RHIBuffer::CPUAccess::Write, nullptr);
 
 
-  ID3D12Resource* textureUploadHeap = buffer->handle();
+  ID3D12Resource* textureUploadHeap = buffer->handle().Get();
 
   //
   resourceBarrier(&texture, RHIResource::State::CopyDest);
@@ -327,7 +338,7 @@ void RHIContext::updateTexture(const RHITexture& texture, const void* data) {
   textureData.RowPitch = texture.width() * pixelSize;
   textureData.SlicePitch = textureData.RowPitch * texture.height();
 
-  UpdateSubresources(mContextData->commandList(), texture.handle(), 
+  UpdateSubresources(mContextData->commandList().Get(), texture.handle().Get(), 
                       textureUploadHeap, 0, 0, 1, &textureData);
 
   
@@ -340,7 +351,7 @@ void RHIContext::copyResource(const RHIResource& from, RHIResource& to) {
   resourceBarrier(&from, RHIResource::State::CopySource);
   resourceBarrier(&to, RHIResource::State::CopyDest);
 
-  mContextData->commandList()->CopyResource(to.handle(), from.handle());
+  mContextData->commandList()->CopyResource(to.handle().Get(), from.handle().Get());
 
   mCommandsPending = true;
 }

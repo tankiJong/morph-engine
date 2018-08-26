@@ -63,11 +63,11 @@ public:
 
   Vertex mVertices;
   std::vector<uint> mIndices;
+  std::vector<draw_instr_t> mIns;
 protected:
   vec3 normalOf(uint a, uint b, uint c);
   uint currentElementCount() const;
   vertex_t mStamp;
-  std::vector<draw_instr_t> mIns;
   draw_instr_t mCurrentIns;
   bool isDrawing = false;
 };
