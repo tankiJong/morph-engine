@@ -32,7 +32,8 @@ bool Program::compile() {
   }
 
   S<const RootSignature> rootSig = mShaders[SHADER_TYPE_VERTEX].rootSignature();
-  for(uint i = 1; i < NUM_SHADER_TYPE; ++i) {
+  for(uint i = 0; i < NUM_SHADER_TYPE; ++i) {
+    if (mShaders[i].empty()) continue;
     EXPECTS(    (rootSig == nullptr &&  nullptr == mShaders[i].rootSignature())
              || (*rootSig == *mShaders[i].rootSignature())
     );

@@ -31,13 +31,13 @@ void Renderable::material(Material& mat) {
   mMaterial = &mat;
 }
 
-Material* Renderable::material() {
-  if(!mMaterial) {
-    mMaterial = Resource<Material>::clone(mResMaterial);
-  }
-
-  return mMaterial;
-}
+// Material* Renderable::material() {
+//   if(!mMaterial) {
+//     mMaterial = Resource<Material>::clone(mResMaterial);
+//   }
+//
+//   return mMaterial;
+// }
 
 const Material* Renderable::material() const {
   return mMaterial == nullptr ? mResMaterial.get() : mMaterial;

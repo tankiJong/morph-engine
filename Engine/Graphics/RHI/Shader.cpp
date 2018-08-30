@@ -11,6 +11,12 @@ Shader::Shader(const std::string_view file, std::string_view entry, eShaderType 
   setType(type);
 }
 
+bool Shader::empty() const { return (!mSource.valid()) && (!mBinary.valid()); }
+
+bool Shader::ready() const {
+  return mBinary.valid();
+}
+
 void* Shader::handle() const {
   return mBinary;
 }
@@ -38,6 +44,7 @@ void Shader::setFromString(const std::string_view source, std::string_view entry
 void Shader::setFromBinary(const void * data, size_t size) {
   mFilePath = "";
   mEntryPoint = "";
+  mSource = Blob();
   mBinary.set(data, size);
 }
 

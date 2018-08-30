@@ -95,21 +95,23 @@ void Shader::compile() {
   if(re != S_OK) {
     ERROR_AND_DIE((char*)err->GetBufferPointer());
   }
-
-  ID3DBlob* rootBlob;
-  re = D3DGetBlobPart(
-    bin->GetBufferPointer(),
-    bin->GetBufferSize(),
-    D3D_BLOB_ROOT_SIGNATURE, 0, &rootBlob);
-
-  if(re >= 0) {
-    Blob b(rootBlob->GetBufferPointer(), rootBlob->GetBufferSize());
-    mRootSignature = RootSignature::create(b);
-  }
-
   mBinary.set(bin->GetBufferPointer(), bin->GetBufferSize());
 }
 
 S<const RootSignature> Shader::rootSignature() const {
+  EXPECTS(mBinary.size() > 0);
+  if(mRootSignature == nullptr) {
+    ID3DBlob* rootBlob;
+    HRESULT re = D3DGetBlobPart(
+      mBinary,
+      mBinary.size(),
+      D3D_BLOB_ROOT_SIGNATURE, 0, &rootBlob);
+
+    if (re >= 0) {
+      Blob b(rootBlob->GetBufferPointer(), rootBlob->GetBufferSize());
+      mRootSignature = RootSignature::create(b);
+    }
+
+  }
   return mRootSignature;
 }

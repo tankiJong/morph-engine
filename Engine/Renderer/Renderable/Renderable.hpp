@@ -20,7 +20,7 @@ public:
   ~Renderable();
   void material(S<const Material> mat);
   void material(Material& mat);
-  Material* material();
+  // Material* material();
   const Material* material() const;
 
   inline const Mesh*& mesh() { return mMesh; };

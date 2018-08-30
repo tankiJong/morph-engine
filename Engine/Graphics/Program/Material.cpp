@@ -10,19 +10,23 @@ Material::Prop::Prop() {
   buffer = RHIBuffer::create(1, RHIResource::BindingFlag::ConstantBuffer, RHIBuffer::CPUAccess::Write);
 }
 
-void Material::init(uint cboRegisterIndexStart, uint cboRegisterCount) {
+void Material::init() {
   DescriptorSet::Layout layout;
 
   // after I have the shader reflaction, the layout will be on the shader
-  layout.addRange(DescriptorSet::Type::TextureSrv, TEXTURE_DIFFUSE, NUM_TEXTURE_SLOT);
-  if(cboRegisterCount != 0) {
-    EXPECTS(cboRegisterIndexStart <= NUM_UNIFORM_SLOT);
-    EXPECTS(cboRegisterIndexStart + cboRegisterCount <= NUM_UNIFORM_SLOT);
-    layout.addRange(DescriptorSet::Type::Cbv, cboRegisterIndexStart, cboRegisterCount);
-    mConstBufferRegisterBase = cboRegisterIndexStart;
+
+  // **IMPORTANT** this layout match with the Rootsignature defined in HLSL
+
+  layout.addRange(DescriptorSet::Type::Cbv, UNIFORM_USER_1, NUM_MAT_CBV);
+  layout.addRange(DescriptorSet::Type::TextureSrv, TEXTURE_DIFFUSE, NUM_MAT_TEXTURE);
+
+  mConstBufferRegisterBase = UNIFORM_USER_1;
+
+  mConstProperties.resize(NUM_MAT_CBV);
+  for(uint i = 0; i < mConstProperties.size(); i++) {
+    mConstProperties[i].slot = (eUniformSlot)(UNIFORM_USER_1 + i);
   }
 
-  mConstProperties.resize(cboRegisterCount);
   mDescriptorSet = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
 }
 
@@ -46,22 +50,26 @@ void Material::setProperty(eUniformSlot registerIndex, const void* data, size_t 
   p->buffer->updateData(data, 0, size);
 }
 
-void Material::bindForGraphics(const RHIContext& ctx, const RootSignature& root, uint rootIndex) {
+void Material::bindForGraphics(const RHIContext& ctx, const RootSignature& root, uint rootIndex) const {
   finialize();
   mDescriptorSet->bindForGraphics(ctx, root, rootIndex);
 }
 
-void Material::bindForCompute(const RHIContext& ctx, const RootSignature& root, uint rootIndex) {
+void Material::bindForCompute(const RHIContext& ctx, const RootSignature& root, uint rootIndex) const {
   finialize();
   mDescriptorSet->bindForCompute(ctx, root, rootIndex);
 }
 
-void Material::finialize() {
-  for(uint i = 0; i < NUM_TEXTURE_SLOT; i++) {
-    mDescriptorSet->setSrv(0, i + MAT_TEXTURE_SLOT_START, mPropertyTextures[i]->srv());
+void Material::finialize() const {
+  for(const Prop& prop: mConstProperties) {
+    mDescriptorSet->setCbv(0, prop.slot - UNIFORM_USER_1, *prop.buffer->cbv());
   }
 
-  for(Prop& prop: mConstProperties) {
-    mDescriptorSet->setCbv(1, prop.slot - mConstBufferRegisterBase, *prop.buffer->cbv());
+  for(uint i = 0; i < NUM_MAT_TEXTURE; i++) {
+    if(mPropertyTextures[i] != nullptr) {
+      mDescriptorSet->setSrv(1, i, mPropertyTextures[i]->srv());
+    } else {
+      mDescriptorSet->setSrv(1, i, *ShaderResourceView::nullView());
+    }
   }
 }

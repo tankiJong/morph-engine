@@ -25,6 +25,10 @@ public:
 
   Shader(const std::string_view file, std::string_view entry, eShaderType type);
   Shader() = default;
+
+  bool empty() const;
+  bool ready() const;
+
 protected:
   std::string mFilePath;
   Blob mSource;
@@ -32,5 +36,5 @@ protected:
   eShaderType mShaderType = SHADER_TYPE_UNKNOWN;
   Blob mBinary;
   std::unordered_map<std::string, std::string> mDefineDirectives;
-  RootSignature::sptr_t mRootSignature;
+  mutable RootSignature::sptr_t mRootSignature;
 };

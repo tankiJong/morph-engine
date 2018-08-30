@@ -19,5 +19,6 @@ struct PSOutput {
 
 #define GenBuffer_RootSig \
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
-    "DescriptorTable(CBV(b0, numDescriptors = 12), SRV(t0, numDescriptors = 12), visibility = SHADER_VISIBILITY_ALL)," \
+    "DescriptorTable(CBV(b0, numDescriptors = 3), SRV(t0, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(CBV(b3, numDescriptors = 5), SRV(t1, numDescriptors = 3), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_PIXEL)," 
