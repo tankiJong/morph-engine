@@ -142,6 +142,9 @@
     <Filter Include="Engine\Async">
       <UniqueIdentifier>{d4e6bfdb-c0a0-4935-8949-7f0f6e90734c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Net">
+      <UniqueIdentifier>{7545e6e0-f561-44d1-9819-74194536e837}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -449,6 +452,15 @@
     </ClCompile>
     <ClCompile Include="Async\Thread.cpp">
       <Filter>Engine\Async</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\Net.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\NetAddress.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\TCPSocket.cpp">
+      <Filter>Engine\Net</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -934,6 +946,15 @@
     </ClInclude>
     <ClInclude Include="Async\Thread.hpp">
       <Filter>Engine\Async</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\Net.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\NetAddress.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\TCPSocket.hpp">
+      <Filter>Engine\Net</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -561,6 +561,9 @@
     <ClCompile Include="Math\Primitives\vec4.cpp" />
     <ClCompile Include="Math\Range.cpp" />
     <ClCompile Include="Math\Transform.cpp" />
+    <ClCompile Include="Net\Net.cpp" />
+    <ClCompile Include="Net\NetAddress.cpp" />
+    <ClCompile Include="Net\TCPSocket.cpp" />
     <ClCompile Include="Persistence\json.cpp" />
     <ClCompile Include="Persistence\xml.cpp" />
     <ClCompile Include="Persistence\yaml.cpp" />
@@ -756,6 +759,9 @@
     <ClInclude Include="Math\Primitives\vec4.hpp" />
     <ClInclude Include="Math\Range.hpp" />
     <ClInclude Include="Math\Transform.hpp" />
+    <ClInclude Include="Net\Net.hpp" />
+    <ClInclude Include="Net\NetAddress.hpp" />
+    <ClInclude Include="Net\TCPSocket.hpp" />
     <ClInclude Include="Persistence\json.forward.hpp" />
     <ClInclude Include="Persistence\json.hpp" />
     <ClInclude Include="Persistence\xml.hpp" />

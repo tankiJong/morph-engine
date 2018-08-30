@@ -10,6 +10,7 @@
 #include "Engine/Application/Window.hpp"
 #include "Engine/Debug/Profile/Profiler.hpp"
 #include "Engine/File/FileSystem.hpp"
+#include "Engine/Net/Net.hpp"
 
 Engine* gEngine = nullptr;
 
@@ -74,6 +75,7 @@ void Engine::init() {
   });
 
   Profile::startup();
+  Net::startup();
   // Blob config = fs::read(".fs");
   // if(config.valid()) {
   //   fs.config(config);
@@ -92,6 +94,7 @@ Engine& Engine::Get() {
 
 Engine::~Engine() {
   Log::shutDown();
+  Net::shutdown();
   SAFE_DELETE(mRenderer);
   SAFE_DELETE(mWindow);
 }

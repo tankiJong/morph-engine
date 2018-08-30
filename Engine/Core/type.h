@@ -19,6 +19,7 @@ typedef int              intptr_t;
 
 enum class byte_t : unsigned char {};
 typedef short int16;
+typedef int   int32;
 typedef long long int64;
 typedef unsigned int uint;
 typedef unsigned short u16;
