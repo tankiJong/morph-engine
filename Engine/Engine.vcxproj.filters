@@ -462,6 +462,13 @@
     <ClCompile Include="Net\TCPSocket.cpp">
       <Filter>Engine\Net</Filter>
     </ClCompile>
+    <ClCompile Include="Core\BytePacker.cpp">
+      <Filter>Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\Console\RemoteConsole.cpp">
+      <Filter>Engine\Debug\Console</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Endianness.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -955,6 +962,15 @@
     </ClInclude>
     <ClInclude Include="Net\TCPSocket.hpp">
       <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Endianness.hpp">
+      <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\BytePacker.hpp">
+      <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\Console\RemoteConsole.hpp">
+      <Filter>Engine\Debug\Console</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -83,6 +83,39 @@ public:
     mInputStream.insert(mInputStream.cbegin() + mCursorPosition, c);
     mCursorPosition++;
   }
+
+  class OutputHandler {
+  public:
+    OutputHandler(std::function<void(std::string, Severity)>* func, Console* owner)
+      : func(func), owner(owner) {}
+    OutputHandler(OutputHandler&& o): func(o.func), owner(o.owner) {
+      o.func = nullptr;
+    }
+
+    OutputHandler& operator=(OutputHandler&& o) {
+      owner = o.owner;
+      func = o.func;
+      o.owner = nullptr;
+      o.func = nullptr;
+    };
+
+    bool release() {
+      if (func == nullptr) return false;
+      for(uint i = owner->mOutputHandler.size() - 1; i < owner->mOutputHandler.size(); --i) {
+        auto* handle = &owner->mOutputHandler[i];
+        if( handle == func) {
+          std::swap(owner->mOutputHandler.back(), owner->mOutputHandler[i]);
+          owner->mOutputHandler.pop_back();
+          func = nullptr;
+          return true;
+        }
+      }
+      return false;
+    }
+  protected:
+    std::function<void(std::string, Severity)>* func;
+    Console* owner;
+  };
   
   void replaceInput(std::string str);
   void update(float deltaSecond);
@@ -99,6 +132,11 @@ public:
   bool hook(const std::string& cmdName, const std::string& paramInfo, const std::string& description, Functor&& cb);
   bool clear();
 
+  template<typename T>
+  OutputHandler onOutput(T&& func) {
+    auto* handler = &mOutputHandler.emplace_back(func);
+    return { handler, this };
+  }
 protected:
   Console();
   ~Console();
@@ -134,6 +172,7 @@ protected:
   std::deque<std::string> mLogStream;
 
   std::array<owner<CommandDef*>, MAX_COMMAND_COUNT> mlegalCommands;
+  std::vector<std::function<void(std::string, Severity)>> mOutputHandler;
   std::vector<std::string> mCommandLog;
   uint mNumCurrentCommand = 0;
   uint mNextCommandLogIndex = 0;

@@ -45,3 +45,13 @@ using S = std::shared_ptr<T>;
 
 #define ___APPEND_IMPL(a, b) a##b
 #define APPEND(a, b) ___APPEND_IMPL(a, b)
+
+#define BIT_FLAG(f) (1U<<(f))
+
+#define align_to(_alignment, _val) (((_val + _alignment - 1) / _alignment) * _alignment)
+#define enum_class_operators(e_) inline e_ operator& (e_ a, e_ b){return static_cast<e_>(static_cast<int>(a)& static_cast<int>(b));}  \
+    inline e_ operator| (e_ a, e_ b){return static_cast<e_>(static_cast<int>(a)| static_cast<int>(b));} \
+    inline e_& operator|= (e_& a, e_ b){a = a | b; return a;};  \
+    inline e_& operator&= (e_& a, e_ b) { a = a & b; return a; };   \
+    inline e_  operator~ (e_ a) { return static_cast<e_>(~static_cast<int>(a));}   \
+    inline bool is_set(e_ val, e_ flag) { return (val & flag) != (e_)0;}

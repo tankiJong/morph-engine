@@ -11,6 +11,7 @@
 #include "Engine/Debug/Profile/Profiler.hpp"
 #include "Engine/File/FileSystem.hpp"
 #include "Engine/Net/Net.hpp"
+#include "Engine/Debug/Console/RemoteConsole.hpp"
 
 Engine* gEngine = nullptr;
 
@@ -76,6 +77,23 @@ void Engine::init() {
 
   Profile::startup();
   Net::startup();
+  RemoteConsole::startup();
+
+  RemoteConsole::get().onReceive([](uint index, const RemoteConsole::Instr& instr) {
+    if(!instr.isEcho) {
+      auto handler = Console::Get()->onOutput([index] (std::string msg, Console::Severity s) {
+        RemoteConsole::get().issue(index, true, msg.c_str());
+      });
+
+      Console::Get()->exec(instr.content);
+      bool re = handler.release();
+      ENSURES(re);
+    } else {
+      auto& c = RemoteConsole::get().connection(index);
+      std::string echo = Stringf("[%s] %s", c.socket.address().toString(), instr.content);
+      Console::log(echo, Rgba::white);
+    }
+  });
   // Blob config = fs::read(".fs");
   // if(config.valid()) {
   //   fs.config(config);
@@ -93,8 +111,9 @@ Engine& Engine::Get() {
 }
 
 Engine::~Engine() {
-  Log::shutDown();
+  RemoteConsole::shutdown();
   Net::shutdown();
+  Log::shutDown();
   SAFE_DELETE(mRenderer);
   SAFE_DELETE(mWindow);
 }

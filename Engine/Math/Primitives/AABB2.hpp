@@ -11,15 +11,15 @@ public:
 	aabb2(const vec2& center, float radiusX, float radiusY);
   aabb2(float width, float height, const vec2& mins);
 
-	void stretchToIncludePoint(float x, float y); // note: stretch, not move…
-	void stretchToIncludePoint(const vec2& point); // note: stretch, not move…
+	void stretchToIncludePoint(float x, float y); // note: stretch, not moveï¿½
+	void stretchToIncludePoint(const vec2& point); // note: stretch, not moveï¿½
 	void addPaddingToSides(float xPaddingRadius, float yPaddingRadius);
 	void translate(const vec2& translation); // move the box; similar to +=
 	void translate(float translationX, float translationY);
 
   std::array<vec2,4> vertices() const;
-	bool contains(float x, float y) const; // is “x,y” within box’s interior?
-	bool contains(const vec2& point) const; // is “point” within box’s interior?
+	bool contains(float x, float y) const; // is ï¿½x,yï¿½ within boxï¿½s interior?
+	bool contains(const vec2& point) const; // is ï¿½pointï¿½ within boxï¿½s interior?
 	vec2 getCenter() const; // return the center position of the box
   float width() const;
   float height() const;
@@ -30,7 +30,7 @@ public:
   void fromString(const char* data);
   std::string toString() const;
   inline vec2 size() const { return maxs - mins; };
-  vec2 mins; // like Vector2, this breaks the “no public members” and “m_” naming rules;
+  vec2 mins; // like Vector2, this breaks the ï¿½no public membersï¿½ and ï¿½m_ï¿½ naming rules;
 	vec2 maxs; // this is so low-level math primitives feel like built-in types (and are fast in Debug)
 };
 

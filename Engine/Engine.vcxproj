@@ -480,6 +480,8 @@
     <ClCompile Include="Async\Thread.cpp" />
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Blackboard.cpp" />
+    <ClCompile Include="Core\BytePacker.cpp" />
+    <ClCompile Include="Core\Endianness.cpp" />
     <ClCompile Include="Core\Engine.cpp" />
     <ClCompile Include="Core\EngineCommon.cpp" />
     <ClCompile Include="Core\Gradient.cpp" />
@@ -492,6 +494,7 @@
     <ClCompile Include="Core\Time\Time.cpp" />
     <ClCompile Include="Debug\Console\Command.cpp" />
     <ClCompile Include="Debug\Console\Console.cpp" />
+    <ClCompile Include="Debug\Console\RemoteConsole.cpp" />
     <ClCompile Include="Debug\Draw.cpp" />
     <ClCompile Include="Debug\ErrorWarningAssert.cpp" />
     <ClCompile Include="Debug\Log.cpp" />
@@ -673,8 +676,10 @@
     <ClInclude Include="Audio\Audio.hpp" />
     <ClInclude Include="Config.hpp" />
     <ClInclude Include="Core\Blackboard.hpp" />
+    <ClInclude Include="Core\BytePacker.hpp" />
     <ClInclude Include="Core\common.hpp" />
     <ClInclude Include="Core\Delegate.hpp" />
+    <ClInclude Include="Core\Endianness.hpp" />
     <ClInclude Include="Core\Engine.hpp" />
     <ClInclude Include="Core\EngineCommon.hpp" />
     <ClInclude Include="Core\Gradient.hpp" />
@@ -689,6 +694,7 @@
     <ClInclude Include="Core\Utils.hpp" />
     <ClInclude Include="Debug\Console\Command.hpp" />
     <ClInclude Include="Debug\Console\Console.hpp" />
+    <ClInclude Include="Debug\Console\RemoteConsole.hpp" />
     <ClInclude Include="Debug\Draw.hpp" />
     <ClInclude Include="Debug\ErrorWarningAssert.hpp" />
     <ClInclude Include="Debug\Log.hpp" />

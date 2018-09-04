@@ -281,6 +281,10 @@ void Console::record(const std::string& msg, Severity level) {
       break;
   }
 
+  for(auto& outputHandler: mOutputHandler) {
+    outputHandler(msg, level);
+  }
+
   if (mLineNumberAtBottom != 0 && mLineNumberAtBottom + mTotalLineLogCanRender < mLogStream.size()) {
     mLineNumberAtBottom++;
   }

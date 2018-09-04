@@ -23,7 +23,7 @@ public:
 class Command {
   struct Arg {
     char name[64]{'\0'};
-    char value[64]{'\0'};
+    char value[2048]{'\0'};
 
     Arg(std::string kv);
     Arg(std::string v, std::string k = "");

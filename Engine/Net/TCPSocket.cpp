@@ -7,9 +7,36 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Debug/Log.hpp"
 
+#define LOG_FATAL() { \
+int re = WSAGetLastError(); \
+  if (re != WSAEWOULDBLOCK && re != WSAEMSGSIZE && re != WSAECONNRESET) { \
+    Log::tagf("net", "Fatal error trigger in %s, code: %u", __FUNCTION__, re); \
+  } \
+} \
+
 TCPSocket::TCPSocket() {
   mHandle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
   ENSURES(mHandle != INVALID_SOCKET);
+}
+
+TCPSocket::TCPSocket(TCPSocket&& socket) {
+  mHandle = socket.mHandle;
+  mAddress = socket.mAddress;
+
+  socket.mHandle = INVALID_SOCKET;
+  socket.mAddress = NetAddress();
+}
+
+TCPSocket& TCPSocket::operator=(TCPSocket&& rhs) {
+  mHandle = rhs.mHandle;
+  mAddress = rhs.mAddress;
+
+  rhs.mHandle = INVALID_SOCKET;
+  rhs.mAddress = NetAddress();
+
+  
+  return *this;
 }
 
 TCPSocket::~TCPSocket() {
@@ -22,6 +49,7 @@ bool TCPSocket::listen(uint16_t port, uint maxQueued) {
 
   int result = ::listen(mHandle, maxQueued);
   if(result != 0) {
+    LOG_FATAL();
     close();
     Log::tagf("net", "fail to listen at %u", port);
     return false;
@@ -36,7 +64,7 @@ owner<TCPSocket*> TCPSocket::accept() {
 
   SOCKET socket = ::accept(mHandle, (sockaddr*)&client, &clientAddrLen);
   if (socket == INVALID_SOCKET) {
-    int re = WSAGetLastError();
+    LOG_FATAL();
     return nullptr;
   }
 
@@ -44,7 +72,6 @@ owner<TCPSocket*> TCPSocket::accept() {
 
   sock->mHandle = socket;
   sock->mAddress.fromSockaddr((sockaddr&)client);
-
   return sock;
 }
 
@@ -58,6 +85,7 @@ bool TCPSocket::bind(const NetAddress& addr) {
   int result = ::bind(mHandle, (sockaddr*)&saddr, len);
 
   if(result == SOCKET_ERROR) {
+    LOG_FATAL();
     close();
     Log::tagf("net", "fail to bind to %s.", addr.toString());
     return false;
@@ -74,23 +102,31 @@ bool TCPSocket::connect(const NetAddress& addr) {
   int result = ::connect(mHandle, (sockaddr*)&saddr, len);
 
   if(result == SOCKET_ERROR) {
+    LOG_FATAL();
+    close();
     Log::tagf("net", "could not connect %s", addr.toString());
     return false;
   }
+  
+  mAddress = addr;
 
   Log::tagf("net", "connected to %s", addr.toString());
   return true;
 }
 
-void TCPSocket::send(void* data, size_t size) {
+void TCPSocket::send(const void* data, size_t size) {
   ::send(mHandle, (char*)data, (int)size, 0);
 }
 
 size_t TCPSocket::receive(void* buf, size_t max) {
+  // set to non-blocking for recv...
+  u_long nonBlocking = 1;
+  ::ioctlsocket(mHandle, FIONBIO, &nonBlocking);
+
   int re = ::recv(mHandle, (char*)buf, max, 0);
   if(re == SOCKET_ERROR) {
-    int re = WSAGetLastError();
-    Log::tagf("net", "Receive data failed");
+    // int re = WSAGetLastError();
+    // Log::tagf("net", "Receive data failed");
     return 0;
   }
 

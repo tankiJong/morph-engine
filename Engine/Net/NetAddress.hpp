@@ -17,5 +17,5 @@ public:
 protected:
   uint32_t mIpv4Address = 0;
   uint16_t mPort = 0;
-  char mNameCache[256];
+  char mNameCache[256] = {0};
 };

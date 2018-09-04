@@ -50,7 +50,7 @@ bool addr(sockaddr* out, int* outLen, const char* name, const char* service = "8
 }
 
 NetAddress::NetAddress(const sockaddr& addr) {
-  fromSockaddr(addr); 
+  fromSockaddr(addr);
 }
 
 NetAddress::NetAddress(std::string_view str) {
