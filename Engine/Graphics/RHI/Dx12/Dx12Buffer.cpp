@@ -27,7 +27,7 @@ ID3D12ResourcePtr createBuffer(RHIBuffer::State initState, size_t size, const D3
   return handle;
 }
 
-const ConstantBufferView* RHIBuffer::cbv() {
+const ConstantBufferView* RHIBuffer::cbv() const {
   if (!mCbv) {
     mCbv = ConstantBufferView::create(shared_from_this());
   }
@@ -35,7 +35,7 @@ const ConstantBufferView* RHIBuffer::cbv() {
   return mCbv.get();
 }
 
-const UnorderedAccessView* RHIBuffer::uav() {
+const UnorderedAccessView* RHIBuffer::uav() const {
   if(!mUav) {
     mUav = UnorderedAccessView::create(shared_from_this());
   }

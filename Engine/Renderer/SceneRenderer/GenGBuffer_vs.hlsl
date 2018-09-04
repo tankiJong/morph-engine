@@ -1,4 +1,3 @@
-#include "Common.hlsl"
 #include "GenGBuffer.hlsli"
 
 [RootSignature(GenBuffer_RootSig)]

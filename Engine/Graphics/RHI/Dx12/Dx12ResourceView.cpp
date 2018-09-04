@@ -47,6 +47,32 @@ ShaderResourceView::sptr_t ShaderResourceView::create(
   return srv;
 }
 
+ShaderResourceView::sptr_t ShaderResourceView::create(const TypedBuffer& res) {
+
+  D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
+  RHIResource::handle_t resHandle = nullptr;
+
+  desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+  desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+  desc.Format = DXGI_FORMAT_UNKNOWN;
+  desc.Buffer.FirstElement = 0;
+  desc.Buffer.NumElements = res.elementCount();
+  desc.Buffer.StructureByteStride = res.stride();
+
+  sptr_t srv;
+
+  DescriptorSet::Layout layout;
+  layout.addRange(DescriptorSet::Type::TextureSrv, 0, 1);
+  rhi_handle_t handle = DescriptorSet::create(RHIDevice::get()->cpuDescriptorPool(), layout);
+
+  ENSURES(handle);
+
+  RHIDevice::get()->nativeDevice()->CreateShaderResourceView(
+    res.handle().Get(), &desc, handle->cpuHandle(0));
+  srv = sptr_t(new ShaderResourceView(res.shared_from_this(), handle, 0, MAX_POSSIBLE, 0, MAX_POSSIBLE));
+  return srv;
+}
+
 ConstantBufferView::sptr_t ConstantBufferView::create(W<const RHIBuffer> res) {
   RHIBuffer::scptr_t ptr = res.lock();
 
@@ -153,7 +179,35 @@ DepthStencilView::sptr_t DepthStencilView::create(W<const RHITexture> res, uint 
   return dsv;
 }
 
-UnorderedAccessView::sptr_t UnorderedAccessView::create(W<RHIBuffer> res) {
+UnorderedAccessView::sptr_t UnorderedAccessView::create(const TypedBuffer& res) {
+  D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
+
+  RHIResource::handle_t resHandle = res.handle();
+  RHIResource::handle_t counterHandle = res.uavCounter().handle();
+
+  desc.Format = DXGI_FORMAT_UNKNOWN;
+  desc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+  desc.Buffer.FirstElement = 0;
+  desc.Buffer.NumElements = res.elementCount();
+  desc.Buffer.StructureByteStride = res.stride();
+
+  // https://docs.microsoft.com/en-us/windows/desktop/direct3d12/uav-counters
+
+  DescriptorSet::Layout layout;
+  layout.addRange(DescriptorSet::Type::TextureUav, 0, 1);
+  rhi_handle_t handle = DescriptorSet::create(RHIDevice::get()->cpuDescriptorPool(), layout);
+  ENSURES(handle);
+
+  TODO("uav will need a counter res if we actually care about");
+  RHIDevice::get()->nativeDevice()->CreateUnorderedAccessView(resHandle.Get(), counterHandle.Get(), &desc, handle->cpuHandle(0));
+
+  sptr_t uav = sptr_t(new UnorderedAccessView(res.shared_from_this(), handle, 0, 0, 1));
+
+  return uav;
+}
+
+
+UnorderedAccessView::sptr_t UnorderedAccessView::create(W<const RHIBuffer> res) {
   RHIBuffer::scptr_t ptr = res.lock();
 
   if (!ptr && sNullView) {

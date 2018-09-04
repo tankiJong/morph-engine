@@ -72,21 +72,26 @@ public:
 
   inline State state() const { return mState; }
   inline Type type() const { return mType; }
-
-  virtual const UnorderedAccessView* uav() { return nullptr; };
-  virtual const ConstantBufferView* cbv() { return nullptr; };
+  inline BindingFlag flags() const { return mBindingFlags; }
+  virtual const UnorderedAccessView* uav() const { return nullptr; };
+  virtual const ConstantBufferView* cbv() const { return nullptr; };
   virtual ~RHIResource();
+
 protected:
   RHIResource(Type type, BindingFlag bindings): mType(type), mBindingFlags(bindings) {}
   RHIResource(rhi_resource_handle_t res);
   handle_t mRhiHandle;
   Type mType;
   BindingFlag mBindingFlags;
-  UnorderedAccessView::sptr_t mUav;
-  ConstantBufferView::sptr_t mCbv;
+  mutable UnorderedAccessView::sptr_t mUav;
+  mutable ConstantBufferView::sptr_t mCbv;
+
   mutable State mState = State::Common;
 };
 
+void setName(const RHIResource& res, const wchar_t* name);
+
+#define NAME_RHIRES(res) setName(*res, L#res)
 enum_class_operators(RHIResource::BindingFlag);
 
 // code structure idea adpot from Falcor Engine: Source/API/Resource.h

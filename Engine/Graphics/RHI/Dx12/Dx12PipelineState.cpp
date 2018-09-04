@@ -256,15 +256,13 @@ ComputeState::sptr_t ComputeState::create(const Desc& desc) {
 bool ComputeState::rhiInit() {
   D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
 
-  Shader::sptr_t shader = Shader::create("compute.hlsl", "main", SHADER_TYPE_COMPUTE);
-
-  shader->compile();
 
   D3D12_SHADER_BYTECODE CS;
-  CS.pShaderBytecode = shader->handle();
-  CS.BytecodeLength = shader->size();
+  CS.pShaderBytecode = mDesc.mProg->stage(SHADER_TYPE_COMPUTE).handle();
+  CS.BytecodeLength = mDesc.mProg->stage(SHADER_TYPE_COMPUTE).size();
 
   desc.CS = CS;
+
   desc.pRootSignature = mDesc.mRootSignature ? mDesc.mRootSignature->handle().Get() : nullptr;
   d3d_call(RHIDevice::get()->nativeDevice()->CreateComputePipelineState(&desc, IID_PPV_ARGS(&mRhiHandle)));
   return true;

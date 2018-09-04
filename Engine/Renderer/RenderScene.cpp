@@ -52,6 +52,7 @@ void RenderScene::remove(Renderable& r) {
 void RenderScene::remove(Light& l) {
   removeAndShrink(mLights, &l);
 }
+
 //
 // void RenderScene::remove(Camera& c) {
 //   removeAndShrink(mCameras, &c);

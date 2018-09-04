@@ -14,7 +14,7 @@ public:
   const RenderTargetView& rtv();
   const DepthStencilView* dsv();
 
-  virtual const UnorderedAccessView* uav() override;
+  virtual const UnorderedAccessView* uav() const override;
   static Texture2::sptr_t create(
     uint width, uint height, eTextureFormat format, 
     BindingFlag flag =  BindingFlag::ShaderResource, 

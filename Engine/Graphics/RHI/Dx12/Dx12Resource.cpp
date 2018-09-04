@@ -174,3 +174,7 @@ RHIResource::RHIResource(rhi_resource_handle_t res) {
 
   mBindingFlags = asRHIResourceFlags(desc.Flags);
 }
+
+void setName(const RHIResource& res, const wchar_t* name) {
+  res.handle()->SetName(name);
+}

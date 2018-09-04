@@ -7,6 +7,7 @@ class RHIResource;
 class RHIBuffer;
 class RHITexture;
 class Texture2;
+class TypedBuffer;
 
 struct ResourceViewInfo {
   uint mostDetailedMip;
@@ -56,8 +57,7 @@ public:
 
   static sptr_t create(W<const RHITexture> res,
                        uint mostDetailedMip = 0, uint mipCount = MAX_POSSIBLE, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
-  // static sptr_t create(W<RHIBuffer> res,
-  //                      uint mostDetailedMip = 0, uint mipCount = MAX_POSSIBLE, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
+  static sptr_t create(const TypedBuffer& res);
   static sptr_t nullView();
 protected:
   ShaderResourceView(W<const RHIResource> res, rhi_handle_t handle, 
@@ -115,7 +115,8 @@ public:
   using scptr_t = S<const UnorderedAccessView>;
 
   static sptr_t create(W<const Texture2> res, uint mipLevel = 0);
-  static sptr_t create(W<RHIBuffer> res);
+  static sptr_t create(W<const RHIBuffer> res);
+  static sptr_t create(const TypedBuffer& res);
   static sptr_t nullView();
 
 protected:

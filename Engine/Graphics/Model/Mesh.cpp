@@ -3,7 +3,7 @@
 
 Mesh& Mesh::setVertices(uint streamIndex, uint stride, uint count, const void* vertices) {
   if (!mVertices[streamIndex]) {
-    mVertices[streamIndex] = VertexBuffer::create(stride, count, RHIResource::BindingFlag::VertexBuffer);
+    mVertices[streamIndex] = VertexBuffer::create(stride, count, RHIResource::BindingFlag::VertexBuffer | RHIResource::BindingFlag::ShaderResource);
   }
   mVertices[streamIndex]->set(stride, count, vertices);
   mVertices[streamIndex]->uploadGpu();
@@ -35,7 +35,7 @@ Mesh::Mesh(const VertexLayout* layout): mLayout(layout) {
 
 Mesh& Mesh::setIndices(span<const uint> indices) {
   if(!mIndices) {
-    mIndices = IndexBuffer::For<uint>(indices.size(), RHIResource::BindingFlag::IndexBuffer);
+    mIndices = IndexBuffer::For<uint>(indices.size(), RHIResource::BindingFlag::IndexBuffer | RHIResource::BindingFlag::ShaderResource);
   }
   mIndices->set(indices);
   mIndices->uploadGpu();
@@ -44,9 +44,13 @@ Mesh& Mesh::setIndices(span<const uint> indices) {
 
 void Mesh::bindForContext(RHIContext & ctx) const {
   for(uint i = 0; i < mVertices.size(); ++i) {
+    ctx.resourceBarrier(&mVertices[i]->res(), RHIResource::State::VertexBuffer);
     ctx.setVertexBuffer(*mVertices[i], i);
   }
 
+  if(mIndices) {
+    ctx.resourceBarrier(&mIndices->res(), RHIResource::State::IndexBuffer);
+  }
   ctx.setIndexBuffer(mIndices.get());
 }
 

@@ -8,3 +8,4 @@ RHIResource::~RHIResource() {
     RHIDevice::get()->releaseResource(mRhiHandle);
 }
 
+

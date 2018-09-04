@@ -1321,6 +1321,13 @@
     <None Include="Renderer\SceneRenderer\GenGBuffer.hlsli">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </None>
+    <None Include="Renderer\Shader\Math.hlsl" />
+    <None Include="Renderer\Shader\Light.hlsl">
+      <Filter>Engine\Renderer\Shader</Filter>
+    </None>
+    <None Include="Renderer\SceneRenderer\Common.hlsli">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis">
@@ -1342,15 +1349,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Renderer\SceneRenderer\Common.hlsl">
-      <Filter>Engine\Renderer\SceneRenderer</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderer\Shader\Resource.hlsl">
-      <Filter>Engine\Renderer\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderer\Shader\Light.hlsl">
-      <Filter>Engine\Renderer\Shader</Filter>
-    </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\GenGBuffer_ps.hlsl">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
@@ -1358,6 +1356,12 @@
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\DeferredLighting_cs.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\GenAO_cs.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\GenAccelerationStructure_cs.hlsl">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
   </ItemGroup>

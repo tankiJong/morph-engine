@@ -74,11 +74,15 @@ public:
   class Desc {
     friend class ComputeState;
   public:
-    Desc& setRootSignature(RootSignature::sptr_t sig) {
+    Desc& setRootSignature(RootSignature::scptr_t sig) {
       mRootSignature = sig; return *this;
-    };
+    }
+    Desc& setProgram(S<const Program> prog) {
+      mProg = prog; return *this;
+    }
   protected:
-    RootSignature::sptr_t mRootSignature;
+    RootSignature::scptr_t mRootSignature;
+    S<const Program> mProg;
 
   };
 

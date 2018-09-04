@@ -7,7 +7,7 @@
 /*
  * Array of same type elements
  */
-class TypedBuffer : RHIBuffer, public inherit_shared_from_this<RHIBuffer, TypedBuffer> {
+class TypedBuffer : public RHIBuffer {
 public:
   class sptr_t: public S<TypedBuffer> {
   public:
@@ -75,10 +75,16 @@ public:
     return mStride;
   }
 
+  const ShaderResourceView& srv() const;
+
   template<typename T>
   static sptr_t For(u32 eleCount = 1, BindingFlag bindingFlags = BindingFlag::ShaderResource) {
     return create(sizeof(T), eleCount, bindingFlags);
   }
+
+  const UnorderedAccessView* uav() const override;
+
+  const RHIBuffer& uavCounter() const { return *mUavCounter; }
 
   static sptr_t create(u32 stride, u32 eleCount, BindingFlag bindingFlags = BindingFlag::ShaderResource);
 protected:
@@ -89,10 +95,13 @@ protected:
   void* get(u32 byteOffset);
   const void* get(u32 byteOffset) const;
 
+
   u32 mElementCount = 0;
   u32 mStride = 1;
   Blob mData;
   bool mCpuDirty = false;
+  RHIBuffer::sptr_t mUavCounter;
+  mutable ShaderResourceView::sptr_t mSrv;
 };
 
 

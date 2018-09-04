@@ -1,3 +1,4 @@
+/*
 #ifndef __LIGHT_INCLUDED__
 #define __LIGHT_INCLUDED__
 #include "Resource.hlsl"
@@ -38,7 +39,7 @@ float3 Diffuse(float3 surfacePosition, float3 surfaceNormal, float3 surfaceColor
   return color;
 }
 
-float Specular(float3 surfacePosition, float3 surfaceNormal, float3 eyeDireciton, 
+float3 Specular(float3 surfacePosition, float3 surfaceNormal, float3 eyeDireciton, 
 							 float specularAmount, float specularPower, light_info_t light)	{
 	float3 inDirection = InDirection(light, surfacePosition);								 
 	float3 r = reflect(inDirection, surfaceNormal);
@@ -68,3 +69,4 @@ float3 PhongLighting(float3 surfacePosition, float3 surfaceNormal, float3 surfac
 }
 
 #endif
+*/

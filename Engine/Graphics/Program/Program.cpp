@@ -12,7 +12,7 @@ Program::Program() {
     mShaders[i].setType((eShaderType)i);
   }
 
-  stage(SHADER_TYPE_VERTEX).setFromString(defaultShaderStr, "VSMain");
+  // stage(SHADER_TYPE_VERTEX).setFromString(defaultShaderStr, "VSMain");
 
   // same layout to material, for now, this is hard coded
   mLayout.addRange(DescriptorSet::Type::Cbv, 0, NUM_UNIFORM_SLOT);
@@ -31,7 +31,13 @@ bool Program::compile() {
     shader.compile();
   }
 
-  S<const RootSignature> rootSig = mShaders[SHADER_TYPE_VERTEX].rootSignature();
+  S<const RootSignature> rootSig;
+  if(mShaders[SHADER_TYPE_COMPUTE].ready()) {
+    rootSig = mShaders[SHADER_TYPE_COMPUTE].rootSignature();
+  } else {
+    rootSig = mShaders[SHADER_TYPE_VERTEX].rootSignature();
+  }
+     
   for(uint i = 0; i < NUM_SHADER_TYPE; ++i) {
     if (mShaders[i].empty()) continue;
     EXPECTS(    (rootSig == nullptr &&  nullptr == mShaders[i].rootSignature())

@@ -38,7 +38,7 @@ const DepthStencilView* Texture2::dsv() {
   return mDsv.get();
 }
 
-const UnorderedAccessView* Texture2::uav() {
+const UnorderedAccessView* Texture2::uav() const {
   if(!mUav) {
     mUav = UnorderedAccessView::create(shared_from_this());
   }

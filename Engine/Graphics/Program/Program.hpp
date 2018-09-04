@@ -10,6 +10,10 @@ public:
   Shader& stage(eShaderType type) {
     return mShaders[type];
   }
+
+  const Shader& stage(eShaderType type) const {
+    return mShaders[type];
+  }
   void setRenderState(const RenderState& state);
   bool compile();
 

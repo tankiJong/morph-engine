@@ -13,12 +13,31 @@ void TypedBuffer::set(uint stride, uint count, const void* data) {
   mCpuDirty = true;
 }
 
+const ShaderResourceView& TypedBuffer::srv() const {
+  if(!mSrv) {
+    mSrv = ShaderResourceView::create(*this);
+  }
+
+  return *mSrv;
+}
+
+const UnorderedAccessView* TypedBuffer::uav() const {
+  if(!mUav) {
+    mUav = UnorderedAccessView::create(*this);
+  }
+
+  return mUav.get();
+}
+
 TypedBuffer::sptr_t TypedBuffer::create(u32 stride, u32 eleCount, BindingFlag bindingFlags) {
   sptr_t b = sptr_t(new TypedBuffer(eleCount, stride, bindingFlags));
 
   if(!b->rhiInit(false)) {
     return nullptr;
   }
+
+  static const uint32_t zero = 0;
+  b->mUavCounter = RHIBuffer::create(sizeof(uint32_t), BindingFlag::UnorderedAccess, CPUAccess::None, &zero);
   return b;
 }
 

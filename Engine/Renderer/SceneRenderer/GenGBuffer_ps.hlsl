@@ -1,4 +1,3 @@
-#include "Common.hlsl"
 #include "GenGBuffer.hlsli"
 
 [RootSignature(GenBuffer_RootSig)]
@@ -13,6 +12,7 @@ PSOutput main(PSInput input)
 
 	output.color = texColor;
 	output.normal = float4(input.normal * .5f + .5f, 1.f);
+	output.position = float4(input.worldPosition, 1.f);
 
 	return output;
 }

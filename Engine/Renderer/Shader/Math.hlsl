@@ -1,5 +1,5 @@
-#ifndef __MATRIX_INCLUDED__
-#define __MATRIX_INCLUDED__
+#ifndef __MATH_INCLUDED__
+#define __MATH_INCLUDED__
 // https://gist.github.com/mattatz/86fff4b32d198d0928d0fa4ff32cf6fa
 #define IDENTITY_MATRIX float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 
@@ -42,4 +42,4 @@ float4x4 inverse(float4x4 m) {
     return ret;
 }
 
-#endif // __MATRIX_INCLUDED__
+#endif // __MATH_INCLUDED__

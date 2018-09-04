@@ -69,7 +69,7 @@ void Shader::compile() {
       target = "ps_5_1";
     break;
     case SHADER_TYPE_COMPUTE:
-      target = "cs_5_0";
+      target = "cs_5_1";
     break;
     default: ;
   }
