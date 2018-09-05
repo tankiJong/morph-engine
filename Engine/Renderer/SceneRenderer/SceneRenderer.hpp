@@ -69,6 +69,7 @@ protected:
   void genGBuffer(RHIContext& ctx);
   void genAO(RHIContext& ctx);
   void accumlateSurfels(RHIContext& ctx);
+  void visualizeSurfels(RHIContext& ctx);
   void setupFrame();
   void setupView(RHIContext& ctx);
   const RenderScene& mTargetScene;
@@ -81,6 +82,7 @@ protected:
   Texture2::sptr_t mGDepth;
 
   Texture2::sptr_t mAO;
+  Texture2::sptr_t mSurfelVisual;
 
   Texture2::sptr_t mFinalColor;
 
@@ -96,5 +98,7 @@ protected:
   S<DescriptorSet> mDSharedDescriptors;
   S<DescriptorSet> mDGBufferDescriptors;
   S<DescriptorSet> mDGenAOUavDescriptors;
+  S<DescriptorSet> mDAccumulateSurfelUavDescriptors;
+  S<DescriptorSet> mDSurfelVisualDescriptors;
 
 };

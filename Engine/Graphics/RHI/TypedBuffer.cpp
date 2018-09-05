@@ -36,8 +36,6 @@ TypedBuffer::sptr_t TypedBuffer::create(u32 stride, u32 eleCount, BindingFlag bi
     return nullptr;
   }
 
-  static const uint32_t zero = 0;
-  b->mUavCounter = RHIBuffer::create(sizeof(uint32_t), BindingFlag::UnorderedAccess, CPUAccess::None, &zero);
   return b;
 }
 
@@ -45,7 +43,8 @@ TypedBuffer::TypedBuffer(u32 eleCount, u32 stride, BindingFlag bindingFlags)
   :RHIBuffer(eleCount * stride, bindingFlags, CPUAccess::None)
   , mElementCount(eleCount)
   , mStride(stride) {
-  
+  static const uint32_t zero = 0;
+  mUavCounter = RHIBuffer::create(sizeof(uint32_t), BindingFlag::UnorderedAccess, CPUAccess::None, &zero);
 }
 
 void TypedBuffer::set(const void* data, u32 size, u32 byteOffset) {

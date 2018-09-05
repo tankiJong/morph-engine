@@ -69,9 +69,9 @@ Contact triIntersection(float3 a, float3 b, float3 c, float color, Ray ray) {
 	contact.position.w = color;
 
 	float3 p = contact.position.xyz;
-	contact.valid = contact.valid && dot(cross(p - a, b - a), normal) > 0;
-	contact.valid = contact.valid && dot(cross(p - b, c - b), normal) > 0;
-	contact.valid = contact.valid && dot(cross(p - c, a - c), normal) > 0;
+	contact.valid = contact.valid && dot(cross(p - a, b - a), normal) >= 0;
+	contact.valid = contact.valid && dot(cross(p - b, c - b), normal) >= 0;
+	contact.valid = contact.valid && dot(cross(p - c, a - c), normal) >= 0;
 
 	return contact;
 }

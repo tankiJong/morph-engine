@@ -1364,5 +1364,11 @@
     <FxCompile Include="Renderer\SceneRenderer\GenAccelerationStructure_cs.hlsl">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\SurfelPlacement_cs.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\SurfelVisual_cs.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
