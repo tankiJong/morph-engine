@@ -4,7 +4,7 @@
 #include "Engine/Core/BytePacker.hpp"
 #include "Engine/Debug/Console/Console.hpp"
 #include "Engine/Debug/Console/Command.hpp"
-
+#include "Engine/Net/NetAddress.hpp"
 void RemoteConsole::receive(uint index, const Instr& instr) const {
   for(auto& handle: mHandles) {
     handle(index, instr);
@@ -46,8 +46,8 @@ void RemoteConsole::flushConnection(uint index, Connection& connection) {
 }
 
 void RemoteConsole::manageConnections() {
-  if (mCharacter == CHARACTER_UNKNOWN)return;
-  if (mCharacter == CHARACTER_CLIENT) {
+  if (!ready())return;
+  if (mServiceState == STATE_JOIN) {
     if (!mConnections[0].socket.valid()) {
       reset();
     }
@@ -59,6 +59,7 @@ void RemoteConsole::manageConnections() {
   // 0 position is self
   for(auto begin = mConnections.rbegin(); begin != mConnections.rend() - 1; ++begin) {
     if(!begin->socket.valid()) {
+      Log::tagf("remote console", "client %s leave the session.", begin->socket.address().toString());
       Connection& back = mConnections.back();
       *begin = std::move(back);
       mConnections.pop_back();
@@ -87,7 +88,7 @@ RemoteConsole::RemoteConsole() {
 
     init();
 
-    while(true) {
+    while(!mIsDying) {
       if (ready()) {
         std::scoped_lock lock(mConnectionLock);
 
@@ -100,6 +101,7 @@ RemoteConsole::RemoteConsole() {
         for(Connection& connection: mConnections) {
         }
       } else {
+        if (mServiceState == STATE_TRY_JOIN || mServiceState == STATE_TRY_HOST) continue;
         reset();
         init();
       }
@@ -118,67 +120,77 @@ RemoteConsole::~RemoteConsole() {
 void RemoteConsole::init() {
   bool re = join(NetAddress::local(REMOTE_CONSOLE_HOST_PORT));
   if (!re) {
-    re = host();
-    ENSURES(re);
+    host();
   }
 }
 
 void RemoteConsole::reset() {
   std::scoped_lock lock(mConnectionLock);
   mConnections.clear();
-  mCharacter = CHARACTER_UNKNOWN;
+  mServiceState = STATE_INIT;
 }
 
 bool RemoteConsole::join(const NetAddress& host) {
-  EXPECTS(mCharacter == CHARACTER_UNKNOWN);
-  EXPECTS(mConnections.empty());
-
   std::scoped_lock lock(mConnectionLock);
+  if (mServiceState != STATE_INIT) return false;
+  EXPECTS(mConnections.empty());
+  mServiceState = STATE_TRY_JOIN;
+
   Connection& c = mConnections.emplace_back();
   bool re = c.socket.connect(host);
   if(re) {
-    mCharacter = CHARACTER_CLIENT;
+    mServiceState = STATE_JOIN;
     Log::tagf("remote console", "Running in client mode");
   } else {
     mConnections.pop_back();
+    mServiceState = STATE_INIT;
   }
 
   return re;
 }
 
 bool RemoteConsole::host(uint16_t port) {
-  EXPECTS(mCharacter == CHARACTER_UNKNOWN);
-  EXPECTS(mConnections.empty());
-
   std::scoped_lock lock(mConnectionLock);
+  if (mServiceState != STATE_INIT) return false;
+  EXPECTS(mConnections.empty());
+  mServiceState = STATE_TRY_HOST;
+
   Connection& c = mConnections.emplace_back();
   bool re = c.socket.listen(port);
   if(re) {
-    mCharacter = CHARACTER_HOST;
+    mServiceState = STATE_HOST;
     Log::tagf("remote console", "Running in host mode");
   } else {
-    std::scoped_lock lock(mConnectionLock);
     mConnections.pop_back();
+    mServiceState = STATE_INIT;
   }
 
   return re;
 }
 
 bool RemoteConsole::ready() const {
-  if (mCharacter == CHARACTER_UNKNOWN) return false;
-  if (mConnections.empty()) return false;
-  if (!mConnections[0].socket.valid()) return false;
+  if (mServiceState != STATE_HOST && mServiceState != STATE_JOIN) 
+    return false;
+  if (mConnections.empty()) 
+    return false;
+  if (!mConnections[0].socket.valid()) 
+    return false;
   return true;
 }
 
 void RemoteConsole::issue(uint index, bool isEcho, const char* cmd) {
 
-  if (mCharacter == CHARACTER_UNKNOWN) {
+  if (!ready()) {
     Log::tagf("Remote Command", "Fail to issue remote command, since the remote command is not ready yet");
     return;
   }
   if(index >= mConnections.size()) {
-    Log::tagf("Remote Command", "Fail to issue remote command, index is invalid");
+    Log::tagf("Remote Command", "Fail to issue remote command, index is out of range");
+    return;
+  }
+
+  if(mServiceState == STATE_HOST && index == 0) {
+    Log::tagf("Remote Command", "Fail to issue remote command, 0 is not valid connection in host mode");
     return;
   }
 
@@ -202,21 +214,39 @@ void RemoteConsole::issue(uint index, const Instr& instr) {
 }
 
 void RemoteConsole::broadcast(bool isEcho, const char* cmd) {
-  if(mCharacter == CHARACTER_UNKNOWN) {
+  if(!ready()) {
     Log::tagf("remote console", "tried to send command while remote console is not ready yet.");
     return; 
   }
 
-  if(mCharacter == CHARACTER_HOST & mConnections.size() > 1) {
+  if(mServiceState == STATE_HOST && mConnections.size() > 1) {
     for(uint i = 1; i < mConnections.size(); i++) {
       issue(i, isEcho, cmd);
     }
     return;
   }
 
-  if(mCharacter == CHARACTER_CLIENT) {
+  if(mServiceState == STATE_JOIN) {
     issue(0, isEcho, cmd);
     return;
+  }
+}
+
+void RemoteConsole::printState() const {
+  if(!ready()) {
+    Log::tagf("remote console", "Remote Console is not ready yet.");
+    return;
+  }
+
+  EXPECTS(mServiceState == STATE_HOST || mServiceState == STATE_JOIN);
+  Log::tagf("remote console", "remote console running in %s mode", mServiceState == STATE_HOST ? "Host" : "Client");
+  Log::tagf("remote console", "Current connections: ");
+
+  uint start = mServiceState == STATE_HOST ? 1 : 0;
+
+  while(start < mConnections.size()) {
+    Log::tagf("remote console", "%s", mConnections[start].socket.address().toString());
+    start++;
   }
 }
 
@@ -235,10 +265,47 @@ RemoteConsole& RemoteConsole::get() {
   return *gRemoteConsole;
 }
 
-COMMAND_REG("rcb", "[command: string]", "")(Command& cmd) {
+COMMAND_REG("rc", "[index: uint][command: string]", "execute a command on a connection")(Command& cmd) {
+  uint index = cmd.arg<0, uint>();
+  std::string command = cmd.arg<1>();
+
+  gRemoteConsole->issue(0, false, command.c_str());
+  return true;
+}
+
+COMMAND_REG("rcb", "[command: string]", "Execute a command on everyone except me.")(Command& cmd) {
   std::string c = cmd.arg<0>();
 
   gRemoteConsole->broadcast(false, c.c_str());
 
   return true;
 };
+
+COMMAND_REG("rca", "[command: string]", "Execute a command on everyone.")(Command& cmd) {
+  std::string c = cmd.arg<0>();
+
+  Console::Get()->exec(c);
+  gRemoteConsole->broadcast(false, c.c_str());
+  return true;
+};
+
+COMMAND_REG("rc_join", "[address:port]", "leave current service and try to join another service.")(Command& cmd) {
+  gRemoteConsole->reset();
+
+  NetAddress addr = cmd.arg<0>();
+
+  return gRemoteConsole->join(addr);
+}
+
+COMMAND_REG("rc_host", "[port: uint]", "start hosting on the port.")(Command& cmd) {
+  gRemoteConsole->reset();
+
+  uint port = cmd.arg<0, uint>();
+
+  return gRemoteConsole->host(port);
+}
+
+COMMAND_REG("rc_list", "", "log the remote console service status.")(Command& cmd) {
+  gRemoteConsole->printState();
+  return true;
+}

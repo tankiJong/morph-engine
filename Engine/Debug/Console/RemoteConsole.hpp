@@ -7,15 +7,18 @@
 #include "Engine/Async/Thread.hpp"
 #include "Engine/Core/BytePacker.hpp"
 #include <mutex>
+#include <atomic>
 
 class RemoteConsole {
 public:
-  enum eRemoteConsoleCharacter {
-    CHARACTER_UNKNOWN = -1,
-    CHARACTER_HOST,
-    CHARACTER_CLIENT,
+  enum eRemoteConsoleState: uint{
+    STATE_INIT,
+    STATE_TRY_JOIN,
+    STATE_TRY_HOST,
+    STATE_JOIN,
+    STATE_HOST,
+    STATE_DELAY,
   };
-
   struct Instr {
     bool isEcho;
     char content[256];
@@ -53,6 +56,7 @@ public:
   void broadcast(bool isEcho, const char* cmd);
   void broadcast(Instr& instr);
 
+  void printState() const;
   const Connection& connection(uint index) const { return mConnections[index]; }
   static void startup();
   static void shutdown();
@@ -69,7 +73,7 @@ protected:
   void receive(uint index, const Instr& instr) const;
   void flushConnection(uint index, RemoteConsole::Connection& connection);
   void manageConnections();
-  eRemoteConsoleCharacter mCharacter = CHARACTER_UNKNOWN;
+  std::atomic<eRemoteConsoleState> mServiceState = STATE_INIT;
   std::vector<std::function<void(uint index, const Instr&)>> mHandles;
   std::vector<Connection> mConnections;
 

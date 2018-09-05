@@ -53,6 +53,9 @@ bool TCPSocket::listen(uint16_t port, uint maxQueued) {
     close();
     Log::tagf("net", "fail to listen at %u", port);
     return false;
+  } else {
+    Log::tagf("net", "start listening at %u", port);
+
   }
 
   return true;
@@ -61,6 +64,10 @@ bool TCPSocket::listen(uint16_t port, uint maxQueued) {
 owner<TCPSocket*> TCPSocket::accept() {
   sockaddr_storage client;
   int clientAddrLen = sizeof(sockaddr_storage);
+
+  // set to non-blocking for accept...
+  u_long nonBlocking = 1;
+  ::ioctlsocket(mHandle, FIONBIO, &nonBlocking);
 
   SOCKET socket = ::accept(mHandle, (sockaddr*)&client, &clientAddrLen);
   if (socket == INVALID_SOCKET) {
