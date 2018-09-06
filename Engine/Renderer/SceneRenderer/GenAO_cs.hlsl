@@ -84,11 +84,20 @@ Random rnd(uint seed)
 	Random re;
 	re.value = seed;
 
-	seed ^= (seed << 13);
-  seed ^= (seed >> 17);
-  seed ^= (seed << 5);
+	const uint BIT_NOISE1 = 0xD2A80A23; // 0b1101'0010'1010'1000'0000'1010'0010'0011;
+	const uint BIT_NOISE2 = 0xA884F197; // 0b1010'1000'1000'0100'1111'0001'1001'0111;
+	const uint BIT_NOISE3 = 0x1B56C4E9; // 0b0001'1011'0101'0110'1100'0100'1110'1001;
 
-	re.seed = seed;
+	uint mangledBits = seed;
+	mangledBits *= BIT_NOISE1;
+	mangledBits += seed;
+	mangledBits ^= (mangledBits >> 7);
+	mangledBits += BIT_NOISE2;
+	mangledBits ^= (mangledBits >> 8);
+	mangledBits *= BIT_NOISE3;
+	mangledBits ^= (mangledBits >> 11);
+
+	re.seed = mangledBits;
 	return re;
 }
 
@@ -128,7 +137,7 @@ Ray GenShadowRay(inout uint seed, float4 position, float3 normal) {
 	seed = r.seed;
 	float c = float(r.value) * (1.0f / MAX_UINT) - .5f;
 	
-	float3 sample = normalize(mul(tbn, float3(a, b, c))) + normal * 0.0001f;
+	float3 sample = normalize(mul(tbn, float3(a, b, c)));
 
 	Ray ray;
 
@@ -174,16 +183,16 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	float3 position, normal;
 	{ // get information from the G-Buffer
-		position = gTexPosition.SampleLevel(gSampler, screen, 0).xyz;
-		normal = gTexNormal.SampleLevel(gSampler, screen, 0).xyz * 2.f - float3(1.f, 1.f, 1.f);
+		position = gTexPosition[pix].xyz;
+		normal = gTexNormal[pix].xyz * 2.f - float3(1.f, 1.f, 1.f);
 	}
 
 
 	float occlusion = 0.f;
 
-	float seed = threadId.x * 1024 + threadId.y + groupIndex + gTime*1000;
+	float seed = threadId.x * 1024 + threadId.y + groupIndex + uint(gTime*10000);
 
-	for(uint i = 0; i < 16; i++) {
+	for(uint i = 0; i < 2; i++) {
 		Ray ray = GenShadowRay(seed, float4(position, 1.f), normal);
 		//ray.direction = float3(-0.5f, 0.5f, 0.f);
 		/*
@@ -199,13 +208,16 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 		if(occluded) {
 			// Output[threadId.xy] = float4(contact.position.w,contact.position.w,contact.position.w, 1.f);
 
-			occlusion+= 1.f / (dot(normal, ray.direction) * c.t + 1.f);
+			occlusion+= dot(normal, ray.direction) / ( c.t + 1.f);
 		}
 	}
 	 		 
-	occlusion = occlusion / 16.f;
+	occlusion = occlusion / 2.f;
 	occlusion = 1.f - occlusion;
 
 	float3 color = float3(occlusion, occlusion, occlusion);
-	uAO[threadId.xy] = float4(color, 1.f);
+
+	float diff = abs(uAO[threadId.xy].x - occlusion) * 10;
+
+	uAO[threadId.xy] = (gFrameCount * uAO[threadId.xy] + diff * float4(color, 1.f)) / (gFrameCount + diff);
 }

@@ -8,6 +8,9 @@
 #include "Engine/Graphics/RHI/VertexLayout.hpp"
 #include "Engine/Graphics/Model/Vertex.hpp"
 #include "Engine/Renderer/Renderable/Renderable.hpp"
+#include "Engine/Graphics/Program/Material.hpp"
+#include "Engine/Graphics/Model/Mesh.hpp"
+#include "Engine/Graphics/RHI/RHIDevice.hpp"
 
 #include "GenGBuffer_ps.h"
 #include "GenGBuffer_vs.h"
@@ -15,9 +18,6 @@
 #include "SurfelVisual_cs.h"
 #include "GenAccelerationStructure_cs.h"
 #include "GenAO_cs.h"
-#include "Engine/Graphics/Program/Material.hpp"
-#include "Engine/Graphics/Model/Mesh.hpp"
-#include "Engine/Graphics/RHI/RHIDevice.hpp"
 
 static Program::sptr_t gGenGBufferProgram = nullptr;
 static RootSignature::scptr_t gGenBufferRootSig = nullptr;
@@ -384,7 +384,7 @@ void SceneRenderer::setupFrame() {
   auto ctx = RHIDevice::get()->defaultRenderContext();
   ctx->clearRenderTarget(mGAlbedo->rtv(), Rgba::black);
   ctx->clearRenderTarget(mGNormal->rtv(), Rgba::gray);
-  ctx->clearRenderTarget(mAO->rtv(), Rgba::white);
+  // ctx->clearRenderTarget(mAO->rtv(), Rgba::white);
   ctx->clearDepthStencilTarget(*mGDepth->dsv(), true, true);
 }
 

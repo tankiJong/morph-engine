@@ -4,6 +4,7 @@
 
 cbuffer cTime: register(b0) {
 	float gTime;
+	float gFrameCount;
 }
 
 cbuffer cCamera : register(b1) {

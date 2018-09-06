@@ -47,7 +47,7 @@ float isCovered(float3 position, float3 normal, surfel_t surfel) {
 	// 2. project the point to the surfel plane, they are close enough
 	float3 projected = surfel.position - dot((position - surfel.position), surfel.normal) * surfel.normal;
 	
-	return clamp(distance(projected, surfel.position), 0, 1);
+	return 1.f / (clamp(distance(projected, surfel.position), 0, 1) + 1.f);
 
 }
 
@@ -64,8 +64,8 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	float3 position, normal;
 	{ // get information from the G-Buffer
-		position = gTexPosition.SampleLevel(gSampler, screen, 0).xyz;
-		normal = gTexNormal.SampleLevel(gSampler, screen, 0).xyz * 2.f - float3(1.f, 1.f, 1.f);
+		position = gTexPosition[pix].xyz;
+		normal = gTexNormal[pix].xyz * 2.f - float3(1.f, 1.f, 1.f);
 	}
 
 	uTexSurfelVisual[pix] = float4(1.f, 1.f, 1.f, 1.f);

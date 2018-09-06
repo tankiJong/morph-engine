@@ -104,7 +104,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint2 groupIndex: SV_GroupID )
 {
 	uint2 pixTopLeft = groupIndex.xy;
 
-	uint seed = threadId.x * 1024 + threadId.y + groupIndex.x + (uint)gTime*100000;
+	uint seed = threadId.x * 1024 + threadId.y + groupIndex.x + (uint)(gTime*100000);
 
 	uint2 pix = pixTopLeft * 128;
 
