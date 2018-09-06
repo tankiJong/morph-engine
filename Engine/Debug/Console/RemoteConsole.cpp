@@ -232,6 +232,16 @@ void RemoteConsole::broadcast(bool isEcho, const char* cmd) {
   }
 }
 
+void RemoteConsole::echo(std::string content) {
+  if (!mEnableEcho) return;
+
+  Console::log(content, Rgba::white);
+}
+
+void RemoteConsole::toggleEcho(bool e) {
+  mEnableEcho = e;
+}
+
 void RemoteConsole::printState() const {
   if(!ready()) {
     Log::tagf("remote console", "Remote Console is not ready yet.");
@@ -265,11 +275,16 @@ RemoteConsole& RemoteConsole::get() {
   return *gRemoteConsole;
 }
 
-COMMAND_REG("rc", "[index: uint][command: string]", "execute a command on a connection")(Command& cmd) {
+COMMAND_REG("rc", "[index: uint = 0][command: string]", "execute a command on a connection")(Command& cmd) {
   uint index = cmd.arg<0, uint>();
-  std::string command = cmd.arg<1>();
+  std::string command;
+  if(cmd.arg<0>()[0] != '0' && index == 0) {
+    command = cmd.arg<0>();
+  } else {
+    command = cmd.arg<1>();
+  }
 
-  gRemoteConsole->issue(0, false, command.c_str());
+  gRemoteConsole->issue(index, false, command.c_str());
   return true;
 }
 
@@ -307,5 +322,10 @@ COMMAND_REG("rc_host", "[port: uint]", "start hosting on the port.")(Command& cm
 
 COMMAND_REG("rc_list", "", "log the remote console service status.")(Command& cmd) {
   gRemoteConsole->printState();
+  return true;
+}
+
+COMMAND_REG("rc_echo", "[enabled: bool]", "Enable/disable the output from the remote console.")(Command& cmd) {
+  gRemoteConsole->toggleEcho(cmd.arg<0, bool>());
   return true;
 }

@@ -24,7 +24,6 @@ constexpr float SCREEN_HALF_WIDTH = SCREEN_HALF_HEIGHT * CLIENT_ASPECT;
 constexpr float SCREEN_WIDTH = SCREEN_HALF_WIDTH * 2.f; // units
 constexpr float SCREEN_HEIGHT = SCREEN_HALF_HEIGHT * 2.f; // units
 
-
 void Engine::init() {
   Log::startUp();
 
@@ -91,7 +90,7 @@ void Engine::init() {
     } else {
       auto& c = RemoteConsole::get().connection(index);
       std::string echo = Stringf("[%s] %s", c.socket.address().toString(), instr.content);
-      Console::log(echo, Rgba::white);
+      RemoteConsole::get().echo(echo);
     }
   });
   // Blob config = fs::read(".fs");

@@ -3,6 +3,7 @@
 #include "Window.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Core/Engine.hpp"
+#include "Engine/Debug/Console/Console.hpp"
 
 #define GAME_WINDOW_CLASS TEXT("Simple Window Class") 
 
@@ -172,4 +173,14 @@ void Window::registerWindowClass() {
   windowClassDescription.hCursor = NULL;
   windowClassDescription.lpszClassName = GAME_WINDOW_CLASS;
   RegisterClassEx(&windowClassDescription);
+}
+
+COMMAND_REG("clone_process", "", "Clone current process")(Command& cmd) {
+  wchar_t name[1024];
+  ::GetModuleFileName(NULL, name, 1024);
+
+  STARTUPINFO info = { sizeof(info) };
+  PROCESS_INFORMATION processInfo;
+  CreateProcess(name, NULL, NULL, NULL, TRUE, 0, NULL, NULL, &info, &processInfo);
+  return true;
 }

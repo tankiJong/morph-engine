@@ -14,6 +14,7 @@
 #include "Engine/Renderer/Geometry/Mesher.hpp"
 #include "Engine/Renderer/Font.hpp"
 #include "Engine/Renderer/Sampler.hpp"
+#include "Engine/Debug/Console/RemoteConsole.hpp"
 
 #define WM_CHAR                 0x0102
 #define WM_KEYDOWN              0x0100
@@ -510,6 +511,69 @@ void Console::render() const {
         stringChunks.clear();
         colors.clear();
       }
+    }
+  }
+
+
+  // remote Console widget
+  const float WIDGET_WIDTH = 500.f;
+  const vec2 WIDGET_PADDING{ 40.f, 60.f };
+  const float WIDGET_FONT_SIZE = 16;
+  const float WIDGET_LINE_HEIGHT = 16;
+  vec2 tr = screenBounds.maxs - WIDGET_PADDING - vec2{ 0, WIDGET_LINE_HEIGHT * .5f };
+  vec2 tl = tr - vec2{ WIDGET_WIDTH, 0.f };
+
+  RemoteConsole& rc = RemoteConsole::get();
+
+
+  std::string consoleState = "NOT READY";
+
+  Rgba modeColor;
+  switch(rc.state()) { 
+    case RemoteConsole::STATE_INIT:
+    case RemoteConsole::STATE_TRY_JOIN:
+    case RemoteConsole::STATE_TRY_HOST:
+    case RemoteConsole::STATE_DELAY: 
+      consoleState = "NOT READY";
+      modeColor = Rgba::black;
+    break;
+    case RemoteConsole::STATE_JOIN: 
+      consoleState = "CLIENT mode";
+      modeColor = Rgba::yellow;
+    break;
+    case RemoteConsole::STATE_HOST: 
+      consoleState = "HOST mode";
+      modeColor = Rgba::red;
+    break;
+  }
+  vec3 current = { tl, 1.f };
+  printer.text("Remote Console Service Running: ", WIDGET_FONT_SIZE, mFont.get(), current);
+  float advance = mFont->advance("Remote Console Service Running: ", WIDGET_FONT_SIZE);
+  printer.color(modeColor);
+  printer.text(consoleState, WIDGET_FONT_SIZE, mFont.get(), current + vec3::right * advance);
+
+  if(rc.ready()) {
+    current -= vec3::up * WIDGET_LINE_HEIGHT;
+    printer.color(Rgba::magenta);
+    printer.text(
+      Stringf("MY IP: %s", 
+              NetAddress::local(0).toString()), 
+              WIDGET_FONT_SIZE, mFont.get(), current);
+
+    current -= vec3::up * WIDGET_LINE_HEIGHT;
+    printer.color(Rgba::gray);
+    printer.text("Current Connections: ", WIDGET_FONT_SIZE, mFont.get(), current);
+
+    EXPECTS(rc.mServiceState == RemoteConsole::STATE_HOST || rc.mServiceState == RemoteConsole::STATE_JOIN);
+
+    uint start = rc.mServiceState == RemoteConsole::STATE_HOST ? 1 : 0;
+
+    while (start < rc.mConnections.size()) {
+      current -= vec3::up * WIDGET_LINE_HEIGHT;
+      printer.text(
+        Stringf("[%u] %s", start, rc.mConnections[start].socket.address().toString()), 
+        WIDGET_FONT_SIZE, mFont.get(), current);
+      start++;
     }
   }
 

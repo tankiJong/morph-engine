@@ -17,6 +17,12 @@ int re = WSAGetLastError(); \
 TCPSocket::TCPSocket() {
   mHandle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
+  sockaddr_in addr;
+  int len = sizeof(sockaddr_in);
+  getsockname(mHandle, (sockaddr*)&addr, &len);
+
+  mAddress.fromSockaddr((sockaddr&)addr);
+  
   ENSURES(mHandle != INVALID_SOCKET);
 }
 
@@ -83,9 +89,9 @@ owner<TCPSocket*> TCPSocket::accept() {
 }
 
 bool TCPSocket::bind(const NetAddress& addr) {
-  mAddress = addr;
 
   sockaddr_storage saddr;
+
   int len;
   addr.toSockaddr((sockaddr&)saddr, len);
 
@@ -96,6 +102,8 @@ bool TCPSocket::bind(const NetAddress& addr) {
     close();
     Log::tagf("net", "fail to bind to %s.", addr.toString());
     return false;
+  } else {
+    mAddress = addr;
   }
 
   return true;
@@ -108,6 +116,8 @@ bool TCPSocket::connect(const NetAddress& addr) {
 
   int result = ::connect(mHandle, (sockaddr*)&saddr, len);
 
+  mAddress.fromSockaddr((sockaddr&)saddr);
+
   if(result == SOCKET_ERROR) {
     LOG_FATAL();
     close();
@@ -115,8 +125,6 @@ bool TCPSocket::connect(const NetAddress& addr) {
     return false;
   }
   
-  mAddress = addr;
-
   Log::tagf("net", "connected to %s", addr.toString());
   return true;
 }

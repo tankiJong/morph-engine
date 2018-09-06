@@ -10,6 +10,7 @@
 #include <atomic>
 
 class RemoteConsole {
+  friend class Console;
 public:
   enum eRemoteConsoleState: uint{
     STATE_INIT,
@@ -56,11 +57,17 @@ public:
   void broadcast(bool isEcho, const char* cmd);
   void broadcast(Instr& instr);
 
+  void echo(std::string content);
+  void toggleEcho(bool e);
   void printState() const;
+
+  const Connection* self() const { return mConnections.size() == 0 ? nullptr : &(mConnections[0]); };
   const Connection& connection(uint index) const { return mConnections[index]; }
   static void startup();
   static void shutdown();
   static RemoteConsole& get();
+
+  eRemoteConsoleState state() const { return mServiceState; }
   template<typename T>
   void onReceive(T&& handle) {
     mHandles.push_back(handle);
@@ -80,4 +87,5 @@ protected:
   std::mutex mConnectionLock;
   Thread* mSockManageThread = nullptr;
   bool mIsDying = false;
+  bool mEnableEcho = true;
 };
