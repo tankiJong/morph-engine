@@ -1,7 +1,5 @@
-	#include "./Common.hlsli"
-struct vertex_t {
-	float4 position;
-};
+#include "./Common.hlsli"
+
 //	https://docs.microsoft.com/en-us/windows/desktop/direct3d12/dynamic-indexing-using-hlsl-5-1
 
 StructuredBuffer<float3> cPosition: register(t0);

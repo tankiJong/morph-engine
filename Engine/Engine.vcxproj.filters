@@ -1321,12 +1321,20 @@
     <None Include="Renderer\SceneRenderer\GenGBuffer.hlsli">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </None>
-    <None Include="Renderer\Shader\Math.hlsl" />
     <None Include="Renderer\Shader\Light.hlsl">
       <Filter>Engine\Renderer\Shader</Filter>
     </None>
     <None Include="Renderer\SceneRenderer\Common.hlsli">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </None>
+    <None Include="Renderer\SceneRenderer\Surfel.hlsli">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </None>
+    <None Include="Renderer\Shader\Random.hlsli">
+      <Filter>Engine\Renderer\Shader</Filter>
+    </None>
+    <None Include="Renderer\Shader\Math.hlsl">
+      <Filter>Engine\Renderer\Shader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -1368,6 +1376,9 @@
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\SurfelVisual_cs.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\SurfelCoverageCompute_cs.hlsl">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
   </ItemGroup>

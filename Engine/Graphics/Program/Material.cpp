@@ -50,17 +50,17 @@ void Material::setProperty(eUniformSlot registerIndex, const void* data, size_t 
   p->buffer->updateData(data, 0, size);
 }
 
-void Material::bindForGraphics(const RHIContext& ctx, const RootSignature& root, uint rootIndex) const {
-  finialize();
+void Material::bindForGraphics(RHIContext& ctx, const RootSignature& root, uint rootIndex) const {
+  finialize(ctx);
   mDescriptorSet->bindForGraphics(ctx, root, rootIndex);
 }
 
-void Material::bindForCompute(const RHIContext& ctx, const RootSignature& root, uint rootIndex) const {
-  finialize();
+void Material::bindForCompute(RHIContext& ctx, const RootSignature& root, uint rootIndex) const {
+  finialize(ctx);
   mDescriptorSet->bindForCompute(ctx, root, rootIndex);
 }
 
-void Material::finialize() const {
+void Material::finialize(RHIContext& ctx) const {
   for(const Prop& prop: mConstProperties) {
     mDescriptorSet->setCbv(0, prop.slot - UNIFORM_USER_1, *prop.buffer->cbv());
   }
@@ -68,6 +68,7 @@ void Material::finialize() const {
   for(uint i = 0; i < NUM_MAT_TEXTURE; i++) {
     if(mPropertyTextures[i] != nullptr) {
       mDescriptorSet->setSrv(1, i, mPropertyTextures[i]->srv());
+      ctx.resourceBarrier(mPropertyTextures[i].get(), RHIResource::State::ShaderResource);
     } else {
       mDescriptorSet->setSrv(1, i, *ShaderResourceView::nullView());
     }

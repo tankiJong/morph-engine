@@ -7,27 +7,6 @@
 		"DescriptorTable(UAV(u0, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
-struct vertex_t {
-	float4 position;
-};
-
-struct Ray {
-	float3 position;
-	float3 direction;
-};
-
-struct Contact {
-	float4 position;
-	float3 normal;
-	float t;
-	bool valid;
-};
-
-struct Random {
-	uint value;
-	uint seed;
-};
-
 
 Texture2D<float4> gTexAlbedo:   register(t10);
 Texture2D<float4> gTexNormal:   register(t11);
@@ -74,31 +53,6 @@ Contact triIntersection(float3 a, float3 b, float3 c, float color, Ray ray) {
 	contact.valid = contact.valid && dot(cross(p - c, a - c), normal) >= 0;
 
 	return contact;
-}
-
-
-
-
-Random rnd(uint seed)
-{
-	Random re;
-	re.value = seed;
-
-	const uint BIT_NOISE1 = 0xD2A80A23; // 0b1101'0010'1010'1000'0000'1010'0010'0011;
-	const uint BIT_NOISE2 = 0xA884F197; // 0b1010'1000'1000'0100'1111'0001'1001'0111;
-	const uint BIT_NOISE3 = 0x1B56C4E9; // 0b0001'1011'0101'0110'1100'0100'1110'1001;
-
-	uint mangledBits = seed;
-	mangledBits *= BIT_NOISE1;
-	mangledBits += seed;
-	mangledBits ^= (mangledBits >> 7);
-	mangledBits += BIT_NOISE2;
-	mangledBits ^= (mangledBits >> 8);
-	mangledBits *= BIT_NOISE3;
-	mangledBits ^= (mangledBits >> 11);
-
-	re.seed = mangledBits;
-	return re;
 }
 
 Ray GenShadowRay(inout uint seed, float4 position, float3 normal) {
@@ -177,7 +131,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	uint2 size;
 	uAO.GetDimensions(size.x, size.y);
 
-	if(pix.x >= size.x || pix.y >= size.y) return;
+	if(outScreen(pix, size)) return;
 	float2 screen = float2(pix.x, pix.y) / float2(size);
 
 

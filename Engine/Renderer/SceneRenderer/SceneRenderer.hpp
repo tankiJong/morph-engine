@@ -68,6 +68,7 @@ public:
 protected:
   void genGBuffer(RHIContext& ctx);
   void genAO(RHIContext& ctx);
+  void computeSurfelCoverage(RHIContext& ctx);
   void accumlateSurfels(RHIContext& ctx);
   void visualizeSurfels(RHIContext& ctx);
   void setupFrame();
@@ -83,6 +84,8 @@ protected:
 
   Texture2::sptr_t mAO;
   Texture2::sptr_t mSurfelVisual;
+  Texture2::sptr_t mSurfelCoverage;
+  Texture2::sptr_t mSurfelSpawnChance;
 
   Texture2::sptr_t mFinalColor;
 

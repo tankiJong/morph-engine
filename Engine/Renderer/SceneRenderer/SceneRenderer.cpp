@@ -18,6 +18,7 @@
 #include "SurfelVisual_cs.h"
 #include "GenAccelerationStructure_cs.h"
 #include "GenAO_cs.h"
+#include "SurfelCoverageCompute_cs.h"
 
 static Program::sptr_t gGenGBufferProgram = nullptr;
 static RootSignature::scptr_t gGenBufferRootSig = nullptr;
@@ -32,6 +33,9 @@ static RootSignature::scptr_t gSurfelPlacementRootSig = nullptr;
 
 static Program::sptr_t gSurfelVisualProgram = nullptr;
 static RootSignature::scptr_t gSurfelVisualRootSig = nullptr;
+
+static Program::sptr_t gSurfelCoverageProgram = nullptr;
+
 
 struct surfel_t {
   vec3 position;
@@ -76,6 +80,11 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
       .setFromBinary(gSurfelVisual_cs, sizeof(gSurfelVisual_cs));
     gSurfelVisualProgram->compile();
     gSurfelVisualRootSig = gSurfelVisualProgram->rootSignature();
+
+    gSurfelCoverageProgram = Program::sptr_t(new Program());
+    gSurfelCoverageProgram->stage(SHADER_TYPE_COMPUTE)
+      .setFromBinary(gSurfelCoverageCompute_cs, sizeof(gSurfelCoverageCompute_cs));
+    gSurfelCoverageProgram->compile();
   }
   mFrameData.frameCount = 0;
   mFrameData.time = 0;
@@ -110,9 +119,17 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
 
   mSurfels = TypedBuffer::create(sizeof(surfel_t), 20480, RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   NAME_RHIRES(mSurfels);
-
+  
   mSurfelVisual = Texture2::create(width, height, TEXTURE_FORMAT_RGBA8,
                               RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
+  NAME_RHIRES(mSurfelVisual);
+
+  mSurfelSpawnChance = Texture2::create(width, height, TEXTURE_FORMAT_RGBA8,
+                                   RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
+  NAME_RHIRES(mSurfelSpawnChance);
+
+  mSurfelCoverage = Texture2::create(width, height, TEXTURE_FORMAT_RGBA16,
+                                           RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   NAME_RHIRES(mSurfelVisual);
 
   {
@@ -163,12 +180,17 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
   }
   {
     DescriptorSet::Layout layout;
-    layout.addRange(DescriptorSet::Type::TextureUav, 0, 1);
+    layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 4);
+    layout.addRange(DescriptorSet::Type::TextureSrv, 0, 1);
 
     mDAccumulateSurfelUavDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
 
     mDAccumulateSurfelUavDescriptors->setUav(0, 0, *mSurfels->uav());
-    
+    mDAccumulateSurfelUavDescriptors->setUav(0, 1, *mSurfels->uavCounter().uav());
+    mDAccumulateSurfelUavDescriptors->setUav(0, 2, *mSurfelCoverage->uav());
+    mDAccumulateSurfelUavDescriptors->setUav(0, 3, *mSurfelSpawnChance->uav());
+    mDAccumulateSurfelUavDescriptors->setSrv(1, 0, mSurfelCoverage->srv());
+
   }
   {
     DescriptorSet::Layout layout;
@@ -191,6 +213,7 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   genGBuffer(ctx);
   genAO(ctx);
 
+  computeSurfelCoverage(ctx);
   accumlateSurfels(ctx);
   visualizeSurfels(ctx);
 }
@@ -309,9 +332,41 @@ void SceneRenderer::genAO(RHIContext& ctx) {
   ctx.copyResource(*mAO, *RHIDevice::get()->backBuffer());
 }
 
+void SceneRenderer::computeSurfelCoverage(RHIContext& ctx) {
+
+  SCOPED_GPU_EVENT("Compute Surfel Coverage");
+
+  static ComputeState::sptr_t computeState;
+  if (!computeState) {
+    ComputeState::Desc desc;
+    desc.setRootSignature(gSurfelCoverageProgram->rootSignature());
+    desc.setProgram(gSurfelCoverageProgram);
+    computeState = ComputeState::create(desc);
+  }
+  ctx.resourceBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mSurfels.get(), RHIResource::State::UnorderedAccess);
+  ctx.resourceBarrier(mSurfelCoverage.get(), RHIResource::State::UnorderedAccess);
+  ctx.setComputeState(*computeState);
+
+  // mDGenAOUavDescriptors->setUav(0, 1, mTargetScene.accelerationStructure());
+  mDSharedDescriptors->bindForCompute(ctx, *gSurfelCoverageProgram->rootSignature(), 0);
+  mDGBufferDescriptors->bindForCompute(ctx, *gSurfelCoverageProgram->rootSignature(), 1);
+  mDAccumulateSurfelUavDescriptors->bindForCompute(ctx, *gSurfelCoverageProgram->rootSignature(), 2);
+
+  uint x = uint(Window::Get()->bounds().width()) / 16 + 1;
+  uint y = uint(Window::Get()->bounds().height()) / 16 + 1;
+
+  ctx.dispatch(x, y, 1);
+  ctx.copyResource(*mSurfelCoverage, *RHIDevice::get()->backBuffer());
+}
+
 void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
 
-  SCOPED_GPU_EVENT("accumlate Surfels");
+  SCOPED_GPU_EVENT("Accumlate Surfels");
 
   static ComputeState::sptr_t computeState;
   if (!computeState) {
@@ -326,6 +381,7 @@ void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
   ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mSurfels.get(), RHIResource::State::UnorderedAccess);
+  ctx.resourceBarrier(mSurfelCoverage.get(), RHIResource::State::UnorderedAccess);
 
   ctx.setComputeState(*computeState);
 
@@ -334,15 +390,16 @@ void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
   mDGBufferDescriptors->bindForCompute(ctx, *gSurfelPlacementRootSig, 1);
   mDAccumulateSurfelUavDescriptors->bindForCompute(ctx, *gSurfelPlacementRootSig, 2);
 
-  uint x = uint(Window::Get()->bounds().width()) / 128 + 1;
-  uint y = uint(Window::Get()->bounds().height()) / 128 + 1;
+  uint x = uint(Window::Get()->bounds().width()) / 16 + 1;
+  uint y = uint(Window::Get()->bounds().height()) / 16 + 1;
 
   ctx.dispatch(x, y, 1);
+  ctx.copyResource(*mSurfelSpawnChance, *RHIDevice::get()->backBuffer());
 }
 
 void SceneRenderer::visualizeSurfels(RHIContext& ctx) {
 
-  SCOPED_GPU_EVENT("visualize Surfels");
+  SCOPED_GPU_EVENT("Visualize Surfels");
 
   static ComputeState::sptr_t computeState;
   if (!computeState) {

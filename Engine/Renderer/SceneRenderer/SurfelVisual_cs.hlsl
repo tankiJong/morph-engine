@@ -1,4 +1,5 @@
 #include "Common.hlsli"
+#include "Surfel.hlsli"
 
 #define SurfelVisual_RootSig \
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
@@ -8,15 +9,6 @@
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
 
-struct vertex_t {
-	float4 position;
-};
-
-struct surfel_t {
-  float3 position;
-  float3 normal;
-	float3 color;
-};
 
 
 
@@ -30,26 +22,6 @@ RWStructuredBuffer<surfel_t> uSurfels: register(u0);
 RWStructuredBuffer<uint> uNumSurfels: register(u1);
 RWTexture2D<float4> uTexSurfelVisual: register(u2);
 
-static const float SURFEL_RADIUS = 1.f;
-
-
-float isCovered(float3 position, float3 normal, surfel_t surfel) {
-
-	// 1. their normal agree with each other
-	float dp = dot(normal, surfel.normal);
-
-	if(dp < 0) return 0;
-
-	// 2. if this is too far, no
-	float dist = distance(position, surfel.position);
-	if(dist > SURFEL_RADIUS) return 0;
-
-	// 2. project the point to the surfel plane, they are close enough
-	float3 projected = surfel.position - dot((position - surfel.position), surfel.normal) * surfel.normal;
-	
-	return 1.f / (clamp(distance(projected, surfel.position), 0, 1) + 1.f);
-
-}
 
 [RootSignature(SurfelVisual_RootSig)]
 [numthreads(32, 32, 1)]
@@ -76,9 +48,8 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	float4 color = float4(0,0,0,0);
 	for(uint i = 0; i < count; i++) {
-		if(isCovered(position, normal, uSurfels[i]) > 0) {
+		if(isCovered(position, normal, uSurfels[i]) >= .5) {
 			color =	float4(uSurfels[i].color, 1.f);
-	
 		}
 			 
 	}
