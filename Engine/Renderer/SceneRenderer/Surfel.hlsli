@@ -28,7 +28,7 @@ float isCovered(float3 position, float3 normal, surfel_t surfel) {
 	// 2. project the point to the surfel plane, they are close enough
 	float3 projected = position - dirDot * surfel.normal;
 	
-	return 1.f / (distance(projected, surfel.position) + 1.f);			// [1, 0.5]
-
+	float dd = (1 - distance(projected, surfel.position));
+	return dd * dd ;			// [1, 0.5]
 
 }

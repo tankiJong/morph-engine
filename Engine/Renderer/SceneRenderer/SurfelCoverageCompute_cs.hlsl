@@ -21,6 +21,10 @@ RWStructuredBuffer<uint> uNumSurfels: register(u1);
 RWTexture2D<float4> uSurfelCoverage: register(u2);
 
 
+float dimishingAdd(float a, float b) {
+	return 1.f - (1.f-a)*(1.f-b);
+}
+
 float coverageAt(uint2 pix) {
 	float coverage = 0.f;
 	uint numSurfel = uNumSurfels[0];
@@ -34,7 +38,7 @@ float coverageAt(uint2 pix) {
 }
 
 [RootSignature(SurfelPlacement_RootSig)]
-[numthreads(16, 16, 1)]
+[numthreads(32, 32, 1)]
 void main( uint3 threadId : SV_DispatchThreadID)
 {
 	uint2 pix = threadId.xy;

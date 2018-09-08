@@ -56,9 +56,9 @@ float chanceToSpawnAt(uint2 pix) {
 		pixArea = (length(cross(ab, ac)) + length(cross(ac, ad))) * .5f;
 	}
 
-	float depthFactor = - pixDepth * pixDepth + 2 * pixDepth;
+	float depthFactor = (1 - pixDepth ) * (1 - pixDepth);
 	//pixArea is around 0.004~0.01
-	return 1 * pixArea;
+	return 100000.f * depthFactor * pixArea;
 
 	float chance = smoothstep(0, 1, 1.f - pixDepth)
 							 * pixArea * (1.f/ ( SURFEL_RADIUS*SURFEL_RADIUS));
@@ -100,20 +100,23 @@ pixel leastCoveredInRange(uint2 topLeft, uint seed) {
 	return p;
 }
 [RootSignature(SurfelPlacement_RootSig)]
-[numthreads(1, 1, 1)]
-void main( uint3 threadId : SV_DispatchThreadID )
+[numthreads(32, 32, 1)]
+void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex )
 {
 
 	uint2 pixTopLeft = threadId.xy * TILE_SIZE;
 
 	RETURN_IF_OUT_TEX(pixTopLeft, gTexNormal);
 
-	uint seed = threadId.x * 102400 + threadId.y * 34573645 + uint(gTime*10000);
+	uint uintTime = 0;
+	uintTime = asuint(gTime);
+	uint seed = uintTime * 0x345553 + threadId.x * 0xD2A80A23 + threadId.y * 0x24657ff;
 	
 	Randomf rand = rnd01(seed);
+	rand = rnd01(seed);
 	pixel pix = leastCoveredInRange(pixTopLeft, rand.seed);
 
-	if(pix.coverage > .1f) return;
+	if(pix.coverage > 0.f) return;
 
 	surfel_t surfel;
 

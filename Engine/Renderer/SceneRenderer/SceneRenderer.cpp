@@ -212,7 +212,7 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   setupView(ctx);
   genGBuffer(ctx);
   genAO(ctx);
-
+  
   computeSurfelCoverage(ctx);
   accumlateSurfels(ctx);
   visualizeSurfels(ctx);
@@ -357,8 +357,8 @@ void SceneRenderer::computeSurfelCoverage(RHIContext& ctx) {
   mDGBufferDescriptors->bindForCompute(ctx, *gSurfelCoverageProgram->rootSignature(), 1);
   mDAccumulateSurfelUavDescriptors->bindForCompute(ctx, *gSurfelCoverageProgram->rootSignature(), 2);
 
-  uint x = uint(Window::Get()->bounds().width()) / 16 + 1;
-  uint y = uint(Window::Get()->bounds().height()) / 16 + 1;
+  uint x = uint(Window::Get()->bounds().width()) / 32  + 1;
+  uint y = uint(Window::Get()->bounds().height()) / 32 + 1;
 
   ctx.dispatch(x, y, 1);
   ctx.copyResource(*mSurfelCoverage, *RHIDevice::get()->backBuffer());
@@ -390,8 +390,8 @@ void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
   mDGBufferDescriptors->bindForCompute(ctx, *gSurfelPlacementRootSig, 1);
   mDAccumulateSurfelUavDescriptors->bindForCompute(ctx, *gSurfelPlacementRootSig, 2);
 
-  uint x = uint(Window::Get()->bounds().width()) / 16 + 1;
-  uint y = uint(Window::Get()->bounds().height()) / 16 + 1;
+  uint x = uint(Window::Get()->bounds().width()) / 16 / 32 + 1;
+  uint y = uint(Window::Get()->bounds().height()) / 16 / 32 + 1;
 
   ctx.dispatch(x, y, 1);
   ctx.copyResource(*mSurfelSpawnChance, *RHIDevice::get()->backBuffer());

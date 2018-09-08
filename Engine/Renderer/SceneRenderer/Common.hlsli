@@ -3,24 +3,6 @@
 
 #define RootSig_Common "DescriptorTable(CBV(b0, numDescriptors = 4), SRV(t0, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL),"
 
-cbuffer cTime: register(b0) {
-	float gTime;
-	float gFrameCount;
-}
-
-cbuffer cCamera : register(b1) {
-  float4x4 projection;
-  float4x4 view;
-};
-
-cbuffer cModel: register(b2) {
-	float4x4 model;
-}
-
-Texture2D gTexAmbient: register(t0);
-SamplerState gSampler : register(s0);
-
-	
 struct vertex_t {
 	float4 position;
 };
@@ -37,6 +19,27 @@ struct Contact {
 	float t;
 	bool valid;
 };
+
+cbuffer cTime: register(b0) {
+	float gTime;
+	float gFrameCount;
+}
+
+cbuffer cCamera : register(b1) {
+  float4x4 projection;
+  float4x4 view;
+};
+
+cbuffer cModel: register(b2) {
+	float4x4 model;
+}
+
+
+
+Texture2D gTexAmbient: register(t0);
+SamplerState gSampler : register(s0);
+
+	
 
 bool outScreen(uint2 pix, uint2 size) {
 	return pix.x >= size.x || pix.y >= size.y;

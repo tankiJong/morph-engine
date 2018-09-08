@@ -171,7 +171,5 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	float3 color = float3(occlusion, occlusion, occlusion);
 
-	float diff = abs(uAO[threadId.xy].x - occlusion) * 10;
-
-	uAO[threadId.xy] = (gFrameCount * uAO[threadId.xy] + diff * float4(color, 1.f)) / (gFrameCount + diff);
+	uAO[threadId.xy] = float4(color, 1.f);
 }

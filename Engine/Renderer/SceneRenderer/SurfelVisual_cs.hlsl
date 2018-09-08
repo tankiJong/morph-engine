@@ -48,7 +48,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	float4 color = float4(0,0,0,0);
 	for(uint i = 0; i < count; i++) {
-		if(isCovered(position, normal, uSurfels[i]) >= .5) {
+		if(isCovered(position, normal, uSurfels[i]) > 0) {
 			color =	float4(uSurfels[i].color, 1.f);
 		}
 			 
