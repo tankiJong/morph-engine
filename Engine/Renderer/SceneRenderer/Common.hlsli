@@ -1,3 +1,6 @@
+#ifndef __SR_COMMON_INCLUDED__
+#define __SR_COMMON_INCLUDED__
+
 #include "../Shader/Math.hlsl"
 #include "../Shader/Random.hlsli"
 
@@ -117,3 +120,6 @@ float3 Hue(float hh) {
 #define SCREEN_SIZE_FROM(size, tex) uint2 size; tex.GetDimensions(size.x, size.y)
 
 #define RETURN_IF_OUT_TEX(pix, tex) {SCREEN_SIZE_FROM(size, tex); if(outScreen(pix, size))	return;}
+
+
+#endif

@@ -110,8 +110,8 @@ void setRasterizerState(const RenderState& renderState, D3D12_RASTERIZER_DESC& r
   rs.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
   rs.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
   rs.DepthClipEnable = TRUE;
-  rs.MultisampleEnable = FALSE;
-  rs.AntialiasedLineEnable = FALSE;
+  rs.MultisampleEnable = TRUE;
+  rs.AntialiasedLineEnable = TRUE;
   rs.ForcedSampleCount = 0;
   rs.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 }

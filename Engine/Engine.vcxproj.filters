@@ -1336,6 +1336,9 @@
     <None Include="Renderer\Shader\Math.hlsl">
       <Filter>Engine\Renderer\Shader</Filter>
     </None>
+    <None Include="Renderer\SceneRenderer\Lighting.hlsli">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis">
