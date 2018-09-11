@@ -71,6 +71,7 @@ protected:
   void computeSurfelCoverage(RHIContext& ctx);
   void accumlateSurfels(RHIContext& ctx);
   void visualizeSurfels(RHIContext& ctx);
+  void deferredLighting(RHIContext& ctx);
   void setupFrame();
   void setupView(RHIContext& ctx);
   const RenderScene& mTargetScene;
@@ -83,6 +84,7 @@ protected:
   Texture2::sptr_t mGDepth;
 
   Texture2::sptr_t mAO;
+  Texture2::sptr_t mScene;
   Texture2::sptr_t mSurfelVisual;
   Texture2::sptr_t mSurfelCoverage;
   Texture2::sptr_t mSurfelSpawnChance;
@@ -94,8 +96,8 @@ protected:
   S<RHIBuffer> mcFrameData;
   S<RHIBuffer> mcCamera;
   S<RHIBuffer> mcModel;
+  S<RHIBuffer> mcLight;
   TypedBuffer::sptr_t mAccelerationStructure;
-  TypedBuffer::sptr_t mcLight;
   TypedBuffer::sptr_t mSurfels;
 
   S<DescriptorSet> mDSharedDescriptors;
@@ -103,5 +105,6 @@ protected:
   S<DescriptorSet> mDGenAOUavDescriptors;
   S<DescriptorSet> mDAccumulateSurfelUavDescriptors;
   S<DescriptorSet> mDSurfelVisualDescriptors;
+  S<DescriptorSet> mDDeferredLightingDescriptors;
 
 };

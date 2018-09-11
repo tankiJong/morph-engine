@@ -42,10 +42,10 @@ float chanceToSpawnAt(uint2 pix) {
 	// d -- c
 
 	float pixDepth = gTexDepth[pix].x;
-	a = gTexPosition[pix];
-	b = gTexPosition[pix + uint2(1, 0)];
-	c = gTexPosition[pix + uint2(1, 1)];
-	d = gTexPosition[pix + uint2(0, 1)];
+	a = gTexPosition[pix].xyz;
+	b = gTexPosition[pix + uint2(1, 0)].xyz;
+	c = gTexPosition[pix + uint2(1, 1)].xyz;
+	d = gTexPosition[pix + uint2(0, 1)].xyz;
 
 	float pixArea;
 	{

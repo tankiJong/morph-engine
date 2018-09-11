@@ -2,8 +2,7 @@
 
 #include "Engine/Core/common.hpp"
 #include "Engine/Math/Transform.hpp"
-#include "Engine/Renderer/type.h"
-#include "Engine/Renderer/RenderTarget.hpp"
+#include "Engine/Graphics/RHI/RHIType.hpp"
 #include "Engine/Graphics/Camera.hpp"
 
 class Rgba;

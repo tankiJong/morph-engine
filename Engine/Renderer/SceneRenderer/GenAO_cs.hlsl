@@ -146,7 +146,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	float seed = threadId.x * 1024 + threadId.y + groupIndex + uint(gTime*10000);
 
-	for(uint i = 0; i < 2; i++) {
+	for(uint i = 0; i < 32; i++) {
 		Ray ray = GenShadowRay(seed, float4(position, 1.f), normal);
 		//ray.direction = float3(-0.5f, 0.5f, 0.f);
 		/*
@@ -166,7 +166,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 		}
 	}
 	 		 
-	occlusion = occlusion / 2.f;
+	occlusion = occlusion / 32.f;
 	occlusion = 1.f - occlusion;
 
 	float3 color = float3(occlusion, occlusion, occlusion);

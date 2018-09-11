@@ -5,6 +5,7 @@
 
 struct vertex_t {
 	float4 position;
+	float4 color;
 };
 
 
@@ -18,6 +19,24 @@ struct Contact {
 	float3 normal;
 	float t;
 	bool valid;
+};
+
+struct light_info_t {
+  float4 color;
+
+  float3 attenuation;
+  float dotInnerAngle;
+
+  float3 specAttenuation;
+  float dotOuterAngle;
+
+  float3 position;
+  float directionFactor;
+
+  float3 direction;
+  float __pad00;
+
+  float4x4 vp;
 };
 
 cbuffer cTime: register(b0) {
@@ -34,6 +53,9 @@ cbuffer cModel: register(b2) {
 	float4x4 model;
 }
 
+cbuffer cLight: register(b3) {
+	light_info_t gLight;
+}
 
 
 Texture2D gTexAmbient: register(t0);

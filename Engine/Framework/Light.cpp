@@ -54,6 +54,8 @@ float Light::attenuation(vec3 position) const {
   return mInfo.color.a / (mInfo.attenuation.x + mInfo.attenuation.y * distance + mInfo.attenuation.z * distance * distance);
 }
 
+void Light::updateCamera() {}
+
 // void Light::updateCamera(const Camera& view) {
 //   constexpr float viewFZ = 30.f;
 //   mat44 vp = view.projection()*view.view();
