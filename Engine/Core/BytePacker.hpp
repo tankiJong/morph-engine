@@ -39,6 +39,10 @@ public:
 
   void setEndianness(eEndianness e);
 
+	// C4: write_array( data, count, stride )
+	//     read_array( data, count, stride )  
+	//     ... will give you the functionality of both write and append;
+
   // maybe flip data according to the endianness, update(forward) write cursor
   bool write(const void* data, size_t size);
   bool write(const char* data);
@@ -46,7 +50,7 @@ public:
   // just append raw data, do not process, update(forward) write cursor
   bool append(const void* data, size_t size);
   // just consume the data, do not process, update(forward) read cursor
-  size_t consume(void* data, size_t size);
+  size_t consume(void* data, size_t size); // C4: Move this next to reads; 
 
   // extract data, convert endianness, update(forward) read cursor
   size_t read(void* outData, size_t maxRead);
@@ -69,6 +73,7 @@ public:
 protected:
   bool grow(size_t minSize);
   bool valid() const;
+
   eStorageFlag mFlag;
   eEndianness mByteOrder;
   span<byte_t> mBufferView;

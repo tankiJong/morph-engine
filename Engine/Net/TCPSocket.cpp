@@ -24,8 +24,8 @@ TCPSocket::TCPSocket(TCPSocket&& socket) {
   mHandle = socket.mHandle;
   mAddress = socket.mAddress;
 
-  socket.mHandle = INVALID_SOCKET;
-  socket.mAddress = NetAddress();
+  socket.mHandle = INVALID_SOCKET;  
+  socket.mAddress = NetAddress(); // C4: not *really* needed 
 }
 
 TCPSocket& TCPSocket::operator=(TCPSocket&& rhs) {
@@ -34,7 +34,6 @@ TCPSocket& TCPSocket::operator=(TCPSocket&& rhs) {
 
   rhs.mHandle = INVALID_SOCKET;
   rhs.mAddress = NetAddress();
-
   
   return *this;
 }
@@ -66,6 +65,7 @@ owner<TCPSocket*> TCPSocket::accept() {
   int clientAddrLen = sizeof(sockaddr_storage);
 
   // set to non-blocking for accept...
+	// C4TODO:  Make based on options - not just what we're feeling like at the time; 
   u_long nonBlocking = 1;
   ::ioctlsocket(mHandle, FIONBIO, &nonBlocking);
 
@@ -75,15 +75,18 @@ owner<TCPSocket*> TCPSocket::accept() {
     return nullptr;
   }
 
+	// C4:  Good case for a private constructor, though just doing it here is fine; 
   TCPSocket* sock = new TCPSocket();
-
   sock->mHandle = socket;
   sock->mAddress.fromSockaddr((sockaddr&)client);
+
   return sock;
 }
 
+// C4: TCP Sockets don't need a "bind" - they never _just_ bind.
+// C4: Socket::bind is a good _protected_ method, as it is used by TCP and UDP sockets; 
 bool TCPSocket::bind(const NetAddress& addr) {
-
+	
   sockaddr_storage saddr;
 
   int len;
@@ -124,10 +127,14 @@ bool TCPSocket::connect(const NetAddress& addr) {
 }
 
 void TCPSocket::send(const void* data, size_t size) {
+	// C4: Check for errors - you may have closed; 
+	// C4: If returned value is positive but != size, I report that (that's bad)
+	//     Unlike recv, where getting less is somewhat expected; 
   ::send(mHandle, (char*)data, (int)size, 0);
 }
 
 size_t TCPSocket::receive(void* buf, size_t max) {
+	// C4: This does not every time you receive - options persist; 
   // set to non-blocking for recv...
   u_long nonBlocking = 1;
   ::ioctlsocket(mHandle, FIONBIO, &nonBlocking);

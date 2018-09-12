@@ -8,6 +8,7 @@
 #include "Engine/Debug/Log.hpp"
 
 bool UDPSocket::bind(const NetAddress& addr, uint16_t portRange) {
+	// C4: If a socket is open and you bind - I would assert and return false;
   close();
 
   SOCKET sock = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -15,9 +16,7 @@ bool UDPSocket::bind(const NetAddress& addr, uint16_t portRange) {
   ASSERT_OR_RETURN(sock != INVALID_SOCKET, false);
 
   sockaddr_storage sockadd;
-
   int len = sizeof(sockaddr_storage);
-
   addr.toSockaddr((sockaddr&)sockadd, len);
 
   int result = ::bind(sock, (sockaddr*)&sockadd, len);
@@ -48,6 +47,7 @@ size_t UDPSocket::send(const NetAddress& addr, const void* data, size_t byteCoun
 
     return (size_t)sent;
   } else {
+		// C4: This looks really weird - turn it into a function that returns bool
     bool re;
     OUT_LOG_FATAL_SOCK_ERROR(re);
     if(re) {

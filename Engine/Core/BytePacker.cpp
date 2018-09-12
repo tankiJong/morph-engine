@@ -3,6 +3,7 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include <vector>
 
+// C4: Don't use "16" - use a define or const that is "DEFAULT_BUFFER_SIZE" or similar; 
 BytePacker::BytePacker(eEndianness byteOrder)
   : mFlag(STORAGE_OWN_BUFFER | STORAGE_GROWABLE)
   , mByteOrder(byteOrder)
@@ -80,17 +81,20 @@ bool BytePacker::write(const char* data) {
 
 bool BytePacker::write(size_t size) {
   // convert to my byte order, which everyone agree on.
+	// C4: Do not convert!  Bit operators work WITH the endianness of the machine; 
   toEndianness(ENDIANNESS_LITTLE, size);
-  
-  size_t byteToWrite = size_t(-1);
 
+  
+  size_t byteToWrite = 0;
+
+	// C4: See changelist for what I did here -> see why it was equivalent; 
   uint8_t bytes[16];
 
   // the lower bit will be compressed first, so it will be pushed into buffer first
 
   while(size != 0) {
-    byteToWrite++;
     uint8_t& b = bytes[byteToWrite];
+    byteToWrite++;
 
     // xxxx xxxx,  [Flag: 1bit][data: 7bits from the input size]
     b = (size >> 7u) == 0 ? 0u : 1u;
@@ -100,7 +104,7 @@ bool BytePacker::write(size_t size) {
     size >>= 7u;
   }
 
-  return append(bytes, byteToWrite + 1);
+  return append(bytes, byteToWrite);
 }
 
 bool BytePacker::append(const void* data, size_t size) {
@@ -171,7 +175,8 @@ size_t BytePacker::read(size_t& size) {
 
     index++;
 
-  } while (byte & 0b10000000);
+  } while (byte & 0b10000000); // C4: 0x80
+
 
   ENSURES(index <= sizeof(size_t)+1);
 
@@ -206,6 +211,7 @@ void BytePacker::clear() {
   mNextRead = 0;
 }
 
+// C4: Why int16_t?   64KB jumps seems uneeded; int or intptr_t
 void BytePacker::seekr(int16_t offset, eSeekDir dir) {
   switch(dir) { 
     case SEEK_DIR_BEGIN:
@@ -224,6 +230,7 @@ void BytePacker::seekr(int16_t offset, eSeekDir dir) {
   ENSURES(valid());
 }
 
+// C4: Second verse, same as the first...
 void BytePacker::seekw(int16_t offset, eSeekDir dir) {
   switch (dir) {
     case SEEK_DIR_BEGIN:
@@ -241,6 +248,12 @@ void BytePacker::seekw(int16_t offset, eSeekDir dir) {
 
   ENSURES(valid());
 }
+
+// is_set( flags, A | B ); 
+// is_any_set( flags, A | B); 
+// is_all_set( flags, A | B); // (flags & bits) == bits; 
+// Does this return true if A, B, or both A & B?
+// For more fun: Bit Twiddling Hacks: https://graphics.stanford.edu/~seander/bithacks.html
 
 bool BytePacker::grow(size_t minSize) {
   if (!is_set(mFlag, STORAGE_GROWABLE)) return false;
@@ -261,7 +274,7 @@ bool BytePacker::grow(size_t minSize) {
 }
 
 bool BytePacker::valid() const {
-  std::vector<int> iv;
+  std::vector<int> iv; // C4: Why?
   return mNextRead <= mNextWrite 
       && mNextWrite <= (size_t)mBufferView.size()
       && mBufferView.size() > 0;
