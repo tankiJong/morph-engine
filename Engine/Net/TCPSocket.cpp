@@ -7,12 +7,6 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Debug/Log.hpp"
 
-#define LOG_FATAL() { \
-int re = WSAGetLastError(); \
-  if (re != WSAEWOULDBLOCK && re != WSAEMSGSIZE && re != WSAECONNRESET) { \
-    Log::tagf("net", "Fatal error trigger in %s, code: %u", __FUNCTION__, re); \
-  } \
-} \
 
 TCPSocket::TCPSocket() {
   mHandle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -55,7 +49,7 @@ bool TCPSocket::listen(uint16_t port, uint maxQueued) {
 
   int result = ::listen(mHandle, maxQueued);
   if(result != 0) {
-    LOG_FATAL();
+    LOG_FATAL_SOCK_ERROR();
     close();
     Log::tagf("net", "fail to listen at %u", port);
     return false;
@@ -77,7 +71,7 @@ owner<TCPSocket*> TCPSocket::accept() {
 
   SOCKET socket = ::accept(mHandle, (sockaddr*)&client, &clientAddrLen);
   if (socket == INVALID_SOCKET) {
-    LOG_FATAL();
+    LOG_FATAL_SOCK_ERROR();
     return nullptr;
   }
 
@@ -98,7 +92,7 @@ bool TCPSocket::bind(const NetAddress& addr) {
   int result = ::bind(mHandle, (sockaddr*)&saddr, len);
 
   if(result == SOCKET_ERROR) {
-    LOG_FATAL();
+    LOG_FATAL_SOCK_ERROR();
     close();
     Log::tagf("net", "fail to bind to %s.", addr.toString());
     return false;
@@ -119,7 +113,7 @@ bool TCPSocket::connect(const NetAddress& addr) {
   mAddress.fromSockaddr((sockaddr&)saddr);
 
   if(result == SOCKET_ERROR) {
-    LOG_FATAL();
+    LOG_FATAL_SOCK_ERROR();
     close();
     Log::tagf("net", "could not connect %s", addr.toString());
     return false;

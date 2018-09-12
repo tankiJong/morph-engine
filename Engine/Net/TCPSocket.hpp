@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Engine/Net/NetAddress.hpp"
-
+#include "Engine/Net/Socket.hpp"
 class NetAddress;
 
 class TCPSocket {

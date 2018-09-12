@@ -469,6 +469,12 @@
       <Filter>Engine\Debug\Console</Filter>
     </ClCompile>
     <ClCompile Include="Core\Endianness.cpp" />
+    <ClCompile Include="Net\Socket.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\UDPSocket.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -971,6 +977,12 @@
     </ClInclude>
     <ClInclude Include="Debug\Console\RemoteConsole.hpp">
       <Filter>Engine\Debug\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\Socket.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\UDPSocket.hpp">
+      <Filter>Engine\Net</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
