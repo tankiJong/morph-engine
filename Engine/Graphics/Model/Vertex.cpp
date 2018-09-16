@@ -3,7 +3,7 @@
 
 DefineVertexType(vertex_pcu_t) {
   define(0, "POSITION", MP_FLOAT, 3, 0, true, offsetof(vertex_a_t, position) /sizeof(size_t));
-  define(1, "COLOR",    MP_UBYTE, 4, 0, false, offsetof(vertex_a_t, color) / sizeof(size_t));
+  define(1, "COLOR",    MP_FLOAT, 4, 0, false, offsetof(vertex_a_t, color) / sizeof(size_t));
   define(2, "UV",       MP_FLOAT, 2, 0, true, offsetof(vertex_a_t, uv) / sizeof(size_t));
 }
 
@@ -18,7 +18,7 @@ DefineVertexType(vertex_pcu_t) {
 
 DefineVertexType(vertex_lit_t) {
   define(0, "POSITION", MP_FLOAT, 3, 0, true, offsetof(vertex_a_t, position) / sizeof(size_t));
-  define(1, "COLOR", MP_UBYTE, 4, 0, false, offsetof(vertex_a_t, color) / sizeof(size_t));
+  define(1, "COLOR", MP_FLOAT, 4, 0, false, offsetof(vertex_a_t, color) / sizeof(size_t));
   define(2, "UV", MP_FLOAT, 2, 0, true, offsetof(vertex_a_t, uv) / sizeof(size_t));
   define(3, "NORMAL", MP_FLOAT, 3, 0, true, offsetof(vertex_a_t, normal) / sizeof(size_t));
   define(4, "TANGENT", MP_FLOAT, 4, 0, true, offsetof(vertex_a_t, tangent) / sizeof(size_t));

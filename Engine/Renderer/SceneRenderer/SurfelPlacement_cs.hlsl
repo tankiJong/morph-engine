@@ -1,6 +1,6 @@
 #include "Common.hlsli"
 #include "Surfel.hlsli"
-
+#include "Lighting.hlsli"
 #define SurfelPlacement_RootSig \
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
@@ -58,7 +58,7 @@ float chanceToSpawnAt(uint2 pix) {
 
 	float depthFactor = (1 - pixDepth ) * (1 - pixDepth);
 	//pixArea is around 0.004~0.01
-	return 100000.f * depthFactor * pixArea;
+	return 1000000.f * depthFactor * pixArea;
 
 	float chance = smoothstep(0, 1, 1.f - pixDepth)
 							 * pixArea * (1.f/ ( SURFEL_RADIUS*SURFEL_RADIUS));
@@ -99,6 +99,7 @@ pixel leastCoveredInRange(uint2 topLeft, uint seed) {
 	
 	return p;
 }
+
 [RootSignature(SurfelPlacement_RootSig)]
 [numthreads(32, 32, 1)]
 void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex )
@@ -110,13 +111,14 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	uint uintTime = 0;
 	uintTime = asuint(gTime);
+	
 	uint seed = uintTime * 0x345553 + threadId.x * 0xD2A80A23 + threadId.y * 0x24657ff;
 	
 	Randomf rand = rnd01(seed);
 	rand = rnd01(seed);
 	pixel pix = leastCoveredInRange(pixTopLeft, rand.seed);
 
-	if(pix.coverage > 0.f) return;
+	if(pix.coverage > 0.1f) return;
 
 	surfel_t surfel;
 
@@ -126,8 +128,8 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	if(!checkChance(rand, chance)) return;
 
 
-	float3 color;
-
+	float3 color = gTexAlbedo[pix.coords].xyz;
+	 /*
 	rand = rnd01(rand.seed);
 	color.r = rand.value;
 
@@ -136,10 +138,11 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	rand = rnd01(rand.seed);
 	color.b = rand.value;
-
+		*/
 	surfel.position = gTexPosition[pix.coords].xyz;
 	surfel.normal =		gTexNormal[pix.coords].xyz * 2.f - float3(1.f, 1.f, 1.f);
-	surfel.color = color;
-
+	surfel.color = Diffuse(surfel.position, surfel.normal, color, gLight);
+	surfel.indirectLighting = float3(0, 0, 0);
+	surfel.age = 1.f;
 	uSurfels.Append(surfel);
 }

@@ -16,11 +16,13 @@
 #include "GenGBuffer_vs.h"
 #include "SurfelPlacement_cs.h"
 #include "SurfelVisual_cs.h"
+#include "SurfelGI_cs.h"
 #include "GenAccelerationStructure_cs.h"
 #include "GenAO_cs.h"
 #include "DeferredLighting_cs.h"
 #include "SurfelCoverageCompute_cs.h"
 #include "Engine/Framework/Light.hpp"
+#include "Engine/Input/Input.hpp"
 
 static Program::sptr_t gGenGBufferProgram = nullptr;
 static RootSignature::scptr_t gGenBufferRootSig = nullptr;
@@ -39,6 +41,8 @@ static RootSignature::scptr_t gSurfelVisualRootSig = nullptr;
 static Program::sptr_t gSurfelCoverageProgram = nullptr;
 
 static Program::sptr_t gDeferredLighting = nullptr;
+
+static Program::sptr_t gSurfelGIProgram = nullptr;
 
 struct surfel_t {
   vec3 position;
@@ -93,6 +97,11 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
     gDeferredLighting->stage(SHADER_TYPE_COMPUTE)
       .setFromBinary(gDeferredLighting_cs, sizeof(gDeferredLighting_cs));
     gDeferredLighting->compile();
+
+    gSurfelGIProgram = Program::sptr_t(new Program());
+    gSurfelGIProgram->stage(SHADER_TYPE_COMPUTE)
+      .setFromBinary(gSurfelGI_cs, sizeof(gSurfelGI_cs));
+    gSurfelGIProgram->compile();
   }
   mFrameData.frameCount = 0;
   mFrameData.time = 0;
@@ -220,11 +229,26 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
   }
   {
     DescriptorSet::Layout layout;
+    layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 2);
+    layout.addRange(DescriptorSet::Type::TextureUav, 0, 1);
+
+    mDSurfelGIDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
+
+    mDSurfelGIDescriptors->setUav(0, 0, *mSurfels->uav());
+    mDSurfelGIDescriptors->setUav(0, 1, *mSurfels->uavCounter().uav());
+    mDSurfelGIDescriptors->setUav(1, 0, *mSurfelVisual->uav());
+
+  }
+  {
+    DescriptorSet::Layout layout;
+    layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 2);
     layout.addRange(DescriptorSet::Type::TextureUav, 0, 1);
 
     mDDeferredLightingDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
 
-    mDDeferredLightingDescriptors->setUav(0, 0, *mScene->uav());
+    mDDeferredLightingDescriptors->setUav(0, 0, *mSurfels->uav());
+    mDDeferredLightingDescriptors->setUav(0, 1, *mSurfels->uavCounter().uav());
+    mDDeferredLightingDescriptors->setUav(1, 0, *mScene->uav());
   }
 }
 
@@ -237,9 +261,14 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   
   computeSurfelCoverage(ctx);
   accumlateSurfels(ctx);
-  visualizeSurfels(ctx);
+  accumlateGI(ctx);
 
-  deferredLighting(ctx);
+  if(!Input::Get().isKeyDown(KEYBOARD_SPACE)) {
+    deferredLighting(ctx);
+  } else {
+    visualizeSurfels(ctx);
+  }
+
 }
 
 void SceneRenderer::genGBuffer(RHIContext& ctx) {
@@ -427,6 +456,35 @@ void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
 
   ctx.dispatch(x, y, 1);
   ctx.copyResource(*mSurfelSpawnChance, *RHIDevice::get()->backBuffer());
+}
+
+void SceneRenderer::accumlateGI(RHIContext& ctx) {
+
+  SCOPED_GPU_EVENT("Accumlate GI");
+
+  static ComputeState::sptr_t computeState;
+  if (!computeState) {
+    ComputeState::Desc desc;
+    desc.setProgram(gSurfelGIProgram);
+    computeState = ComputeState::create(desc);
+  }
+  ctx.resourceBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mSurfels.get(), RHIResource::State::UnorderedAccess);
+  ctx.resourceBarrier(mSurfelVisual.get(), RHIResource::State::UnorderedAccess);
+
+  ctx.setComputeState(*computeState);
+
+  // mDGenAOUavDescriptors->setUav(0, 1, mTargetScene.accelerationStructure());
+  mDSharedDescriptors->bindForCompute(ctx, *gSurfelGIProgram->rootSignature(), 0);
+  mDGBufferDescriptors->bindForCompute(ctx, *gSurfelGIProgram->rootSignature(), 1);
+  mDSurfelVisualDescriptors->bindForCompute(ctx, *gSurfelGIProgram->rootSignature(), 2);
+
+  ctx.dispatch(1, 1, 1);
+  ctx.copyResource(*mSurfelVisual, *RHIDevice::get()->backBuffer());
 }
 
 void SceneRenderer::visualizeSurfels(RHIContext& ctx) {

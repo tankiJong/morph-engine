@@ -154,12 +154,16 @@ void RHIContext::setComputeRootSignature(const RootSignature& rootSig) {
 }
 
 void RHIContext::setGraphicsState(const GraphicsState& pso) {
-  mContextData->commandList()->SetGraphicsRootSignature(pso.rootSignature()->handle().Get());
+  if(pso.rootSignature()) {
+    mContextData->commandList()->SetGraphicsRootSignature(pso.rootSignature()->handle().Get());
+  }
   mContextData->commandList()->SetPipelineState(pso.handle().Get());
 }
 
 void RHIContext::setComputeState(const ComputeState& pso) {
-  mContextData->commandList()->SetComputeRootSignature(pso.rootSignature()->handle().Get());
+  if(pso.rootSignature()) {
+    mContextData->commandList()->SetComputeRootSignature(pso.rootSignature()->handle().Get());
+  }
   mContextData->commandList()->SetPipelineState(pso.handle().Get());
 }
 

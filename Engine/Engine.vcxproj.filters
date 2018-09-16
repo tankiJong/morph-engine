@@ -564,9 +564,6 @@
     <ClCompile Include="Graphics\RHI\VertexLayout.cpp">
       <Filter>Engine\Graphics\RHI</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Geometry\VertexLayout.cpp">
-      <Filter>Engine\Renderer\Geometry</Filter>
-    </ClCompile>
     <ClCompile Include="Debug\Profile\Overlay.cpp">
       <Filter>Engine\Debug\Profile</Filter>
     </ClCompile>
@@ -1148,9 +1145,6 @@
     <ClInclude Include="Graphics\RHI\RHIType.hpp">
       <Filter>Engine\Graphics\RHI</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Geometry\VertexLayout.hpp">
-      <Filter>Engine\Renderer\Geometry</Filter>
-    </ClInclude>
     <ClInclude Include="Debug\Profile\Overlay.hpp">
       <Filter>Engine\Debug\Profile</Filter>
     </ClInclude>
@@ -1382,6 +1376,9 @@
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\SurfelCoverageCompute_cs.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\SurfelGI_cs.hlsl">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
   </ItemGroup>

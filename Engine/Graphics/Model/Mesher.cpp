@@ -183,7 +183,7 @@ void Mesher::clear() {
   mCurrentIns = draw_instr_t();
 }
 Mesher& Mesher::color(const Rgba& c) {
-  mStamp.color = c;
+  mStamp.color = c.normalized();
   return *this;
 }
 

@@ -16,90 +16,6 @@ StructuredBuffer<vertex_t> gVerts: register(t14);
 
 RWTexture2D<float4> uAO: register(u0);
 
-Ray GenPrimaryRay(float3 ndc) {
-	Ray ray;
-	
-	float4x4 invView = inverse(view);
-	float4 _worldCoords = mul(invView, mul(inverse(projection), float4(ndc, 1.f)));
-	float3 worldCoords = _worldCoords.xyz / _worldCoords.w;
-
-	ray.position = worldCoords;
-
-	float3 origin = mul(invView, float4(0, 0, 0, 1.f)).xyz;
-	ray.direction = normalize(worldCoords - origin);
-
-	return ray;
-}
-
-Contact triIntersection(float3 a, float3 b, float3 c, float color, Ray ray) {
-
-	Contact contact;
-
-	float3 ab = b - a;
-	float3 ac = c - a;
-	float3 normal = normalize(cross(ac, ab));
-	contact.normal = normal;
-
-	contact.valid = dot(normal, ray.direction) < 0;
-
-	float t = (dot(a - ray.position, normal)) / dot(normal, ray.direction);
-	contact.t = t;
-	contact.position.xyz = ray.position + t * ray.direction;
-	contact.position.w = color;
-
-	float3 p = contact.position.xyz;
-	contact.valid = contact.valid && dot(cross(p - a, b - a), normal) >= 0;
-	contact.valid = contact.valid && dot(cross(p - b, c - b), normal) >= 0;
-	contact.valid = contact.valid && dot(cross(p - c, a - c), normal) >= 0;
-
-	return contact;
-}
-
-Ray GenShadowRay(inout uint seed, float4 position, float3 normal) {
-	float MAX_UINT = 4294967296.0;
-
-	float3 direction = normal;
-
-	Random r = rnd(seed);
-	seed = r.seed; 
-	float x = float(r.value) * (1.0f / MAX_UINT)- .5f;
-	 
-	r = rnd(seed);
-	seed = r.seed;
-	float y = float(r.value) * (1.0f / MAX_UINT)- .5f;
-
-	r = rnd(seed);
-	seed = r.seed;
-	float z = float(r.value) * (1.0f / MAX_UINT)- .5f;
-						
-	float3 right = float3(x,y,z);
-	float3 _tan = normalize(right);
-	float3 bitan = cross(_tan, normal);
-	float3 tan = cross(bitan, normal);
-
-	float3x3 tbn = transpose(float3x3(tan, normal, bitan));
-
-	r = rnd(seed);
-	seed = r.seed;
-	float a = abs(float(r.value) * (1.0f / MAX_UINT) - .5f);
-
-	r = rnd(seed);
-	seed = r.seed;
-	float b = float(r.value) * (1.0f / MAX_UINT);
-
-	r = rnd(seed);
-	seed = r.seed;
-	float c = float(r.value) * (1.0f / MAX_UINT) - .5f;
-	
-	float3 sample = normalize(mul(tbn, float3(a, b, c)));
-
-	Ray ray;
-
-	ray.direction = sample;
-	ray.position = position.xyz;
-
-	return ray;
-}
 
 Contact trace(Ray ray) {
 	uint vertCount, stride;
@@ -147,7 +63,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	float seed = threadId.x * 1024 + threadId.y + groupIndex + uint(gTime*10000);
 
 	for(uint i = 0; i < 32; i++) {
-		Ray ray = GenShadowRay(seed, float4(position, 1.f), normal);
+		Ray ray = GenReflectionRay(seed, float4(position, 1.f), normal);
 		//ray.direction = float3(-0.5f, 0.5f, 0.f);
 		/*
 		if(dot(ray.direction, normal) > 0 ) {

@@ -6,7 +6,7 @@
 class UnorderedAccessView;
 class ShaderResourceView;
 class ConstantBufferView;
-class DescriptorSetRhiData;
+struct DescriptorSetRhiData;
 class RHIContext;
 class RootSignature;
 enum class ShaderVisibility {

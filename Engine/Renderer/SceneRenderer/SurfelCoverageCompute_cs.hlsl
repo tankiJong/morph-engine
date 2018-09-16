@@ -1,5 +1,6 @@
 #include "Common.hlsli"
 #include "Surfel.hlsli"
+#include "Lighting.hlsli"
 
 #define SurfelPlacement_RootSig \
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \

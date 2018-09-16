@@ -28,7 +28,7 @@ void Engine::init() {
   mReady = true;
 
 
-  FileSystem& fs = FileSystem::Get();
+  // FileSystem& fs = FileSystem::Get();
 //
 //#ifdef _DEBUG
 //  fs::path cppPath = fs::path(__FILE__).parent_path();

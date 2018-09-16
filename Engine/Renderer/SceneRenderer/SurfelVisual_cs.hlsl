@@ -9,9 +9,6 @@
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
 
-
-
-
 Texture2D<float4> gTexAlbedo:   register(t10);
 Texture2D<float4> gTexNormal:   register(t11);
 Texture2D<float4> gTexPosition: register(t12);
@@ -46,10 +43,10 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	uint count = uNumSurfels[0];
 
-	float4 color = float4(0,0,0,0);
+	float4 color = float4(0.f, 0.f, 0.f, 1.f);
 	for(uint i = 0; i < count; i++) {
 		if(isCovered(position, normal, uSurfels[i]) > 0) {
-			color =	float4(uSurfels[i].color, 1.f);
+			color =	float4(uSurfels[i].color + uSurfels[i].indirectLighting, 1.f);
 		}
 			 
 	}

@@ -32,12 +32,15 @@ void getHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1*& ppAdapter) {
 
     // Check to see if the adapter supports Direct3D 12, but don't create the
     // actual device yet.
-    if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr))) {
+    if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr))) {
       break;
     }
   }
 
   ppAdapter = adapter;
+
+  DXGI_ADAPTER_DESC1 desc;
+  ppAdapter->GetDesc1(&desc);
 }
 
 eCommandQueueType asCommandQueueType(RHIContextData::CommandQueueType type) {

@@ -1,5 +1,6 @@
 #pragma once
-
+#pragma warning(push)
+#pragma warning(disable:4324)
 #ifdef MORPH_DXR
 
 #if defined( _WIN64 )
@@ -16,6 +17,8 @@
 #include <dxgiformat.h>
 #include "Engine/Graphics/RHI/RHIType.hpp"
 #include <d3dcompiler.h>
+
+#pragma warning(pop)
 class DescriptorSet;
 
 static_assert(D3D_COMPILER_VERSION >= 47);

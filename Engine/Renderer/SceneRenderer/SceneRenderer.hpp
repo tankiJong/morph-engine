@@ -70,6 +70,7 @@ protected:
   void genAO(RHIContext& ctx);
   void computeSurfelCoverage(RHIContext& ctx);
   void accumlateSurfels(RHIContext& ctx);
+  void accumlateGI(RHIContext& ctx);
   void visualizeSurfels(RHIContext& ctx);
   void deferredLighting(RHIContext& ctx);
   void setupFrame();
@@ -105,6 +106,7 @@ protected:
   S<DescriptorSet> mDGenAOUavDescriptors;
   S<DescriptorSet> mDAccumulateSurfelUavDescriptors;
   S<DescriptorSet> mDSurfelVisualDescriptors;
+  S<DescriptorSet> mDSurfelGIDescriptors;
   S<DescriptorSet> mDDeferredLightingDescriptors;
 
 };

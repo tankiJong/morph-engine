@@ -122,4 +122,103 @@ float3 Hue(float hh) {
 #define RETURN_IF_OUT_TEX(pix, tex) {SCREEN_SIZE_FROM(size, tex); if(outScreen(pix, size))	return;}
 
 
+
+Ray GenPrimaryRay(float3 ndc) {
+	Ray ray;
+	
+	float4x4 invView = inverse(view);
+	float4 _worldCoords = mul(invView, mul(inverse(projection), float4(ndc, 1.f)));
+	float3 worldCoords = _worldCoords.xyz / _worldCoords.w;
+
+	ray.position = worldCoords;
+
+	float3 origin = mul(invView, float4(0, 0, 0, 1.f)).xyz;
+	ray.direction = normalize(worldCoords - origin);
+
+	return ray;
+}
+
+Contact triIntersection(float3 a, float3 b, float3 c, float color, Ray ray) {
+
+	Contact contact;
+
+	float3 ab = b - a;
+	float3 ac = c - a;
+	float3 normal = normalize(cross(ac, ab));
+	contact.normal = normal;
+
+	contact.valid = dot(normal, ray.direction) < 0;
+
+	float t = (dot(a - ray.position, normal)) / dot(normal, ray.direction);
+	contact.t = t;
+	contact.position.xyz = ray.position + t * ray.direction;
+	contact.position.w = color;
+
+	float3 p = contact.position.xyz;
+	contact.valid = contact.valid && dot(cross(p - a, b - a), normal) >= 0;
+	contact.valid = contact.valid && dot(cross(p - b, c - b), normal) >= 0;
+	contact.valid = contact.valid && dot(cross(p - c, a - c), normal) >= 0;
+
+	return contact;
+}
+
+float3 GetRandomDirection(inout uint seed, float3 normal) {
+	
+	Randomf r = rnd01(seed);
+	seed = r.seed; 
+	float x = r.value - .5f;
+	 
+	r = rnd01(seed);
+	seed = r.seed;
+	float y = r.value - .5f;
+
+	r = rnd01(seed);
+	seed = r.seed;
+	float z = r.value - .5f;
+						
+	float3 right = float3(x,y,z);
+	float3 _tan = normalize(right);
+	float3 bitan = cross(_tan, normal);
+	float3 tan = cross(bitan, normal);
+
+	float3x3 tbn = transpose(float3x3(tan, normal, bitan));
+
+	r = rnd01(seed);
+	seed = r.seed;
+	float a = r.value - .5f;
+
+	r = rnd01(seed);
+	seed = r.seed;
+	float b = r.value;
+
+	r = rnd01(seed);
+	seed = r.seed;
+	float c = r.value - .5f;
+	
+	float3 sample = normalize(mul(tbn, float3(a, b, c)));
+
+	return sample;
+}
+
+Ray GenReflectionRay(inout uint seed, float4 position, float3 normal) {
+	
+	float3 sample = GetRandomDirection(seed, normal);
+
+	Ray ray;
+
+	ray.direction = sample;
+	ray.position = position.xyz;
+
+	return ray;
+}
+
+
+
+
+
+
+
+
+
+
 #endif

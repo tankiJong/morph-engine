@@ -3,8 +3,9 @@ struct surfel_t {
   float3 position;
   float3 normal;
 	float3 color;
+	float3 indirectLighting;
+	float age;
 };
-
 
 static const float SURFEL_RADIUS = 1.f;
 static const uint TILE_SIZE = 16;
@@ -28,7 +29,8 @@ float isCovered(float3 position, float3 normal, surfel_t surfel) {
 	// 2. project the point to the surfel plane, they are close enough
 	float3 projected = position - dirDot * surfel.normal;
 	
-	float dd = (1 - distance(projected, surfel.position));
-	return dd * dd ;			// [1, 0]
+	float d = distance(projected, surfel.position);
+	float dd = ( 1 - d )*( 1 - d );
+	return dd;			// [1, 0)
 
 }
