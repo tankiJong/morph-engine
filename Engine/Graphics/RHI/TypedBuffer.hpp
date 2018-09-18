@@ -85,6 +85,7 @@ public:
   virtual const UnorderedAccessView* uav() const override;
 
   const RHIBuffer& uavCounter() const { return *mUavCounter; }
+  RHIBuffer& uavCounter() { return *mUavCounter; }
 
   static sptr_t create(u32 stride, u32 eleCount, BindingFlag bindingFlags = BindingFlag::ShaderResource);
 protected:

@@ -24,20 +24,21 @@ RWTexture2D<float4> uTexSurfelVisual: register(u2);
 static uint seed;
 
 
-bool GetSurfelAt(float3 position, float3 normal, out surfel_t surfel) {
+bool GetSurfelAt(float3 position, float3 normal, out float3 indirect) {
 
 
 	float maxCovered = 0.f;
+	float covered = 0;
+	float3 color = float3(0,0,0);
 	for(uint i = 0; i < uNumSurfels[0]; i++) {
-		float covered = isCovered(position, normal, uSurfels[i]);
-		if(covered > maxCovered) {
-			maxCovered = covered;
-			surfel = uSurfels[i];
-
-			return true;
-		}
+		float factor = isCovered(position, normal, uSurfels[i]);
+		covered += factor;
+		color += factor * uSurfels[i].indirectLighting;
 	}
-	return false;
+	
+	indirect = color / covered;
+	
+	return covered > 0.f;
 }
 
 // if false, stop tracing
@@ -88,12 +89,12 @@ float3 PathTracing(Ray startRay) {
 		} else {
 			float3 diffuse = Diffuse(contact.position.xyz, contact.normal, albedo, gLight);
 
-			surfel_t surf;
-			bool hit = GetSurfelAt(contact.position.xyz, contact.normal, surf);
+			float3 indirect;
+			bool hit = GetSurfelAt(contact.position.xyz, contact.normal, indirect);
 			if(hit) {
 				float BRDF = 1.f / 3.1415926f; // hard coded for now, energy conservation
 				color[bounce].xyz = 
-					Attenuation(1.f, contact.t, float3(1.f, 1.f, 1.f)) * ((surf.indirectLighting + surf.color)* BRDF) + diffuse;
+					Attenuation(1.f, contact.t, float3(1.f, 1.f, 1.f)) * (indirect * BRDF) + diffuse;
 				break;
 			}	else {
 				color[bounce].xyz = diffuse;
@@ -123,7 +124,7 @@ float3 PathTracing(Ray startRay) {
 
 void updateSurfels(inout surfel_t surfel) {
 	float age = surfel.age;
-	if(age < 4) {
+	/*if(age < 4) {
 		Ray ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
 		float3 indirect = PathTracing(ray); 
 		ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
@@ -136,10 +137,12 @@ void updateSurfels(inout surfel_t surfel) {
 		indirect += PathTracing(ray);
 		
 		surfel.indirectLighting = (surfel.indirectLighting * age + indirect) / (age + 5.f);
-	} else {
+	} else {		*/
 		Ray ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		surfel.indirectLighting = lerp(surfel.indirectLighting, PathTracing(ray), 1/(age + 1));
-	}
+		surfel.indirectLighting = PathTracing(ray);
+		// surfel.indirectLighting = lerp(surfel.indirectLighting, PathTracing(ray), 1/(age + 1));
+	//}
+
 
 	surfel.age++;
 }
@@ -148,8 +151,13 @@ void updateSurfels(inout surfel_t surfel) {
 [numthreads(1, 1, 1)]
 void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex )
 {
+	seed = threadId.x * 10000121 + threadId.y * 121144362 + gTime * 367868766;
 
 	for(uint i = 0; i < uNumSurfels[0]; i++) {
+		if(uSurfels[i].age == 1) {
+			uSurfels[i].id = i;
+		}
 		updateSurfels(uSurfels[i]);
+
 	}
 }

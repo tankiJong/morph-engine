@@ -58,7 +58,7 @@ float chanceToSpawnAt(uint2 pix) {
 
 	float depthFactor = (1 - pixDepth ) * (1 - pixDepth);
 	//pixArea is around 0.004~0.01
-	return 1000000.f * depthFactor * pixArea;
+	return 5000000.f * depthFactor * pixArea;
 
 	float chance = smoothstep(0, 1, 1.f - pixDepth)
 							 * pixArea * (1.f/ ( SURFEL_RADIUS*SURFEL_RADIUS));
@@ -144,5 +144,6 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	surfel.color = Diffuse(surfel.position, surfel.normal, color, gLight);
 	surfel.indirectLighting = float3(0, 0, 0);
 	surfel.age = 1.f;
+	surfel.id = -1;
 	uSurfels.Append(surfel);
 }

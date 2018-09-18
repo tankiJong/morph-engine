@@ -5,6 +5,7 @@ struct surfel_t {
 	float3 color;
 	float3 indirectLighting;
 	float age;
+	float id;
 };
 
 static const float SURFEL_RADIUS = 1.f;

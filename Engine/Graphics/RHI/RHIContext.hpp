@@ -32,6 +32,7 @@ public:
 
   void copyResource(const RHIResource& from, RHIResource& to);
 
+  size_t readBuffer(const RHIBuffer& res, void* data, size_t maxSize);
   virtual void resourceBarrier(const RHIResource* res, RHIResource::State newState);
 
   //-------------------------------------------------

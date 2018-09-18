@@ -195,7 +195,7 @@ float3 GetRandomDirection(inout uint seed, float3 normal) {
 	seed = r.seed;
 	float c = r.value - .5f;
 	
-	float3 sample = normalize(mul(tbn, float3(a, b, c)));
+	float3 sample = normalize(mul(tbn, float3(a * 2.f, b, c * 2.f)));
 
 	return sample;
 }

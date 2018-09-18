@@ -46,7 +46,6 @@ public:
   size_t size() const { return mSize; }
 
   void* map(MapType type);
-
   void unmap();
 
   inline const CPUAccess cpuAccess() const { return mCpuAccess; }

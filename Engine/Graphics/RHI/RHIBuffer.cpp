@@ -3,7 +3,8 @@
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 
 RHIBuffer::~RHIBuffer() {
-  RHIDevice::get()->releaseResource(mRhiHandle);
+  if(RHIDevice::get())
+    RHIDevice::get()->releaseResource(mRhiHandle);
 }
 
 RHIBuffer::sptr_t RHIBuffer::create(

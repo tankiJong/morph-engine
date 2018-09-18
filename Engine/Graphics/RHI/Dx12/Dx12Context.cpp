@@ -11,6 +11,7 @@
 #include "Engine/Graphics/RHI/RHIBuffer.hpp"
 #include "Engine/Graphics/RHI/PipelineState.hpp"
 #include "ThirdParty/WinPixEventRuntime/Include/pix3.h"
+#include "Engine/Math/MathUtils.hpp"
 
 #pragma comment(lib, "ThirdParty/WinPixEventRuntime/bin/WinPixEventRuntime.lib")
 
@@ -356,14 +357,32 @@ void RHIContext::copyResource(const RHIResource& from, RHIResource& to) {
   resourceBarrier(&to, RHIResource::State::CopyDest);
 
   mContextData->commandList()->CopyResource(to.handle().Get(), from.handle().Get());
-
   mCommandsPending = true;
 }
 
-template<typename T>
-class foo {
-  template<typename U>
-  operator foo<U>() {
-    return *this;
-  }
-};
+size_t RHIContext::readBuffer(const RHIBuffer& res, void* data, size_t maxSize) {
+  mCommandsPending = true;
+
+  u64 readbackBufferSize = GetRequiredIntermediateSize(res.handle().Get(), 0, 1);
+
+  auto buffer = RHIBuffer::create(readbackBufferSize, RHIBuffer::BindingFlag::None, RHIBuffer::CPUAccess::Read, nullptr);
+
+
+  ID3D12Resource* readBackHeap = buffer->handle().Get();
+
+  //
+  resourceBarrier(&res, RHIResource::State::CopySource);
+
+  copyResource(res, *buffer);
+
+  flush();
+
+  void* buf = buffer->map(RHIBuffer::MapType::Read);
+
+  size_t read = clamp(res.size(), 0u, maxSize);
+  memcpy(data, buf, read);
+
+  buffer->unmap();
+
+  return read;
+}

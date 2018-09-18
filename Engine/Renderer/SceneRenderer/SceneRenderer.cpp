@@ -48,11 +48,27 @@ struct surfel_t {
   vec3 position;
   vec3 normal;
   vec3 color;
+  vec3 indirectLighting;
+  float age;
+  float id;
+  std::string toString() {
+    return Stringf("%f, %s, %s, %s, %s, %f",
+                   id,
+                   position.toString().c_str(),
+                   normal.toString().c_str(),
+                   color.toString().c_str(),
+                   indirectLighting.toString().c_str(),
+                   age);
+  }
 };
 
 
 SceneRenderer::SceneRenderer(const RenderScene & target): mTargetScene(target) {
 
+}
+
+SceneRenderer::~SceneRenderer() {
+  mSurfelDump.close();
 }
 
 void SceneRenderer::onLoad(RHIContext& ctx) {
@@ -105,6 +121,10 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
   }
   mFrameData.frameCount = 0;
   mFrameData.time = 0;
+
+  std::string filenameStamped = Stringf("surfel-%s.csv", Timestamp().toString().c_str());
+  mSurfelDump.open(filenameStamped, std::ofstream::out | std::ofstream::app);
+
 
   auto size = Window::Get()->bounds().size();
   uint width = (uint)size.x;
@@ -268,6 +288,8 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   } else {
     visualizeSurfels(ctx);
   }
+
+  dumpSurfels(ctx);
 
 }
 
@@ -571,5 +593,19 @@ void SceneRenderer::setupView(RHIContext& ctx) {
 
   // TODO: setup viewport later
   ctx.setViewport({ vec2::zero, { Window::Get()->bounds().width(), Window::Get()->bounds().height()} });
+
+}
+
+void SceneRenderer::dumpSurfels(RHIContext& ctx) {
+  uint32_t numSurfels;
+  ctx.readBuffer(mSurfels->uavCounter(), &numSurfels, sizeof(uint32_t));
+
+  if (numSurfels < 200) return;
+  surfel_t* surfels = (surfel_t*)_alloca(sizeof(surfel_t)*numSurfels);
+
+  ctx.readBuffer(*mSurfels, surfels, sizeof(surfel_t)*numSurfels);
+
+  for(uint i = 0; i <numSurfels; i++)
+    mSurfelDump << surfels[i].toString() << std::endl;
 
 }

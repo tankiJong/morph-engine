@@ -5,6 +5,7 @@
 #include "Engine/Graphics/RHI/Texture.hpp"
 #include "Engine/Graphics/RHI/FrameBuffer.hpp"
 #include "Engine/Graphics/RHI/TypedBuffer.hpp"
+#include <fstream>
 
 // deferred renderer
 /*
@@ -58,7 +59,7 @@ RootSignature:
 class SceneRenderer : public Renderer {
 public:
   SceneRenderer(const RenderScene& target);
-
+  ~SceneRenderer();
   void onLoad(RHIContext& ctx) override;
 
   void onRenderFrame(RHIContext& ctx) override;
@@ -75,6 +76,7 @@ protected:
   void deferredLighting(RHIContext& ctx);
   void setupFrame();
   void setupView(RHIContext& ctx);
+  void dumpSurfels(RHIContext& ctx);
   const RenderScene& mTargetScene;
 
   FrameBuffer mGFbo;
@@ -109,4 +111,5 @@ protected:
   S<DescriptorSet> mDSurfelGIDescriptors;
   S<DescriptorSet> mDDeferredLightingDescriptors;
 
+  std::ofstream mSurfelDump;
 };
