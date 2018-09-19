@@ -43,6 +43,8 @@ public:
   Mesher& quad(const vec3& center, const vec3& xDir, const vec3& yDir, const vec2& size);
   Mesher& quad2(const aabb2& bound, float z = 0);
   Mesher& cube(const vec3& center, const vec3& dimension);
+  Mesher& cube(const vec3& origin, const vec3& dimension, 
+               const vec3& right = vec3::right, const vec3& up = vec3::up, const vec3& forward = vec3::forward);
   Mesher& cone(const vec3& origin, const vec3& direction, float length, float angle, uint slide = 10, bool bottomFace = true);
   Mesher& text(const span<const std::string_view> asciiTexts, float size, const Font* font,
                const vec3& position, const vec3& right = vec3::right, const vec3& up = vec3::up);

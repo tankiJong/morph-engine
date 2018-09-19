@@ -5,6 +5,8 @@ struct surfel_t {
 	float3 color;
 	float3 indirectLighting;
 	float age;
+	float3 mean;
+	float3 variance;
 	float id;
 };
 
@@ -31,7 +33,7 @@ float isCovered(float3 position, float3 normal, surfel_t surfel) {
 	float3 projected = position - dirDot * surfel.normal;
 	
 	float d = distance(projected, surfel.position);
-	float dd = ( 1 - d )*( 1 - d );
+	float dd = ( SURFEL_RADIUS - d )*( SURFEL_RADIUS - d );
 	return dd;			// [1, 0)
 
 }

@@ -77,9 +77,7 @@ public:
     Desc& setRootSignature(RootSignature::scptr_t sig) {
       mRootSignature = sig; return *this;
     }
-    Desc& setProgram(S<const Program> prog) {
-      mProg = prog; return *this;
-    }
+    Desc& setProgram(S<const Program> prog);
   protected:
     RootSignature::scptr_t mRootSignature;
     S<const Program> mProg;

@@ -31,7 +31,7 @@ float coverageAt(uint2 pix) {
 	uint numSurfel = uNumSurfels[0];
 	for(uint i = 0; i < numSurfel; i++) {
 		float3 position = gTexPosition[pix].xyz;
-		float3 normal = gTexNormal[pix].xyz * 2.f - float3(1.f, 1.f, 1.f);
+		float3 normal = gTexNormal[pix].xyz * 2.f - 1.f;
 
 		coverage += isCovered(position, normal, uSurfels[i]);
 	}

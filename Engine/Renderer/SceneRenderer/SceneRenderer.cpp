@@ -50,6 +50,8 @@ struct surfel_t {
   vec3 color;
   vec3 indirectLighting;
   float age;
+  vec3 mean;
+  vec3 variance;
   float id;
   std::string toString() {
     return Stringf("%f, %s, %s, %s, %s, %f",
@@ -154,7 +156,7 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
   mcModel = RHIBuffer::create(sizeof(mat44), RHIResource::BindingFlag::ConstantBuffer, RHIBuffer::CPUAccess::Write);
   NAME_RHIRES(mcModel);
 
-  mSurfels = TypedBuffer::create(sizeof(surfel_t), 20480, RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
+  mSurfels = TypedBuffer::create(sizeof(surfel_t), 204800, RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   NAME_RHIRES(mSurfels);
 
   mcLight = RHIBuffer::create(sizeof(mat44), RHIResource::BindingFlag::ConstantBuffer, RHIBuffer::CPUAccess::Write);
@@ -444,7 +446,6 @@ void SceneRenderer::computeSurfelCoverage(RHIContext& ctx) {
   uint y = uint(Window::Get()->bounds().height()) / 32 + 1;
 
   ctx.dispatch(x, y, 1);
-  ctx.copyResource(*mSurfelCoverage, *RHIDevice::get()->backBuffer());
 }
 
 void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
@@ -464,7 +465,7 @@ void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
   ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mSurfels.get(), RHIResource::State::UnorderedAccess);
-  ctx.resourceBarrier(mSurfelCoverage.get(), RHIResource::State::UnorderedAccess);
+  ctx.resourceBarrier(mSurfelCoverage.get(), RHIResource::State::NonPixelShader);
 
   ctx.setComputeState(*computeState);
 
@@ -477,7 +478,6 @@ void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
   uint y = uint(Window::Get()->bounds().height()) / 16 / 32 + 1;
 
   ctx.dispatch(x, y, 1);
-  ctx.copyResource(*mSurfelSpawnChance, *RHIDevice::get()->backBuffer());
 }
 
 void SceneRenderer::accumlateGI(RHIContext& ctx) {
@@ -495,6 +495,7 @@ void SceneRenderer::accumlateGI(RHIContext& ctx) {
   ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mAO.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mSurfels.get(), RHIResource::State::UnorderedAccess);
   ctx.resourceBarrier(mSurfelVisual.get(), RHIResource::State::UnorderedAccess);
 

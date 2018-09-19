@@ -54,7 +54,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	float3 position, normal;
 	{ // get information from the G-Buffer
 		position = gTexPosition[pix].xyz;
-		normal = gTexNormal[pix].xyz * 2.f - float3(1.f, 1.f, 1.f);
+		normal = gTexNormal[pix].xyz * 2.f - 1.f;
 	}
 
 

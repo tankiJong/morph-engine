@@ -145,5 +145,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	surfel.indirectLighting = float3(0, 0, 0);
 	surfel.age = 1.f;
 	surfel.id = -1;
+	surfel.mean = float3(0,0,0);
+	surfel.variance = 0;
 	uSurfels.Append(surfel);
 }

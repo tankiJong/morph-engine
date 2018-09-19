@@ -475,6 +475,35 @@ Mesher& Mesher::cube(const vec3& center, const vec3& dimension) {
   return *this;
 }
 
+Mesher& Mesher::cube(const vec3& origin, const vec3& dimension, 
+                     const vec3& right, const vec3& up, const vec3& forward) {
+  vec3 r = right * dimension.x;
+  vec3 u = up * dimension.y;
+  vec3 f = forward * dimension.z;
+
+  std::array<vec3, 8> vertices = {
+    origin + u,
+    origin + u + r,
+    origin + u + r + f, 
+    origin + u + f,
+
+    origin,
+    origin + r,
+    origin + r + f,
+    origin + f,
+  };
+
+  quad(vertices[0], vertices[1], vertices[2], vertices[3]);
+  quad(vertices[4], vertices[7], vertices[6], vertices[5]);
+  quad(vertices[4], vertices[5], vertices[1], vertices[0]);
+  quad(vertices[5], vertices[6], vertices[2], vertices[1]);
+  quad(vertices[6], vertices[7], vertices[3], vertices[2]);
+  quad(vertices[7], vertices[4], vertices[0], vertices[3]);
+
+  return *this;
+
+}
+
 Mesher& Mesher::cone(const vec3& origin, const vec3& direction, float length, float angle, uint slide, bool bottomFace) {
 
   mat44 trans = mat44::lookAt(origin, origin + direction.normalized() * length);

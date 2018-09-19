@@ -30,7 +30,7 @@ float3 Ambient(uint2 pix) {
 float3 PhongLighting(uint2 pix)
 {
 	float3 surfacePosition = gTexPosition[pix].xyz;
-	float3 surfaceNormal = gTexNormal[pix].xyz;
+	float3 surfaceNormal = gTexNormal[pix].xyz * 2.f - 1.f;
 	float3 surfaceColor = gTexAlbedo[pix].xyz;
 	float3 eyePosition;
 	{
@@ -50,13 +50,16 @@ float3 PhongLighting(uint2 pix)
 	float finalFactor = 0;
 	for(uint i = 0; i < count; i++) {
 		float factor = clamp(dot(uSurfels[i].normal, surfaceNormal), 0, 1);
-		factor = factor * factor;
+
 		float d = distance(surfacePosition, uSurfels[i].position);
-		factor = factor / (1 + factor * d*d);
+		
+		factor = Attenuation(factor, d, float3(1.f, 1.f, 1.f));
 		indirect +=	uSurfels[i].indirectLighting * factor;
 		finalFactor += factor;
 	}
 	
+	// indirect /= finalFactor;
+
   float3 color = diffuse + indirect * ambient/* + specular*/;
 
   return clamp(color, float3(0.f, 0.f, 0.f), float3(1.f, 1.f, 1.f));
