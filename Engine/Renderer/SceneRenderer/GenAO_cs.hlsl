@@ -27,7 +27,7 @@ Contact trace(Ray ray) {
 
 	for(uint i = 0; i < vertCount; i+=3) {
 		Contact c = triIntersection(gVerts[i].position.xyz, gVerts[i+1].position.xyz, gVerts[i+2].position.xyz, gVerts[i].position.w, ray);
-		bool valid = c.valid && (c.t < contact.t) && (c.t >= 0.f);	 // equal to zero avoid the fail intersaction in the corner	edge
+		bool valid = c.valid && (c.t < contact.t) && (c.t > 0.f);	 // equal to zero avoid the fail intersaction in the corner	edge
 		if(valid)	{
 			contact = c;
 		}
@@ -36,7 +36,7 @@ Contact trace(Ray ray) {
 	return contact;
 }
 
-static uint SSeed;
+static uint seed;
 
 
 [RootSignature(GenAO_RootSig)]
@@ -60,7 +60,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	float occlusion = 0.f;
 
-	float seed = threadId.x * 1024 + threadId.y + groupIndex + uint(gTime*10000);
+	seed = threadId.x * 102467 + threadId.y * 346755 + groupIndex + uint(gTime*10000);
 
 	for(uint i = 0; i < 32; i++) {
 		Ray ray = GenReflectionRay(seed, float4(position, 1.f), normal);
@@ -78,7 +78,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 		if(occluded) {
 			// Output[threadId.xy] = float4(contact.position.w,contact.position.w,contact.position.w, 1.f);
 
-			occlusion+= dot(normal, ray.direction) / ( c.t + 1.f);
+			occlusion += dot(normal, ray.direction) / ( c.t * c.t + 1.f);
 		}
 	}
 	 		 
@@ -87,5 +87,5 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	float3 color = float3(occlusion, occlusion, occlusion);
 
-	uAO[threadId.xy] = float4(color, 1.f);
+	uAO[threadId.xy] = (uAO[threadId.xy] * gFrameCount + float4(color, 1.f)) / (gFrameCount + 1);
 }

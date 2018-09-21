@@ -6,7 +6,7 @@
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
 		"DescriptorTable(SRV(t10, numDescriptors = 5), visibility = SHADER_VISIBILITY_ALL)," \
-		"DescriptorTable(UAV(u0, numDescriptors = 3), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(UAV(u0, numDescriptors = 4), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
 
@@ -19,7 +19,8 @@ StructuredBuffer<vertex_t> gVerts: register(t14);
 
 RWStructuredBuffer<surfel_t> uSurfels: register(u0);
 RWStructuredBuffer<uint> uNumSurfels: register(u1);
-RWTexture2D<float4> uSurfelCoverage: register(u2);
+RWStructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(u2);
+RWTexture2D<float4> uSurfelCoverage: register(u3);
 
 
 float dimishingAdd(float a, float b) {

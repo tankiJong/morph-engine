@@ -36,6 +36,20 @@ void light_info_t::asPointLight(const vec3& pos, float intensity, const vec3& at
   this->dotOuterAngle = 0.f; // cos90
 }
 
+void light_info_t::asPointLight(const vec3& pos, float intensity, const vec3& atten, const vec3& color) {
+  this->position = pos;
+  this->direction = vec3::zero;
+  this->directionFactor = 0.f;
+
+  this->color = vec4(color, intensity);
+
+  this->attenuation = atten;
+  this->specAttenuation = atten;
+
+  this->dotInnerAngle = 1.f; // cos0
+  this->dotOuterAngle = 0.f; // cos90
+}
+
 void light_info_t::asSpotLight(const vec3& pos,
                                const vec3& dir,
                                float innerAngle,

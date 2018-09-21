@@ -24,7 +24,8 @@ public:
 
   void asPointLight(float intensity = 1.f, const vec3& attenuation = vec3(0, 0, 1), 
                     const Rgba& color = Rgba::white);
-
+  void asPointLight(float intensity, const vec3& attenuation,
+                    const vec3& color);
   void asSpotLight(float innerAngle, float outerAngle,
                    float intensity = 1.f, const vec3& attenuation = vec3(0, 0, 1),
                    const Rgba& color = Rgba::white);

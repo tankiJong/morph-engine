@@ -6,7 +6,7 @@
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
 		"DescriptorTable(SRV(t10, numDescriptors = 5), visibility = SHADER_VISIBILITY_ALL)," \
-		"DescriptorTable(UAV(u0, numDescriptors = 2), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(UAV(u0, numDescriptors = 3), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
 Texture2D<float4> gTexAlbedo:   register(t10);
@@ -17,6 +17,7 @@ StructuredBuffer<vertex_t> gVerts: register(t14);
 
 RWStructuredBuffer<surfel_t> uSurfels: register(u0);
 RWStructuredBuffer<uint> uNumSurfels: register(u1);
+RWStructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(u2);
 
 
 
@@ -54,17 +55,18 @@ bool russianRoulette(inout float weight) {
 	weight = weight / ( 1 - STOP_CHANCE);
 }
 
-float3 PathTracing(Ray startRay) {
+float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float3 startColor) {
 	Ray ray = startRay;
 	uint bounce = 0;
-	float final = float3(0, 0, 0);
 
-	float4	color[10];
-	float dots[10];
-	dots[0] = 1.f;
-	color[0].xyz = float3(0, 0, 0);
+	float3	colors[10];
+	float3 diffuses[10];
+	float4 totals[10];
+	diffuses[0] = float3(0,0,0); // I only want the indirect part
+	colors[0] =	startColor;
 
-	while(bounce < 5) {
+	float totalT = 0;
+	while(totalT < 5) {
 		bounce++;
 		uint vertCount, stride;
 		gVerts.GetDimensions(vertCount, stride);
@@ -83,73 +85,77 @@ float3 PathTracing(Ray startRay) {
 			}
 		}
 
-		color[bounce].w = contact.t;
+		colors[bounce] = albedo;
+
+		totals[bounce].w = contact.t;
 		if(!contact.valid) {
-			color[bounce] = float4(0, 0, 0, 0);
+			totals[bounce] = float4(0, 0, 0, 0);
 			break;
 		} else {
-			float3 diffuse = Diffuse(contact.position.xyz, contact.normal, albedo, gLight);
+			totalT += contact.t;
+			float3 diffuse = Diffuse(contact.position.xyz, contact.normal, float3(1, 1, 1), gLight);
+			diffuses[bounce] = diffuse;
 
 			float3 indirect;
 			bool hit = GetSurfelAt(contact.position.xyz, contact.normal, indirect);
 			if(hit) {
-				float BRDF = 1.f / 3.1415926f; // hard coded for now, energy conservation
-				color[bounce].xyz = 
-					Attenuation(1.f, contact.t, float3(1.f, 1.f, 1.f)) * (indirect * BRDF) + diffuse;
+				totals[bounce].xyz = 
+					(indirect * 2 + diffuse / 3.141592653f);
 				break;
 			}	else {
-				color[bounce].xyz = diffuse;
+				totals[bounce].xyz = diffuse / 3.141592653f;
 			}
 
 		}
 
 		ray = GenReflectionRay(seed, contact.position, contact.normal);
-		dots[i] = dot(ray.direction, contact.normal);
 	}
 	
 	bounce++;
-	color[bounce] = float4(0,0,0,0);
+	totals[bounce] = float4(0, 0, 0, 0.f);
 
 	for(uint i = bounce; i > 0; i--) {
 
-		float t = color[i - 1].w;
-		float3 direct = color[i-1].xyz;
-		float3 reflected = color[i].xyz;
-		float BRDF = 1.f / 3.1415926f; // hard coded for now, energy conservation
+		float t = totals[i].w;
+		float3 direct = diffuses[i - 1].xyz;
+		float3 indirect = totals[i].xyz * colors[i];
 		
-		color[i - 1].xyz
-			= dots[i-1] * Attenuation(1.f, t, float3(1.f, 1.f, 1.f)) * (reflected * BRDF) + direct;
+		totals[i - 1].xyz
+			= (indirect * 2 + diffuses[i-1] / 3.141592653f);
 	}
 
-	return color[0].xyz;
+	return totals[0].xyz;								// this give us the 'energy' of A ray
 }
 
 void updateSurfels(inout surfel_t surfel) {
 	float age = surfel.age;
-	if(false) {
+	if(age < 5) {
 		Ray ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		float3 indirect = PathTracing(ray) * dot(ray.direction, surfel.normal); 
+		float3 indirect = PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal); 
 		ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		indirect += PathTracing(ray) * dot(ray.direction, surfel.normal); 
+		indirect += PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal); 
 		ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		indirect += PathTracing(ray) * dot(ray.direction, surfel.normal);
+		indirect += PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal);
 		ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		indirect += PathTracing(ray) * dot(ray.direction, surfel.normal);
+		indirect += PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal);
 		ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		indirect += PathTracing(ray) * dot(ray.direction, surfel.normal);
+		indirect += PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal);
 		
-		surfel.indirectLighting = (surfel.indirectLighting * age + indirect) / (age + 5.f);
+		indirect = indirect / 5.f;
+		surfel.indirectLighting = (surfel.indirectLighting * age + indirect) / (age + 1.f);
 	} else {
 		Ray ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		// surfel.indirectLighting = PathTracing(ray);
-		float3 newIndirect = PathTracing(ray) * dot(ray.direction, surfel.normal);;
+		// surfel.indirectLighting = PathTracing(ray, surfel.position, surfel.normal, surfel.color);
+		float3 newIndirect = PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal);;
+		newIndirect = newIndirect;
 
 		float3 newMean = lerp(surfel.indirectLighting, newIndirect, 1/(age + 1));
 		surfel.variance = surfel.variance + ( newIndirect - surfel.mean) * ( newIndirect - newMean );
 		surfel.mean = newMean;
 
+
 		float k = 1 / ( age + age * length(surfel.variance) * dot(surfel.variance, surfel.mean));
-		surfel.indirectLighting = lerp(surfel.indirectLighting, newIndirect, k);
+		surfel.indirectLighting = lerp(surfel.indirectLighting, newIndirect, 1/(age + 1));
 	}
 
 	surfel.age++;

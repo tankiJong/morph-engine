@@ -17,6 +17,12 @@ void Light::asPointLight(float intensity, const vec3& attenuation, const Rgba& c
   updateCamera();
 }
 
+void Light::asPointLight(float intensity, const vec3& attenuation, const vec3& color) {
+  mInfo.asPointLight(transform.position(), intensity, attenuation, color);
+  type = LIGHT_POINT;
+  updateCamera();
+}
+
 void Light::asSpotLight(float innerAngle, float outerAngle, float intensity, const vec3& attenuation, const Rgba& color) {
   mInfo.asSpotLight(transform.position(), transform.forward(), innerAngle, outerAngle, intensity, attenuation, color);
   type = LIGHT_SPOT;

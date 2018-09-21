@@ -23,6 +23,7 @@
 #include "SurfelCoverageCompute_cs.h"
 #include "Engine/Framework/Light.hpp"
 #include "Engine/Input/Input.hpp"
+#include "Engine/Math/Primitives/uvec3.hpp"
 
 static Program::sptr_t gGenGBufferProgram = nullptr;
 static RootSignature::scptr_t gGenBufferRootSig = nullptr;
@@ -46,13 +47,18 @@ static Program::sptr_t gSurfelGIProgram = nullptr;
 
 struct surfel_t {
   vec3 position;
+  float __padding0;
   vec3 normal;
+  float __padding1;
   vec3 color;
+  float __padding2;
   vec3 indirectLighting;
   float age;
   vec3 mean;
-  vec3 variance;
   float id;
+  vec3 variance;
+  float __padding3;
+
   std::string toString() {
     return Stringf("%f, %s, %s, %s, %s, %f",
                    id,
@@ -64,6 +70,41 @@ struct surfel_t {
   }
 };
 
+struct SurfelBucketInfo {
+  uint32_t startIndex;
+  uint32_t endIndex;
+  uint32_t currentCount;
+};
+
+static const uint32_t BUCKET_COUNT = 0xf;
+void GetSpatialHashComponent(uint32_t hash, uvec3& component) {
+  component.x = 0x000f & hash;
+  hash >>= 4;
+  component.y = 0x000f & hash;
+  hash >>= 4;
+  component.z = 0x000f & hash;
+}
+
+
+
+/* { ([0x0000][0x0001]....)([0x0010][0x0011]....)------([0x00f0][0x00f1]....) }
+{ ([0x0100][0x0101]....)([0x0110][0x0111]....)------([0x01f0][0x01f1]....) }
+{ ([0x0200][0x0201]....)([0x0210][0x0211]....)------([0x02f0][0x02f1]....) }
+.....
+{ ([0x0f00][0x0f01]....)([0x0f10][0x0f11]....)------([0x0ff0][0x0ff1]....) }
+
+actual element in the bucket: [startIndex, endIndex)
+*/
+void InitSpatialInfo(uint32_t hash, uint32_t arraySize, SurfelBucketInfo& info) {
+  uint32_t bucketCount = BUCKET_COUNT * BUCKET_COUNT * BUCKET_COUNT;
+  uint32_t offset = ceil(float(arraySize) / float(bucketCount));
+
+  uvec3 component;
+  GetSpatialHashComponent(hash, component);
+
+  info.startIndex = offset * (component.z * BUCKET_COUNT * BUCKET_COUNT + component.y * BUCKET_COUNT + component.x);
+  info.endIndex = info.startIndex + offset;
+}
 
 SceneRenderer::SceneRenderer(const RenderScene & target): mTargetScene(target) {
 
@@ -156,8 +197,21 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
   mcModel = RHIBuffer::create(sizeof(mat44), RHIResource::BindingFlag::ConstantBuffer, RHIBuffer::CPUAccess::Write);
   NAME_RHIRES(mcModel);
 
-  mSurfels = TypedBuffer::create(sizeof(surfel_t), 204800, RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
+  mSurfels = TypedBuffer::For<surfel_t>(0xfff * 0xff,RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   NAME_RHIRES(mSurfels);
+  
+  {
+    mSurfelBuckets = TypedBuffer::For<SurfelBucketInfo>(0xfff + 1, RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
+    NAME_RHIRES(mSurfelBuckets);
+
+    SurfelBucketInfo infos[0xfff + 1];
+
+    for(uint i = 0; i <= 0xfff; i++) {
+      InitSpatialInfo(i, 0xfff * 0xff, infos[i]);
+    }
+
+    mSurfelBuckets->updateData(infos, 0, sizeof(SurfelBucketInfo) * (0xfff + 1));
+  }
 
   mcLight = RHIBuffer::create(sizeof(mat44), RHIResource::BindingFlag::ConstantBuffer, RHIBuffer::CPUAccess::Write);
   NAME_RHIRES(mcLight);
@@ -177,6 +231,9 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
   mScene = Texture2::create(width, height, TEXTURE_FORMAT_RGBA8,
                             RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   NAME_RHIRES(mScene);
+
+
+
   {
     FrameBuffer::Desc desc;
     desc.defineColorTarget(0, TEXTURE_FORMAT_RGBA8, false); // albedo
@@ -225,15 +282,16 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
   }
   {
     DescriptorSet::Layout layout;
-    layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 4);
+    layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 5);
     layout.addRange(DescriptorSet::Type::TextureSrv, 0, 1);
 
     mDAccumulateSurfelUavDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
 
     mDAccumulateSurfelUavDescriptors->setUav(0, 0, *mSurfels->uav());
     mDAccumulateSurfelUavDescriptors->setUav(0, 1, *mSurfels->uavCounter().uav());
-    mDAccumulateSurfelUavDescriptors->setUav(0, 2, *mSurfelCoverage->uav());
-    mDAccumulateSurfelUavDescriptors->setUav(0, 3, *mSurfelSpawnChance->uav());
+    mDAccumulateSurfelUavDescriptors->setUav(0, 2, *mSurfelBuckets->uav());
+    mDAccumulateSurfelUavDescriptors->setUav(0, 3, *mSurfelCoverage->uav());
+    mDAccumulateSurfelUavDescriptors->setUav(0, 4, *mSurfelSpawnChance->uav());
     mDAccumulateSurfelUavDescriptors->setSrv(1, 0, mSurfelCoverage->srv());
 
   }
@@ -263,13 +321,14 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
   }
   {
     DescriptorSet::Layout layout;
-    layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 2);
+    layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 3);
     layout.addRange(DescriptorSet::Type::TextureUav, 0, 1);
 
     mDDeferredLightingDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
 
     mDDeferredLightingDescriptors->setUav(0, 0, *mSurfels->uav());
     mDDeferredLightingDescriptors->setUav(0, 1, *mSurfels->uavCounter().uav());
+    mDDeferredLightingDescriptors->setUav(0, 2, *mSurfelBuckets->uav());
     mDDeferredLightingDescriptors->setUav(1, 0, *mScene->uav());
   }
 }
@@ -284,14 +343,14 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   computeSurfelCoverage(ctx);
   accumlateSurfels(ctx);
   accumlateGI(ctx);
-
+  
   if(!Input::Get().isKeyDown(KEYBOARD_SPACE)) {
     deferredLighting(ctx);
   } else {
     visualizeSurfels(ctx);
   }
 
-  dumpSurfels(ctx);
+  // dumpSurfels(ctx);
 
 }
 
@@ -465,6 +524,7 @@ void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
   ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mSurfels.get(), RHIResource::State::UnorderedAccess);
+  ctx.resourceBarrier(mSurfelBuckets.get(), RHIResource::State::UnorderedAccess);
   ctx.resourceBarrier(mSurfelCoverage.get(), RHIResource::State::NonPixelShader);
 
   ctx.setComputeState(*computeState);

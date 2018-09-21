@@ -185,6 +185,10 @@ struct light_info_t {
                     float intensity = 1.f, const vec3& attenuation = vec3(0, 0, 1),
                     const Rgba& color = Rgba::white);
 
+  void asPointLight(const vec3& position,
+                    float intensity = 1.f, const vec3& attenuation = vec3(0, 0, 1),
+                    const vec3& color = vec3::one);
+
   void asSpotLight(const vec3& position, const vec3& direction, float innerAngle, float outerAngle,
                    float intensity = 1.f, const vec3& attenuation = vec3(0, 0, 1),
                    const Rgba& color = Rgba::white);

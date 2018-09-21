@@ -5,7 +5,7 @@
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
 		"DescriptorTable(SRV(t10, numDescriptors = 5), visibility = SHADER_VISIBILITY_ALL)," \
-		"DescriptorTable(UAV(u0, numDescriptors = 4), SRV(t15, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(UAV(u0, numDescriptors = 5), SRV(t15, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
 
@@ -15,10 +15,11 @@ Texture2D<float4> gTexNormal:   register(t11);
 Texture2D<float4> gTexPosition: register(t12);
 Texture2D gTexDepth: register(t13);
 StructuredBuffer<vertex_t> gVerts: register(t14);
+Texture2D<float4> gTexCoverage: register(t15);
 
 AppendStructuredBuffer<surfel_t> uSurfels: register(u0);
+RWStructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(u2);
 RWTexture2D<float4> uSpawnChance: register(u3);
-Texture2D<float4> gTexCoverage: register(t15);
 
 
 float coverageAt(uint2 pix) {
@@ -58,7 +59,7 @@ float chanceToSpawnAt(uint2 pix) {
 
 	float depthFactor = (1 - pixDepth ) * (1 - pixDepth);
 	//pixArea is around 0.004~0.01
-	return 5000000.f * depthFactor * pixArea;
+	return 1000000.f * depthFactor * pixArea;
 
 	float chance = smoothstep(0, 1, 1.f - pixDepth)
 							 * pixArea * (1.f/ ( SURFEL_RADIUS*SURFEL_RADIUS));
@@ -118,7 +119,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	rand = rnd01(seed);
 	pixel pix = leastCoveredInRange(pixTopLeft, rand.seed);
 
-	if(pix.coverage > 0.1f) return;
+	if(pix.coverage > 0) return;
 
 	surfel_t surfel;
 
@@ -141,11 +142,24 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 		*/
 	surfel.position = gTexPosition[pix.coords].xyz;
 	surfel.normal =		gTexNormal[pix.coords].xyz * 2.f - float3(1.f, 1.f, 1.f);
-	surfel.color = Diffuse(surfel.position, surfel.normal, color, gLight);
+	surfel.color = color;
 	surfel.indirectLighting = float3(0, 0, 0);
 	surfel.age = 1.f;
 	surfel.id = -1;
 	surfel.mean = float3(0,0,0);
 	surfel.variance = 0;
+
+	surfel.__padding0 = 0;
+	surfel.__padding1 = 1;
+	surfel.__padding2 = 2;
+	surfel.__padding3 = 3;
+	 /*
+	uint hash = SpatialHash(surfel.position);
+	uint index = uSurfelBucket[hash].startIndex + uSurfelBucket[hash].currentCount;
+	
+	uSurfels[index] = surfel;
+
+	InterlockedAdd(uSurfelBucket[hash].currentCount, 1);	 */
+
 	uSurfels.Append(surfel);
 }

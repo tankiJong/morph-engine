@@ -166,35 +166,27 @@ float3 GetRandomDirection(inout uint seed, float3 normal) {
 	
 	Randomf r = rnd01(seed);
 	seed = r.seed; 
-	float x = r.value - .5f;
-	 
-	r = rnd01(seed);
-	seed = r.seed;
-	float y = r.value - .5f;
-
-	r = rnd01(seed);
-	seed = r.seed;
-	float z = r.value - .5f;
+	float x = (r.value - .5f)*2.f;
 						
-	float3 right = float3(x,y,z);
+	float3 right = float3(x,1,1);
 	float3 _tan = normalize(right);
 	float3 bitan = cross(_tan, normal);
 	float3 tan = cross(bitan, normal);
 
 	float3x3 tbn = transpose(float3x3(tan, normal, bitan));
 
-	r = rnd01(seed);
+	r = rnd01(seed); 
 	seed = r.seed;
-	float a = (r.value - .5f) * 2.f;
+	float b = r.value; // cosTheta -> y
 
 	r = rnd01(seed);
 	seed = r.seed;
-	float b = r.value;
+	float sinTheta = sqrt(1 - b*b);
+	float phi = 2 * 3.1415926f * r.value;
 
-	r = rnd01(seed);
-	seed = r.seed;
-	float c = (r.value - .5f) * 2.f;
-	
+	float a = sinTheta * cos(phi);
+	float c = sinTheta * sin(phi);
+
 	float3 sample = normalize(mul(tbn, float3(a, b, c)));
 
 	return sample;

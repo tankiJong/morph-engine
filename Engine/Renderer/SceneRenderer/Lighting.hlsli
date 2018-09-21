@@ -18,8 +18,23 @@ float LightPower(light_info_t light, float3 surfacePosition)
 
 float Attenuation(float intensity, float dis, float3 factor) 
 {
-	float atten = intensity / (factor.x*factor.x*dis + factor.y*dis + dis);
-	return clamp(atten, 0.f, 1.f);
+	// pixar method
+	
+	static float L = 1.f;
+	float k = intensity * .8f;
+
+	float m = intensity;
+	float s = log(k / m);
+	float alpha = 2.f;
+	float beta = - alpha / s;
+	float atten;
+	if( dis > L)	{
+		atten = k * pow(L / dis, alpha);
+	}	else {
+		atten = m * exp(s * pow(dis/L, beta));
+	}	
+	// float atten = intensity / (dis * dis);
+	return atten;
 }
 
 float3 Diffuse(float3 surfacePosition, float3 surfaceNormal, float3 surfaceColor, light_info_t light) 

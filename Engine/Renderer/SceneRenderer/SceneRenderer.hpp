@@ -102,6 +102,7 @@ protected:
   S<RHIBuffer> mcLight;
   TypedBuffer::sptr_t mAccelerationStructure;
   TypedBuffer::sptr_t mSurfels;
+  TypedBuffer::sptr_t mSurfelBuckets;
 
   S<DescriptorSet> mDSharedDescriptors;
   S<DescriptorSet> mDGBufferDescriptors;

@@ -1,6 +1,6 @@
 #include "Common.hlsli"
 #include "Surfel.hlsli"
-
+#include "Lighting.hlsli"
 #define SurfelVisual_RootSig \
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
@@ -46,7 +46,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	float4 color = float4(0.f, 0.f, 0.f, 1.f);
 	for(uint i = 0; i < count; i++) {
 		if(isCovered(position, normal, uSurfels[i]) > 0) {
-			color =	float4(uSurfels[i].color + uSurfels[i].indirectLighting, 1.f);
+			color =	float4(uSurfels[i].indirectLighting, 1.f);
 		}
 			 
 	}

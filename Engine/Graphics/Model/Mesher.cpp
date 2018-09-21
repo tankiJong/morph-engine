@@ -187,6 +187,11 @@ Mesher& Mesher::color(const Rgba& c) {
   return *this;
 }
 
+Mesher& Mesher::color(const vec4& c) {
+  mStamp.color = c;
+  return *this;
+}
+
 Mesher& Mesher::normal(const vec3& n) {
   mStamp.normal = n.normalized();
   return *this;

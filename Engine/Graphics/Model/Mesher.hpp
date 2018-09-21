@@ -16,6 +16,7 @@ public:
   void end();
   void clear();
   Mesher& color(const Rgba& c);
+  Mesher& color(const vec4& c);
   Mesher& normal(const vec3& n);
   Mesher& tangent(const vec3& t, float fSign = 1.f);
   Mesher& uv(const vec2& uv);
