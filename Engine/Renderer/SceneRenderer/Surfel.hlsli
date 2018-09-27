@@ -14,7 +14,7 @@ struct surfel_t {
   float __padding3;
 };
 
-static const float SURFEL_RADIUS = 0.25f;
+static const float SURFEL_RADIUS = 0.35f;
 static const uint TILE_SIZE = 16;
 
 
@@ -43,7 +43,7 @@ float isCovered(float3 position, float3 normal, surfel_t surfel) {
 }
 
 static const uint BUCKET_COUNT = 0xf;		 // 0x?zyx
-static const float BUCKET_SIZE = .3f;
+static const float BUCKET_SIZE = 3 * SURFEL_RADIUS;
 
 struct SurfelBucketInfo {
 	uint startIndex;
@@ -59,12 +59,21 @@ uint SpatialHash(float3 position) {
 				 (0x0f00 & (hash.z << 8));
 }
 
-void GetSpatialHashComponent(uint hash, out uint3 component) {
+uint3 GetSpatialHashComponent(uint hash) {
+	uint3 component;
 	component.x = 0x000f & hash;
 	hash >>= 4;
 	component.y = 0x000f & hash;
 	hash >>= 4;
 	component.z = 0x000f & hash;
+
+	return component;
+}
+
+uint GetSpatialHashFromComponent(uint3 components) {
+	return (0x000f & components.x) | 
+				 (0x00f0 & (components.y << 4)) |
+				 (0x0f00 & (components.z << 8));
 }
 
 /* { ([0x0000][0x0001]....)([0x0010][0x0011]....)------([0x00f0][0x00f1]....) }
@@ -80,7 +89,7 @@ void SpatialToIndexRange(uint hash, uint arraySize, out uint startIndex, out uin
 	uint offset = ceil(float(arraySize) / float(bucketCount));
 
 	uint3 component;
-	GetSpatialHashComponent(hash, component);
+	component = GetSpatialHashComponent(hash);
 
 	startIndex = offset * (component.z * BUCKET_COUNT * BUCKET_COUNT + component.y * BUCKET_COUNT + component.x);
 	endIndex = startIndex + offset;

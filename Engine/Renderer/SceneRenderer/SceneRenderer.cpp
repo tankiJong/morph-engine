@@ -73,7 +73,7 @@ struct surfel_t {
 struct SurfelBucketInfo {
   uint32_t startIndex;
   uint32_t endIndex;
-  uint32_t currentCount;
+  uint32_t currentCount = 0;
 };
 
 static const uint32_t BUCKET_COUNT = 0xf;
@@ -104,6 +104,7 @@ void InitSpatialInfo(uint32_t hash, uint32_t arraySize, SurfelBucketInfo& info) 
 
   info.startIndex = offset * (component.z * BUCKET_COUNT * BUCKET_COUNT + component.y * BUCKET_COUNT + component.x);
   info.endIndex = info.startIndex + offset;
+  info.currentCount = 0;
 }
 
 SceneRenderer::SceneRenderer(const RenderScene & target): mTargetScene(target) {
@@ -303,32 +304,30 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
     mDSurfelVisualDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
 
     mDSurfelVisualDescriptors->setUav(0, 0, *mSurfels->uav());
-    mDSurfelVisualDescriptors->setUav(0, 1, *mSurfels->uavCounter().uav());
+    mDSurfelVisualDescriptors->setUav(0, 1, *mSurfelBuckets->uav());
     mDSurfelVisualDescriptors->setUav(1, 0, *mSurfelVisual->uav());
     
+  }
+  {
+    DescriptorSet::Layout layout;
+    layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 3);
+
+    mDSurfelGIDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
+
+    mDSurfelGIDescriptors->setUav(0, 0, *mSurfels->uav());
+    mDSurfelGIDescriptors->setUav(0, 1, *mSurfels->uavCounter().uav());
+    mDSurfelGIDescriptors->setUav(0, 2, *mSurfelBuckets->uav());
+
   }
   {
     DescriptorSet::Layout layout;
     layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 2);
     layout.addRange(DescriptorSet::Type::TextureUav, 0, 1);
 
-    mDSurfelGIDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
-
-    mDSurfelGIDescriptors->setUav(0, 0, *mSurfels->uav());
-    mDSurfelGIDescriptors->setUav(0, 1, *mSurfels->uavCounter().uav());
-    mDSurfelGIDescriptors->setUav(1, 0, *mSurfelVisual->uav());
-
-  }
-  {
-    DescriptorSet::Layout layout;
-    layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 3);
-    layout.addRange(DescriptorSet::Type::TextureUav, 0, 1);
-
     mDDeferredLightingDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
 
-    mDDeferredLightingDescriptors->setUav(0, 0, *mSurfels->uav());
-    mDDeferredLightingDescriptors->setUav(0, 1, *mSurfels->uavCounter().uav());
-    mDDeferredLightingDescriptors->setUav(0, 2, *mSurfelBuckets->uav());
+    mDDeferredLightingDescriptors->setSrv(0, 0, mSurfels->srv());
+    mDDeferredLightingDescriptors->setSrv(0, 1, mSurfelBuckets->srv());
     mDDeferredLightingDescriptors->setUav(1, 0, *mScene->uav());
   }
 }
@@ -338,11 +337,11 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   setupFrame();
   setupView(ctx);
   genGBuffer(ctx);
-  genAO(ctx);
   
   computeSurfelCoverage(ctx);
   accumlateSurfels(ctx);
   accumlateGI(ctx);
+  genAO(ctx);
   
   if(!Input::Get().isKeyDown(KEYBOARD_SPACE)) {
     deferredLighting(ctx);
@@ -473,7 +472,7 @@ void SceneRenderer::genAO(RHIContext& ctx) {
 
   mDGBufferDescriptors->setSrv(0, 5, mAO->srv());
 
-  ctx.copyResource(*mAO, *RHIDevice::get()->backBuffer());
+  // ctx.copyResource(*mAO, *RHIDevice::get()->backBuffer());
 }
 
 void SceneRenderer::computeSurfelCoverage(RHIContext& ctx) {
@@ -564,10 +563,10 @@ void SceneRenderer::accumlateGI(RHIContext& ctx) {
   // mDGenAOUavDescriptors->setUav(0, 1, mTargetScene.accelerationStructure());
   mDSharedDescriptors->bindForCompute(ctx, *gSurfelGIProgram->rootSignature(), 0);
   mDGBufferDescriptors->bindForCompute(ctx, *gSurfelGIProgram->rootSignature(), 1);
-  mDSurfelVisualDescriptors->bindForCompute(ctx, *gSurfelGIProgram->rootSignature(), 2);
+  mDSurfelGIDescriptors->bindForCompute(ctx, *gSurfelGIProgram->rootSignature(), 2);
 
-  ctx.dispatch(1, 1, 1);
-  ctx.copyResource(*mSurfelVisual, *RHIDevice::get()->backBuffer());
+  ctx.dispatch(1, 1, 16);
+  // ctx.copyResource(*mSurfelVisual, *RHIDevice::get()->backBuffer());
 }
 
 void SceneRenderer::visualizeSurfels(RHIContext& ctx) {
@@ -617,6 +616,9 @@ void SceneRenderer::deferredLighting(RHIContext& ctx) {
   }
 
   ctx.setComputeState(*computeState);
+  ctx.resourceBarrier(mSurfels.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mSurfelBuckets.get(), RHIResource::State::NonPixelShader);
+
   mDSharedDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 0);
   mDGBufferDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 1);
   mDDeferredLightingDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 2);

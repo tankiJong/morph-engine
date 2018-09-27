@@ -6,7 +6,7 @@
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
 		"DescriptorTable(SRV(t10, numDescriptors = 6), visibility = SHADER_VISIBILITY_ALL)," \
-		"DescriptorTable(UAV(u0, numDescriptors = 4), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(SRV(t16, numDescriptors = 2), UAV(u0, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
 
@@ -18,11 +18,9 @@ Texture2D gTexDepth: register(t13);
 StructuredBuffer<vertex_t> gVerts: register(t14);
 Texture2D<float4> gTexAO: register(t15);
 
-
-RWStructuredBuffer<surfel_t> uSurfels: register(u0);
-RWStructuredBuffer<uint> uNumSurfels: register(u1);
-RWStructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(u2);
-RWTexture2D<float4> uTexScene: register(u3);
+StructuredBuffer<surfel_t> uSurfels: register(t16);
+StructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(t17);
+RWTexture2D<float4> uTexScene: register(u0);
 
 
 float3 Ambient(uint2 pix) {
@@ -79,38 +77,60 @@ float3 PhongLighting(uint2 pix)
 
 	const float SPECULAR_AMOUNT = 1.f;
 	const float SPECULAR_POWER = 2.f;
+  // float3 diffuse = float3(0,0,0);
   float3 diffuse = computeDiffuse(surfacePosition, surfaceNormal);
   float3 specular = Specular(surfacePosition, surfaceNormal, 
 														 normalize(eyePosition - surfacePosition), SPECULAR_AMOUNT, SPECULAR_POWER, gLight);
 
 	float3 indirect = float3(0,0,0);
-	uint count = uNumSurfels[0];
-
+	 
 	float total = 0;
-	for(uint i = 0; i < count; i++) {
+
+	uint bucketCount, _;
+	uSurfelBucket.GetDimensions(bucketCount, _);
+
+	for(uint k = 0; k < bucketCount; k++) {
+
 	/*
-		float d = distance(surfacePosition, uSurfels[i].position);
-		if(d > .5f) continue;
-		float factor = max(0, dot(normalize(uSurfels[i].position - surfacePosition), normalize(surfaceNormal)));
-		// factor = dot(surfaceNormal, uSurfels[i].normal) >= 0 ? factor : 0;
-		total += factor > 0 ? 1 : 0;
-		float scale = Attenuation(1.f, .5f, float3(1.f, 0, 1.f));
-		float atten = ( Attenuation(1.f, d, float3(1.f, 0, 1.f)) - scale ) / (1 - scale);
-		atten = atten * atten;
-		factor = factor * atten;
-	 */
-		float d = distance(surfacePosition, uSurfels[i].position);
+	uint hash = SpatialHash(surfacePosition);
+	uint3 component = GGetSpatialHashComponent(hash);
 
-		float weight = 1 / ((d*d) / (SURFEL_RADIUS * SURFEL_RADIUS)+ SURFEL_RADIUS + 1);
-		float iscovered = saturate((dot(surfaceNormal, uSurfels[i].normal))) * weight;
-		total += weight;
-		indirect =	indirect + 
-								(uSurfels[i].indirectLighting) * iscovered;
+	for(int i = -1; i < 2; i++) {
+		for(int j = -1; j < 2; j++) {
+			for(int p = -1; p < 2; p++) {
+				uint3 current = component;
+				current.x += i;
+				current.y += j;
+				current.z += p;
+
+				if(current.x >= 16 || current.y >= 16 || current.z >= 16) continue;
+
+				uint k = GetSpatialHashFromComponent(current);
+			}
+		}
+	}		 */
+		// SurfelBucketInfo info = uSurfelBucket[SpatialHash(surfacePosition)];
+		SurfelBucketInfo info = uSurfelBucket[k];
+	 	
+		uint i = info.startIndex;
+		while(i < info.startIndex + info.currentCount) {
+
+			float d = distance(surfacePosition, uSurfels[i].position);
+
+			float weight = 1 / ((d*d) / (SURFEL_RADIUS * SURFEL_RADIUS)+ SURFEL_RADIUS + 1);
+			float iscovered = saturate((dot(surfaceNormal, uSurfels[i].normal))) * weight;
+			total += weight;
+			indirect =	indirect + 
+									(uSurfels[i].indirectLighting) * iscovered;
+
+			i++;
+		}	
+	
 	}
-		
-	indirect /= total;
 
+	indirect /= total == 0 ? 1 : total;
 
+	
 	// only A ray will enter the pixel, so the color need to divide by 2PI
   float3 color = (diffuse / 3.14159f + 2 * indirect) * surfaceColor / ( 2 * 3.141592f )/* + specular*/;
 
@@ -121,14 +141,15 @@ float3 PhongLighting(uint2 pix)
 }
 
 [RootSignature(DeferredLighting_RootSig)]
-[numthreads(32, 32, 1)]
+[numthreads(16, 16, 1)]
 void main( uint3 threadId: SV_DispatchThreadID )
 {
 	uint2 pix = threadId.xy;
 
 	float3 direct = 0;
 	float3 indirect = 0;
-	uint count = uNumSurfels[0];
+
+	uint2 size;
 
 	float3 color = PhongLighting(pix);
 	uTexScene[pix] = float4(color, 1.f);

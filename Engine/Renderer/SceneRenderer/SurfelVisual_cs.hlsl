@@ -16,7 +16,7 @@ Texture2D gTexDepth: register(t13);
 StructuredBuffer<vertex_t> gVerts: register(t14);
 
 RWStructuredBuffer<surfel_t> uSurfels: register(u0);
-RWStructuredBuffer<uint> uNumSurfels: register(u1);
+RWStructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(u1);
 RWTexture2D<float4> uTexSurfelVisual: register(u2);
 
 
@@ -41,15 +41,24 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	float blend = length(normal);
 
-	uint count = uNumSurfels[0];
+
+	uint bucketcount, _;
+	uSurfelBucket.GetDimensions(bucketcount, _);
 
 	float4 color = float4(0.f, 0.f, 0.f, 1.f);
-	for(uint i = 0; i < count; i++) {
-		if(isCovered(position, normal, uSurfels[i]) > 0) {
-			color =	float4(uSurfels[i].indirectLighting, 1.f);
+	for(uint j =0; j < bucketcount; j++) {
+		SurfelBucketInfo info = uSurfelBucket[j];
+
+		uint count = info.currentCount;
+
+		for(uint i = info.startIndex; i < info.startIndex + count; i++) {
+			if(isCovered(position, normal, uSurfels[i]) > 0) {
+				color =	float4(uSurfels[i].indirectLighting, 1.f);
+			}
 		}
-			 
+
 	}
+
 
 	//color /= count;
 

@@ -26,18 +26,27 @@ static uint seed;
 
 bool GetSurfelAt(float3 position, float3 normal, out float3 indirect) {
 
-
 	float maxCovered = 0.f;
 	float covered = 0;
-	float3 color = float3(0,0,0);
-	for(uint i = 0; i < uNumSurfels[0]; i++) {
+	float3 color = float3(0, 0, 0);
+
+	uint hash = SpatialHash(position);
+
+	// uint bucketCount, _;
+	// uSurfelBucket.GetDimensions(bucketCount, _);
+
+	SurfelBucketInfo info = uSurfelBucket[hash];
+	uint i= info.startIndex;
+	while(i < info.startIndex + info.currentCount ) {
 		float factor = isCovered(position, normal, uSurfels[i]);
 		covered += factor;
 		color += factor * uSurfels[i].indirectLighting;
+		i++;
 	}
 	
 	indirect = color / covered;
-	
+
+	// seems covered is always 0
 	return covered > 0.f;
 }
 
@@ -65,8 +74,7 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 	diffuses[0] = float3(0,0,0); // I only want the indirect part
 	colors[0] =	startColor;
 
-	float totalT = 0;
-	while(totalT < 5) {
+	for(uint xx = 0; xx < 3; xx++) {
 		bounce++;
 		uint vertCount, stride;
 		gVerts.GetDimensions(vertCount, stride);
@@ -92,7 +100,6 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 			totals[bounce] = float4(0, 0, 0, 0);
 			break;
 		} else {
-			totalT += contact.t;
 			float3 diffuse = Diffuse(contact.position.xyz, contact.normal, float3(1, 1, 1), gLight);
 			diffuses[bounce] = diffuse;
 
@@ -162,16 +169,26 @@ void updateSurfels(inout surfel_t surfel) {
 }
 
 [RootSignature(SurfelGI_RootSig)]
-[numthreads(1, 1, 1)]
-void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex )
+[numthreads(16, 16, 1)]
+void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex, uint3 groupId: SV_GroupId )
 {
 	seed = threadId.x * 10000 + threadId.y * 121144 + gTime * 367860;
 
-	for(uint i = 0; i < uNumSurfels[0]; i++) {
-		if(uSurfels[i].age == 1) {
-			uSurfels[i].id = i;
-		}
-		updateSurfels(uSurfels[i]);
+	
+	uint hash, _;
 
-	}
+	uSurfelBucket.GetDimensions(hash, _);
+
+	// for(uint j = 0; j < hash; j++) {
+		SurfelBucketInfo info = uSurfelBucket[16*16*groupId.z + threadId.x * 16 + threadId.y];
+
+		for(uint i = info.startIndex; i < info.startIndex + info.currentCount; i++) {
+			if(uSurfels[i].age == 1) {
+				uSurfels[i].id = i;
+			}
+			updateSurfels(uSurfels[i]);
+
+		}
+	// }
+
 }

@@ -62,7 +62,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	seed = threadId.x * 102467 + threadId.y * 346755 + groupIndex + uint(gTime*10000);
 
-	for(uint i = 0; i < 32; i++) {
+	for(uint i = 0; i < 2; i++) {
 		Ray ray = GenReflectionRay(seed, float4(position, 1.f), normal);
 		//ray.direction = float3(-0.5f, 0.5f, 0.f);
 		/*
@@ -75,14 +75,10 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 		Contact c = trace(ray);
 
 		bool occluded = c.valid;
-		if(occluded) {
-			// Output[threadId.xy] = float4(contact.position.w,contact.position.w,contact.position.w, 1.f);
-
-			occlusion += dot(normal, ray.direction) / ( c.t * c.t + 1.f);
-		}
+		occlusion += lerp(0, dot(normal, ray.direction) / ( c.t * c.t + 1.f ), (float)occluded);
 	}
 	 		 
-	occlusion = occlusion / 32.f;
+	occlusion = occlusion / 2.f;
 	occlusion = 1.f - occlusion;
 
 	float3 color = float3(occlusion, occlusion, occlusion);

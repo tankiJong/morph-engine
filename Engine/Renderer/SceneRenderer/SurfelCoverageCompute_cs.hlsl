@@ -29,13 +29,25 @@ float dimishingAdd(float a, float b) {
 
 float coverageAt(uint2 pix) {
 	float coverage = 0.f;
-	uint numSurfel = uNumSurfels[0];
-	for(uint i = 0; i < numSurfel; i++) {
-		float3 position = gTexPosition[pix].xyz;
-		float3 normal = gTexNormal[pix].xyz * 2.f - 1.f;
 
-		coverage += isCovered(position, normal, uSurfels[i]);
+	float3 position = gTexPosition[pix].xyz;
+	float3 normal = gTexNormal[pix].xyz * 2.f - 1.f;
+
+	uint bucketCount, stride;
+
+	
+	uint hash = SpatialHash(position);
+
+	{
+		uint numSurfel = uSurfelBucket[hash].currentCount + uSurfelBucket[hash].startIndex;
+
+		uint i = uSurfelBucket[hash].startIndex;
+		while(i < numSurfel) {
+			coverage += isCovered(position, normal, uSurfels[i]);
+			i++;
+		}
 	}
+
 	return coverage;
 }
 

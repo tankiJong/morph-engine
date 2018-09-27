@@ -17,7 +17,7 @@ Texture2D gTexDepth: register(t13);
 StructuredBuffer<vertex_t> gVerts: register(t14);
 Texture2D<float4> gTexCoverage: register(t15);
 
-AppendStructuredBuffer<surfel_t> uSurfels: register(u0);
+RWStructuredBuffer<surfel_t> uSurfels: register(u0);
 RWStructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(u2);
 RWTexture2D<float4> uSpawnChance: register(u3);
 
@@ -59,7 +59,7 @@ float chanceToSpawnAt(uint2 pix) {
 
 	float depthFactor = (1 - pixDepth ) * (1 - pixDepth);
 	//pixArea is around 0.004~0.01
-	return 1000000.f * depthFactor * pixArea;
+	return 5000000.f * depthFactor * pixArea;
 
 	float chance = smoothstep(0, 1, 1.f - pixDepth)
 							 * pixArea * (1.f/ ( SURFEL_RADIUS*SURFEL_RADIUS));
@@ -99,6 +99,16 @@ pixel leastCoveredInRange(uint2 topLeft, uint seed) {
 	}
 	
 	return p;
+}
+
+void appendSurfel(surfel_t surfel) {
+	uint hash = SpatialHash(surfel.position);
+
+	if(uSurfelBucket[hash].currentCount + uSurfelBucket[hash].startIndex >= uSurfelBucket[hash].endIndex) return; 
+	uint offset;
+	InterlockedAdd(uSurfelBucket[hash].currentCount, 1, offset);
+
+	uSurfels[uSurfelBucket[hash].startIndex + offset] = surfel;
 }
 
 [RootSignature(SurfelPlacement_RootSig)]
@@ -161,5 +171,5 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	InterlockedAdd(uSurfelBucket[hash].currentCount, 1);	 */
 
-	uSurfels.Append(surfel);
+	appendSurfel(surfel);
 }
