@@ -19,6 +19,7 @@
 #include "SurfelGI_cs.h"
 #include "GenAccelerationStructure_cs.h"
 #include "GenAO_cs.h"
+#include "DeferredLighting_ComputeIndirect_cs.h"
 #include "DeferredLighting_cs.h"
 #include "SurfelCoverageCompute_cs.h"
 #include "Engine/Framework/Light.hpp"
@@ -41,6 +42,7 @@ static RootSignature::scptr_t gSurfelVisualRootSig = nullptr;
 
 static Program::sptr_t gSurfelCoverageProgram = nullptr;
 
+static Program::sptr_t gDeferredLighting_indirect = nullptr;
 static Program::sptr_t gDeferredLighting = nullptr;
 
 static Program::sptr_t gSurfelGIProgram = nullptr;
@@ -158,6 +160,11 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
       .setFromBinary(gDeferredLighting_cs, sizeof(gDeferredLighting_cs));
     gDeferredLighting->compile();
 
+    gDeferredLighting_indirect = Program::sptr_t(new Program());
+    gDeferredLighting_indirect->stage(SHADER_TYPE_COMPUTE)
+      .setFromBinary(gDeferredLighting_ComputeIndirect_cs, sizeof(gDeferredLighting_ComputeIndirect_cs));
+    gDeferredLighting_indirect->compile();
+
     gSurfelGIProgram = Program::sptr_t(new Program());
     gSurfelGIProgram->stage(SHADER_TYPE_COMPUTE)
       .setFromBinary(gSurfelGI_cs, sizeof(gSurfelGI_cs));
@@ -222,15 +229,19 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
   NAME_RHIRES(mSurfelVisual);
 
   mSurfelSpawnChance = Texture2::create(width, height, TEXTURE_FORMAT_RGBA8,
-                                   RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
+                                    RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   NAME_RHIRES(mSurfelSpawnChance);
 
   mSurfelCoverage = Texture2::create(width, height, TEXTURE_FORMAT_RGBA16,
-                                           RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
+                                     RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   NAME_RHIRES(mSurfelCoverage);
 
+  mIndirectLight = Texture2::create(width * .5f, height * .5f, TEXTURE_FORMAT_RGBA16, 
+                                    RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
+  NAME_RHIRES(mIndirectLight);
+
   mScene = Texture2::create(width, height, TEXTURE_FORMAT_RGBA8,
-                            RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
+                            RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   NAME_RHIRES(mScene);
 
 
@@ -321,15 +332,27 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
   }
   {
     DescriptorSet::Layout layout;
-    layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 2);
+    layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 3);
+
+    mDDeferredLightingIndirectDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
+
+    mDDeferredLightingIndirectDescriptors->setUav(0, 0, *mSurfels->uav());
+    mDDeferredLightingIndirectDescriptors->setUav(0, 1, *mSurfelBuckets->uav());
+    mDDeferredLightingIndirectDescriptors->setUav(0, 2, *mIndirectLight->uav());
+
+  }
+  {
+    DescriptorSet::Layout layout;
+    layout.addRange(DescriptorSet::Type::TextureSrv, 0, 1);
     layout.addRange(DescriptorSet::Type::TextureUav, 0, 1);
 
     mDDeferredLightingDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
 
-    mDDeferredLightingDescriptors->setSrv(0, 0, mSurfels->srv());
-    mDDeferredLightingDescriptors->setSrv(0, 1, mSurfelBuckets->srv());
+    mDDeferredLightingDescriptors->setSrv(0, 0, mIndirectLight->srv());
+
     mDDeferredLightingDescriptors->setUav(1, 0, *mScene->uav());
   }
+
 }
 
 void SceneRenderer::onRenderFrame(RHIContext& ctx) {
@@ -337,11 +360,12 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   setupFrame();
   setupView(ctx);
   genGBuffer(ctx);
-  
+
   computeSurfelCoverage(ctx);
+  genAO(ctx);
+  computeIndirectLighting(ctx);
   accumlateSurfels(ctx);
   accumlateGI(ctx);
-  genAO(ctx);
   
   if(!Input::Get().isKeyDown(KEYBOARD_SPACE)) {
     deferredLighting(ctx);
@@ -504,6 +528,7 @@ void SceneRenderer::computeSurfelCoverage(RHIContext& ctx) {
   uint y = uint(Window::Get()->bounds().height()) / 32 + 1;
 
   ctx.dispatch(x, y, 1);
+
 }
 
 void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
@@ -537,6 +562,7 @@ void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
   uint y = uint(Window::Get()->bounds().height()) / 16 / 32 + 1;
 
   ctx.dispatch(x, y, 1);
+
 }
 
 void SceneRenderer::accumlateGI(RHIContext& ctx) {
@@ -554,7 +580,6 @@ void SceneRenderer::accumlateGI(RHIContext& ctx) {
   ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mAO.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mSurfels.get(), RHIResource::State::UnorderedAccess);
   ctx.resourceBarrier(mSurfelVisual.get(), RHIResource::State::UnorderedAccess);
 
@@ -608,6 +633,7 @@ void SceneRenderer::deferredLighting(RHIContext& ctx) {
   SCOPED_GPU_EVENT("Deferred Lighting");
 
   static ComputeState::sptr_t computeState;
+
   if (!computeState) {
     ComputeState::Desc desc;
     desc.setRootSignature(gDeferredLighting->rootSignature());
@@ -615,20 +641,57 @@ void SceneRenderer::deferredLighting(RHIContext& ctx) {
     computeState = ComputeState::create(desc);
   }
 
-  ctx.setComputeState(*computeState);
-  ctx.resourceBarrier(mSurfels.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mSurfelBuckets.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mAO.get(), RHIResource::State::NonPixelShader);
+  
+  {
+    SCOPED_GPU_EVENT("UpSamle, apply diffuse");
+    ctx.setComputeState(*computeState);
+    ctx.resourceBarrier(mIndirectLight.get(), RHIResource::State::NonPixelShader);
+  
+    mDSharedDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 0);
+    mDGBufferDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 1);
+  
+    mDDeferredLightingDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 2);
+  
+    uint x = uint(Window::Get()->bounds().width()) / 32 + 1;
+    uint y = uint(Window::Get()->bounds().height()) / 32 + 1;
+  
+    ctx.dispatch(x, y, 1);
+    ctx.resourceBarrier(mAO.get(), RHIResource::State::UnorderedAccess);
+    ctx.copyResource(*mScene, *RHIDevice::get()->backBuffer());
+  }
+}
 
-  mDSharedDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 0);
-  mDGBufferDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 1);
-  mDDeferredLightingDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 2);
+void SceneRenderer::computeIndirectLighting(RHIContext & ctx) {
+  SCOPED_GPU_EVENT("Compute Indirect");
+  static ComputeState::sptr_t computeStateIndirect;
+  if (!computeStateIndirect) {
+    ComputeState::Desc desc;
+    desc.setRootSignature(gDeferredLighting_indirect->rootSignature());
+    desc.setProgram(gDeferredLighting_indirect);
+    computeStateIndirect = ComputeState::create(desc);
+  }
 
-  uint x = uint(Window::Get()->bounds().width()) / 32 + 1;
-  uint y = uint(Window::Get()->bounds().height()) / 32 + 1;
+  {
+    ctx.setComputeState(*computeStateIndirect);
+    ctx.resourceBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
+    ctx.resourceBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
+    ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
+    ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
 
-  ctx.dispatch(x, y, 1);
+    ctx.resourceBarrier(mIndirectLight.get(), RHIResource::State::UnorderedAccess);
+    
+    mDSharedDescriptors->bindForCompute(ctx, *gDeferredLighting_indirect->rootSignature(), 0);
+    mDGBufferDescriptors->bindForCompute(ctx, *gDeferredLighting_indirect->rootSignature(), 1);
 
-  ctx.copyResource(*mScene, *RHIDevice::get()->backBuffer());
+    mDDeferredLightingIndirectDescriptors->bindForCompute(ctx, *gDeferredLighting_indirect->rootSignature(), 2);
+
+    uint x = uint(mIndirectLight->width()) / 32 + 1;
+    uint y = uint(mIndirectLight->height()) / 32 + 1;
+
+    ctx.dispatch(x, y, 16);
+  }
+  
 }
 
 void SceneRenderer::setupFrame() {
@@ -647,6 +710,7 @@ void SceneRenderer::setupFrame() {
   ctx->clearRenderTarget(mGAlbedo->rtv(), Rgba::black);
   ctx->clearRenderTarget(mGNormal->rtv(), Rgba::gray);
   // ctx->clearRenderTarget(mAO->rtv(), Rgba::white);
+  ctx->clearRenderTarget(mIndirectLight->rtv(), Rgba::black);
   ctx->clearDepthStencilTarget(*mGDepth->dsv(), true, true);
 }
 

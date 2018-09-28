@@ -6,7 +6,7 @@
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
 		"DescriptorTable(SRV(t10, numDescriptors = 6), visibility = SHADER_VISIBILITY_ALL)," \
-		"DescriptorTable(SRV(t16, numDescriptors = 2), UAV(u0, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(SRV(t16, numDescriptors = 1), UAV(u0, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
 
@@ -18,8 +18,7 @@ Texture2D gTexDepth: register(t13);
 StructuredBuffer<vertex_t> gVerts: register(t14);
 Texture2D<float4> gTexAO: register(t15);
 
-StructuredBuffer<surfel_t> uSurfels: register(t16);
-StructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(t17);
+Texture2D<float4> gIndirect: register(t16);
 RWTexture2D<float4> uTexScene: register(u0);
 
 
@@ -82,55 +81,9 @@ float3 PhongLighting(uint2 pix)
   float3 specular = Specular(surfacePosition, surfaceNormal, 
 														 normalize(eyePosition - surfacePosition), SPECULAR_AMOUNT, SPECULAR_POWER, gLight);
 
-	float3 indirect = float3(0,0,0);
-	 
-	float total = 0;
-
-	uint bucketCount, _;
-	uSurfelBucket.GetDimensions(bucketCount, _);
-
-	for(uint k = 0; k < bucketCount; k++) {
-
-	/*
-	uint hash = SpatialHash(surfacePosition);
-	uint3 component = GGetSpatialHashComponent(hash);
-
-	for(int i = -1; i < 2; i++) {
-		for(int j = -1; j < 2; j++) {
-			for(int p = -1; p < 2; p++) {
-				uint3 current = component;
-				current.x += i;
-				current.y += j;
-				current.z += p;
-
-				if(current.x >= 16 || current.y >= 16 || current.z >= 16) continue;
-
-				uint k = GetSpatialHashFromComponent(current);
-			}
-		}
-	}		 */
-		// SurfelBucketInfo info = uSurfelBucket[SpatialHash(surfacePosition)];
-		SurfelBucketInfo info = uSurfelBucket[k];
-	 	
-		uint i = info.startIndex;
-		while(i < info.startIndex + info.currentCount) {
-
-			float d = distance(surfacePosition, uSurfels[i].position);
-
-			float weight = 1 / ((d*d) / (SURFEL_RADIUS * SURFEL_RADIUS)+ SURFEL_RADIUS + 1);
-			float iscovered = saturate((dot(surfaceNormal, uSurfels[i].normal))) * weight;
-			total += weight;
-			indirect =	indirect + 
-									(uSurfels[i].indirectLighting) * iscovered;
-
-			i++;
-		}	
+	float3 indirect = gIndirect[pix / 2].xyz / gIndirect[pix / 2].w;
 	
-	}
-
-	indirect /= total == 0 ? 1 : total;
-
-	
+	// return indirect;
 	// only A ray will enter the pixel, so the color need to divide by 2PI
   float3 color = (diffuse / 3.14159f + 2 * indirect) * surfaceColor / ( 2 * 3.141592f )/* + specular*/;
 
@@ -141,15 +94,15 @@ float3 PhongLighting(uint2 pix)
 }
 
 [RootSignature(DeferredLighting_RootSig)]
-[numthreads(16, 16, 1)]
+[numthreads(32, 32, 1)]
 void main( uint3 threadId: SV_DispatchThreadID )
 {
 	uint2 pix = threadId.xy;
 
-	float3 direct = 0;
-	float3 indirect = 0;
-
 	uint2 size;
+	uTexScene.GetDimensions(size.x, size.y);
+	
+	if(pix.x > size.x || pix.y > size.y) return;
 
 	float3 color = PhongLighting(pix);
 	uTexScene[pix] = float4(color, 1.f);

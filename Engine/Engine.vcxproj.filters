@@ -1381,5 +1381,8 @@
     <FxCompile Include="Renderer\SceneRenderer\SurfelGI_cs.hlsl">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\DeferredLighting_ComputeIndirect_cs.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

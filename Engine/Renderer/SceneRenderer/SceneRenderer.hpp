@@ -74,6 +74,7 @@ protected:
   void accumlateGI(RHIContext& ctx);
   void visualizeSurfels(RHIContext& ctx);
   void deferredLighting(RHIContext& ctx);
+  void computeIndirectLighting(RHIContext& ctx);
   void setupFrame();
   void setupView(RHIContext& ctx);
   void dumpSurfels(RHIContext& ctx);
@@ -85,13 +86,13 @@ protected:
   Texture2::sptr_t mGNormal;
   Texture2::sptr_t mGPosition;
   Texture2::sptr_t mGDepth;
+  Texture2::sptr_t mIndirectLight;
 
   Texture2::sptr_t mAO;
   Texture2::sptr_t mScene;
   Texture2::sptr_t mSurfelVisual;
   Texture2::sptr_t mSurfelCoverage;
   Texture2::sptr_t mSurfelSpawnChance;
-
   Texture2::sptr_t mFinalColor;
 
   // cbo
@@ -111,6 +112,7 @@ protected:
   S<DescriptorSet> mDSurfelVisualDescriptors;
   S<DescriptorSet> mDSurfelGIDescriptors;
   S<DescriptorSet> mDDeferredLightingDescriptors;
+  S<DescriptorSet> mDDeferredLightingIndirectDescriptors;
 
   std::ofstream mSurfelDump;
 };
