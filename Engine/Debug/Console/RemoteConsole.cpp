@@ -48,7 +48,7 @@ void RemoteConsole::flushConnection(uint index, Connection& connection) {
 void RemoteConsole::manageConnections() {
   if (!ready())return;
   if (mServiceState == STATE_JOIN) {
-    if (!mConnections[0].socket.valid()) {
+    if (!mConnections[0].socket.opened()) {
       reset();
     }
     return;
@@ -58,7 +58,7 @@ void RemoteConsole::manageConnections() {
 
   // 0 position is self
   for(auto begin = mConnections.rbegin(); begin != mConnections.rend() - 1; ++begin) {
-    if(!begin->socket.valid()) {
+    if(!begin->socket.opened()) {
       Log::tagf("remote console", "client %s leave the session.", begin->socket.address().toString());
       Connection& back = mConnections.back();
       *begin = std::move(back);
@@ -78,12 +78,6 @@ void RemoteConsole::manageConnections() {
 RemoteConsole::RemoteConsole() {
   BytePacker packer;
 
-  size_t a = 8675309;
-
-  packer.write(a);
-  packer.read(a);
-
-  EXPECTS(a == 8675309);
   mSockManageThread = new Thread("Remote Command Update", [this]() {
 
     init();
@@ -94,7 +88,7 @@ RemoteConsole::RemoteConsole() {
 
         manageConnections();
 
-        for(uint i = 0; i < mConnections.size(); i++) {
+        for(uint i = mServiceState == STATE_JOIN ? 0 : 1; i < mConnections.size(); i++) {
           flushConnection(i, mConnections[i]);
         }
 
@@ -138,6 +132,8 @@ bool RemoteConsole::join(const NetAddress& host) {
 
   Connection& c = mConnections.emplace_back();
   bool re = c.socket.connect(host);
+  c.socket.unsetOption(SOCKET_OPTION_BLOCKING);
+
   if(re) {
     mServiceState = STATE_JOIN;
     Log::tagf("remote console", "Running in client mode");
@@ -157,8 +153,10 @@ bool RemoteConsole::host(uint16_t port) {
 
   Connection& c = mConnections.emplace_back();
   bool re = c.socket.listen(port);
+
   if(re) {
     mServiceState = STATE_HOST;
+    c.socket.unsetOption(SOCKET_OPTION_BLOCKING);
     Log::tagf("remote console", "Running in host mode");
   } else {
     mConnections.pop_back();
@@ -173,7 +171,7 @@ bool RemoteConsole::ready() const {
     return false;
   if (mConnections.empty()) 
     return false;
-  if (!mConnections[0].socket.valid()) 
+  if (!mConnections[0].socket.opened()) 
     return false;
   return true;
 }
@@ -274,6 +272,7 @@ RemoteConsole& RemoteConsole::get() {
   EXPECTS(gRemoteConsole != nullptr);
   return *gRemoteConsole;
 }
+
 
 COMMAND_REG("rc", "[index: uint = 0][command: string]", "execute a command on a connection")(Command& cmd) {
   uint index = cmd.arg<0, uint>();

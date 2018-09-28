@@ -14,17 +14,24 @@ public:
   Socket();
   virtual ~Socket();
 
+
+  Socket(Socket&& socket);
+  Socket& operator=(Socket&& rhs);
+  Socket(Socket& copy) = delete;
+  Socket& operator=(const Socket& rhs) = delete;
+
   void setOption(eSocketOption ops);
   void unsetOption(eSocketOption ops);
 
+
   bool close();
 
-  bool valid() const;
-
+  bool opened() const;
+  bool closed() const;
   const NetAddress& address() const { return mAddress; };
 
 protected:
-  
+  Socket(uintptr_t handle, const NetAddress& addr);
   uintptr_t mHandle;
   NetAddress mAddress;
 

@@ -67,8 +67,8 @@ public:
 
   void clear();
 
-  void seekr(int16_t offset, eSeekDir dir = SEEK_DIR_BEGIN);
-  void seekw(int16_t offset, eSeekDir dir = SEEK_DIR_BEGIN);
+  void seekr(intptr_t offset, eSeekDir dir = SEEK_DIR_BEGIN);
+  void seekw(intptr_t offset, eSeekDir dir = SEEK_DIR_BEGIN);
 
 protected:
   bool grow(size_t minSize);
@@ -84,12 +84,18 @@ protected:
 enum_class_operators(BytePacker::eStorageFlag);
 
 template<typename T>
-void operator >>(BytePacker& lhs, T& rhs) {
+BytePacker& operator >>(BytePacker& lhs, T& rhs) {
   lhs.read(&rhs, sizeof(T));
+  return lhs;
 }
 
 template<typename T>
-BytePacker& operator >>(T& lhs, BytePacker& rhs) {
+BytePacker& operator << (BytePacker& lhs, T& rhs) {
+  lhs.write((void*)&rhs, sizeof(T));
+  return lhs;
+}
+
+template<typename T>
+void operator >>(T& lhs, BytePacker& rhs) {
   rhs.write(&lhs, sizeof(T));
-  return rhs;
 }

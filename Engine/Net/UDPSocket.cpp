@@ -8,8 +8,7 @@
 #include "Engine/Debug/Log.hpp"
 
 bool UDPSocket::bind(const NetAddress& addr, uint16_t portRange) {
-	// C4: If a socket is open and you bind - I would assert and return false;
-  close();
+  ASSERT_OR_RETURN(!opened(), false);
 
   SOCKET sock = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
@@ -21,7 +20,7 @@ bool UDPSocket::bind(const NetAddress& addr, uint16_t portRange) {
 
   int result = ::bind(sock, (sockaddr*)&sockadd, len);
 
-  if( 0 == result ) {
+  if (0 == result) {
     mHandle = sock;
     mAddress = addr;
     return true;
@@ -31,7 +30,7 @@ bool UDPSocket::bind(const NetAddress& addr, uint16_t portRange) {
 }
 
 size_t UDPSocket::send(const NetAddress& addr, const void* data, size_t byteCount) {
-  if(!valid()) {
+  if(!opened()) {
     return 0;
   }
 
@@ -43,7 +42,9 @@ size_t UDPSocket::send(const NetAddress& addr, const void* data, size_t byteCoun
   int sent = ::sendto(sock, (const char*)data, (int)byteCount, 0, (sockaddr*)&storage, len);
 
   if(sent > 0) {
-    Log::tagf("net", "the sent size is smaller than the actual size");
+    if(sent < byteCount) {
+      Log::tagf("net", "the sent size is smaller than the actual size");
+    }
 
     return (size_t)sent;
   } else {
@@ -60,7 +61,7 @@ size_t UDPSocket::send(const NetAddress& addr, const void* data, size_t byteCoun
 }
 
 size_t UDPSocket::receive(NetAddress& outAddr, void* buffer, size_t maxSize) {
-  if(!valid()) {
+  if(!opened()) {
     return 0;
   }
 

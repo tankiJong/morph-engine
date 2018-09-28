@@ -16,8 +16,13 @@ public:
   static NetAddress local(uint16_t port = 80);
   static NetAddress any(uint16_t port = 80);
   const char* toString() const;
+
+  bool operator==(const NetAddress& addr) const;
+  bool operator!=(const NetAddress& addr) const;
+
 protected:
   uint32_t mIpv4Address = 0;
   uint16_t mPort = 0;
   char mNameCache[256] = {0};
 };
+

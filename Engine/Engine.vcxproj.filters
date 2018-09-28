@@ -475,6 +475,18 @@
     <ClCompile Include="Net\UDPSocket.cpp">
       <Filter>Engine\Net</Filter>
     </ClCompile>
+    <ClCompile Include="Net\UDPSession.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\UDPConnection.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\NetMessage.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\NetPacket.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -982,6 +994,18 @@
       <Filter>Engine\Net</Filter>
     </ClInclude>
     <ClInclude Include="Net\UDPSocket.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\UDPSession.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\UDPConnection.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\NetMessage.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\NetPacket.hpp">
       <Filter>Engine\Net</Filter>
     </ClInclude>
   </ItemGroup>

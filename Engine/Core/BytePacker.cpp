@@ -3,11 +3,12 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include <vector>
 
-// C4: Don't use "16" - use a define or const that is "DEFAULT_BUFFER_SIZE" or similar; 
+#define DEFAULT_BUFFER_SIZE 16*1024
+
 BytePacker::BytePacker(eEndianness byteOrder)
   : mFlag(STORAGE_OWN_BUFFER | STORAGE_GROWABLE)
   , mByteOrder(byteOrder)
-  , mBufferView(new byte_t[16], 16) {
+  , mBufferView(new byte_t[DEFAULT_BUFFER_SIZE], DEFAULT_BUFFER_SIZE) {
 }
 
 BytePacker::BytePacker(size_t size, eEndianness byteOrder)
@@ -81,13 +82,9 @@ bool BytePacker::write(const char* data) {
 
 bool BytePacker::write(size_t size) {
   // convert to my byte order, which everyone agree on.
-	// C4: Do not convert!  Bit operators work WITH the endianness of the machine; 
-  toEndianness(ENDIANNESS_LITTLE, size);
-
   
   size_t byteToWrite = 0;
 
-	// C4: See changelist for what I did here -> see why it was equivalent; 
   uint8_t bytes[16];
 
   // the lower bit will be compressed first, so it will be pushed into buffer first
@@ -122,7 +119,9 @@ bool BytePacker::append(const void* data, size_t size) {
 }
 
 size_t BytePacker::consume(void* data, size_t size) {
-  size_t readCount = std::min(size, mNextWrite - mNextRead);
+  size_t readCount = std::min(size, mNextWrite - mNextRead + 1);
+
+  ASSERT_RECOVERABLE(readCount == size, "try to read more than the max readable bytes");
 
   memcpy(data, mBufferView.data() + mNextRead, readCount);
   mNextRead += size;
@@ -211,8 +210,7 @@ void BytePacker::clear() {
   mNextRead = 0;
 }
 
-// C4: Why int16_t?   64KB jumps seems uneeded; int or intptr_t
-void BytePacker::seekr(int16_t offset, eSeekDir dir) {
+void BytePacker::seekr(intptr_t offset, eSeekDir dir) {
   switch(dir) { 
     case SEEK_DIR_BEGIN:
       EXPECTS(offset >= 0);
@@ -230,8 +228,7 @@ void BytePacker::seekr(int16_t offset, eSeekDir dir) {
   ENSURES(valid());
 }
 
-// C4: Second verse, same as the first...
-void BytePacker::seekw(int16_t offset, eSeekDir dir) {
+void BytePacker::seekw(intptr_t offset, eSeekDir dir) {
   switch (dir) {
     case SEEK_DIR_BEGIN:
       EXPECTS(offset > 0);
@@ -274,8 +271,7 @@ bool BytePacker::grow(size_t minSize) {
 }
 
 bool BytePacker::valid() const {
-  std::vector<int> iv; // C4: Why?
   return mNextRead <= mNextWrite 
       && mNextWrite <= (size_t)mBufferView.size()
-      && mBufferView.size() > 0;
+      && !mBufferView.empty();
 }

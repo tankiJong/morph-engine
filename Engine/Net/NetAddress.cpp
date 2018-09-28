@@ -156,3 +156,13 @@ NetAddress NetAddress::any(uint16_t port) {
 const char* NetAddress::toString() const {
   return mNameCache;
 }
+
+bool NetAddress::operator==(const NetAddress& addr) const {
+  return
+    (addr.mIpv4Address == mIpv4Address) &&
+    (addr.mPort == mPort);
+}
+
+bool NetAddress::operator!=(const NetAddress& addr) const {
+  return !(*this == addr);
+}
