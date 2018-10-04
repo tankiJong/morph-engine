@@ -44,6 +44,8 @@ public:
   inline const ivec2&  size() const { return mSize; }
   vec2 clientCenter() const;
   ivec2 screenToClient(ivec2 pixelPostion) const;
+
+  bool setTitle(const char* text) const;
 private:
   void* mHwnd = nullptr; // intptr_t  
 

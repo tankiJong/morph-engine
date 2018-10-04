@@ -30,7 +30,7 @@ RHIDevice::sptr_t RHIDevice::create(window_handle_t winHandle) {
   return gDevice;
 }
 
-RHIDevice::sptr_t RHIDevice::get() {
+const RHIDevice::sptr_t& RHIDevice::get() {
   return gDevice;
 }
 

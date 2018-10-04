@@ -29,7 +29,12 @@ public:
   bool empty() const;
   bool ready() const;
 
+
+  span<const DescriptorSet::Layout> descriptorLayouts() const;
+
 protected:
+  void reflect() const;
+
   std::string mFilePath;
   Blob mSource;
   std::string mEntryPoint;
@@ -37,4 +42,5 @@ protected:
   Blob mBinary;
   std::unordered_map<std::string, std::string> mDefineDirectives;
   mutable RootSignature::sptr_t mRootSignature;
+  mutable std::vector<DescriptorSet::Layout> mLayouts;
 };

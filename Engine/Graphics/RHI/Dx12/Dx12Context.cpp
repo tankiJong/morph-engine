@@ -66,7 +66,7 @@ void RHIContext::copyBufferRegion(const RHIBuffer* dst, size_t dstOffset, RHIBuf
   mCommandsPending = true;
 }
 
-void RHIContext::resourceBarrier(const RHIResource* res, RHIResource::State newState) {
+void RHIContext::resourceBarrier(const RHIResource* res, RHIResource::State newState, bool forceSync) {
   // if resource has cpu access, no need to do anything
 
   const RHIBuffer* buffer = dynamic_cast<const RHIBuffer*>(res);
@@ -85,6 +85,14 @@ void RHIContext::resourceBarrier(const RHIResource* res, RHIResource::State newS
     mCommandsPending = true;
 
     res->mState = newState;
+  } else if(newState == RHIResource::State::UnorderedAccess && forceSync) {
+    D3D12_RESOURCE_BARRIER barrier;
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barrier.UAV.pResource = res->handle().Get();
+    
+    mContextData->commandList()->ResourceBarrier(1, &barrier);
+    mCommandsPending = true;
   }
 }
 
@@ -126,8 +134,8 @@ void RHIContext::beforeFrame() {
   // mContextData->commandList()->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 }
 
-void RHIContext::dispatch(uint threadGroupX, uint threadGroupY, uint threadGroupCount) {
-  mContextData->commandList()->Dispatch(threadGroupX, threadGroupY, threadGroupCount);
+void RHIContext::dispatch(uint threadGroupX, uint threadGroupY, uint threadGroupZ) {
+  mContextData->commandList()->Dispatch(threadGroupX, threadGroupY, threadGroupZ);
 }
 
 void RHIContext::draw(uint start, uint count) {

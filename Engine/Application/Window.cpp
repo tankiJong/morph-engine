@@ -42,6 +42,10 @@ ivec2 Window::screenToClient(ivec2 pixelPostion) const {
   return { desktopPos.x, desktopPos.y };
 }
 
+bool Window::setTitle(const char* text) const {
+  return SetWindowTextA((HWND)mHwnd, text);
+}
+
 Window::Window(int width, int height, const char* windowName) {
   init(width, height, windowName);
 }

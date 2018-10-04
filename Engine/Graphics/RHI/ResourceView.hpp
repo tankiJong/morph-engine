@@ -2,6 +2,7 @@
 
 #include "Engine/Graphics/RHI/RHI.hpp"
 #include "Engine/Core/common.hpp"
+#include "Engine/Graphics/RHI/DescriptorPool.hpp"
 
 class RHIResource;
 class RHIBuffer;
@@ -14,11 +15,12 @@ struct ResourceViewInfo {
   uint mipCount;
   uint firstArraySlice;
   uint arraySize;
+  DescriptorPool::Type type;
   ResourceViewInfo(
     uint mostDetailedMip, uint mipCount, 
-    uint firstArraySlice, uint arraySize)
+    uint firstArraySlice, uint arraySize, DescriptorPool::Type type)
   : mostDetailedMip(mostDetailedMip), mipCount(mipCount)
-  , firstArraySlice(firstArraySlice), arraySize(arraySize) {}
+  , firstArraySlice(firstArraySlice), arraySize(arraySize), type(type) {}
 
   inline bool operator==(const ResourceViewInfo& rhs) const {
     return
@@ -38,12 +40,14 @@ public:
 
   ResourceView(
     W<const RHIResource> res, rhi_handle_t handle, 
-    uint mostDetailedMip, uint mipCount, uint firstArraySlice, uint arraySize)
+    uint mostDetailedMip, uint mipCount, uint firstArraySlice, uint arraySize, DescriptorPool::Type type)
     : mRhiHandle(handle), mResource(res)
-    , mViewInfo(mostDetailedMip, mipCount, firstArraySlice, arraySize) {}
+    , mViewInfo(mostDetailedMip, mipCount, firstArraySlice, arraySize, type) {}
 
   W<const RHIResource> res() const { return mResource; }
   const rhi_handle_t& handle() const { return mRhiHandle; }
+  const ResourceViewInfo& info() const { return mViewInfo; }
+
 protected:
   rhi_handle_t mRhiHandle;
   ResourceViewInfo mViewInfo;
@@ -60,9 +64,9 @@ public:
   static sptr_t create(const TypedBuffer& res);
   static sptr_t nullView();
 protected:
-  ShaderResourceView(W<const RHIResource> res, rhi_handle_t handle, 
+  ShaderResourceView(W<const RHIResource> res, DescriptorPool::Type type, rhi_handle_t handle,
                      uint mostDetailedMip, uint mipCount, uint firstArraySlice, uint arraySize)
-    : ResourceView(res, handle, mostDetailedMip, mipCount, firstArraySlice, arraySize) {}
+    : ResourceView(res, handle, mostDetailedMip, mipCount, firstArraySlice, arraySize, type) {}
   static sptr_t sNullView;
 };
 
@@ -76,7 +80,7 @@ public:
 
 protected:
   ConstantBufferView(W<const RHIResource> res, rhi_handle_t handle)
-    : ResourceView(res, handle, 0, 1, 0, 1) {}
+    : ResourceView(res, handle, 0, 1, 0, 1, DescriptorPool::Type::Cbv) {}
 
   static sptr_t sNullView;
 };
@@ -90,7 +94,7 @@ public:
   static sptr_t nullView();
 
 protected:
-  RenderTargetView(W<const RHIResource> res, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize): ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize) {}
+  RenderTargetView(W<const RHIResource> res, DescriptorPool::Type type, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize): ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize, type) {}
 
   static sptr_t sNullView;
 };
@@ -104,7 +108,8 @@ public:
   static sptr_t nullView();
 
 protected:
-  DepthStencilView(W<const RHIResource> res, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize) : ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize) {}
+  DepthStencilView(W<const RHIResource> res, DescriptorPool::Type type, rhi_handle_t handle, 
+                   uint mipLevel, uint firstArraySlice, uint arraySize) : ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize, type) {}
 
   static sptr_t sNullView;
 };
@@ -120,7 +125,9 @@ public:
   static sptr_t nullView();
 
 protected:
-  UnorderedAccessView(W<const RHIResource> res, rhi_handle_t handle, uint mipLevel, uint firstArraySlice, uint arraySize) : ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize) {}
+  UnorderedAccessView(W<const RHIResource> res, DescriptorPool::Type type, rhi_handle_t handle, 
+                      uint mipLevel, uint firstArraySlice, uint arraySize) 
+  : ResourceView(res, handle, mipLevel, 1, firstArraySlice, arraySize, type) {}
 
   static sptr_t sNullView;
 };

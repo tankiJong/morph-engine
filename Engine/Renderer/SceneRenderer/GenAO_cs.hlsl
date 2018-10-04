@@ -40,7 +40,7 @@ static uint seed;
 
 
 [RootSignature(GenAO_RootSig)]
-[numthreads(32, 32, 1)]
+[numthreads(16, 16, 1)]
 void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex )
 {
 	uint2 pix = threadId.xy;
@@ -62,26 +62,21 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	seed = threadId.x * 102467 + threadId.y * 346755 + groupIndex + uint(gTime*10000);
 
-	for(uint i = 0; i < 2; i++) {
-		Ray ray = GenReflectionRay(seed, float4(position, 1.f), normal);
-		//ray.direction = float3(-0.5f, 0.5f, 0.f);
-		/*
-		if(dot(ray.direction, normal) > 0 ) {
-			uAO[threadId.xy] = float4(1, 1, 1, 1.f);
-		}	else {
-			uAO[threadId.xy] = float4(0, 0, 0, 1.f);
-		}
-		 */
+	float hitDistance = 0;
+	
+	{
+		Ray ray = GenReflectionRay(seed, float4(position, 1.f), normal);	
 		Contact c = trace(ray);
-
-		bool occluded = c.valid;
-		occlusion += lerp(0, dot(normal, ray.direction) / ( c.t * c.t + 1.f ), (float)occluded);
+	
+		bool occluded = c.valid;	
+		occlusion += lerp(0, 1, (float)occluded);
+		hitDistance += c.t;	
 	}
 	 		 
-	occlusion = occlusion / 2.f;
 	occlusion = 1.f - occlusion;
 
 	float3 color = float3(occlusion, occlusion, occlusion);
 
-	uAO[threadId.xy] = (uAO[threadId.xy] * gFrameCount + float4(color, 1.f)) / (gFrameCount + 1);
+	uAO[threadId.xy] = float4(color, hitDistance);
+	// uAO[threadId.xy] = float4(1, 1, 1, 1.f);
 }

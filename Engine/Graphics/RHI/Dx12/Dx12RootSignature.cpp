@@ -1,7 +1,6 @@
-#include "Engine/Graphics/RHI/RootSignature.hpp"
 #include <vector>
+#include "Dx12RootSignature.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "Engine/Graphics/RHI/Dx12/dx12util.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 
 uint mSizeInByte;
@@ -43,6 +42,33 @@ D3D12_DESCRIPTOR_RANGE_TYPE asDx12RangeType(const RootSignature::desc_type_t typ
     default:
       ERROR_AND_DIE("unexpected logic");
       return (D3D12_DESCRIPTOR_RANGE_TYPE)-1;
+  }
+}
+
+ShaderVisibility asShaderVisibility(D3D12_SHADER_VISIBILITY visibility) {
+  // D3D12 doesn't support a combination of flags, it's either ALL or a single stage
+  switch(visibility) { 
+    case D3D12_SHADER_VISIBILITY_ALL: return ShaderVisibility::All;
+    case D3D12_SHADER_VISIBILITY_VERTEX: return ShaderVisibility::Vertex;
+    // case D3D12_SHADER_VISIBILITY_HULL: return;
+    // case D3D12_SHADER_VISIBILITY_DOMAIN: return ;
+    // case D3D12_SHADER_VISIBILITY_GEOMETRY: return ;
+    case D3D12_SHADER_VISIBILITY_PIXEL: return ShaderVisibility::Pixel;
+    default:
+      ERROR_AND_DIE("unexpected logic");
+      return (ShaderVisibility)-1;
+  }
+}
+
+RootSignature::desc_type_t asRangeType(const D3D12_DESCRIPTOR_RANGE_TYPE type) {
+  switch(type) { 
+    case D3D12_DESCRIPTOR_RANGE_TYPE_SRV: return RootSignature::desc_type_t::TextureSrv;
+    case D3D12_DESCRIPTOR_RANGE_TYPE_UAV: return RootSignature::desc_type_t::TextureUav;
+    case D3D12_DESCRIPTOR_RANGE_TYPE_CBV: return RootSignature::desc_type_t::Cbv;
+    case D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER: return RootSignature::desc_type_t::Sampler;
+    default: 
+      ERROR_AND_DIE("unexpected logic");
+      return (RootSignature::desc_type_t)-1;
   }
 }
 
@@ -124,6 +150,8 @@ void RootSignature::initHandle(ID3DBlobPtr sigBlob) {
   RHIDevice::rhi_handle_t device = RHIDevice::get()->nativeDevice();
 
   d3d_call(device->CreateRootSignature(0, sigBlob->GetBufferPointer(), sigBlob->GetBufferSize(), IID_PPV_ARGS(&mRhiHandle)));
+
+  mBinary.set(sigBlob->GetBufferPointer(), sigBlob->GetBufferSize());
 }
 
 void RootSignature::initHandle(const Blob& sigBlob) {
@@ -131,5 +159,7 @@ void RootSignature::initHandle(const Blob& sigBlob) {
   RHIDevice::rhi_handle_t device = RHIDevice::get()->nativeDevice();
 
   d3d_call(device->CreateRootSignature(0, sigBlob, sigBlob.size(), IID_PPV_ARGS(&mRhiHandle)));
+
+  mBinary = sigBlob.clone();
 }
 

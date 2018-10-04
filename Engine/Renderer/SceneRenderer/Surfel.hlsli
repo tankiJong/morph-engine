@@ -1,17 +1,21 @@
-
+#define TOTAL_HISTORY 32
 struct surfel_t {
   float3 position;
   float __padding0;
+
   float3 normal;
   float __padding1;
+  
   float3 color;
-  float __padding2;
+  
   float3 indirectLighting;
   float age;
-  float3 mean;
+  
+  uint nextToWrite;
   float id;
-  float3 variance;
-  float __padding3;
+  float2 __padding3;
+  
+  float4 history[32];
 };
 
 static const float SURFEL_RADIUS = 0.35f;

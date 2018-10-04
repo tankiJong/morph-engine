@@ -31,7 +31,6 @@ RootSignature::sptr_t RootSignature::create(const Desc& desc) {
 }
 
 RootSignature::sptr_t RootSignature::create(const Blob& data) {
-
   sptr_t sig = sptr_t(new RootSignature());
   sig->mFromBlob = true;
 

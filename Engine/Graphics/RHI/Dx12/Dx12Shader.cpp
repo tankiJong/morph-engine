@@ -2,6 +2,7 @@
 #include "Engine/Graphics/RHI/Shader.hpp"
 #include "Engine/File/Utils.hpp"
 #include <optional>
+#include "Engine/Graphics/RHI/Dx12/Dx12RootSignature.hpp"
 
 class Dx12Include: public ID3DInclude {
 public:
@@ -96,6 +97,64 @@ void Shader::compile() {
     ERROR_AND_DIE((char*)err->GetBufferPointer());
   }
   mBinary.set(bin->GetBufferPointer(), bin->GetBufferSize());
+
+  reflect();
+}
+
+void Shader::reflect() const {
+
+  // shader reflection to get the resource information
+  // ID3D12ShaderReflectionPtr reflector = nullptr;
+  // D3DReflect(mBinary, mBinary.size(), IID_PPV_ARGS(&reflector));
+  //
+  // D3D12_SHADER_DESC desc;
+  // reflector->GetDesc(&desc);
+  //
+  // // to build the layout, I care resources binding: T, B, U
+  // uint resBinded = desc.BoundResources;
+  //
+  // for(uint i = 0; i < resBinded; i++) {
+  //
+  //   D3D12_SHADER_INPUT_BIND_DESC ddesc;
+  //   reflector->GetResourceBindingDesc(i, &ddesc);
+  //   const char* name = ddesc.Name;
+  // }
+
+  auto sig = rootSignature();
+
+  if (!sig) return;
+
+  MAKE_SMART_COM_PTR(ID3D12VersionedRootSignatureDeserializer);
+
+  ID3D12VersionedRootSignatureDeserializerPtr deserializer;
+  D3D12CreateVersionedRootSignatureDeserializer(sig->data(), sig->data().size(), IID_PPV_ARGS(&deserializer));
+
+  const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* desc;
+  deserializer->GetRootSignatureDescAtVersion(D3D_ROOT_SIGNATURE_VERSION_1_0, &desc);
+
+  mLayouts.clear();
+
+  for(uint i = 0; i < desc->Desc_1_0.NumParameters; i ++) {
+
+    const D3D12_ROOT_PARAMETER& param = desc->Desc_1_0.pParameters[i];
+    ENSURES(param.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE);
+
+    ShaderVisibility vb = asShaderVisibility(param.ShaderVisibility);
+    auto& layout = mLayouts.emplace_back(vb);
+
+    for(uint j = 0; j < param.DescriptorTable.NumDescriptorRanges; j++) {
+
+      const D3D12_DESCRIPTOR_RANGE& range = param.DescriptorTable.pDescriptorRanges[j];
+
+      DescriptorSet::Type type = asRangeType(range.RangeType);
+      layout.addRange(type, range.BaseShaderRegister, range.NumDescriptors, range.RegisterSpace);
+    }
+  }
+}
+
+span<const DescriptorSet::Layout> Shader::descriptorLayouts() const {
+  if (mLayouts.empty()) reflect();
+  return mLayouts;
 }
 
 S<const RootSignature> Shader::rootSignature() const {

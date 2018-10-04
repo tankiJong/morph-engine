@@ -89,7 +89,7 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 			bool valid = c.valid && (c.t < contact.t) && (c.t >= 0.f);	 // equal to zero avoid the fail intersaction in the corner	edge
 			if(valid)	{
 				contact = c;
-				albedo = gVerts[i].color;
+				albedo = gVerts[i].color.xyz;
 			}
 		}
 
@@ -136,7 +136,10 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 
 void updateSurfels(inout surfel_t surfel) {
 	float age = surfel.age;
-	if(age < 5) {
+
+	uint index = surfel.nextToWrite;
+	float4 history[TOTAL_HISTORY] = surfel.history;
+	if(age < TOTAL_HISTORY) {
 		Ray ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
 		float3 indirect = PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal); 
 		ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
@@ -149,22 +152,56 @@ void updateSurfels(inout surfel_t surfel) {
 		indirect += PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal);
 		
 		indirect = indirect / 5.f;
-		surfel.indirectLighting = (surfel.indirectLighting * age + indirect) / (age + 1.f);
+		history[index] = float4((surfel.indirectLighting * age + indirect) / (age + 1.f), 0);
+
+		float3 lighting = float3(0,0,0);
+		for(uint i = 0; i <= index; i++) {
+			lighting += history[i].xyz;
+		}
+
+		float3 average = lighting / float(index + 1);
+
+		float variance = float3(0,0,0);
+		for(uint i = 0; i < index; i++) {
+			variance += distance(average, history[i].xyz) * distance(average, history[i].xyz);
+		}
+
+		variance = abs(variance / float(index + 1));
+
+		float k = variance;
+
+		surfel.indirectLighting = lerp(average, surfel.indirectLighting, 1.f /(k + 1));
+		// history[index] = float4(surfel.indirectLighting, 0);
 	} else {
 		Ray ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
 		// surfel.indirectLighting = PathTracing(ray, surfel.position, surfel.normal, surfel.color);
 		float3 newIndirect = PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal);;
-		newIndirect = newIndirect;
 
-		float3 newMean = lerp(surfel.indirectLighting, newIndirect, 1/(age + 1));
-		surfel.variance = surfel.variance + ( newIndirect - surfel.mean) * ( newIndirect - newMean );
-		surfel.mean = newMean;
+		history[index] = float4(newIndirect, 0.f);
 
+		float3 lighting = float3(0,0,0);
+		for(uint i = 0; i < TOTAL_HISTORY; i++) {
+			lighting += history[i].xyz;
+		}
+		
+		float3 average = lighting / TOTAL_HISTORY;
 
-		float k = 1 / ( age + age * length(surfel.variance) * dot(surfel.variance, surfel.mean));
-		surfel.indirectLighting = lerp(surfel.indirectLighting, newIndirect, 1/(age + 1));
+		float variance = float3(0,0,0);
+		for(uint i = 0; i < 16; i++) {
+			variance += distance(average, history[i].xyz);
+		}
+
+		variance = abs(variance) / TOTAL_HISTORY;
+
+		float k = variance * distance(surfel.indirectLighting, average);
+
+		surfel.indirectLighting = lerp(average, surfel.indirectLighting, 1.f /(k + 1));
+		// history[index] = float4(surfel.indirectLighting, 0.f);
+		// surfel.indirectLighting = lerp(surfel.indirectLighting, newIndirect, 1/(age + 1));
 	}
 
+	surfel.nextToWrite = (surfel.nextToWrite + 1) % TOTAL_HISTORY;
+	surfel.history = history;
 	surfel.age++;
 }
 
@@ -174,21 +211,17 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 {
 	seed = threadId.x * 10000 + threadId.y * 121144 + gTime * 367860;
 
-	
-	uint hash, _;
-
-	uSurfelBucket.GetDimensions(hash, _);
-
 	// for(uint j = 0; j < hash; j++) {
 		SurfelBucketInfo info = uSurfelBucket[16*16*groupId.z + threadId.x * 16 + threadId.y];
 
-		for(uint i = info.startIndex; i < info.startIndex + info.currentCount; i++) {
+		uint i = info.startIndex;
+		while(i < info.startIndex + info.currentCount) {
 			if(uSurfels[i].age == 1) {
 				uSurfels[i].id = i;
 			}
-			updateSurfels(uSurfels[i]);
 
+			updateSurfels(uSurfels[i]);
+			i++;
 		}
-	// }
 
 }

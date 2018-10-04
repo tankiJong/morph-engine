@@ -3,6 +3,7 @@
 #include "Engine/Graphics/RHI/RHI.hpp"
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/DescriptorSet.hpp"
+#include "Engine/File/Blob.hpp"
 
 class Blob;
 
@@ -24,7 +25,7 @@ public:
   };
 
   rhi_handle_t handle() const { return mRhiHandle; };
-
+  const Blob& data() const { return mBinary; }
   static sptr_t create(const Desc& desc);
 #ifdef MORPH_D3D12
   static sptr_t create(const Blob& data);
@@ -48,4 +49,5 @@ protected:
   rhi_handle_t mRhiHandle;
   std::vector<uint> mElementByteOffset;
   bool mFromBlob = false;
+  Blob mBinary;
 };

@@ -16,23 +16,16 @@ Texture2D<float4> gTexNormal:   register(t11);
 Texture2D<float4> gTexPosition: register(t12);
 Texture2D gTexDepth: register(t13);
 StructuredBuffer<vertex_t> gVerts: register(t14);
-Texture2D<float4> gTexAO: register(t15);
 
 RWStructuredBuffer<surfel_t> uSurfels: register(u0);
 RWStructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(u1);
 RWTexture2D<float4> uTexIndirect: register(u2);
 
-
-float4 ComputeIndirect(uint2 pix, uint groupIndex)
+float4 ComputeIndirect(uint2 pix)
 {
 	float3 surfacePosition = gTexPosition[pix].xyz;
 	float3 surfaceNormal = gTexNormal[pix].xyz * 2.f - 1.f;
 	float3 surfaceColor = gTexAlbedo[pix].xyz;
-	float3 eyePosition;
-	{
-		float4 eye = mul(inverse(view), mul(inverse(projection), float4(0,0,0,1.f)));
-		eyePosition = eye.xyz / eye.w;
-	}
 
 	float3 indirect = float3(0,0,0);
 	 
@@ -41,25 +34,21 @@ float4 ComputeIndirect(uint2 pix, uint groupIndex)
 	uint bucketCount, _;
 	uSurfelBucket.GetDimensions(bucketCount, _);
 
-	for(uint q = 0; q < 16; q++) {
-		for(uint p = 0; p < 16; p++) {
-			SurfelBucketInfo info = uSurfelBucket[GetSpatialHashFromComponent(uint3(p, q, groupIndex))];
+	for(uint k = 0; k <= bucketCount; k++) {
+			SurfelBucketInfo info = uSurfelBucket[k];
 	 	
 			uint i = info.startIndex;
 			while(i < info.startIndex + info.currentCount) {
+				surfel_t surfel = uSurfels[i];
+				float d = distance(surfacePosition, surfel.position);
 
-				float d = distance(surfacePosition, uSurfels[i].position);
-
-				float weight = 1 / ((d*d) / (SURFEL_RADIUS * SURFEL_RADIUS) + SURFEL_RADIUS + 1);
-				float iscovered = saturate((dot(surfaceNormal, uSurfels[i].normal))) * weight;
+				float weight = pow(0.5f, d);
+				float iscovered = max(0.f, (dot(surfaceNormal, surfel.normal))) * weight;
 				total += weight;
-				indirect =	indirect + 
-										(uSurfels[i].indirectLighting) * iscovered;
+				indirect =	mad( surfel.indirectLighting, iscovered, indirect );
 
 				i++;
 		}
-	}
-	
 	}
 
 	return float4(indirect, total);
@@ -67,18 +56,17 @@ float4 ComputeIndirect(uint2 pix, uint groupIndex)
 
 [RootSignature(DeferredLighting_RootSig)]
 [numthreads(32, 32, 1)]
-void main( uint3 threadId: SV_DispatchThreadID, uint3 groupId: SV_GroupId )
+void main( uint3 threadId: SV_DispatchThreadID )
 {
 	uint2 pix = threadId.xy;
 
 	uint2 size;
 	uTexIndirect.GetDimensions(size.x, size.y);
-	
 	if(pix.x > size.x || pix.y > size.y) return;
 
-	float4 color = ComputeIndirect(pix * 2, groupId.z);
 
-	uTexIndirect[pix] += color;
+	float4 color = ComputeIndirect(pix * 2);
+	uTexIndirect[pix] = color;
 
 }
 

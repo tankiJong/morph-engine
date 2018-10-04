@@ -43,7 +43,7 @@ ShaderResourceView::sptr_t ShaderResourceView::create(
   RHIDevice::get()->nativeDevice()->CreateShaderResourceView(
     ptr ? ptr->handle().Get() : nullptr, &desc, handle->cpuHandle(0));
 
-  srv = sptr_t(new ShaderResourceView(res, handle, mostDetailedMip, mipCount, firstArraySlice, arraySize));
+  srv = sptr_t(new ShaderResourceView(res, DescriptorPool::Type::TextureSrv, handle, mostDetailedMip, mipCount, firstArraySlice, arraySize));
   return srv;
 }
 
@@ -69,7 +69,7 @@ ShaderResourceView::sptr_t ShaderResourceView::create(const TypedBuffer& res) {
 
   RHIDevice::get()->nativeDevice()->CreateShaderResourceView(
     res.handle().Get(), &desc, handle->cpuHandle(0));
-  srv = sptr_t(new ShaderResourceView(res.shared_from_this(), handle, 0, MAX_POSSIBLE, 0, MAX_POSSIBLE));
+  srv = sptr_t(new ShaderResourceView(res.shared_from_this(), DescriptorPool::Type::TypedBufferSrv, handle, 0, MAX_POSSIBLE, 0, MAX_POSSIBLE));
   return srv;
 }
 
@@ -136,7 +136,7 @@ RenderTargetView::sptr_t RenderTargetView::create(W<const RHITexture> res, uint 
 
   sptr_t& rtv = ptr ? obj : sNullView;
 
-  rtv = sptr_t(new RenderTargetView(res, handle, mipLevel, firstArraySlice, arraySize));
+  rtv = sptr_t(new RenderTargetView(res, DescriptorPool::Type::Rtv, handle, mipLevel, firstArraySlice, arraySize));
 
   return rtv;
 }
@@ -174,7 +174,7 @@ DepthStencilView::sptr_t DepthStencilView::create(W<const RHITexture> res, uint 
 
   sptr_t& dsv = ptr ? obj : sNullView;
 
-  dsv = sptr_t(new DepthStencilView(res, handle, mipLevel, firstArraySlice, arraySize));
+  dsv = sptr_t(new DepthStencilView(res, DescriptorPool::Type::Dsv, handle, mipLevel, firstArraySlice, arraySize));
 
   return dsv;
 }
@@ -201,7 +201,7 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(const TypedBuffer& res) 
   TODO("uav will need a counter res if we actually care about");
   RHIDevice::get()->nativeDevice()->CreateUnorderedAccessView(resHandle.Get(), counterHandle.Get(), &desc, handle->cpuHandle(0));
 
-  sptr_t uav = sptr_t(new UnorderedAccessView(res.shared_from_this(), handle, 0, 0, 1));
+  sptr_t uav = sptr_t(new UnorderedAccessView(res.shared_from_this(), DescriptorPool::Type::TypedBufferUav, handle, 0, 0, 1));
 
   return uav;
 }
@@ -239,7 +239,7 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(W<const RHIBuffer> res) 
 
   sptr_t obj;
   sptr_t uav = ptr ? obj : sNullView;
-  uav = sptr_t(new UnorderedAccessView(res, handle, 0, 0, 1));
+  uav = sptr_t(new UnorderedAccessView(res, DescriptorPool::Type::StructuredBufferUav, handle, 0, 0, 1));
 
   return uav;
 }
@@ -274,7 +274,7 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(W<const Texture2> res, u
 
   sptr_t obj;
   sptr_t uav = ptr ? obj : sNullView;
-  uav = sptr_t(new UnorderedAccessView(res, handle, mipLevel, 0, 1));
+  uav = sptr_t(new UnorderedAccessView(res, DescriptorPool::Type::TextureUav, handle, mipLevel, 0, 1));
 
   return uav;
 }

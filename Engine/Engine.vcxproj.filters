@@ -606,6 +606,9 @@
     <ClCompile Include="Renderer\SceneRenderer\SceneRenderer.cpp">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Program\ProgramIns.cpp">
+      <Filter>Engine\Graphics\Program</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -1222,6 +1225,12 @@
     </ClInclude>
     <ClInclude Include="Renderer\SceneRenderer\SceneRenderer.hpp">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\Dx12\Dx12RootSignature.hpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Program\ProgramIns.hpp">
+      <Filter>Engine\Graphics\Program</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

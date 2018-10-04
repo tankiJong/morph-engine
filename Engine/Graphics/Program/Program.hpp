@@ -3,6 +3,9 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/Shader.hpp"
 
+
+class ProgramIns;
+
 class Program: public std::enable_shared_from_this<Program> {
 public:
   using sptr_t = S<Program>;
@@ -19,13 +22,15 @@ public:
 
   RenderState& renderState();
   S<const RootSignature> rootSignature() const;
-  DescriptorSet::Layout& descriptorLayout() { return mLayout; };
-  const DescriptorSet::Layout& descriptorLayout() const { return mLayout; };
+  span<const DescriptorSet::Layout> descriptorLayout() const { return mLayouts; };
+  span<DescriptorSet::Layout> descriptorLayout() { return mLayouts; };
   // void setDescriptorLayout(const DescriptorSet::Layout& layout);
+
+  S<ProgramIns> instantiate();
 
 protected:
   std::array<Shader, NUM_SHADER_TYPE> mShaders;
-  DescriptorSet::Layout mLayout;
+  std::vector<DescriptorSet::Layout> mLayouts;
   RenderState mRenderState;
   S<const RootSignature> mRootSig;
   bool mIsDirty = true;

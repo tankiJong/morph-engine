@@ -36,7 +36,7 @@ public:
   void cleanup();
   static sptr_t create(window_handle_t winHandle);
 
-  static sptr_t get();
+  static const sptr_t& get();
   window_handle_t        mWindow;
 protected:
   struct res_release {

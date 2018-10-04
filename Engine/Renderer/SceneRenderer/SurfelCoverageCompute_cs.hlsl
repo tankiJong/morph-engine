@@ -52,7 +52,7 @@ float coverageAt(uint2 pix) {
 }
 
 [RootSignature(SurfelPlacement_RootSig)]
-[numthreads(32, 32, 1)]
+[numthreads(16, 16, 1)]
 void main( uint3 threadId : SV_DispatchThreadID)
 {
 	uint2 pix = threadId.xy;
