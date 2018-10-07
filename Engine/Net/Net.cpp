@@ -28,7 +28,7 @@ bool Net::shutdown() {
   return true;
 }
 
-COMMAND_REG("self_ip", "", "")(Command& cmd) {
+COMMAND_REG("self_ip", "", "")(Command&) {
   Log::tagf("net", "Local IP: %s", NetAddress::local().toString());
   return true;
 }
@@ -41,7 +41,7 @@ COMMAND_REG("a1_test_connect", "[IP:HOST][MESSAGE]", "")(Command& cmd) {
     TCPSocket s;
     s.connect(address);
     s.send(ss.data(), ss.size());
-    int re = s.receive(rc, 256);
+    int re = s.receive(rc, 256u);
     if(re > 0) {
       Log::tagf("net", rc);
     }

@@ -2,14 +2,18 @@
 #include "Engine/Net/NetPacket.hpp"
 #include "Engine/Net/UDPSession.hpp"
 
-bool UDPConnection::send(const NetMessage& msg) {
+bool UDPConnection::send(NetMessage& msg) {
+  mOwner->finalize(msg);
   mOutboundUnreliables.push_back(msg);
 
   return true;
 }
 
-void UDPConnection::flush() {
-  if (!shouldSendPacket()) return;
+void UDPConnection::flush(bool force) {
+  tryAppendHeartbeat();
+  if(!force) {
+    if (!shouldSendPacket()) return;
+  }
 
   NetPacket packet;
 
@@ -32,6 +36,8 @@ void UDPConnection::flush() {
 
   mOwner->send(mIndexOfSession, packet);
 
+  mLastSendSec = GetCurrentTimeSeconds();
+
   mOutboundUnreliables.clear();
 }
 
@@ -39,10 +45,36 @@ bool UDPConnection::set(UDPSession& session, uint8_t index, const NetAddress& ad
   mOwner = &session;
   mIndexOfSession = index;
   mAddress = addr;
-
+  mHeartBeatTimer.flush();
   return true;
 }
 
-bool UDPConnection::shouldSendPacket() {
-  return !mOutboundUnreliables.empty();
+void UDPConnection::heartbeatFrequency(double freq) {
+  EXPECTS(freq != 0);
+  mHeartBeatTimer.flush();
+  mHeartBeatTimer.duration = 1.0 / freq;
+}
+
+double UDPConnection::tickFrequency(double freq) {
+  mTickSec = 1.0 / freq;
+  return mTickSec;
+}
+
+bool UDPConnection::shouldSendPacket() const {
+  bool re = !mOutboundUnreliables.empty();
+
+  bool canTick = 
+    GetCurrentTimeSeconds() - mLastSendSec > 
+    std::max(mOwner->tickSecond(), mTickSec);
+
+  return re && canTick;
+}
+
+bool UDPConnection::tryAppendHeartbeat() {
+  if (!mHeartBeatTimer.decrement()) return false;
+
+  NetMessage heartbeat("heartbeat");
+  send(heartbeat);
+
+  return true;
 }

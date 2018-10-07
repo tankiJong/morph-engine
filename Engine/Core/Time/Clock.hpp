@@ -42,6 +42,7 @@ class Interval {
   friend class Clock;
   friend Interval& createWatch();
 public:
+  Interval(double duration);
   Interval();
   ~Interval();
   inline void pause() { isPaused = true; };

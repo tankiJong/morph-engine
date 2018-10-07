@@ -92,8 +92,6 @@ RemoteConsole::RemoteConsole() {
           flushConnection(i, mConnections[i]);
         }
 
-        for(Connection& connection: mConnections) {
-        }
       } else {
         if (mServiceState == STATE_TRY_JOIN || mServiceState == STATE_TRY_HOST) continue;
         reset();
@@ -314,12 +312,12 @@ COMMAND_REG("rc_join", "[address:port]", "leave current service and try to join 
 COMMAND_REG("rc_host", "[port: uint]", "start hosting on the port.")(Command& cmd) {
   gRemoteConsole->reset();
 
-  uint port = cmd.arg<0, uint>();
+  uint16_t port = (uint16_t)cmd.arg<0, uint>();
 
   return gRemoteConsole->host(port);
 }
 
-COMMAND_REG("rc_list", "", "log the remote console service status.")(Command& cmd) {
+COMMAND_REG("rc_list", "", "log the remote console service status.")(Command&) {
   gRemoteConsole->printState();
   return true;
 }

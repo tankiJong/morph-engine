@@ -175,7 +175,7 @@ void Window::registerWindowClass() {
   RegisterClassEx(&windowClassDescription);
 }
 
-COMMAND_REG("clone_process", "", "Clone current process")(Command& cmd) {
+COMMAND_REG("clone_process", "", "Clone current process")(Command&) {
   wchar_t name[1024];
   ::GetModuleFileName(NULL, name, 1024);
 

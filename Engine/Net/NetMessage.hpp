@@ -10,14 +10,14 @@ class NetMessage: public BytePacker {
 public:
 
   struct Def {
-    static const uint8_t INVALID_MESSAGE_INDEX = ~0;
-    uint8_t index;
+    static constexpr uint8_t INVALID_MESSAGE_INDEX = 0xffui8;
+    uint8_t index = INVALID_MESSAGE_INDEX;
     std::string name;
   };
   NetMessage()
     : BytePacker(NET_MESSAGE_MTU, mLocalBuffer, ENDIANNESS_LITTLE) {}
 
-  NetMessage(uint index) 
+  NetMessage(uint8_t index) 
     : BytePacker(NET_MESSAGE_MTU, mLocalBuffer, ENDIANNESS_LITTLE) 
     , mIndex(index) {}
 
@@ -32,7 +32,7 @@ public:
 protected:
 
   void setDefinition(const Def& def);
-  byte_t mLocalBuffer[NET_MESSAGE_MTU];
+  byte_t mLocalBuffer[NET_MESSAGE_MTU] = {};
   const Def* mDefinition = nullptr;
   std::string mName = "";
   uint8_t mIndex = Def::INVALID_MESSAGE_INDEX;

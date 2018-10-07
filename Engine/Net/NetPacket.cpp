@@ -4,9 +4,16 @@
 NetPacket::NetPacket()
   : BytePacker(NET_PACKET_MTU, mLocalBuffer, ENDIANNESS_LITTLE) {
   memset(mLocalBuffer, 0, NET_PACKET_MTU);
+  mTimestamp = GetCurrentTimeSeconds();
 }
 
-void NetPacket::fill(void* data, size_t size) {
+NetPacket::NetPacket(const NetPacket& packet)
+  : BytePacker(NET_PACKET_MTU, mLocalBuffer, ENDIANNESS_LITTLE) {
+  memcpy(mLocalBuffer, packet.mLocalBuffer, NET_PACKET_MTU);
+  mTimestamp = packet.mTimestamp;
+}
+
+void NetPacket::fill(const void* data, size_t size) {
   EXPECTS(size < NET_PACKET_MTU);
 
   memcpy(mLocalBuffer, data, size);
@@ -21,7 +28,11 @@ void NetPacket::begin(uint8_t connectionIndex) {
 }
 
 void NetPacket::end() {
-  mStampedHeader.unreliableCount = mStampedMessage.size();
+  size_t size = mStampedMessage.size();
+
+  ENSURES(size < 0xff);
+
+  mStampedHeader.unreliableCount = (uint8_t)size;
 
   write(mStampedHeader);
 
@@ -55,6 +66,10 @@ bool NetPacket::read(NetMessage& outMessage) {
   uint8_t index;
   *this >> total >> index;
 
+  if (tellw() - tellr() < total - 2) {
+    return false;
+  }
+
   void* buf = _alloca(total - 1u);
 
   size_t size = consume(buf, total - 1u);
@@ -64,6 +79,10 @@ bool NetPacket::read(NetMessage& outMessage) {
   outMessage.append(buf, size);
   
   return true;
+}
+
+void NetPacket::receivedTime(double second) {
+  mTimestamp = second;
 }
 
 void NetPacket::write(const header_t& header) {

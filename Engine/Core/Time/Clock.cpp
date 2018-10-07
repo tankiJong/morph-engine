@@ -81,6 +81,11 @@ Clock& Interval::clock() const {
   return gMainClock;
 }
 
+Interval::Interval(double dura)
+  : Interval() {
+  duration = dura;
+}
+
 Interval::Interval() {
   mStartTime = gMainClock.total.second;
   mCurrentTime = mStartTime;

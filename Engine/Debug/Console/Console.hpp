@@ -101,7 +101,7 @@ public:
 
     bool release() {
       if (func == nullptr) return false;
-      for(uint i = owner->mOutputHandler.size() - 1; i < owner->mOutputHandler.size(); --i) {
+      for(size_t i = owner->mOutputHandler.size() - 1; i < owner->mOutputHandler.size(); --i) {
         auto* handle = &owner->mOutputHandler[i];
         if( handle == func) {
           std::swap(owner->mOutputHandler.back(), owner->mOutputHandler[i]);
