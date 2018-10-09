@@ -74,8 +74,3 @@ S<const RootSignature> Program::rootSignature() const {
   return mRootSig;
 }
 
-// void Program::setDescriptorLayout(const DescriptorSet::Layout& layout) {
-//   mIsDirty = true;
-//   mLayout = layout;
-// }
-

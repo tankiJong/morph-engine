@@ -36,7 +36,8 @@ ProgramIns::ProgramIns(const S<Program>& program) {
   auto& device = RHIDevice::get();
 
   for(auto& layout: layouts) {
-    mDescriptorSets.emplace_back(DescriptorSet::create(device->gpuDescriptorPool(), layout));
+    S<DescriptorSet>& set = mDescriptorSets.emplace_back(DescriptorSet::create(device->gpuDescriptorPool(), layout));
+    set->clear();
   }
 }
 

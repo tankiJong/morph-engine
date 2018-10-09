@@ -50,18 +50,41 @@ bool GetSurfelAt(float3 position, float3 normal, out float3 indirect) {
 	return covered > 0.f;
 }
 
-// if false, stop tracing
-bool russianRoulette(inout float weight) {
-	static const float STOP_THREHOLD = .5f;
-	static const float STOP_CHANCE = .1f;
+Contact trace(Ray ray) {
+	uint vertCount, stride;
+	gVerts.GetDimensions(vertCount, stride);
 
-	if(weight > STOP_THREHOLD) return true;
+	Contact contact;
+	contact.t = 1e6;
+	contact.valid = false;
 
-	Randomf roll = rnd01(seed);
-	seed = roll.seed;
-	if(roll.value < STOP_CHANCE) return false;
+	for(uint i = 0; i < vertCount; i+=3) {
+		Contact c = triIntersection(gVerts[i].position.xyz, gVerts[i+1].position.xyz, gVerts[i+2].position.xyz, gVerts[i].position.w, ray);
+		bool valid = c.valid && (c.t < contact.t) && (c.t >= 0.f);	 // equal to zero avoid the fail intersaction in the corner	edge
+		if(valid)	{
+			contact = c;
+		}
+	}
 
-	weight = weight / ( 1 - STOP_CHANCE);
+	return contact;
+}
+
+float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
+	// return float3(0,0,0);
+	Ray ray;
+
+	float maxDist = length(gLight.position - surfacePosition);
+	ray.direction = normalize(gLight.position - surfacePosition);
+
+	ray.position = surfacePosition + surfaceNormal * 0.0001f;
+
+	Contact c = trace(ray);
+
+
+	if(c.valid && c.t < maxDist) return float3(0,0,0);
+	
+	return Diffuse(surfacePosition, surfaceNormal, float3(1, 1, 1), gLight);
+
 }
 
 float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float3 startColor) {
@@ -71,9 +94,14 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 	float3	colors[10];
 	float3 diffuses[10];
 	float4 totals[10];
+	float dots[10];
 	diffuses[0] = float3(0,0,0); // I only want the indirect part
 	colors[0] =	startColor;
+	dots[0] = saturate(dot(startRay.direction, startNormal));
+	
 
+	float3 currentNormal = startNormal;
+	float3 currentColor = startColor;
 	for(uint xx = 0; xx < 3; xx++) {
 		bounce++;
 		uint vertCount, stride;
@@ -93,15 +121,29 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 			}
 		}
 
-		colors[bounce] = albedo;
-
 		totals[bounce].w = contact.t;
+		dots[bounce] = 0;
+
+		float3 lightDir = gLight.position - ray.position;
+		float3 lightLen = length(lightDir);
+		bool hitLight = dot(lightDir, ray.direction) == lightLen && lightLen < contact.t;
+
+		if(hitLight) {
+			diffuses[bounce] = float3(gLight.color.w, gLight.color.w, gLight.color.w);
+			totals[bounce].xyz = diffuses[bounce] / (2 * 3.1415926f);
+			colors[bounce] = gLight.color.xyz;
+			break;
+		} 
+
 		if(!contact.valid) {
+			diffuses[bounce] = float3(0, 0, 0);
 			totals[bounce] = float4(0, 0, 0, 0);
+			colors[bounce] = albedo;
 			break;
 		} else {
-			float3 diffuse = Diffuse(contact.position.xyz, contact.normal, float3(1, 1, 1), gLight);
+			float3 diffuse = computeDiffuse(contact.position.xyz, contact.normal);
 			diffuses[bounce] = diffuse;
+			colors[bounce] = albedo;
 
 			float3 indirect;
 			bool hit = GetSurfelAt(contact.position.xyz, contact.normal, indirect);
@@ -114,8 +156,11 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 			}
 
 		}
-
+		
+		currentNormal = contact.normal;
+		currentColor = albedo;
 		ray = GenReflectionRay(seed, contact.position, contact.normal);
+		dots[bounce] = saturate(dot(currentNormal, ray.direction));
 	}
 	
 	bounce++;
@@ -128,10 +173,10 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 		float3 indirect = totals[i].xyz * colors[i];
 		
 		totals[i - 1].xyz
-			= (indirect * 2 + diffuses[i-1] / 3.141592653f);
+			= (indirect * 2 + diffuses[i-1] / 3.141592653f) /** dots[i - 1]*/;
 	}
 
-	return totals[0].xyz;								// this give us the 'energy' of A ray
+	return totals[0].xyz;								// this gives us the 'energy' of A ray
 }
 
 void updateSurfels(inout surfel_t surfel) {

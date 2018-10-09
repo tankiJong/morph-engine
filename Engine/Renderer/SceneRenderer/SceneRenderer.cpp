@@ -21,6 +21,7 @@
 #include "GenAO_cs.h"
 #include "DeferredLighting_ComputeIndirect_cs.h"
 #include "DeferredLighting_cs.h"
+#include "PathTracing_cs.h"
 #include "SurfelCoverageCompute_cs.h"
 #include "Engine/Framework/Light.hpp"
 #include "Engine/Input/Input.hpp"
@@ -365,17 +366,18 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   setupView(ctx);
   genGBuffer(ctx);
 
-  computeIndirectLighting(ctx);
-  genAO(ctx);
-  computeSurfelCoverage(ctx);
-  accumlateSurfels(ctx);
-  accumlateGI(ctx);
-  
-  if(!Input::Get().isKeyDown(KEYBOARD_SPACE)) {
-    deferredLighting(ctx);
-  } else {
-    visualizeSurfels(ctx);
-  }
+  pathTracing(ctx);
+  // computeIndirectLighting(ctx);
+  // genAO(ctx);
+  // computeSurfelCoverage(ctx);
+  // accumlateSurfels(ctx);
+  // accumlateGI(ctx);
+  //
+  // if(!Input::Get().isKeyDown(KEYBOARD_SPACE)) {
+  //   deferredLighting(ctx);
+  // } else {
+  //   visualizeSurfels(ctx);
+  // }
 
   // dumpSurfels(ctx);
 
@@ -651,16 +653,17 @@ void SceneRenderer::deferredLighting(RHIContext& ctx) {
     computeState = ComputeState::create(desc);
   }
 
-  ctx.resourceBarrier(mAO.get(), RHIResource::State::UnorderedAccess, true);
+  // ctx.resourceBarrier(mAO.get(), RHIResource::State::UnorderedAccess, true);
   
   {
     SCOPED_GPU_EVENT("UpSamle, apply diffuse");
     ctx.setComputeState(*computeState);
-    ctx.resourceBarrier(mIndirectLight.get(), RHIResource::State::UnorderedAccess, true);
+   
   
     mDSharedDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 0);
     mDGBufferDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 1);
-  
+    //mDDeferredLightingDescriptors->setUav(0, 0, *RHIDevice::get()->backBuffer()->uav());
+
     mDDeferredLightingDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 2);
   
     uint x = uint(Window::Get()->bounds().width()) / 8 + 1;
@@ -719,9 +722,11 @@ void SceneRenderer::setupFrame() {
   auto ctx = RHIDevice::get()->defaultRenderContext();
   ctx->clearRenderTarget(mGAlbedo->rtv(), Rgba::black);
   ctx->clearRenderTarget(mGNormal->rtv(), Rgba::gray);
+  ctx->clearRenderTarget(mGPosition->rtv(), Rgba(0, 0, 0, 0));
   // ctx->clearRenderTarget(mAO->rtv(), Rgba::white);
   // ctx->clearRenderTarget(mIndirectLight->rtv(), Rgba::black);
   ctx->clearDepthStencilTarget(*mGDepth->dsv(), true, true);
+  ctx->resourceBarrier(mScene.get(), RHIResource::State::UnorderedAccess);
 }
 
 void SceneRenderer::setupView(RHIContext& ctx) {
@@ -745,4 +750,48 @@ void SceneRenderer::dumpSurfels(RHIContext& ctx) {
   for(uint i = 0; i <numSurfels; i++)
     mSurfelDump << surfels[i].toString() << std::endl;
 
+}
+
+void SceneRenderer::pathTracing(RHIContext& ctx) {
+  static Program::sptr_t prog;
+  static S<ProgramIns> progIns;
+  static ComputeState::sptr_t computeState;
+
+  if(!prog) {
+    prog = Program::sptr_t(new Program());
+
+    prog->stage(SHADER_TYPE_COMPUTE)
+      .setFromBinary(gPathTracing_cs, sizeof(gPathTracing_cs));
+    prog->compile();
+
+    progIns = ComputeProgramIns::create(prog);
+
+    progIns->setCbv(*mcFrameData->cbv(), 0);
+    progIns->setCbv(*mcLight->cbv(), 3);
+    progIns->setSrv(mGAlbedo->srv(), 10);
+    progIns->setSrv(mGNormal->srv(), 11);
+    progIns->setSrv(mGPosition->srv(), 12);
+    progIns->setSrv(mAccelerationStructure->srv(), 14);
+    progIns->setUav(*mScene->uav(), 0);
+
+    ComputeState::Desc desc;
+    desc.setRootSignature(prog->rootSignature());
+    desc.setProgram(prog);
+    computeState = ComputeState::create(desc);
+  }
+
+  ctx.resourceBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mScene.get(), RHIResource::State::UnorderedAccess);
+
+  ctx.setComputeState(*computeState);
+  progIns->apply(ctx, false);
+
+  uint x = uint(Window::Get()->bounds().width()) / 16 + 1;
+  uint y = uint(Window::Get()->bounds().height()) / 16 + 1;
+
+  ctx.dispatch(x, y, 1);
+  ctx.copyResource(*mScene, *RHIDevice::get()->backBuffer());
 }

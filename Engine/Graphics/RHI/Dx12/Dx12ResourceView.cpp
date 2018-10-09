@@ -261,7 +261,9 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(W<const Texture2> res, u
     desc.Texture2D.MipSlice = mipLevel;
     resHandle = ptr->handle();
   } else {
-    desc.Format = DXGI_FORMAT_UNKNOWN;
+    desc = {};
+    desc.Format = DXGI_FORMAT_R32_UINT;
+    desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
   }
 
   DescriptorSet::Layout layout;

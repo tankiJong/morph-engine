@@ -43,7 +43,9 @@ float chanceToSpawnAt(uint2 pix) {
 	// d -- c
 
 	float pixDepth = gTexDepth[pix].x;
+	float legal = 0;
 	a = gTexPosition[pix].xyz;
+	legal = gTexPosition[pix].w;
 	b = gTexPosition[pix + uint2(1, 0)].xyz;
 	c = gTexPosition[pix + uint2(1, 1)].xyz;
 	d = gTexPosition[pix + uint2(0, 1)].xyz;
@@ -58,14 +60,10 @@ float chanceToSpawnAt(uint2 pix) {
 	}
 
 	float depthFactor = (1 - pixDepth ) * (1 - pixDepth);
-	uSpawnChance[pix] = float4(pixArea, pixArea, pixArea, 1.f);
+	uSpawnChance[pix] = float4(distance(c, d), distance(d, a), 0, 1.f);
 	//pixArea is around 0.004~0.01
-	return 5000000.f * depthFactor * pixArea;
-
-	float chance = smoothstep(0, 1, 1.f - pixDepth)
-							 * pixArea * (1.f/ ( SURFEL_RADIUS*SURFEL_RADIUS));
-
-	return chance;
+	return 100000.f * depthFactor * pixArea * legal;
+	
 }
 
 pixel leastCoveredInRange(uint2 topLeft, uint seed) {

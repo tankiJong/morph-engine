@@ -78,6 +78,7 @@ protected:
   void setupFrame();
   void setupView(RHIContext& ctx);
   void dumpSurfels(RHIContext& ctx);
+  void pathTracing(RHIContext& ctx);
   const RenderScene& mTargetScene;
 
   FrameBuffer mGFbo;

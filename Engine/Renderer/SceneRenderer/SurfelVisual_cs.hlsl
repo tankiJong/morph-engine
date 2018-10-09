@@ -32,12 +32,14 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	float2 screen = float2(pix.x, pix.y) / float2(size);
 
 	float3 position, normal;
+	float legal;
 	{ // get information from the G-Buffer
 		position = gTexPosition[pix].xyz;
+		legal = gTexPosition[pix].w;
 		normal = gTexNormal[pix].xyz * 2.f - float3(1.f, 1.f, 1.f);
 	}
 
-	uTexSurfelVisual[pix] = float4(1.f, 1.f, 1.f, 1.f);
+	// uTexSurfelVisual[pix] = float4(1.f, 1.f, 1.f, 1.f);
 
 	float blend = length(normal);
 
@@ -62,5 +64,5 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 	//color /= count;
 
-	uTexSurfelVisual[pix] = blend * color;
+	uTexSurfelVisual[pix] = blend * color * legal;
 }

@@ -67,6 +67,7 @@ public:
   void bindForCompute(const RHIContext& ctx, const RootSignature& root, uint rootIndex = 0);
   static sptr_t create(const DescriptorPool::sptr_t& pool, const Layout& layout);
 
+  void clear();
   ~DescriptorSet();
 protected:
   bool rhiInit();

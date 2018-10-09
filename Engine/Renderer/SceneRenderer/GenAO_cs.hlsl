@@ -65,18 +65,25 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	float hitDistance = 0;
 	
 	{
-		Ray ray = GenReflectionRay(seed, float4(position, 1.f), normal);	
+		Ray ray = GenReflectionRay(seed, float4(position, 1.f), normal);
+	
 		Contact c = trace(ray);
-	
-		bool occluded = c.valid;	
+
+	
+		bool occluded = c.valid;
+	
 		occlusion += lerp(0, 1, (float)occluded);
 		hitDistance += c.t;	
 	}
 	 		 
+	occlusion = occlusion / ((hitDistance * hitDistance) + 1);
+
 	occlusion = 1.f - occlusion;
+
 
 	float3 color = float3(occlusion, occlusion, occlusion);
 
-	uAO[threadId.xy] = float4(color, hitDistance);
+	// uAO[threadId.xy] = float4(color, hitDistance);
+	uAO[threadId.xy] = ( uAO[threadId.xy] * gFrameCount + float4(color, hitDistance) ) / (gFrameCount + 1);
 	// uAO[threadId.xy] = float4(1, 1, 1, 1.f);
 }

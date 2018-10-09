@@ -8,7 +8,7 @@ UnorderedAccessView::sptr_t UnorderedAccessView::sNullView;
 
 ConstantBufferView::sptr_t ConstantBufferView::nullView() {
   if(!sNullView) {
-    create(W<RHIBuffer>());
+    sNullView = create(W<RHIBuffer>());
   }
 
   return sNullView;
@@ -16,7 +16,7 @@ ConstantBufferView::sptr_t ConstantBufferView::nullView() {
 
 RenderTargetView::sptr_t RenderTargetView::nullView() {
   if (!sNullView) {
-    create(W<RHITexture>());
+    sNullView = create(W<RHITexture>());
   }
 
   return sNullView;
@@ -24,7 +24,7 @@ RenderTargetView::sptr_t RenderTargetView::nullView() {
 
 DepthStencilView::sptr_t DepthStencilView::nullView() {
   if (!sNullView) {
-    create(W<RHITexture>());
+    sNullView = create(W<RHITexture>());
   }
 
   return sNullView;
@@ -32,7 +32,7 @@ DepthStencilView::sptr_t DepthStencilView::nullView() {
 
 ShaderResourceView::sptr_t ShaderResourceView::nullView() {
   if (!sNullView) {
-    create(W<RHITexture>());
+    sNullView = create(W<RHITexture>());
   }
 
   return sNullView;
@@ -40,7 +40,7 @@ ShaderResourceView::sptr_t ShaderResourceView::nullView() {
 
 UnorderedAccessView::sptr_t UnorderedAccessView::nullView() {
   if(!sNullView) {
-    create(W<Texture2>());
+    sNullView = create(W<Texture2>());
   }
 
   return sNullView;

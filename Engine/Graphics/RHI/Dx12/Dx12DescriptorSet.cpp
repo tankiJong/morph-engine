@@ -81,3 +81,33 @@ void DescriptorSet::bindForGraphics(const RHIContext& ctx, const RootSignature& 
 void DescriptorSet::bindForCompute(const RHIContext& ctx, const RootSignature& root, uint rootIndex) {
   ctx.contextData()->commandList()->SetComputeRootDescriptorTable(rootIndex, gpuHandle(0));
 }
+
+
+void DescriptorSet::clear() {
+  for(uint i = 0; i < mLayout.rangeCount(); i++) {
+    auto& range = mLayout.range(i);
+    switch(range.type) { 
+      case Type::TextureSrv:
+      case Type::TypedBufferSrv:
+      case Type::StructuredBufferSrv:
+      for(uint k = 0; k < range.descCount; k++) {
+        setSrv(i, k, *ShaderResourceView::nullView());
+      }
+        break;
+      case Type::TextureUav:
+      case Type::TypedBufferUav:
+      case Type::StructuredBufferUav:
+        for (uint k = 0; k < range.descCount; k++) {
+          setUav(i, k, *UnorderedAccessView::nullView());
+        }
+        break;
+      case Type::Cbv:
+        for (uint k = 0; k < range.descCount; k++) {
+          setCbv(i, k, *ConstantBufferView::nullView());
+        }
+        break;
+      default: 
+        ERROR_AND_DIE("Should not be here");
+    }
+  }
+}

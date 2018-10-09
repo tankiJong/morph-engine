@@ -45,6 +45,7 @@ Contact trace(Ray ray) {
 }
 
 float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
+	// return float3(0,0,0);
 	Ray ray;
 
 	float maxDist = length(gLight.position - surfacePosition);
@@ -61,26 +62,25 @@ float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 
 }
 
-float SpatialGauss(float pixLen, float3 pos1, float3 pos2, float3 norm1, float3 norm2)
+float SpatialGauss(float3 pos1, float3 pos2, float3 norm1, float3 norm2, float beta)
 {
-	float dis1 = distance(pos1, pos2) * distance(pos1, pos2);
-
-	float4 forward = float4(0, 0, -1, 1);
+	float dis1 = distance(pos1, pos2) * saturate(dot(norm1, norm2));
+	
+	float4 forward = float4(0, 0, 1, 1);
 	forward = mul(inverse(view), forward);
+	forward.xyz /= forward.w;
 
-	float dis2 = dot(forward.xyz, pos2 - pos1);
-	dis2 *= dis2;
-	float dist = abs(dis1 - dis2);
+	float3 norm = normalize(forward.xyz);
 
-	static const float minZ = .1f;
+	float3 d = pos2 - pos1;
 
-	float omiga	= .3f / pixLen;
+	float proj = dot(d, norm);
+	// d = d + proj * (-norm); 
 
-	omiga = min(omiga, 2.0f / minZ);
-	float beta = omiga * .5f;
+	float dist = length(d) * length(d);
 
 
-	return (1 / sqrt(2 * 3.14) / beta) * exp(-1.f * dist / (2 * beta * beta)); 
+	return (1 / (abs(proj) + 1)) * saturate(dot(norm1, norm2)) * (1 / (2 * 3.14 * beta * beta)) * exp(-1.f * dist / (2 * beta * beta)); 
 }
 
 float RangeGauss(int x, float sigma)
@@ -94,29 +94,39 @@ float Ambient(uint2 maxsize, uint2 pix, float3 position, float3 normal) {
 	float weight = 0;
 
 	float hitDist = gTexAO[pix].w;
-	int step = ceil(clamp(hitDist * 16.f / 5.f , 3.f, 16.f));
-	// int step = 3;
+	int step = clamp(hitDist * 16.f / 5.f, 1.f, 16.f);
+	//int step = 16;
 	float ao = 0;
-	for(int i = -step; i <= step; i++) {
-		for(int j = -step; j <= step; j++) {
-			uint2 samplePix = pix + uint2(i, j);
-			if(samplePix.x >= maxsize.x || samplePix.y >= maxsize.y) continue;
+	float2 pixLen = uSpawnChance[pix].xy;
+
+	static const float minZ = .1f;
+
+	float omiga	= .3f / pixLen.x ;
+	omiga = min(omiga, 2.0f / minZ) / float(step);
+
+	float beta = .5f / omiga;
+	// beta = step * beta / 3.f;
+	// int step = ceil(beta * 1.5 / pixLen);
+	for(int i = -16; i <= 16; i++) {
+		if(int(pix.x) + i >= int(maxsize.x) || int(pix.x) + i < 0) continue;
+		for(int j = -16; j <= 16; j++) {
+			int2 samplePix = pix + int2(i, j);
+			if(samplePix.y >= int(maxsize.y) || int(samplePix.y) + j < 0) continue;
 
 			float3 samplePosition = gTexPosition[samplePix].xyz;
 			float3 sampleNormal = gTexNormal[samplePix].xyz * 2.f - 1.f;
 
-			float dist = distance(samplePosition, position);
-			float sigma = .3f * 1.f / dist;
-
-			float pixLen = sqrt(uSpawnChance[samplePix].x);
-			float wei = SpatialGauss(pixLen, samplePosition, position, sampleNormal, normal);
+			float wei = SpatialGauss(samplePosition, position, sampleNormal, normal, beta);
+								//* RangeGauss(abs(i) + abs(j), float(step) * 2.f / 3.f);
 			
-			ao += wei * gTexAO[samplePix].x;
-			weight += wei;
+			ao += wei * wei * gTexAO[samplePix].x;
+			weight += wei * wei;
+		  //uTexScene[samplePix] = float4(wei, wei, wei, 1.f);
+
 		}
 	}
 
-	return ao;
+	return ao / weight;
 }
 
 float3 PhongLighting(uint2 pix)
@@ -134,26 +144,27 @@ float3 PhongLighting(uint2 pix)
 
 	gTexAO.GetDimensions(aoSize.x, aoSize.y);
 
-  float ambient = Ambient(aoSize, pix, surfacePosition, surfaceNormal);
-	
-	return float3(ambient, ambient, ambient);
-	const float SPECULAR_AMOUNT = 1.f;
-	const float SPECULAR_POWER = 2.f;
+  // float ambient = Ambient(aoSize, pix, surfacePosition, surfaceNormal);
+  // float ambient = gTexAO[pix].x;
+  float ambient = 1;
+	// gTexAO[pix] = float4(ambient, ambient, ambient, 1.f);
+	// return float3(ambient, ambient, ambient);
+
   // float3 diffuse = float3(0,0,0);
   float3 diffuse = computeDiffuse(surfacePosition, surfaceNormal);
-  float3 specular = Specular(surfacePosition, surfaceNormal, 
-														 normalize(eyePosition - surfacePosition), SPECULAR_AMOUNT, SPECULAR_POWER, gLight);
+  // float3 specular = Specular(surfacePosition, surfaceNormal, 
+	// 													 normalize(eyePosition - surfacePosition), SPECULAR_AMOUNT, SPECULAR_POWER, gLight);
 
-	float3 indirect = gIndirect[pix / 2].xyz / gIndirect[pix / 2].w * ambient;
+	float3 indirect = gIndirect[pix / 2].xyz / gIndirect[pix / 2].w   * ambient ;
 	
 	// return indirect;
 	// only A ray will enter the pixel, so the color need to divide by 2PI
   float3 color = (diffuse / 3.14159f + 2 * indirect) * surfaceColor / ( 2 * 3.141592f )/* + specular*/;
 
 	const float GAMMA = 1.f / 2.1;
-	color =  pow(color, float3(GAMMA, GAMMA, GAMMA)) ;
-
-  return clamp(color, float3(0.f, 0.f, 0.f), float3(1.f, 1.f, 1.f));
+	color =  pow(color, float3(GAMMA, GAMMA, GAMMA));
+	color = saturate(color);
+  return color;
 }
 
 [RootSignature(DeferredLighting_RootSig)]

@@ -42,7 +42,7 @@ float4 ComputeIndirect(uint2 pix)
 				surfel_t surfel = uSurfels[i];
 				float d = distance(surfacePosition, surfel.position);
 
-				float weight = pow(0.5f, d);
+				float weight = pow(0.5f, d / (.5f));
 				float iscovered = max(0.f, (dot(surfaceNormal, surfel.normal))) * weight;
 				total += weight;
 				indirect =	mad( surfel.indirectLighting, iscovered, indirect );

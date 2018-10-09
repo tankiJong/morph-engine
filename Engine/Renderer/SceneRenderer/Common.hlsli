@@ -147,7 +147,7 @@ Contact triIntersection(float3 a, float3 b, float3 c, float color, Ray ray) {
 	float3 normal = normalize(cross(ac, ab));
 	contact.normal = normal;
 
-	contact.valid = dot(normal, ray.direction) < 0;
+	contact.valid = dot(normal, ray.direction) <= 0;
 
 	float t = (dot(a - ray.position, normal)) / dot(normal, ray.direction);
 	contact.t = t;
@@ -199,7 +199,7 @@ Ray GenReflectionRay(inout uint seed, float4 position, float3 normal) {
 	Ray ray;
 
 	ray.direction = sample;
-	ray.position = position.xyz;
+	ray.position = position.xyz + sample * 0.00001f;
 
 	return ray;
 }
