@@ -366,18 +366,18 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   setupView(ctx);
   genGBuffer(ctx);
 
-  pathTracing(ctx);
-  // computeIndirectLighting(ctx);
-  // genAO(ctx);
-  // computeSurfelCoverage(ctx);
-  // accumlateSurfels(ctx);
-  // accumlateGI(ctx);
-  //
-  // if(!Input::Get().isKeyDown(KEYBOARD_SPACE)) {
-  //   deferredLighting(ctx);
-  // } else {
-  //   visualizeSurfels(ctx);
-  // }
+  // pathTracing(ctx);
+  computeIndirectLighting(ctx);
+  genAO(ctx);
+  computeSurfelCoverage(ctx);
+  accumlateSurfels(ctx);
+  accumlateGI(ctx);
+  
+  if(!Input::Get().isKeyDown(KEYBOARD_SPACE)) {
+    deferredLighting(ctx);
+  } else {
+    visualizeSurfels(ctx);
+  }
 
   // dumpSurfels(ctx);
 
@@ -767,6 +767,7 @@ void SceneRenderer::pathTracing(RHIContext& ctx) {
     progIns = ComputeProgramIns::create(prog);
 
     progIns->setCbv(*mcFrameData->cbv(), 0);
+    progIns->setCbv(*mcCamera->cbv(), 1);
     progIns->setCbv(*mcLight->cbv(), 3);
     progIns->setSrv(mGAlbedo->srv(), 10);
     progIns->setSrv(mGNormal->srv(), 11);

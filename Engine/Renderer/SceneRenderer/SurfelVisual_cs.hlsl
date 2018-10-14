@@ -55,7 +55,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 
 		for(uint i = info.startIndex; i < info.startIndex + count; i++) {
 			if(isCovered(position, normal, uSurfels[i]) > 0) {
-				color =	float4(uSurfels[i].indirectLighting, 1.f);
+				color =	float4(uSurfels[i].indirectLighting * 2.f, 1.f);
 			}
 		}
 

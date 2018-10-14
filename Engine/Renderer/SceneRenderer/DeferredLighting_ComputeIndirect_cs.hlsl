@@ -40,10 +40,10 @@ float4 ComputeIndirect(uint2 pix)
 			uint i = info.startIndex;
 			while(i < info.startIndex + info.currentCount) {
 				surfel_t surfel = uSurfels[i];
-				float d = distance(surfacePosition, surfel.position);
+				float2 d = GetProjectedDistanceFromSurfel(surfacePosition, surfel);
 
-				float weight = pow(0.5f, d / (.5f));
-				float iscovered = max(0.f, (dot(surfaceNormal, surfel.normal))) * weight;
+				float weight = exp(-1.f * (d.x * d.x) / (2 * 2 * SURFEL_RADIUS * 2 * SURFEL_RADIUS)) * (1.f / (d.y /.001f + 1.f));
+				float iscovered = (dot(surfaceNormal, surfel.normal) > .9f ? 1.f : 0.f) * weight;
 				total += weight;
 				indirect =	mad( surfel.indirectLighting, iscovered, indirect );
 

@@ -69,7 +69,8 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 	diffuses[0] = float3(0,0,0); // I only want the indirect part
 	colors[0] =	startColor;
 	dots[0] = saturate(dot(startRay.direction, startNormal));
-	for(uint xx = 0; xx < 16; xx++) {
+	uint xx  = 0;
+	for(; xx < 2; xx++) {
 		bounce++;
 		uint vertCount, stride;
 		gVerts.GetDimensions(vertCount, stride);
@@ -88,20 +89,9 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 			}
 		}
 
-
 		totals[bounce].w = contact.t;
 		dots[bounce] = 0;
-
-		float3 lightDir = gLight.position - ray.position;
-		float lightLen = length(lightDir);
-		bool hitLight = dot(lightDir, ray.direction)/lightLen == 1.f && lightLen < contact.t;
-		if(hitLight) {
-			diffuses[bounce] = float3(gLight.color.w, gLight.color.w, gLight.color.w);
-			totals[bounce].xyz = diffuses[bounce] / (2 * 3.1415926f);
-			colors[bounce] = gLight.color.xyz;
-			break;
-		} 
-
+ 
 		if(!contact.valid) {
 			diffuses[bounce] = float3(0, 0, 0);
 			totals[bounce] = float4(0, 0, 0, 0);
@@ -144,6 +134,8 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	
 	if(pix.x > size.x || pix.y > size.y) return;
 
+	// float3 ndc = float3(float2(pix.x, size.y - pix.y) / float2(size) * 2.f - 1.f, -1.f);
+
 	float4 position = gTexPosition[pix];
 	float3 normal = gTexNormal[pix].xyz * 2.f - 1.f;
 	float3 color = gTexAlbedo[pix].xyz;
@@ -151,16 +143,22 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 
 	float3 diffuse = computeDiffuse(position.xyz, normal);
 	float3 indirect = 0;
-	for(uint i = 0; i < 16; i++) {
+	float3 direction;
+	for(uint i = 0; i < 8; i++) {
 		Ray ray = GenReflectionRay(seed, position, normal);
+		// direction += ray.direction;
 		indirect += PathTracing(ray, position.xyz, normal, color);
 
 	}
 
-	indirect /= (16.f / (2 * 3.1415926f));
+	// direction /= 8;
+	// uTexScene[pix] = (uTexScene[pix] *gFrameCount + float4(direction * .5f + .5f, 1.f))	/ (gFrameCount + 1);
+	// return;
+
+	indirect /= (8.f / (2 * 3.1415926f));
 
 	// float3 indirect = float3(0,0,0);
-	float3 finalColor = ( diffuse + indirect ) * color / 3.14159f;
+	float3 finalColor = ( indirect ) / 3.14159f;
 
 	const float GAMMA = 1.f / 2.1;
 	finalColor =  pow(finalColor, float3(GAMMA, GAMMA, GAMMA));

@@ -62,7 +62,7 @@ float chanceToSpawnAt(uint2 pix) {
 	float depthFactor = (1 - pixDepth ) * (1 - pixDepth);
 	uSpawnChance[pix] = float4(distance(c, d), distance(d, a), 0, 1.f);
 	//pixArea is around 0.004~0.01
-	return 100000.f * depthFactor * pixArea * legal;
+	return 8000000.f * depthFactor * pixArea * legal;
 	
 }
 
@@ -152,7 +152,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	surfel.normal =		gTexNormal[pix.coords].xyz * 2.f - float3(1.f, 1.f, 1.f);
 	surfel.color = color;
 	surfel.indirectLighting = float3(0, 0, 0);
-	surfel.age = 1.f;
+	surfel.age = 0.f;
 	surfel.id = -1;
 
 	surfel.__padding0 = 0;
@@ -160,7 +160,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	surfel.__padding3 = 3;
 	surfel.nextToWrite = 0;
 	for(uint i = 0; i < TOTAL_HISTORY; i++) {
-		surfel.history[i] = float4(0,0,0,0);
+		surfel.history[i] = float4(1,1,1,1);
 	}
 	 /*
 	uint hash = SpatialHash(surfel.position);

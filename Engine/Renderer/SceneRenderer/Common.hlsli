@@ -6,6 +6,8 @@
 
 #define RootSig_Common "DescriptorTable(CBV(b0, numDescriptors = 4), SRV(t0, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL),"
 
+#define M_PI 3.141592653
+
 struct vertex_t {
 	float4 position;
 	float4 color;
@@ -147,7 +149,7 @@ Contact triIntersection(float3 a, float3 b, float3 c, float color, Ray ray) {
 	float3 normal = normalize(cross(ac, ab));
 	contact.normal = normal;
 
-	contact.valid = dot(normal, ray.direction) <= 0;
+	contact.valid = dot(normal, ray.direction) < 0;
 
 	float t = (dot(a - ray.position, normal)) / dot(normal, ray.direction);
 	contact.t = t;
@@ -170,7 +172,7 @@ float3 GetRandomDirection(inout uint seed, float3 normal) {
 						
 	float3 right = float3(x,1,1);
 	float3 _tan = normalize(right);
-	float3 bitan = cross(_tan, normal);
+	float3 bitan = normalize(cross(_tan, normal));
 	float3 tan = cross(bitan, normal);
 
 	float3x3 tbn = transpose(float3x3(tan, normal, bitan));
@@ -199,7 +201,7 @@ Ray GenReflectionRay(inout uint seed, float4 position, float3 normal) {
 	Ray ray;
 
 	ray.direction = sample;
-	ray.position = position.xyz + sample * 0.00001f;
+	ray.position = position.xyz;
 
 	return ray;
 }

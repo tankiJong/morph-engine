@@ -145,8 +145,8 @@ float3 PhongLighting(uint2 pix)
 	gTexAO.GetDimensions(aoSize.x, aoSize.y);
 
   // float ambient = Ambient(aoSize, pix, surfacePosition, surfaceNormal);
-  // float ambient = gTexAO[pix].x;
-  float ambient = 1;
+  float ambient = gTexAO[pix].x;
+  // float ambient = 1;
 	// gTexAO[pix] = float4(ambient, ambient, ambient, 1.f);
 	// return float3(ambient, ambient, ambient);
 
@@ -155,11 +155,10 @@ float3 PhongLighting(uint2 pix)
   // float3 specular = Specular(surfacePosition, surfaceNormal, 
 	// 													 normalize(eyePosition - surfacePosition), SPECULAR_AMOUNT, SPECULAR_POWER, gLight);
 
-	float3 indirect = gIndirect[pix / 2].xyz / gIndirect[pix / 2].w   * ambient ;
+	float3 indirect = ( gIndirect[pix / 2].xyz / gIndirect[pix / 2].w )* (2 * 3.1415926f) * ambient ;
 	
 	// return indirect;
-	// only A ray will enter the pixel, so the color need to divide by 2PI
-  float3 color = (diffuse / 3.14159f + 2 * indirect) * surfaceColor / ( 2 * 3.141592f )/* + specular*/;
+  float3 color = ( diffuse + indirect ) * surfaceColor / 3.141592f /* + specular*/;
 
 	const float GAMMA = 1.f / 2.1;
 	color =  pow(color, float3(GAMMA, GAMMA, GAMMA));

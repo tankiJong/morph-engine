@@ -18,7 +18,7 @@ struct surfel_t {
   float4 history[32];
 };
 
-static const float SURFEL_RADIUS = 0.02f;
+static const float SURFEL_RADIUS = 0.035f;
 static const uint TILE_SIZE = 16;
 
 
@@ -41,9 +41,19 @@ float isCovered(float3 position, float3 normal, surfel_t surfel) {
 	float3 projected = position - dirDot * surfel.normal;
 	
 	float d = distance(projected, surfel.position);
-	float dd = ( SURFEL_RADIUS - d )*( SURFEL_RADIUS - d );
+	float dd = 1 / (d*d/(SURFEL_RADIUS*SURFEL_RADIUS) + 1) * dp;
 	return dd;			// [1, 0)
 
+}
+
+float2 GetProjectedDistanceFromSurfel(float3 position, in surfel_t surfel) {
+	float dirDot = dot((position - surfel.position), surfel.normal);
+	
+	float3 projected = position - dirDot * surfel.normal;
+	
+	float d = distance(projected, surfel.position);
+
+	return float2(d, abs(dirDot));
 }
 
 static const uint BUCKET_COUNT = 0xf;		 // 0x?zyx
