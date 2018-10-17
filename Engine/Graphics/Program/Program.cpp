@@ -65,8 +65,7 @@ bool Program::compile() {
   return true;
 }
 
-RenderState& Program::renderState() {
-  mIsDirty = true;
+const RenderState& Program::renderState() const {
   return mRenderState;
 }
 

@@ -56,6 +56,7 @@ public:
   void bindDescriptorHeap();
 
   void clearRenderTarget(const RenderTargetView& rtv, const Rgba& rgba);
+  void clearRenderTarget(const RenderTargetView& rtv, const vec4& rgba);
   void clearDepthStencilTarget(const DepthStencilView& dsv, 
                                bool clearDepth = true, bool clearStencil = true,
                                float depth = 1.f, u8 stencil = 0);

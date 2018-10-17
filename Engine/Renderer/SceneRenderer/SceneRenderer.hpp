@@ -87,6 +87,9 @@ protected:
   Texture2::sptr_t mGNormal;
   Texture2::sptr_t mGPosition;
   Texture2::sptr_t mGDepth;
+  Texture2::sptr_t mGVelocity;
+  Texture2::sptr_t mGAO;
+
   Texture2::sptr_t mIndirectLight;
 
   Texture2::sptr_t mAO;
@@ -116,4 +119,6 @@ protected:
   S<DescriptorSet> mDDeferredLightingIndirectDescriptors;
 
   std::ofstream mSurfelDump;
+
+  camera_t mCameraData[2];
 };

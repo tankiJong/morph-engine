@@ -38,7 +38,7 @@ public:
       mFboDesc = desc; return *this;
     }
 
-    Desc& setProgram(const S<Program>& prog) {
+    Desc& setProgram(const S<const Program>& prog) {
       mProgram = prog; return *this;
     }
 
@@ -51,7 +51,7 @@ public:
     uint mSampleMask = SAMPLE_MASK_ALL;
     FrameBuffer::Desc mFboDesc;
     PrimitiveType mPrimType = PrimitiveType::Undefined;
-    S<Program> mProgram;
+    S<const Program> mProgram;
   };
 
   ~GraphicsState();

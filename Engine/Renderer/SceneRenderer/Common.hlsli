@@ -44,7 +44,7 @@ struct light_info_t {
   float4x4 vp;
 };
 
-cbuffer cTime: register(b0) {
+cbuffer cFrameData: register(b0) {
 	float gTime;
 	float gFrameCount;
 }
@@ -52,6 +52,8 @@ cbuffer cTime: register(b0) {
 cbuffer cCamera : register(b1) {
   float4x4 projection;
   float4x4 view;
+	float4x4 prev_projection;
+  float4x4 prev_view;
 };
 
 cbuffer cModel: register(b2) {
@@ -151,7 +153,7 @@ Contact triIntersection(float3 a, float3 b, float3 c, float color, Ray ray) {
 
 	contact.valid = dot(normal, ray.direction) < 0;
 
-	float t = (dot(a - ray.position, normal)) / dot(normal, ray.direction);
+	float t = (dot(a, normal) - dot(ray.position, normal)) / dot(ray.direction, normal);
 	contact.t = t;
 	contact.position.xyz = ray.position + t * ray.direction;
 	contact.position.w = color;
@@ -201,7 +203,7 @@ Ray GenReflectionRay(inout uint seed, float4 position, float3 normal) {
 	Ray ray;
 
 	ray.direction = sample;
-	ray.position = position.xyz;
+	ray.position = position.xyz + 0.0001f * sample;
 
 	return ray;
 }

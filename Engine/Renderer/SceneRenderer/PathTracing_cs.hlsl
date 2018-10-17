@@ -31,7 +31,7 @@ Contact trace(Ray ray) {
 
 	for(uint i = 0; i < vertCount; i+=3) {
 		Contact c = triIntersection(gVerts[i].position.xyz, gVerts[i+1].position.xyz, gVerts[i+2].position.xyz, gVerts[i].position.w, ray);
-		bool valid = c.valid && (c.t < contact.t) && (c.t >= 0.f);	 // equal to zero avoid the fail intersaction in the corner	edge
+		bool valid = c.valid && (c.t < contact.t) && (c.t > 0.f);	 // equal to zero avoid the fail intersaction in the corner	edge
 		if(valid)	{
 			contact = c;
 		}
@@ -158,7 +158,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	indirect /= (8.f / (2 * 3.1415926f));
 
 	// float3 indirect = float3(0,0,0);
-	float3 finalColor = ( indirect ) / 3.14159f;
+	float3 finalColor = ( indirect ) * color / 3.14159f;
 
 	const float GAMMA = 1.f / 2.1;
 	finalColor =  pow(finalColor, float3(GAMMA, GAMMA, GAMMA));

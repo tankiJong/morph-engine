@@ -20,7 +20,7 @@ public:
   void setRenderState(const RenderState& state);
   bool compile();
 
-  RenderState& renderState();
+  const RenderState& renderState() const;
   S<const RootSignature> rootSignature() const;
   span<const DescriptorSet::Layout> descriptorLayout() const { return mLayouts; };
   span<DescriptorSet::Layout> descriptorLayout() { return mLayouts; };

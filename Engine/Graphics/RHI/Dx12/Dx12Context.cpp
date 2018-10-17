@@ -257,9 +257,13 @@ void RHIContext::bindDescriptorHeap() {
 }
 
 void RHIContext::clearRenderTarget(const RenderTargetView& rtv, const Rgba& rgba) {
+  clearRenderTarget(rtv, rgba.normalized());
+}
+
+void RHIContext::clearRenderTarget(const RenderTargetView& rtv, const vec4& color) {
+  
   RHIResource::scptr_t ptr = rtv.res().lock();
 
-  vec4 color = rgba.normalized();
   EXPECTS(ptr);
 
   resourceBarrier(ptr.get(), RHIResource::State::RenderTarget);

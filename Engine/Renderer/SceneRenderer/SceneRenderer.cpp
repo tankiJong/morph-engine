@@ -29,7 +29,6 @@
 #include "Engine/Graphics/Program/ProgramIns.hpp"
 
 static Program::sptr_t gGenGBufferProgram = nullptr;
-static RootSignature::scptr_t gGenBufferRootSig = nullptr;
 
 static Program::sptr_t gGenAOProgram = nullptr;
 static RootSignature::scptr_t gGenAORootSig = nullptr;
@@ -131,7 +130,6 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
     gGenGBufferProgram->stage(SHADER_TYPE_FRAGMENT)
       .setFromBinary(gGenGBuffer_ps, sizeof(gGenGBuffer_ps));
     gGenGBufferProgram->compile();
-    gGenBufferRootSig = gGenGBufferProgram->rootSignature();
 
     gGenAOProgram = Program::sptr_t(new Program());
     gGenAOProgram->stage(SHADER_TYPE_COMPUTE)
@@ -187,19 +185,36 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
   uint width = (uint)size.x;
   uint height = (uint)size.y;
 
-  mAO = Texture2::create(width, height, TEXTURE_FORMAT_RGBA8,
-                              RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
+  mAO = Texture2::create(width, height, TEXTURE_FORMAT_RGBA16,
+                              RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   NAME_RHIRES(mAO);
+  mGAO = Texture2::create(width, height, TEXTURE_FORMAT_RGBA16,
+                              RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
+  NAME_RHIRES(mGAO);
+
+
   mGAlbedo = Texture2::create(width, height, TEXTURE_FORMAT_RGBA8,
                               RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource);
   NAME_RHIRES(mGAlbedo);
-  mGNormal = Texture2::create(width, height, TEXTURE_FORMAT_RGBA8,
+
+  mGNormal = Texture2::create(width, height, TEXTURE_FORMAT_RGBA16,
                               RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource);
   NAME_RHIRES(mGNormal);
+
   mGPosition = Texture2::create(width, height, TEXTURE_FORMAT_RGBA16,
                               RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource);
+  NAME_RHIRES(mGNormal);
 
+  mGPosition = Texture2::create(width, height, TEXTURE_FORMAT_RGBA16,
+                                RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource);
   NAME_RHIRES(mGPosition);
+
+  mGVelocity = Texture2::create(width, height, TEXTURE_FORMAT_RGBA16,
+                                RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource);
+
+  NAME_RHIRES(mGVelocity);
+
+
   mGDepth = Texture2::create(width, height, TEXTURE_FORMAT_D24S8,
                              RHIResource::BindingFlag::DepthStencil | RHIResource::BindingFlag::ShaderResource);
 
@@ -255,8 +270,9 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
   {
     FrameBuffer::Desc desc;
     desc.defineColorTarget(0, TEXTURE_FORMAT_RGBA8, false); // albedo
-    desc.defineColorTarget(1, TEXTURE_FORMAT_RGBA8, false); // normal
+    desc.defineColorTarget(1, TEXTURE_FORMAT_RGBA16, false); // normal
     desc.defineColorTarget(2, TEXTURE_FORMAT_RGBA16, false); // position
+    desc.defineColorTarget(3, TEXTURE_FORMAT_RGBA16, false); // velocity
     desc.defineDepthTarget(TEXTURE_FORMAT_D24S8, false); // depth
 
     mGFbo.setDesc(desc);
@@ -264,6 +280,7 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
     mGFbo.setColorTarget(&mGAlbedo->rtv(), 0);
     mGFbo.setColorTarget(&mGNormal->rtv(), 1);
     mGFbo.setColorTarget(&mGPosition->rtv(), 2);
+    mGFbo.setColorTarget(&mGVelocity->rtv(), 3);
     mGFbo.setDepthStencilTarget(mGDepth->dsv());
   }
   {
@@ -368,6 +385,7 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
 
   // pathTracing(ctx);
   computeIndirectLighting(ctx);
+  ctx.copyResource(*mAO, *mGAO);
   genAO(ctx);
   computeSurfelCoverage(ctx);
   accumlateSurfels(ctx);
@@ -385,13 +403,27 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
 
 void SceneRenderer::genGBuffer(RHIContext& ctx) {
   SCOPED_GPU_EVENT("Gen G-Buffer");
+
   ctx.setFrameBuffer(mGFbo);
   ctx.bindDescriptorHeap();
+
+  static S<GraphicsProgramIns> prog;
+
+  if(!prog) {
+    prog = GraphicsProgramIns::create(gGenGBufferProgram);
+
+    prog->setCbv(*mcFrameData->cbv(), 0);
+    prog->setCbv(*mcCamera->cbv(), 1);
+    prog->setCbv(*mcModel->cbv(), 2);
+    prog->setCbv(*mcLight->cbv(), 3);
+    prog->setSrv(mAO->srv(), 6);
+  }
+
   GraphicsState::Desc desc;
-  desc.setProgram(gGenGBufferProgram);
+  desc.setProgram(prog->prog());
   desc.setFboDesc(mGFbo.desc());
   desc.setPrimTye(GraphicsState::PrimitiveType::Triangle);
-  desc.setRootSignature(gGenBufferRootSig);
+  desc.setRootSignature(gGenGBufferProgram->rootSignature());
   desc.setVertexLayout(VertexLayout::For<vertex_lit_t>());
 
   GraphicsState::sptr_t gs = GraphicsState::create(desc);
@@ -402,11 +434,11 @@ void SceneRenderer::genGBuffer(RHIContext& ctx) {
   ctx.resourceBarrier(mGPosition.get(), RHIResource::State::RenderTarget);
   ctx.resourceBarrier(mGDepth.get(), RHIResource::State::DepthStencil);
 
-  mDSharedDescriptors->bindForGraphics(ctx, *gGenBufferRootSig, 0);
+  prog->apply(ctx, true);
 
   uint totalCount = 0;
   for(Renderable* r: mTargetScene.Renderables()) {
-    r->material()->bindForGraphics(ctx, *gGenBufferRootSig, 1);
+    r->material()->bindForGraphics(ctx, *gGenGBufferProgram->rootSignature(), 1);
     r->mesh()->bindForContext(ctx);
     mcModel->updateData(r->transform()->localToWorld());
 
@@ -475,7 +507,7 @@ void SceneRenderer::genAO(RHIContext& ctx) {
   mDGBufferDescriptors->setSrv(0, 5, *ShaderResourceView::nullView());
 
   static ComputeState::sptr_t computeState;
-  static S<GraphicsProgramIns> prog;
+  static S<ComputeProgramIns> prog;
   if(!computeState) {
     ComputeState::Desc desc;
     desc.setRootSignature(gGenAORootSig);
@@ -483,24 +515,32 @@ void SceneRenderer::genAO(RHIContext& ctx) {
     computeState = ComputeState::create(desc);
 
 
-    prog = GraphicsProgramIns::create(gGenAOProgram);
+    prog = ComputeProgramIns::create(gGenAOProgram);
 
-    
+    prog->setCbv(*mcFrameData->cbv(), 0);
+    prog->setCbv(*mcCamera->cbv(), 1);
+
+    prog->setSrv(mGNormal->srv(), 11);
+    prog->setSrv(mGPosition->srv(), 12);
+    prog->setSrv(mGDepth->srv(), 13);
+    prog->setSrv(mGVelocity->srv(), 14);
+    prog->setSrv(mAccelerationStructure->srv(), 15);
+    prog->setSrv(mGAO->srv(), 16);
+    prog->setUav(*mAO->uav(), 0);
 
   }
   ctx.resourceBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mGVelocity.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
+  ctx.resourceBarrier(mGAO.get(), RHIResource::State::NonPixelShader);
   ctx.resourceBarrier(mAO.get(), RHIResource::State::UnorderedAccess);
 
   ctx.setComputeState(*computeState);
 
-  // mDGenAOUavDescriptors->setUav(0, 1, mTargetScene.accelerationStructure());
-  mDSharedDescriptors->bindForCompute(ctx, *gGenAORootSig, 0);
-  mDGBufferDescriptors->bindForCompute(ctx, *gGenAORootSig, 1);
-  mDGenAOUavDescriptors->bindForCompute(ctx, *gGenAORootSig, 2);
+  prog->apply(ctx, true);
 
   uint x = uint(Window::Get()->bounds().width()) / 16 + 1;
   uint y = uint(Window::Get()->bounds().height()) / 16 + 1;
@@ -653,17 +693,14 @@ void SceneRenderer::deferredLighting(RHIContext& ctx) {
     computeState = ComputeState::create(desc);
   }
 
-  // ctx.resourceBarrier(mAO.get(), RHIResource::State::UnorderedAccess, true);
   
   {
     SCOPED_GPU_EVENT("UpSamle, apply diffuse");
     ctx.setComputeState(*computeState);
-   
   
+    ctx.resourceBarrier(mAO.get(), RHIResource::State::UnorderedAccess, true);
     mDSharedDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 0);
     mDGBufferDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 1);
-    //mDDeferredLightingDescriptors->setUav(0, 0, *RHIDevice::get()->backBuffer()->uav());
-
     mDDeferredLightingDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 2);
   
     uint x = uint(Window::Get()->bounds().width()) / 8 + 1;
@@ -713,17 +750,18 @@ void SceneRenderer::setupFrame() {
   mFrameData.time = (float)GetMainClock().total.second;
   mcFrameData->updateData(mFrameData);
 
-  if(!mTargetScene.lights().empty()) {
+  if (!mTargetScene.lights().empty()) {
     Light* l = mTargetScene.lights()[0];
 
     mcLight->updateData(l->info());
-    
+
   }
+
   auto ctx = RHIDevice::get()->defaultRenderContext();
   ctx->clearRenderTarget(mGAlbedo->rtv(), Rgba::black);
   ctx->clearRenderTarget(mGNormal->rtv(), Rgba::gray);
-  ctx->clearRenderTarget(mGPosition->rtv(), Rgba(0, 0, 0, 0));
-  // ctx->clearRenderTarget(mAO->rtv(), Rgba::white);
+  ctx->clearRenderTarget(mGPosition->rtv(), Rgba::black);
+  ctx->clearRenderTarget(mGVelocity->rtv(), Rgba(0, 0, 0, 0));
   // ctx->clearRenderTarget(mIndirectLight->rtv(), Rgba::black);
   ctx->clearDepthStencilTarget(*mGDepth->dsv(), true, true);
   ctx->resourceBarrier(mScene.get(), RHIResource::State::UnorderedAccess);
@@ -731,7 +769,12 @@ void SceneRenderer::setupFrame() {
 
 void SceneRenderer::setupView(RHIContext& ctx) {
   Camera& cam = *mTargetScene.camera();
-  mcCamera->updateData(cam.ubo());
+
+  camera_t prev = mCameraData[(uint(mFrameData.frameCount) + 1) % 2];
+  mCameraData[0] = cam.ubo();
+  mCameraData[1] = prev;
+
+  mcCamera->updateData(mCameraData, 0, sizeof(camera_t) * 2);
 
   // TODO: setup viewport later
   ctx.setViewport({ vec2::zero, { Window::Get()->bounds().width(), Window::Get()->bounds().height()} });

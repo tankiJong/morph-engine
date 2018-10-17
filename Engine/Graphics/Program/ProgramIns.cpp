@@ -54,7 +54,7 @@ ProgramIns::loc_t ProgramIns::locateBindPoint(DescriptorPool::Type type, uint re
 
       if (dx12Type != asDx12RangeType(range.type)) continue;
       if (registerSpace != range.registerSpace) continue;
-      if (registerIndex < range.baseRegisterIndex || (registerIndex > range.baseRegisterIndex + range.descCount)) continue;
+      if (registerIndex < range.baseRegisterIndex || (registerIndex >= range.baseRegisterIndex + range.descCount)) continue;
 
       loc.descriptorSetIndex = i;
       loc.rangeIndex = k;

@@ -94,7 +94,9 @@ float Ambient(uint2 maxsize, uint2 pix, float3 position, float3 normal) {
 	float weight = 0;
 
 	float hitDist = gTexAO[pix].w;
-	int step = clamp(hitDist * 16.f / 5.f, 1.f, 16.f);
+	float step = saturate(hitDist / 1.f);
+
+	step = clamp(8 * ( step * step ),1.f, 8.f);
 	//int step = 16;
 	float ao = 0;
 	float2 pixLen = uSpawnChance[pix].xy;
@@ -116,12 +118,15 @@ float Ambient(uint2 maxsize, uint2 pix, float3 position, float3 normal) {
 			float3 samplePosition = gTexPosition[samplePix].xyz;
 			float3 sampleNormal = gTexNormal[samplePix].xyz * 2.f - 1.f;
 
+			if(!any(sampleNormal)) continue; 
+
+			float4 sample = gTexAO[samplePix].x;
 			float wei = SpatialGauss(samplePosition, position, sampleNormal, normal, beta);
 								//* RangeGauss(abs(i) + abs(j), float(step) * 2.f / 3.f);
 			
-			ao += wei * wei * gTexAO[samplePix].x;
+			ao += wei * wei * sample.x;
 			weight += wei * wei;
-		  //uTexScene[samplePix] = float4(wei, wei, wei, 1.f);
+			//uTexScene[samplePix] = float4(wei, wei, wei, 1.f);
 
 		}
 	}
@@ -140,6 +145,8 @@ float3 PhongLighting(uint2 pix)
 		eyePosition = eye.xyz / eye.w;
 	}
 
+	if(length(surfaceNormal) < 0.5f) return float3(0,0,0); 
+
 	uint2 aoSize;
 
 	gTexAO.GetDimensions(aoSize.x, aoSize.y);
@@ -148,7 +155,7 @@ float3 PhongLighting(uint2 pix)
   float ambient = gTexAO[pix].x;
   // float ambient = 1;
 	// gTexAO[pix] = float4(ambient, ambient, ambient, 1.f);
-	// return float3(ambient, ambient, ambient);
+	return float3(ambient, ambient, ambient);
 
   // float3 diffuse = float3(0,0,0);
   float3 diffuse = computeDiffuse(surfacePosition, surfaceNormal);
@@ -158,7 +165,7 @@ float3 PhongLighting(uint2 pix)
 	float3 indirect = ( gIndirect[pix / 2].xyz / gIndirect[pix / 2].w )* (2 * 3.1415926f) * ambient ;
 	
 	// return indirect;
-  float3 color = ( diffuse + indirect ) * surfaceColor / 3.141592f /* + specular*/;
+  float3 color = ( indirect + diffuse ) * surfaceColor / 3.141592f /* + specular*/;
 
 	const float GAMMA = 1.f / 2.1;
 	color =  pow(color, float3(GAMMA, GAMMA, GAMMA));
