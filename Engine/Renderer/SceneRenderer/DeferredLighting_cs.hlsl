@@ -58,7 +58,7 @@ float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 
 	if(c.valid && c.t < maxDist) return float3(0,0,0);
 	
-	return Diffuse(surfacePosition, surfaceNormal, float3(1, 1, 1), gLight);
+	return Diffuse(surfacePosition, surfaceNormal, gLight.color.xyz, gLight);
 
 }
 
@@ -120,11 +120,11 @@ float Ambient(uint2 maxsize, uint2 pix, float3 position, float3 normal) {
 
 			if(!any(sampleNormal)) continue; 
 
-			float4 sample = gTexAO[samplePix].x;
+			float4 ssample = gTexAO[samplePix].x;
 			float wei = SpatialGauss(samplePosition, position, sampleNormal, normal, beta);
 								//* RangeGauss(abs(i) + abs(j), float(step) * 2.f / 3.f);
 			
-			ao += wei * wei * sample.x;
+			ao += wei * wei * ssample.x;
 			weight += wei * wei;
 			//uTexScene[samplePix] = float4(wei, wei, wei, 1.f);
 
@@ -152,20 +152,20 @@ float3 PhongLighting(uint2 pix)
 	gTexAO.GetDimensions(aoSize.x, aoSize.y);
 
   // float ambient = Ambient(aoSize, pix, surfacePosition, surfaceNormal);
-  float ambient = gTexAO[pix].x;
-  // float ambient = 1;
+  // float ambient = gTexAO[pix].x;
+  float ambient = 1;
 	// gTexAO[pix] = float4(ambient, ambient, ambient, 1.f);
-	return float3(ambient, ambient, ambient);
+	// return float3(ambient, ambient, ambient);
 
   // float3 diffuse = float3(0,0,0);
   float3 diffuse = computeDiffuse(surfacePosition, surfaceNormal);
   // float3 specular = Specular(surfacePosition, surfaceNormal, 
 	// 													 normalize(eyePosition - surfacePosition), SPECULAR_AMOUNT, SPECULAR_POWER, gLight);
 
-	float3 indirect = ( gIndirect[pix / 2].xyz / gIndirect[pix / 2].w )* (2 * 3.1415926f) * ambient ;
+	float3 indirect = ( gIndirect[pix / 2].xyz / gIndirect[pix / 2].w )* (2 * M_PI) * ambient ;
 	
 	// return indirect;
-  float3 color = ( indirect + diffuse ) * surfaceColor / 3.141592f /* + specular*/;
+  float3 color = ( indirect + diffuse ) * surfaceColor / M_PI /* + specular*/;
 
 	const float GAMMA = 1.f / 2.1;
 	color =  pow(color, float3(GAMMA, GAMMA, GAMMA));

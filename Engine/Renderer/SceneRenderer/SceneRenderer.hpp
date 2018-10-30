@@ -67,6 +67,7 @@ public:
   // void onRenderGui(RHIContext& ctx) override;
 
 protected:
+  void updateDescriptors();
   void genGBuffer(RHIContext& ctx);
   void genAO(RHIContext& ctx);
   void computeSurfelCoverage(RHIContext& ctx);
@@ -106,7 +107,9 @@ protected:
   S<RHIBuffer> mcModel;
   S<RHIBuffer> mcLight;
   TypedBuffer::sptr_t mAccelerationStructure;
+  TypedBuffer::sptr_t mSurfelsBuffer[2];
   TypedBuffer::sptr_t mSurfels;
+  TypedBuffer::sptr_t mSurfelsHistory;
   TypedBuffer::sptr_t mSurfelBuckets;
 
   S<DescriptorSet> mDSharedDescriptors;

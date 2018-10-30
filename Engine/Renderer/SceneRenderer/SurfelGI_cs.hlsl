@@ -6,7 +6,7 @@
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
 		"DescriptorTable(SRV(t10, numDescriptors = 5), visibility = SHADER_VISIBILITY_ALL)," \
-		"DescriptorTable(UAV(u0, numDescriptors = 3), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(UAV(u0, numDescriptors = 3, flags = DESCRIPTORS_VOLATILE), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
 Texture2D<float4> gTexAlbedo:   register(t10);
@@ -16,7 +16,7 @@ Texture2D gTexDepth: register(t13);
 StructuredBuffer<vertex_t> gVerts: register(t14);
 
 RWStructuredBuffer<surfel_t> uSurfels: register(u0);
-RWStructuredBuffer<uint> uNumSurfels: register(u1);
+RWStructuredBuffer<surfel_t> uSurfelsHistory: register(u1);
 RWStructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(u2);
 
 
@@ -55,7 +55,7 @@ float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 
 	if(c.valid && c.t < maxDist) return float3(0,0,0);
 	
-	return Diffuse(surfacePosition, surfaceNormal, float3(1, 1, 1), gLight);
+	return Diffuse(surfacePosition, surfaceNormal, gLight.color.xyz, gLight);
 
 }
 
@@ -73,6 +73,7 @@ bool GetSurfelAt(float3 position, float3 normal, inout float3 indirect) {
 	uint i= info.startIndex;
 	bool hit = false;
 
+	indirect = float3(0,0,0);
 	float maxFactor = 0.f;
 	while(i < info.startIndex + info.currentCount ) {
 		float factor = isCovered(position, normal, uSurfels[i]);
@@ -146,12 +147,10 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 			colors[bounce] = albedo;
 			 
 			float3 indirect;
-			bool hit = GetSurfelAt(contact.position.xyz, contact.normal, indirect);
-			if(hit) {
-				totals[bounce].xyz = 
-					(indirect * 2.f * M_PI + diffuse) * albedo / M_PI;
-				break;
-			}	
+
+			GetSurfelAt(contact.position.xyz, contact.normal, indirect);
+			totals[bounce].xyz = 
+				(indirect * 2.f * M_PI + diffuse) * albedo / M_PI;
 
 		}
 
@@ -171,14 +170,28 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 	return indirect;
 }
 
+float3 adaptiveAverage(float3 original, float3 sample, float variance) {
+	float diff =  abs(variance);
+	// Debug.Log("Original: " + original + "|Diff: " + diff);
+	float k = diff;
+	
+	// k = lerp(1.f / (1.f * 1024.f), 1.f / 8.f, diff);
+	// k = k * k * k;
+	// k = smoothstep(0, 0.9f, k);
+	return (original * (1 - k) + sample * k);
+}
+
+
 void updateSurfels(inout surfel_t surfel) {
 	float age = surfel.age;
 
-	uint index = surfel.nextToWrite;
-	float4 history[TOTAL_HISTORY] = surfel.history;
-	if(age < TOTAL_HISTORY) {
+
+	
+	float3 indirect = float3(0,0,0);
+	HistoryBuffer history = surfel.history;
+	if(age < 5) {
 		Ray ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		float3 indirect = PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal); 
+		indirect = PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal); 
 		ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
 		indirect += PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal); 
 		ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
@@ -189,77 +202,56 @@ void updateSurfels(inout surfel_t surfel) {
 		indirect += PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal);
 		
 		indirect = indirect / 5.f;
-		// history[index] = float4((surfel.indirectLighting * age + indirect) / (age + 1.f), 0);
-		history[index] = float4(indirect, 0.f);
+		// {
+		// 	uint index = history.nextToWrite % TOTAL_HISTORY;
+		// 	float4 temp[TOTAL_HISTORY] = history.buffer;
+		// 	temp[index]	= float4(indirect, variance.x);
+		// 	history.buffer = temp;
+		// 	history.nextToWrite++;
+		// }
+		// surfel.indirectLighting = indirect;
 
-		float3 lighting = float3(0,0,0);
-		for(uint i = 0; i <= index; i++) {
-			lighting += history[i].xyz;
-		}
-
-		float3 average = lighting / float(index + 1);
-
-		float variance = float3(0,0,0);
-		for(uint i = 0; i < index; i++) {
-			variance += distance(average, history[i].xyz) * distance(average, history[i].xyz);
-		}
-
-		variance = abs(variance / float(index + 1));
-
-		float k = variance;
-
-		surfel.indirectLighting = lerp(average, surfel.indirectLighting, 1.f /(k + 1));
+		// surfel.indirectLighting = lerp(average, surfel.indirectLighting, 1.f /(k + 1));
+		// surfel.indirectLighting = (surfel.indirectLighting * age + indirect) / (age+1);
 		// history[index] = float4(surfel.indirectLighting, 0);
 	} else {
-		// surfel.indirectLighting = PathTracing(ray, surfel.position, surfel.normal, surfel.color);
-		float variance = 0;
-		{
-			float3 lighting = float3(0,0,0);
-			for(uint i = 0; i < TOTAL_HISTORY; i++) {
-				lighting += history[i].xyz;
-			}
 		
-			float3 average = lighting / TOTAL_HISTORY;
-
-			for(uint i = 0; i < 16; i++) {
-				variance += distance(average, history[i].xyz);
-			}
-
-			variance = abs(variance) / TOTAL_HISTORY;
-		}
-
 		Ray ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		float3 newIndirect = PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal);;
+		indirect = PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal);;
 
-		history[index] = float4(newIndirect, 0.f);
+		// surfel.indirectLighting = newIndirect;
 
-		float newVariance = 0;
-
-		float3 lighting = float3(0,0,0);
-		for(uint i = 0; i < TOTAL_HISTORY; i++) {
-			lighting += history[i].xyz;
-		}
-		float3 average = lighting / TOTAL_HISTORY;
-		
-
-		for(uint i = 0; i < 16; i++) {
-			newVariance += distance(average, history[i].xyz);
-		}
-
-		newVariance = abs(newVariance) / TOTAL_HISTORY;
-
-		float k = distance(surfel.indirectLighting, average);
-
-		k = ( 1 + saturate(abs(newVariance - variance))) / (k + 1.f);
-		surfel.indirectLighting = surfel.indirectLighting * (1 - k) + average * k;
-		history[index] = float4(surfel.indirectLighting, 0.f);
+		// surfel.indirectLighting = (surfel.indirectLighting * age + newIndirect) / (age+1);
+		// surfel.indirectLighting = surfel.indirectLighting * .5 + average * .5;
+		// history[index] = float4(surfel.indirectLighting, 0.f);
 		// surfel.indirectLighting = lerp(surfel.indirectLighting, newIndirect, 1/(age + 1));
 	}
+	float4 normalizedVariance = history.normalizedHSLVariance();
+	history.write(indirect, normalizedVariance.z);
+	float4 variance = abs(history.variance());
 
-	surfel.nextToWrite = (surfel.nextToWrite + 1) % TOTAL_HISTORY;
+	// normalizedVariance = lerp(0, 1, clamp(abs(normalizedVariance - float2(.3f, .3f)), 0 , 1));
+	float range = .0f;
+	normalizedVariance = clamp(abs(normalizedVariance) - float4(range, range, range, range), 0 , 1);
+	// normalizedVariance = normalizedVariance * normalizedVariance * ( 3 - 2 * normalizedVariance);
+	surfel.weightCurve.setForce(normalizedVariance.w);
+	surfel.weightCurve.setScale(normalizedVariance.w);
+	surfel.weightCurve.update();
+
+	{
+	//	surfel.indirectLighting = surfel.indirectLighting * (1 - 0.01f) + indirect * 0.01f;
+	}
+	
+	float3 weightedAvg = history.weightedAverage(surfel.weightCurve).xyz;
+	float3 adaptive = adaptiveAverage(surfel.indirectLighting, weightedAvg, normalizedVariance.w);
+	surfel.indirectLighting = clamp(adaptive,
+																weightedAvg - sqrt(variance.xyz), weightedAvg + sqrt(variance.xyz));
+	// surfel.indirectLighting = history.average().xyz;
+
 	surfel.history = history;
 	surfel.age++;
 }
+
 
 [RootSignature(SurfelGI_RootSig)]
 [numthreads(16, 16, 1)]
@@ -268,16 +260,15 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	seed = threadId.x * 10000 + threadId.y * 121144 + gTime * 367860;
 
 	// for(uint j = 0; j < hash; j++) {
-		SurfelBucketInfo info = uSurfelBucket[16*16*groupId.z + threadId.x * 16 + threadId.y];
+	SurfelBucketInfo info = uSurfelBucket[16*16*groupId.z + threadId.x * 16 + threadId.y];
 
-		uint i = info.startIndex;
-		while(i < info.startIndex + info.currentCount) {
-			if(uSurfels[i].age == 1) {
-				uSurfels[i].id = i;
-			}
+	if(info.currentCount == 0) return;
 
-			updateSurfels(uSurfels[i]);
-			i++;
-		}
+	uint i = info.startIndex;
+	while(i < info.startIndex + info.currentCount) {
+		uSurfels[i] = uSurfelsHistory[i];
+		updateSurfels(uSurfels[i]);
+		i++;
+	}
 
 }

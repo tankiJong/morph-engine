@@ -1232,6 +1232,9 @@
     <ClInclude Include="Graphics\Program\ProgramIns.hpp">
       <Filter>Engine\Graphics\Program</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\Shader\ShaderInterop.h">
+      <Filter>Engine\Renderer\Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\ThirdParty\fmod\fmod_vc.lib">
@@ -1342,6 +1345,9 @@
     <None Include="Renderer\SceneRenderer\Lighting.hlsli">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </None>
+    <None Include="Renderer\SceneRenderer\fxaa.hlsli">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis">
@@ -1394,6 +1400,15 @@
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\PathTracing_cs.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\fullScreen_vs.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\fxaa_ps.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\fxaa_vs.hlsl">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
   </ItemGroup>

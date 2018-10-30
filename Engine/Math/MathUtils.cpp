@@ -143,18 +143,6 @@ int ceiling(float in) {
   return 0;
 }
 
-int clamp(int v, int min, int max) {
-	if (v > max) {
-		return max;
-	}
-
-	if (v < min) {
-		return min;
-	}
-
-	return v;
-}
-
 float clampf(float v, float min, float max) {
 	if (v > max) {
 		return max;

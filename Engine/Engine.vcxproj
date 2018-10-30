@@ -603,7 +603,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
       <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">
@@ -645,7 +645,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
       <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">
@@ -687,7 +687,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
       <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">
@@ -729,7 +729,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
       <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -774,7 +774,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
       <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">
@@ -819,7 +819,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
       <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">
@@ -864,7 +864,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
       <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -2322,6 +2322,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Renderer\Shader\ShaderInterop.h" />
     <ClInclude Include="Renderer\Shader\ShaderPass.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">true</ExcludedFromBuild>
@@ -2532,6 +2533,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <None Include="..\ThirdParty\WinPixEventRuntime\bin\WinPixEventRuntime.dll" />
     <None Include="..\ThirdParty\WinPixEventRuntime\bin\WinPixEventRuntime_UAP.dll" />
     <None Include="packages.config" />
+    <None Include="Renderer\SceneRenderer\fxaa.hlsli" />
     <None Include="Renderer\SceneRenderer\GenGBuffer.hlsli" />
     <None Include="Renderer\SceneRenderer\Lighting.hlsli" />
     <None Include="Renderer\Shader\Random.hlsli" />
@@ -2568,6 +2570,55 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Compute</ShaderType>
+    </FxCompile>
+    <None Include="Renderer\SceneRenderer\fullscreen.hlsli">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Vertex</ShaderType>
+      <FileType>Document</FileType>
+    </None>
+    <FxCompile Include="Renderer\SceneRenderer\fxaa_ps.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\fxaa_vs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\PathTracing_cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Compute</ShaderType>

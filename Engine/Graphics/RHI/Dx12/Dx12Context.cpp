@@ -391,7 +391,7 @@ size_t RHIContext::readBuffer(const RHIBuffer& res, void* data, size_t maxSize) 
 
   void* buf = buffer->map(RHIBuffer::MapType::Read);
 
-  size_t read = clamp(res.size(), 0u, maxSize);
+  size_t read = clamp<size_t>(res.size(), 0u, maxSize);
   memcpy(data, buf, read);
 
   buffer->unmap();

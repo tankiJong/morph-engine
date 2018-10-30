@@ -42,4 +42,18 @@ float4x4 inverse(float4x4 m) {
     return ret;
 }
 
+
+float2 rotate2D(float2 target, float2 origin, float degree) {
+	float2 t = target - origin;
+	float rd = radians(degree);
+	float2x2 rotation = {
+		cos(rd), -sin(rd),
+		sin(rd), cos(rd)
+	};
+
+	float2 rotated = mul(rotation, t);
+
+	return rotated + origin;
+}
+
 #endif // __MATH_INCLUDED__

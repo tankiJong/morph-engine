@@ -52,33 +52,32 @@ int rounding(float in);
 float roundingf(float in);
 
 int ceiling(float in);
-int clamp(int v, int min, int max);
 float clampf(float v, float min, float max);
 float clampf01(float v);
 float clampfInAbs1(float v);
 
 template<typename T>
-T clamp(const T& v, const T& min, const T& max) {
+auto clamp(const T& v, const T& min, const T& max) {
   return v > max ? max : (v < min ? min : v);
 }
 
 template<>
-inline vec2 clamp(const vec2& v, const vec2& min, const vec2& max) {
-  return { clampf(v.x, min.x, max.x), clampf(v.y, min.y, max.y) };
+inline auto clamp(const vec2& v, const vec2& min, const vec2& max) {
+  return vec2{ clampf(v.x, min.x, max.x), clampf(v.y, min.y, max.y) };
 }
 
 template<>
-inline vec3 clamp(const vec3& v, const vec3& min, const vec3& max) {
-  return { clampf(v.x, min.x, max.x), clampf(v.y, min.y, max.y), clampf(v.z, min.z, max.z) };
+inline auto clamp(const vec3& v, const vec3& min, const vec3& max) {
+  return vec3{ clampf(v.x, min.x, max.x), clampf(v.y, min.y, max.y), clampf(v.z, min.z, max.z) };
 }
 
-inline ivec2 clamp(const ivec2& v, const ivec2& min, const ivec2& max) {
-  return { clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y) };
+inline auto clamp(const ivec2& v, const ivec2& min, const ivec2& max) {
+  return ivec2{ clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y) };
 }
 
 template<>
-inline uvec2 clamp(const uvec2& v, const uvec2& min, const uvec2& max) {
-  return { clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y) };
+inline auto clamp(const uvec2& v, const uvec2& min, const uvec2& max) {
+  return uvec2{ clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y) };
 }
 
 float getFraction(float v, float start, float end);

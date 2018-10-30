@@ -52,11 +52,14 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 		SurfelBucketInfo info = uSurfelBucket[j];
 
 		uint count = info.currentCount;
-
-		for(uint i = info.startIndex; i < info.startIndex + count; i++) {
+		uint i = info.startIndex;
+		while(i < info.startIndex + count) {
 			if(isCovered(position, normal, uSurfels[i]) > 0) {
-				color =	float4(uSurfels[i].indirectLighting * 2.f, 1.f);
+				float4 normalVar = uSurfels[i].history.normalizedHSLVariance();
+				// color =	float4( uSurfels[i].weightCurve.scale / 5.f, uSurfels[i].weightCurve.force ,0 , 1.f);
+				color =	float4( 0, normalVar.w, 0 , 1.f);
 			}
+			i++;
 		}
 
 	}

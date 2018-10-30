@@ -69,8 +69,8 @@ float4 samplePreviousAO(uint2 pix, float2 screen, float3 normal, float3 position
 
 	uint2 prevPix = uint2(prevscreen.x * float(size.x), prevscreen.y * float(size.y));
 
-	float4 sample = gGAO[prevPix];
-	float oldDepth = sample.z;
+	float4 ssample = gGAO[prevPix];
+	float oldDepth = ssample.z;
 
 	// if(isnan(oldDepth)) return float4(10000, prevProj.z / 2.f + .5f, oldDepth, 0.f);
 	// if(distance(oldDepth, prevProj.z / 2.f + .5f) > .001f && gFrameCount > 1) return float4(oldDepth, prevProj.z / 2.f + .5f, oldDepth, 0.f);
@@ -80,9 +80,9 @@ float4 samplePreviousAO(uint2 pix, float2 screen, float3 normal, float3 position
 	if(distance(oldDepth, prevProj.z / 2.f + .5f) > Z_TEST_BIAS && gFrameCount > 1) {
 		weight = 1.f;
 	} else {
-		weight = sample.w;
+		weight = ssample.w;
 	}
-	return float4(sample.xyz, weight); 
+	return float4(ssample.xyz, weight); 
 	// return float4(1,1,1,1);
 }
 
