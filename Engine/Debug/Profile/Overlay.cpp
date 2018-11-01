@@ -91,7 +91,7 @@ namespace Profile {
     Mesh* mText = nullptr;
     Camera* mCamera = nullptr;
     Transform mTransform;
-    bool mVisible = true;
+    bool mVisible = false;
     vec2 PADDING{ 10.f };
   };
 

@@ -3,10 +3,11 @@
 #include "Engine/Core/BytePacker.hpp"
 #include "Net.hpp"
 #include <vector>
-#include "Engine/Net/UDPConnection.hpp"
 #include "Engine/Core/Time/Time.hpp"
+#include "Engine/Net/NetAddress.hpp"
 
 class NetMessage;
+class UDPConnection;
 
 #define NET_PACKET_MTU (ETHERNET_MTU - 40 - 8) 
 class NetPacket: protected BytePacker {
@@ -16,9 +17,15 @@ public:
 
   struct header_t {
     uint8_t connectionIndex;
+
+    uint16_t ack;
+    uint16_t lastReceivedAck;
+    uint16_t previousReceivedAckBitField;
+
     uint8_t unreliableCount;
   };
 
+  static constexpr uint16_t INVALID_PACKET_ACK = 0xffffui16;
 public:
   using BytePacker::data;
   using BytePacker::size;
@@ -26,7 +33,7 @@ public:
 
   void fill(const void* data, size_t size);
 
-  void begin(uint8_t connectionIndex);
+  void begin(const UDPConnection& connection);
   void end();
   bool appendUnreliable(const NetMessage& msg);
 
@@ -36,6 +43,8 @@ public:
   void receivedTime(double second);
 
   double receivedTime() const { return mTimestamp; };
+
+  uint16_t ack() const { return mStampedHeader.ack; }
 public:
   bool operator==(const NetPacket& rhs) const {
     return mTimestamp == rhs.mTimestamp;

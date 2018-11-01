@@ -80,7 +80,7 @@ void Engine::init() {
 
   RemoteConsole::get().onReceive([](uint index, const RemoteConsole::Instr& instr) {
     if(!instr.isEcho) {
-      auto handler = Console::Get()->onOutput([index] (std::string msg, Console::Severity s) {
+      auto handler = Console::Get()->onOutput([index] (std::string msg, Console::Severity) {
         RemoteConsole::get().issue(index, true, msg.c_str());
       });
 

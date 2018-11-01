@@ -6,21 +6,32 @@
 #include "Engine/Net/NetMessage.hpp"
 #include "Engine/Net/UDPConnection.hpp"
 #include <queue>
+#include "Engine/Net/NetPacket.hpp"
 
 class NetMessage;
 class NetPacket;
+
+enum eNetCoreMessage: uint8_t {
+  NETMSG_PING = 0,    // unreliable, connectionless
+  NETMSG_PONG, 		// unreliable, connectionless
+  NETMSG_HEARTBEAT,	// unreliable
+
+  NETMSG_CORE_COUNT,
+};
 
 class UDPSession {
   friend class UDPConnection;
 public:
   static constexpr uint8_t INVALID_CONNECTION_ID = 0xffui8;
-  static constexpr double DEFAULT_SEND_FREQ = 20.0;
+  static constexpr double DEFAULT_SEND_FREQ = 20;
   struct MessageHandle {
     
   };
 
   struct Sender {
     UDPConnection* connection;
+    NetAddress address;
+    UDPSession* session;
   };
 
   using message_handle_t = std::function<bool(NetMessage, Sender&)>;
@@ -28,28 +39,18 @@ public:
   UDPSession();
 
   template<typename Func>
-  MessageHandle on(const char* name, Func&& func) {
-    mMessageDefs.push_back({ 0, name });
-
-    std::sort(mMessageDefs.begin(), mMessageDefs.end(),
-              [](NetMessage::Def& a, NetMessage::Def& b) {
-      return a.name < b.name;
-    });
-
-    for(uint i = 0; i < mMessageDefs.size(); i++) {
-      EXPECTS(i < 0xff);
-      mMessageDefs[i].index = (uint8_t)i;
-    }
-
-    mHandles[name] = func;
-    return MessageHandle();
+  MessageHandle on(const char* name, Func&& func, eMessageOption op = eMessageOption(0)) {
+    return on(NetMessage::Def::INVALID_MESSAGE_INDEX, name, func, op);
   }
+
+  MessageHandle on(uint8_t index, const char* name, const message_handle_t& func, eMessageOption option = eMessageOption(0));
+
 
   bool bind(uint16_t port);
 
   bool connect(uint8_t index, const NetAddress& addr);
 
-  bool send(uint8_t index, NetMessage& msg);
+  bool send(uint8_t index, NetMessage& msg, bool needFlush = false);
 
   bool in();
 
@@ -57,7 +58,7 @@ public:
 
   bool send(uint8_t index, const NetPacket& packet);
 
-  uint8_t selfIndex() const { return INVALID_CONNECTION_ID; }
+  uint8_t selfIndex() const { return mSelfIndex; }
 
   const UDPConnection* connection(uint8_t index) const;
   UDPConnection* connection(uint8_t index);
@@ -75,6 +76,8 @@ public:
   double tickFrequency(float freq);
   double connectionTickFrequency(uint8_t index, float freq);
   void heartbeatFrequency(float freq);
+
+  void renderUI() const;
 protected:
   struct NetPacketComp {
     bool operator()(const NetPacket* lhs, const NetPacket* rhs);
@@ -86,14 +89,24 @@ protected:
   NetPacket* allocPacket();
   void freePacket(NetPacket*& packet);
 
+  void registerCoreMessage();
+  void finalizeMessageDefinition();
+
   std::vector<UDPConnection> mConnections;
-  std::vector<NetMessage::Def> mMessageDefs;
+  std::vector<NetMessage::Def> mIndexedMessageDefs;
+  std::vector<NetMessage::Def> mUnIndexedMessageDefs;
+  std::array<NetMessage::Def, 0xff> mMessageDefs;
   std::unordered_map<std::string, message_handle_t> mHandles;
   std::priority_queue<NetPacket*, std::vector<NetPacket*>, NetPacketComp> mPendingPackets;
   UDPSocket mSock;
-
+  uint8_t mSelfIndex = INVALID_CONNECTION_ID;
   uint mMinSimLatencyMs = 0u, mMaxSimLatencyMs = 0u;
   float mSimLossChance = 0.f;
   double mTickSecond = 1.0 / DEFAULT_SEND_FREQ;
+
+  uint16_t mNextSendeAck = 0u;
+
+  uint16_t mLastReceivedAck = NetPacket::INVALID_PACKET_ACK;
+  uint16_t mPreviousReceivedAckAckBitField = 0u;
 };
 

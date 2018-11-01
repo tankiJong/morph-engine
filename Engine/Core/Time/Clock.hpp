@@ -48,16 +48,13 @@ public:
   inline void pause() { isPaused = true; };
   inline void resume() { isPaused = false; }
   
-  inline bool decrement() {
-    return (mCurrentTime - mStartTime > duration) ? mStartTime += duration, true : false;
-  };
+  bool decrement();
 
   double duration;
   uint flush();
   Clock& clock() const;
 protected:
-  void elapse();
-  double mCurrentTime;
+  double currentTime() const;
   double mStartTime;
   bool isPaused = false;
 };

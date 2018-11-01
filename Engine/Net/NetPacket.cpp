@@ -1,6 +1,8 @@
 ﻿#include "NetPacket.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Net/UDPSession.hpp"
+
+
 NetPacket::NetPacket()
   : BytePacker(NET_PACKET_MTU, mLocalBuffer, ENDIANNESS_LITTLE) {
   memset(mLocalBuffer, 0, NET_PACKET_MTU);
@@ -20,11 +22,15 @@ void NetPacket::fill(const void* data, size_t size) {
   seekw(size, SEEK_DIR_CURRENT);
 }
 
-void NetPacket::begin(uint8_t connectionIndex) {
+void NetPacket::begin(const UDPConnection& connection) {
   EXPECTS(mStampedMessage.empty());
-  mStampedHeader.connectionIndex = connectionIndex;
-  mStampUsableSize = NET_PACKET_MTU;
+  mStampedHeader.connectionIndex = connection.owner()->selfIndex();
+  mStampedHeader.ack = connection.nextAck();
+  mStampedHeader.lastReceivedAck = connection.largestReceivedAck();
+  mStampedHeader.previousReceivedAckBitField = connection.previousReceivedAckBitField();
   clear();
+  mStampUsableSize = NET_PACKET_MTU;
+  mStampUsableSize -= sizeof(mStampedHeader);
 }
 
 void NetPacket::end() {
@@ -55,7 +61,12 @@ bool NetPacket::appendUnreliable(const NetMessage& msg) {
 }
 
 void NetPacket::read(header_t& header) {
-  *this >> header.connectionIndex >> header.unreliableCount;
+  *this 
+    >> header.connectionIndex
+    >> header.ack
+    >> header.lastReceivedAck
+    >> header.previousReceivedAckBitField
+    >> header.unreliableCount;
 }
 
 bool NetPacket::read(NetMessage& outMessage) {
@@ -64,11 +75,12 @@ bool NetPacket::read(NetMessage& outMessage) {
 
   uint16_t total;
   uint8_t index;
-  *this >> total >> index;
+  *this >> total;
 
-  if (tellw() - tellr() < total - 2) {
+  if (tellw() - tellr() < total) {
     return false;
   }
+  *this >> index;
 
   void* buf = _alloca(total - 1u);
 
@@ -86,14 +98,25 @@ void NetPacket::receivedTime(double second) {
 }
 
 void NetPacket::write(const header_t& header) {
-  *this << header.connectionIndex << header.unreliableCount;
+  *this
+    << header.connectionIndex
+    << header.ack
+    << header.lastReceivedAck
+    << header.previousReceivedAckBitField
+    << header.unreliableCount;
 }
 
 bool NetPacket::write(const NetMessage& msg) {
-  uint16_t total = (uint16_t)msg.size() + 1;
+  bool reliable = msg.reliable();
+  uint16_t total = (uint16_t)msg.size() + (reliable ? 3 : 1);
   uint8_t index = msg.index();
-
   *this << total << index;
+
+  if(reliable) {
+    uint16_t reliableId = msg.reliableId();
+    *this << reliableId;
+  }
+
   append(msg.data(), msg.size());
 
   return true;

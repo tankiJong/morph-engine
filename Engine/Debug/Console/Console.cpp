@@ -206,17 +206,19 @@ void Console::consoleControlHandler(unsigned msg, size_t wParam, size_t) {
         return;
       case KEYBOARD_UP:
         if (mCommandLog.empty()) return;
+        mNextCommandLogIndex++;
         if(mNextCommandLogIndex == mCommandLog.size()) {
           mNextCommandLogIndex = 0;
         }
-        replaceInput(*(mCommandLog.rbegin() + (mNextCommandLogIndex++)));
+        replaceInput(*(mCommandLog.rbegin() + (mNextCommandLogIndex)));
         return;
       case KEYBOARD_DOWN:
         if (mCommandLog.empty()) return;
+        mNextCommandLogIndex--;
         if (mNextCommandLogIndex == uint(-1)) {
           mNextCommandLogIndex = (uint)mCommandLog.size() - 1;
         }
-        replaceInput(*(mCommandLog.rbegin() + (mNextCommandLogIndex--)));
+        replaceInput(*(mCommandLog.rbegin() + (mNextCommandLogIndex)));
         return;
 
       // selection & cursor

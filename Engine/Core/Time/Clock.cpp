@@ -4,8 +4,6 @@
 
 static Clock gMainClock;
 
-std::vector<Interval*> gStopwatch;
-
 owner<Clock*> Clock::createChild() {
   return new Clock(this);
 }
@@ -45,12 +43,6 @@ void Clock::stepClock(uint64_t elapsed) {
     elapsed = (uint64_t)((double)elapsed*mScale);
   }
 
-  if(this == &gMainClock) {
-    for(auto sw: gStopwatch) {
-      sw->elapse();
-    }
-  }
-
   double elapsedSec = PerformanceCountToSecond(elapsed);
 
   frame.second = elapsedSec;
@@ -69,6 +61,14 @@ void Clock::addChild(Clock* clock) {
   clock->mParent = this;
 }
 
+bool Interval::decrement() {
+  if (currentTime() - mStartTime > duration) {
+    mStartTime += duration;
+    return true;
+  }
+  return false;
+}
+
 uint Interval::flush() {
   uint d = 0;
   while(decrement()) {
@@ -81,6 +81,10 @@ Clock& Interval::clock() const {
   return gMainClock;
 }
 
+double Interval::currentTime() const {
+  return clock().total.second;
+}
+
 Interval::Interval(double dura)
   : Interval() {
   duration = dura;
@@ -88,27 +92,9 @@ Interval::Interval(double dura)
 
 Interval::Interval() {
   mStartTime = gMainClock.total.second;
-  mCurrentTime = mStartTime;
-  gStopwatch.push_back(this);
-}
-
-bool destoryWatch(Interval& target) {
-  for (size_t i = gStopwatch.size() - 1; i < gStopwatch.size(); --i) {
-    if (&target == gStopwatch[i]) {
-      std::swap(gStopwatch[i], gStopwatch.back());
-      gStopwatch.pop_back();
-      return true;
-    }
-  }
-  return false;
 }
 
 Interval::~Interval() {
-  destoryWatch(*this);
-}
-
-void Interval::elapse() {
-  mCurrentTime = gMainClock.total.second;
 }
 
 Clock& GetMainClock() {
