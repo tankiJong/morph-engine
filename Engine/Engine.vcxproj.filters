@@ -1348,6 +1348,9 @@
     <None Include="Renderer\SceneRenderer\fxaa.hlsli">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </None>
+    <None Include="Renderer\SceneRenderer\fullscreen.hlsli">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis">
@@ -1400,9 +1403,6 @@
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\PathTracing_cs.hlsl">
-      <Filter>Engine\Renderer\SceneRenderer</Filter>
-    </FxCompile>
-    <FxCompile Include="Renderer\SceneRenderer\fullScreen_vs.hlsl">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\fxaa_ps.hlsl">

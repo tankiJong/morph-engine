@@ -22,6 +22,8 @@ public:
 
   class Desc {
   public:
+    Desc();
+
     Desc& setRootSignature(RootSignature::scptr_t signature) {
       mRootSignature = signature; return *this;
     }

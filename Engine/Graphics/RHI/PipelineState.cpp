@@ -2,6 +2,10 @@
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Graphics/Program/Program.hpp"
+#include "Engine/Graphics/Model/Vertex.hpp"
+GraphicsState::Desc::Desc() {
+  mLayout = VertexLayout::For<vertex_pcu_t>();
+}
 
 GraphicsState::~GraphicsState() {
   RHIDevice::get()->releaseResource(mRhiHandle);

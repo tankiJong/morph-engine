@@ -165,7 +165,7 @@ float3 PhongLighting(uint2 pix)
 	float3 indirect = ( gIndirect[pix / 2].xyz / gIndirect[pix / 2].w )* (2 * M_PI) * ambient ;
 	
 	// return indirect;
-  float3 color = ( indirect + diffuse ) * surfaceColor / M_PI /* + specular*/;
+  float3 color = ( diffuse + indirect ) * surfaceColor / M_PI /* + specular*/;
 
 	const float GAMMA = 1.f / 2.1;
 	color =  pow(color, float3(GAMMA, GAMMA, GAMMA));

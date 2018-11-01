@@ -80,6 +80,7 @@ protected:
   void setupView(RHIContext& ctx);
   void dumpSurfels(RHIContext& ctx);
   void pathTracing(RHIContext& ctx);
+  void fxaa(RHIContext& ctx);
   const RenderScene& mTargetScene;
 
   FrameBuffer mGFbo;

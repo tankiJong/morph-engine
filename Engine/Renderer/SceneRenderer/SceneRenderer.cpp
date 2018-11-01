@@ -24,6 +24,10 @@
 #include "DeferredLighting_cs.h"
 #include "PathTracing_cs.h"
 #include "SurfelCoverageCompute_cs.h"
+
+#include "fxaa_ps.h"
+#include "fxaa_vs.h"
+
 #include "Engine/Framework/Light.hpp"
 #include "Engine/Input/Input.hpp"
 #include "Engine/Math/Primitives/uvec3.hpp"
@@ -299,6 +303,7 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   
   if(!Input::Get().isKeyDown(KEYBOARD_SPACE)) {
     deferredLighting(ctx);
+    fxaa(ctx);
   } else {
     visualizeSurfels(ctx);
   }
@@ -725,7 +730,7 @@ void SceneRenderer::deferredLighting(RHIContext& ctx) {
   
     ctx.dispatch(x, y, 1);
     // ctx.resourceBarrier(mAO.get(), RHIResource::State::UnorderedAccess);
-    ctx.copyResource(*mScene, *RHIDevice::get()->backBuffer());
+    // ctx.copyResource(*mScene, *RHIDevice::get()->backBuffer());
   }
 }
 
@@ -861,4 +866,49 @@ void SceneRenderer::pathTracing(RHIContext& ctx) {
 
   ctx.dispatch(x, y, 1);
   ctx.copyResource(*mScene, *RHIDevice::get()->backBuffer());
+}
+
+void SceneRenderer::fxaa(RHIContext & ctx) {
+  static Program::sptr_t prog;
+  static S<ProgramIns> progIns;
+  static GraphicsState::sptr_t graphicsState;
+
+  if (!prog) {
+    prog = Program::sptr_t(new Program());
+
+    prog->stage(SHADER_TYPE_VERTEX)
+      .setFromBinary(gfxaa_vs, sizeof(gfxaa_vs));
+    prog->stage(SHADER_TYPE_FRAGMENT)
+      .setFromBinary(gfxaa_ps, sizeof(gfxaa_ps));
+    prog->compile();
+
+    progIns = GraphicsProgramIns::create(prog);
+
+    progIns->setSrv(mScene->srv(), 0);
+
+    GraphicsState::Desc desc;
+    desc.setRootSignature(prog->rootSignature());
+    desc.setProgram(prog);
+    desc.setPrimTye(GraphicsState::PrimitiveType::Triangle);
+    desc.setVertexLayout(VertexLayout::For<vertex_lit_t>());
+
+    graphicsState = GraphicsState::create(desc);
+  }
+
+  FrameBuffer fbo;
+  {
+    FrameBuffer::Desc desc;
+    desc.defineColorTarget(0, TEXTURE_FORMAT_RGBA8, false);
+    fbo.setDesc(desc);
+
+    fbo.setColorTarget(&RHIDevice::get()->backBuffer()->rtv(), 0);
+  }
+  ctx.setFrameBuffer(fbo);
+
+  ctx.resourceBarrier(mScene.get(), RHIResource::State::ShaderResource);
+
+  ctx.setGraphicsState(*graphicsState);
+  progIns->apply(ctx, false);
+
+  ctx.draw(0, 3);
 }
