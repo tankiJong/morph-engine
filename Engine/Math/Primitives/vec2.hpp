@@ -71,23 +71,23 @@ public:
 };
 
 
-// Gets the projected vector in the �projectOnto� direction, whose magnitude is the projected length of �vectorToProject� in that direction.
+// Gets the projected vector in the "projectOnto" direction, whose magnitude is the projected length of "vectorToProject" in that direction.
 const vec2 projectTo(const vec2& vectorToProject, const vec2& projectOnto);
 const vec2 transform(const vec2& originalVector, 
                         const vec2& fromX, const vec2& fromY,
                         const vec2& toI, const vec2& toJ);
 
-// Returns the vector�s representation/coordinates in (i,j) space (instead of its original x,y space)
+// Returns the vector"s representation/coordinates in (i,j) space (instead of its original x,y space)
 const vec2 transToBasis(const vec2& originalVector,
                            const vec2& toBasisI, const vec2& toBasisJ);
 
-// Takes �vectorInBasis� in (i,j) space and returns the equivalent vector in [axis-aligned] (x,y) Cartesian space
+// Takes "vectorInBasis" in (i,j) space and returns the equivalent vector in [axis-aligned] (x,y) Cartesian space
 const vec2 transFromBasis(const vec2& originalVector,
                         const vec2& fromBasisI, const vec2& fromBasisJ);
 
-// Decomposes �originalVector� into two component vectors, which add up to the original:
-//   �vectorAlongI� is the vector portion in the �newBasisI� direction, and
-//   �vectorAlongJ� is the vector portion in the �newBasisJ� direction.
+// Decomposes "originalVector" into two component vectors, which add up to the original:
+//   "vectorAlongI" is the vector portion in the "newBasisI" direction, and
+//   "vectorAlongJ" is the vector portion in the "newBasisJ" direction.
 void decompose(const vec2& originalVector,
                               const vec2& newBasisI, const vec2& newBasisJ,
                               vec2& out_vectorAlongI, vec2& out_vectorAlongJ);

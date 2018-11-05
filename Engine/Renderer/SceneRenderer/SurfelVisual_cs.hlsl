@@ -5,7 +5,7 @@
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
 		"DescriptorTable(SRV(t10, numDescriptors = 5), visibility = SHADER_VISIBILITY_ALL)," \
-		"DescriptorTable(UAV(u0, numDescriptors = 2),UAV(u2, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(UAV(u0, numDescriptors = 3),UAV(u3, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
 
@@ -17,7 +17,8 @@ StructuredBuffer<vertex_t> gVerts: register(t14);
 
 RWStructuredBuffer<surfel_t> uSurfels: register(u0);
 RWStructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(u1);
-RWTexture2D<float4> uTexSurfelVisual: register(u2);
+RWStructuredBuffer<SurfelHistoryBuffer> uSurfelsHistory: register(u2);
+RWTexture2D<float4> uTexSurfelVisual: register(u3);
 
 
 [RootSignature(SurfelVisual_RootSig)]
@@ -55,9 +56,9 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 		uint i = info.startIndex;
 		while(i < info.startIndex + count) {
 			if(isCovered(position, normal, uSurfels[i]) > 0) {
-				float4 normalVar = uSurfels[i].history.normalizedHSLVariance();
-				// color =	float4( uSurfels[i].weightCurve.scale / 5.f, uSurfels[i].weightCurve.force ,0 , 1.f);
-				color =	float4( 0, normalVar.w, 0 , 1.f);
+				float4 normalVar = uSurfelsHistory[i].normalizedHSLVariance();
+				color =	float4( uSurfels[i].weightCurve.scale / 5.f, 0 ,0 , 1.f);
+				// color =	float4( 0, normalVar.w, 0 , 1.f);
 			}
 			i++;
 		}

@@ -21,6 +21,12 @@ RWStructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(u1);
 RWTexture2D<float4> uTexIndirect: register(u2);
 
 static uint groupOffset;
+static uint3 localThreadId;
+#define groupSliceSize 64
+
+groupshared SurfelBucketInfo infos[64]; // = groupSliceSize
+groupshared surfel_t surfeCache[8];
+
 float4 ComputeIndirect(uint2 pix)
 {
 	float3 surfacePosition = gTexPosition[pix].xyz;
@@ -31,27 +37,60 @@ float4 ComputeIndirect(uint2 pix)
 	 
 	float total = 0;
 
-	const uint groupSliceSize = 16;
 	uint bucketCount, _;
 	uSurfelBucket.GetDimensions(bucketCount, _);
 
+	if (groupOffset * groupSliceSize + localThreadId.x < bucketCount) {
+		infos[localThreadId.x] = uSurfelBucket[groupOffset * groupSliceSize + localThreadId.x];
+	}	
+	GroupMemoryBarrierWithGroupSync();
 
-	for(uint k = groupOffset * groupSliceSize; k <= bucketCount && k < (groupOffset+1) * groupSliceSize; k++) {
-		SurfelBucketInfo info = uSurfelBucket[k];
-	 	
-		uint i = info.startIndex;
-		while(i < info.startIndex + info.currentCount) {
+	// [unroll]
+	for(uint k = 0; k < groupSliceSize; k++) {
+		
+		// SurfelBucketInfo info = infos[k];
 
-			surfel_t surfel = uSurfels[i];
-			float2 d = GetProjectedDistanceFromSurfel(surfacePosition, surfel.position, surfel.normal);
+		uint i = 0;
 
-			float weight = exp(-1.f * (d.x * d.x) / (2 * 3 * SURFEL_RADIUS * 3 * SURFEL_RADIUS)) / (d.y * d.y / (SURFEL_RADIUS * SURFEL_RADIUS) + 1.f);
-			float iscovered = (dot(surfaceNormal, surfel.normal) > .9f ? 1.f : 0.f) * weight;
-			total += weight;
-			indirect =	mad( surfel.indirectLighting, iscovered, indirect );
+		while(i < infos[k].currentCount) {
+			surfeCache[localThreadId.y] = uSurfels[infos[k].startIndex + i + localThreadId.y];
+			GroupMemoryBarrierWithGroupSync();
 
-			i++;
+			uint count = min(4, infos[k].currentCount - i);
+			uint kk = 0;
 
+			while(kk < count) {
+				// surfel_t surfel = surfeCache[kk];
+				float2 d1 = GetProjectedDistanceFromSurfel(surfacePosition, surfeCache[kk].position, surfeCache[kk].normal);
+				float2 d2 = GetProjectedDistanceFromSurfel(surfacePosition, surfeCache[kk+1].position, surfeCache[kk+1].normal);
+
+				float2 times1 = d1 * d1;
+				float2 times2 = d2 * d2;
+
+				float exp1 =  exp( times1.x * ( -1.f / (2 * 3 * SURFEL_RADIUS * 3 * SURFEL_RADIUS)) );
+				float exp2 = 	exp( times2.x * ( -1.f / (2 * 3 * SURFEL_RADIUS * 3 * SURFEL_RADIUS)) ); 
+				
+				float div1 = (times1.y * (1.f / (SURFEL_RADIUS * SURFEL_RADIUS)) + 1.f);
+				float div2 = (times2.y * (1.f / (SURFEL_RADIUS * SURFEL_RADIUS)) + 1.f);
+
+				float weight1 = exp1 / div1;
+				float weight2 = exp2 / div2;
+
+				float dot1 = dot(surfaceNormal, surfeCache[kk].normal);
+				float dot2 = dot(surfaceNormal, surfeCache[kk+1].normal);
+				float iscovered1 = ( dot1 > .9f ? 1.f : 0.f) * weight1;
+				float iscovered2 = ( dot2 > .9f ? 1.f : 0.f) * weight2;
+
+				indirect = mad( surfeCache[kk].indirectLighting, iscovered1, indirect );
+				total += weight1;
+				
+				if(kk+1 < count) {
+					indirect = mad( surfeCache[kk+1].indirectLighting, iscovered2, indirect );
+					total += weight2;
+				}
+				kk += 2;
+			}
+			i+=8;
 		}
 	}
 
@@ -59,18 +98,21 @@ float4 ComputeIndirect(uint2 pix)
 }
 
 [RootSignature(DeferredLighting_RootSig)]
-[numthreads(32, 32, 1)]
-void main( uint3 threadId: SV_DispatchThreadID, uint3 groupId: SV_GroupID )
+[numthreads(64, 8, 1)]
+void main( uint3 threadId: SV_DispatchThreadID, uint3 groupThreadId: SV_GroupThreadID, uint3 groupId: SV_GroupID )
 {
 	uint2 pix = threadId.xy;	
 	groupOffset = groupId.z;
+
+	localThreadId = groupThreadId;
 	uint2 size;
-	uTexIndirect.GetDimensions(size.x, size.y);
+	uTexIndirect.GetDimensions(size.x, size.y);	
+	float4 color = ComputeIndirect(pix * 2);
+
 	if(pix.x > size.x || pix.y > size.y) return;
 
-
-	float4 color = ComputeIndirect(pix * 2);
 	uTexIndirect[pix] += color;
 
 }
+
 

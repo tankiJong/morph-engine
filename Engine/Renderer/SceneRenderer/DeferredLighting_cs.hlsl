@@ -111,6 +111,7 @@ float Ambient(uint2 maxsize, uint2 pix, float3 position, float3 normal) {
 	// int step = ceil(beta * 1.5 / pixLen);
 	for(int i = -16; i <= 16; i++) {
 		if(int(pix.x) + i >= int(maxsize.x) || int(pix.x) + i < 0) continue;
+
 		for(int j = -16; j <= 16; j++) {
 			int2 samplePix = pix + int2(i, j);
 			if(samplePix.y >= int(maxsize.y) || int(samplePix.y) + j < 0) continue;

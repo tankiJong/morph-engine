@@ -239,7 +239,7 @@ void RHIDevice::present() {
   mRenderContext->resourceBarrier(backBuffer().get(), RHIResource::State::Present);
   mRenderContext->flush();
   mFrameFence->gpuSignal(mRenderContext->mContextData->commandQueue());
-  d3d_call(mSwapChain->Present(1, 0));
+  d3d_call(mSwapChain->Present(0, 0));
   executeDeferredRelease();
 
   mCurrentBackBufferIndex = mSwapChain->GetCurrentBackBufferIndex();

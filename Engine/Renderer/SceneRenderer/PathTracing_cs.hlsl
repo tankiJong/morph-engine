@@ -54,7 +54,7 @@ float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 
 	if(c.valid && c.t < maxDist) return float3(0,0,0);
 	
-	return Diffuse(surfacePosition, surfaceNormal, float3(1, 1, 1), gLight);
+	return Diffuse(surfacePosition, surfaceNormal, gLight.color.xyz, gLight);
 
 }
 
@@ -70,7 +70,7 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 	colors[0] =	startColor;
 	dots[0] = saturate(dot(startRay.direction, startNormal));
 	uint xx  = 0;
-	for(; xx < 2; xx++) {
+	for(; xx < 6; xx++) {
 		bounce++;
 		uint vertCount, stride;
 		gVerts.GetDimensions(vertCount, stride);
@@ -158,7 +158,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	indirect /= (8.f / (2 * 3.1415926f));
 
 	// float3 indirect = float3(0,0,0);
-	float3 finalColor = ( indirect ) * color / 3.14159f;
+	float3 finalColor = ( diffuse + indirect ) * color / 3.14159f;
 
 	const float GAMMA = 1.f / 2.1;
 	finalColor =  pow(finalColor, float3(GAMMA, GAMMA, GAMMA));

@@ -103,13 +103,13 @@ T rangeMap(const T& v, const T& inStart, const T& inEnd, const T& outStart, cons
 
 //-------------------------- interpolation --------------------------------------------------
 
-float	smoothStart2(float t); // 2nd-degree smooth start (a.k.a. �quadratic ease in�)
-float	smoothStart3(float t); // 3rd-degree smooth start (a.k.a. �cubic ease in�)
-float	smoothStart4(float t); // 4th-degree smooth start (a.k.a. �quartic ease in�)
-float	smoothStop2(float t); // 2nd-degree smooth start (a.k.a. �quadratic ease out�)
-float	smoothStop3(float t); // 3rd-degree smooth start (a.k.a. �cubic ease out�)
-float	smoothStop4(float t); // 4th-degree smooth start (a.k.a. �quartic ease out�)
-float	smoothStep3(float t); // 3rd-degree smooth start/stop (a.k.a. �smoothstep�)
+float	smoothStart2(float t); // 2nd-degree smooth start (a.k.a. "quadratic ease in")
+float	smoothStart3(float t); // 3rd-degree smooth start (a.k.a. "cubic ease in")
+float	smoothStart4(float t); // 4th-degree smooth start (a.k.a. "quartic ease in")
+float	smoothStop2(float t); // 2nd-degree smooth start (a.k.a. "quadratic ease out")
+float	smoothStop3(float t); // 3rd-degree smooth start (a.k.a. "cubic ease out")
+float	smoothStop4(float t); // 4th-degree smooth start (a.k.a. "quartic ease out")
+float	smoothStep3(float t); // 3rd-degree smooth start/stop (a.k.a. "smoothstep")
 
 // linear interpolate
 inline float lerpf(float from, float to, float fraction);

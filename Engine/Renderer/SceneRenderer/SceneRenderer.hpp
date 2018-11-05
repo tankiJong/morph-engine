@@ -109,7 +109,7 @@ protected:
   S<RHIBuffer> mcLight;
   TypedBuffer::sptr_t mAccelerationStructure;
   TypedBuffer::sptr_t mSurfelsBuffer[2];
-  TypedBuffer::sptr_t mSurfels;
+  TypedBuffer::sptr_t mSurfels[2];
   TypedBuffer::sptr_t mSurfelsHistory;
   TypedBuffer::sptr_t mSurfelBuckets;
 

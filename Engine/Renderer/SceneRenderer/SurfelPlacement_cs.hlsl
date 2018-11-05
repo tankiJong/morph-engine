@@ -5,7 +5,7 @@
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
 		"DescriptorTable(SRV(t10, numDescriptors = 5), visibility = SHADER_VISIBILITY_ALL)," \
-		"DescriptorTable(UAV(u0, numDescriptors = 5, flags = DESCRIPTORS_VOLATILE), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(UAV(u0, numDescriptors = 6, flags = DESCRIPTORS_VOLATILE), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
 
@@ -17,10 +17,11 @@ Texture2D gTexDepth: register(t13);
 StructuredBuffer<vertex_t> gVerts: register(t14);
 
 RWStructuredBuffer<surfel_t> uSurfels: register(u0);
-RWStructuredBuffer<surfel_t> uSurfelsHistory: register(u1);
+RWStructuredBuffer<surfel_t> uSurfelsPreviousFrame: register(u1);
 RWStructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(u2);
 RWTexture2D<float4> gTexCoverage: register(u3);
 RWTexture2D<float4> uSpawnChance: register(u4);
+RWStructuredBuffer<SurfelHistoryBuffer> uSurfelsHistory: register(u5);
 
 
 float coverageAt(uint2 pix) {
@@ -108,7 +109,16 @@ void appendSurfel(surfel_t surfel) {
 	InterlockedAdd(uSurfelBucket[hash].currentCount, 1, offset);
 
 	uSurfels[uSurfelBucket[hash].startIndex + offset] = surfel;
-	uSurfelsHistory[uSurfelBucket[hash].startIndex + offset] = surfel;
+	uSurfelsPreviousFrame[uSurfelBucket[hash].startIndex + offset] = surfel;
+
+	SurfelHistoryBuffer history;
+	for(uint i = 0; i < TOTAL_HISTORY; i++) {
+		history.buffer[i] = float4(1,1,1,1);
+	}
+	history.nextToWrite = 0;
+	history.__padding = 0;
+
+	uSurfelsHistory[uSurfelBucket[hash].startIndex + offset] = history;
 }
 
 [RootSignature(SurfelPlacement_RootSig)]
@@ -154,13 +164,11 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	surfel.normal =		gTexNormal[pix.coords].xyz * 2.f - float3(1.f, 1.f, 1.f);
 	surfel.color = color;
 	surfel.indirectLighting = float3(0, 0, 0);
-	surfel.age = 0.f;
-	surfel.id = -1;
-	surfel.__padding = float2(0,0);
-	for(uint i = 0; i < TOTAL_HISTORY; i++) {
-		surfel.history.buffer[i] = float4(1,1,1,1);
-	}
-	surfel.history.nextToWrite = 0;
+	surfel.__padding0 = 0;
+	surfel.__padding1 = 0;
+	surfel.__padding2 = 0;
+	surfel.__padding3 = 0;
+	surfel.age = 0;
 
 	InitBezierCurve(surfel.weightCurve);
 	 /*

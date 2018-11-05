@@ -2,19 +2,19 @@
 #include "./Common.hlsli"
 #include "../Shader/Math.hlsl"
 
-#define TOTAL_HISTORY 80u
+#define TOTAL_HISTORY 15u
 
 struct BezierCurve {
-  float2 start;
-  float2 end;
+  min16float2 start;
+  min16float2 end;
 
-  float2 tangentStart;
-  float2 tangentEnd;
+  min16float2 tangentStart;
+  min16float2 tangentEnd;
 
-	float smooth;
-	float force;
-	float scale;
-
+	min16float smooth;
+	min16float force;
+	min16float scale;
+	min16float __padding;
 	inline float evaluate(float t) {
 		float2 a = lerp(start, tangentStart, t);
 		float2 b = lerp(tangentStart, tangentEnd, t);
@@ -69,13 +69,15 @@ void InitBezierCurve(inout BezierCurve curve) {
 	curve.smooth = 0;
 	curve.force = 0;
 	curve.scale = 0;
+	curve.__padding = 0;
 }
 
 
-struct HistoryBuffer {
+struct SurfelHistoryBuffer {
 	// x,y,z are data, w is variance buffer;
   float4 buffer[TOTAL_HISTORY];
   uint nextToWrite;
+  uint3 __padding;
 
 	inline void write(float3 data, float prevVariance) {
 		uint index = nextToWrite % TOTAL_HISTORY;
@@ -206,20 +208,26 @@ struct HistoryBuffer {
 
 struct surfel_t {
   float3 position;
+	float  __padding0;
 
   float3 normal;
+	float  __padding1;
 
   float3 color;
+	float  __padding2;
 
   float3 indirectLighting;
-  float age;
+  float	 age;
+	
+	float4 __padding3;
+	// min16float age;
 
-  float id;
+  // float id;
 
 	BezierCurve weightCurve;
-  HistoryBuffer history;
-	float2 __padding;
+	// min16float2 __padding;
 };
+
 
 
 static const float SURFEL_RADIUS = 0.035f;
@@ -267,6 +275,8 @@ struct SurfelBucketInfo {
 	uint startIndex;
 	uint endIndex;
 	uint currentCount;
+	uint __padding;
+	// 32 
 };
 
 uint SpatialHash(float3 position) {

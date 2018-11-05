@@ -6,7 +6,7 @@
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
 		"DescriptorTable(SRV(t10, numDescriptors = 5), visibility = SHADER_VISIBILITY_ALL)," \
-		"DescriptorTable(UAV(u0, numDescriptors = 3, flags = DESCRIPTORS_VOLATILE), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(UAV(u0, numDescriptors = 4, flags = DESCRIPTORS_VOLATILE), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
 Texture2D<float4> gTexAlbedo:   register(t10);
@@ -16,8 +16,9 @@ Texture2D gTexDepth: register(t13);
 StructuredBuffer<vertex_t> gVerts: register(t14);
 
 RWStructuredBuffer<surfel_t> uSurfels: register(u0);
-RWStructuredBuffer<surfel_t> uSurfelsHistory: register(u1);
+RWStructuredBuffer<surfel_t> uSurfelsPreviousFrame: register(u1);
 RWStructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(u2);
+RWStructuredBuffer<SurfelHistoryBuffer> uSurfelsHistory: register(u3);
 
 
 
@@ -88,28 +89,16 @@ bool GetSurfelAt(float3 position, float3 normal, inout float3 indirect) {
 	return hit;
 }
 
-// if false, stop tracing
-bool russianRoulette(inout float weight) {
-	static const float STOP_THREHOLD = .5f;
-	static const float STOP_CHANCE = .1f;
-
-	if(weight > STOP_THREHOLD) return true;
-
-	Randomf roll = rnd01(seed);
-	seed = roll.seed;
-	if(roll.value < STOP_CHANCE) return false;
-
-	weight = weight / ( 1 - STOP_CHANCE);
-}
 
 float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float3 startColor) {
 	Ray ray = startRay;
 	uint bounce = 0;
 
-	float3	colors[20];
-	float3 diffuses[20];
-	float4 totals[20];
-	float dots[20];
+	float3	colors[4];
+	float3 diffuses[4];
+	float4 totals[4];
+	float dots[4];
+
 	diffuses[0] = float3(0,0,0); // I only want the indirect part
 	colors[0] =	startColor;
 	dots[0] = saturate(dot(startRay.direction, startNormal));
@@ -175,6 +164,7 @@ float3 adaptiveAverage(float3 original, float3 sample, float variance) {
 	// Debug.Log("Original: " + original + "|Diff: " + diff);
 	float k = diff;
 	
+	k = k * .001f + 0.0005f;
 	// k = lerp(1.f / (1.f * 1024.f), 1.f / 8.f, diff);
 	// k = k * k * k;
 	// k = smoothstep(0, 0.9f, k);
@@ -182,49 +172,14 @@ float3 adaptiveAverage(float3 original, float3 sample, float variance) {
 }
 
 
-void updateSurfels(inout surfel_t surfel) {
+void updateSurfels(inout surfel_t surfel, inout SurfelHistoryBuffer history) {
 	float age = surfel.age;
-
-
 	
 	float3 indirect = float3(0,0,0);
-	HistoryBuffer history = surfel.history;
-	if(age < 5) {
-		Ray ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		indirect = PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal); 
-		ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		indirect += PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal); 
-		ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		indirect += PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal);
-		ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		indirect += PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal);
-		ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
-		indirect += PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal);
-		
-		indirect = indirect / 5.f;
-		// {
-		// 	uint index = history.nextToWrite % TOTAL_HISTORY;
-		// 	float4 temp[TOTAL_HISTORY] = history.buffer;
-		// 	temp[index]	= float4(indirect, variance.x);
-		// 	history.buffer = temp;
-		// 	history.nextToWrite++;
-		// }
-		// surfel.indirectLighting = indirect;
 
-		// surfel.indirectLighting = lerp(average, surfel.indirectLighting, 1.f /(k + 1));
-		// surfel.indirectLighting = (surfel.indirectLighting * age + indirect) / (age+1);
-		// history[index] = float4(surfel.indirectLighting, 0);
-	} else {
-		
+	{
 		Ray ray = GenReflectionRay(seed, float4(surfel.position, 1.f), surfel.normal);
 		indirect = PathTracing(ray, surfel.position, surfel.normal, surfel.color) * dot(ray.direction, surfel.normal);;
-
-		// surfel.indirectLighting = newIndirect;
-
-		// surfel.indirectLighting = (surfel.indirectLighting * age + newIndirect) / (age+1);
-		// surfel.indirectLighting = surfel.indirectLighting * .5 + average * .5;
-		// history[index] = float4(surfel.indirectLighting, 0.f);
-		// surfel.indirectLighting = lerp(surfel.indirectLighting, newIndirect, 1/(age + 1));
 	}
 	float4 normalizedVariance = history.normalizedHSLVariance();
 	history.write(indirect, normalizedVariance.z);
@@ -237,10 +192,6 @@ void updateSurfels(inout surfel_t surfel) {
 	surfel.weightCurve.setForce(normalizedVariance.w);
 	surfel.weightCurve.setScale(normalizedVariance.w);
 	surfel.weightCurve.update();
-
-	{
-	//	surfel.indirectLighting = surfel.indirectLighting * (1 - 0.01f) + indirect * 0.01f;
-	}
 	
 	float3 weightedAvg = history.weightedAverage(surfel.weightCurve).xyz;
 	float3 adaptive = adaptiveAverage(surfel.indirectLighting, weightedAvg, normalizedVariance.w);
@@ -248,27 +199,28 @@ void updateSurfels(inout surfel_t surfel) {
 																weightedAvg - sqrt(variance.xyz), weightedAvg + sqrt(variance.xyz));
 	// surfel.indirectLighting = history.average().xyz;
 
-	surfel.history = history;
 	surfel.age++;
 }
 
 
 [RootSignature(SurfelGI_RootSig)]
 [numthreads(16, 16, 1)]
-void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex, uint3 groupId: SV_GroupId )
+
+void main( uint3 threadId : SV_DispatchThreadID, uint3 localThreadId : SV_GroupThreadID, uint3 groupId: SV_GroupId )
 {
-	seed = threadId.x * 10000 + threadId.y * 121144 + gTime * 367860;
+	seed = threadId.x * 10000 + threadId.y * 121144 + gTime * 367860;	
 
+	//[loop]
+	//for(uint kk = 0; kk < 2; kk++) {
+		SurfelBucketInfo info = uSurfelBucket[groupId.x * 16 * 16 * 1 + localThreadId.x * 16 * 1 + localThreadId.y * 1];
+
+		uint i = info.startIndex;
+		while(i < info.startIndex + info.currentCount) {
+			uSurfels[i] = uSurfelsPreviousFrame[i];
+			updateSurfels(uSurfels[i], uSurfelsHistory[i]);
+			i++;
+		}
+	//}
 	// for(uint j = 0; j < hash; j++) {
-	SurfelBucketInfo info = uSurfelBucket[16*16*groupId.z + threadId.x * 16 + threadId.y];
-
-	if(info.currentCount == 0) return;
-
-	uint i = info.startIndex;
-	while(i < info.startIndex + info.currentCount) {
-		uSurfels[i] = uSurfelsHistory[i];
-		updateSurfels(uSurfels[i]);
-		i++;
-	}
-
 }
+
