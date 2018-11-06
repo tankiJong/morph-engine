@@ -117,6 +117,7 @@ void appendSurfel(surfel_t surfel) {
 	}
 	history.nextToWrite = 0;
 	history.__padding = 0;
+	InitBezierCurve(history.weightCurve);
 
 	uSurfelsHistory[uSurfelBucket[hash].startIndex + offset] = history;
 }
@@ -167,10 +168,9 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	surfel.__padding0 = 0;
 	surfel.__padding1 = 0;
 	surfel.__padding2 = 0;
-	surfel.__padding3 = 0;
+
 	surfel.age = 0;
 
-	InitBezierCurve(surfel.weightCurve);
 	 /*
 	uint hash = SpatialHash(surfel.position);
 	uint index = uSurfelBucket[hash].startIndex + uSurfelBucket[hash].currentCount;

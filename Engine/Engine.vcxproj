@@ -63,7 +63,7 @@
     <ProjectGuid>{F98FC404-61CF-431F-A434-4C724EF1EC69}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Engine</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
     <ProjectName>Engine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -578,6 +578,8 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -620,6 +622,8 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -662,6 +666,8 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -704,6 +710,8 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -747,6 +755,8 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -792,6 +802,8 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -837,6 +849,8 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4201</DisableSpecificWarnings>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)\</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -868,6 +882,13 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\ThirdParty\imgui\examples\imgui_impl_dx12.cpp" />
+    <ClCompile Include="..\ThirdParty\imgui\examples\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\ThirdParty\imgui\imgui.cpp" />
+    <ClCompile Include="..\ThirdParty\imgui\ImGuizmo.cpp" />
+    <ClCompile Include="..\ThirdParty\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\ThirdParty\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\ThirdParty\mikktspace\mikktspace.c" />
     <ClCompile Include="..\ThirdParty\pugixml\pugixml.cpp" />
     <ClCompile Include="..\ThirdParty\stb\stb_image.c" />
@@ -1051,6 +1072,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="Graphics\RHI\Texture.cpp" />
     <ClCompile Include="Graphics\RHI\TypedBuffer.cpp" />
     <ClCompile Include="Graphics\RHI\VertexLayout.cpp" />
+    <ClCompile Include="Gui\ImGui.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Input\XboxController.cpp" />
     <ClCompile Include="Math\Curves.cpp" />
@@ -1668,6 +1690,15 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="..\ThirdParty\fmod\fmod_dsp_effects.h" />
     <ClInclude Include="..\ThirdParty\fmod\fmod_errors.h" />
     <ClInclude Include="..\ThirdParty\fmod\fmod_output.h" />
+    <ClInclude Include="..\ThirdParty\imgui\examples\imgui_impl_dx12.h" />
+    <ClInclude Include="..\ThirdParty\imgui\examples\imgui_impl_win32.h" />
+    <ClInclude Include="..\ThirdParty\imgui\imconfig.h" />
+    <ClInclude Include="..\ThirdParty\imgui\imgui.h" />
+    <ClInclude Include="..\ThirdParty\imgui\ImGuizmo.h" />
+    <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h" />
+    <ClInclude Include="..\ThirdParty\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\ThirdParty\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\ThirdParty\imgui\imstb_truetype.h" />
     <ClInclude Include="..\ThirdParty\mikktspace\mikktspace.h" />
     <ClInclude Include="..\ThirdParty\nlohmann-json\json.hpp" />
     <ClInclude Include="..\ThirdParty\pugixml\pugiconfig.hpp" />
@@ -1892,6 +1923,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="Graphics\RHI\Texture.hpp" />
     <ClInclude Include="Graphics\RHI\TypedBuffer.hpp" />
     <ClInclude Include="Graphics\RHI\VertexLayout.hpp" />
+    <ClInclude Include="Gui\ImGui.hpp" />
     <ClInclude Include="Input\Input.hpp" />
     <ClInclude Include="Input\KeyState.hpp" />
     <ClInclude Include="Input\XboxController.hpp" />
@@ -2551,24 +2583,17 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <FxCompile Include="Renderer\SceneRenderer\DeferredLighting_ComputeIndirect_cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Compute</ShaderType>
     </FxCompile>
     <None Include="Renderer\SceneRenderer\fullscreen.hlsli">
@@ -2623,70 +2648,49 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <FxCompile Include="Renderer\SceneRenderer\PathTracing_cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Compute</ShaderType>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\SurfelCoverageCompute_cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Compute</ShaderType>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\SurfelGI_cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Compute</ShaderType>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\SurfelPlacement_cs.hlsl">
@@ -2701,24 +2705,17 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <FxCompile Include="Renderer\SceneRenderer\SurfelVisual_cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Compute</ShaderType>
     </FxCompile>
     <None Include="Renderer\SceneRenderer\Surfel.hlsli" />
@@ -2731,24 +2728,17 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <FxCompile Include="Renderer\SceneRenderer\DeferredLighting_cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Compute</ShaderType>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\GenAccelerationStructure_cs.hlsl">

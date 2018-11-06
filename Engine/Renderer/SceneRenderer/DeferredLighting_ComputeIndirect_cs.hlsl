@@ -67,11 +67,11 @@ float4 ComputeIndirect(uint2 pix)
 				float2 times1 = d1 * d1;
 				float2 times2 = d2 * d2;
 
-				float exp1 =  exp( times1.x * ( -1.f / (2 * 3 * SURFEL_RADIUS * 3 * SURFEL_RADIUS)) );
-				float exp2 = 	exp( times2.x * ( -1.f / (2 * 3 * SURFEL_RADIUS * 3 * SURFEL_RADIUS)) ); 
+				float exp1 =  exp( times1.x * ( -1.f / (2 * 2 * SURFEL_RADIUS * 2 * SURFEL_RADIUS)) );
+				float exp2 = 	exp( times2.x * ( -1.f / (2 * 2 * SURFEL_RADIUS * 2 * SURFEL_RADIUS)) ); 
 				
-				float div1 = (times1.y * (1.f / (SURFEL_RADIUS * SURFEL_RADIUS)) + 1.f);
-				float div2 = (times2.y * (1.f / (SURFEL_RADIUS * SURFEL_RADIUS)) + 1.f);
+				float div1 = (times1.y * (10.f / (SURFEL_RADIUS)) + 1.f);
+				float div2 = (times2.y * (10.f / (SURFEL_RADIUS)) + 1.f);
 
 				float weight1 = exp1 / div1;
 				float weight2 = exp2 / div2;
@@ -97,6 +97,7 @@ float4 ComputeIndirect(uint2 pix)
 	return float4(indirect, total);
 }
 
+
 [RootSignature(DeferredLighting_RootSig)]
 [numthreads(64, 8, 1)]
 void main( uint3 threadId: SV_DispatchThreadID, uint3 groupThreadId: SV_GroupThreadID, uint3 groupId: SV_GroupID )
@@ -111,7 +112,7 @@ void main( uint3 threadId: SV_DispatchThreadID, uint3 groupThreadId: SV_GroupThr
 
 	if(pix.x > size.x || pix.y > size.y) return;
 
-	uTexIndirect[pix] += color;
+	uTexIndirect[pix] = color + uTexIndirect[pix];
 
 }
 

@@ -175,6 +175,15 @@
     <Filter Include="ThirdParty\WinPixEventRuntime\include">
       <UniqueIdentifier>{80227814-43ff-461f-bd36-ddbc0aa8ef0a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Gui">
+      <UniqueIdentifier>{f60166a5-1e2f-4412-85b8-970f2510e1e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\ImGui">
+      <UniqueIdentifier>{7b69b041-27f2-45f8-a33b-c37c4a3f4316}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\ImGui\example">
+      <UniqueIdentifier>{40dc15c7-8758-4653-8077-4f980fbb4728}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -608,6 +617,30 @@
     </ClCompile>
     <ClCompile Include="Graphics\Program\ProgramIns.cpp">
       <Filter>Engine\Graphics\Program</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui_demo.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui_draw.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\examples\imgui_impl_dx12.cpp">
+      <Filter>ThirdParty\ImGui\example</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\ImGui.cpp">
+      <Filter>Engine\Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\examples\imgui_impl_win32.cpp">
+      <Filter>ThirdParty\ImGui\example</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\ImGuizmo.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1234,6 +1267,36 @@
     </ClInclude>
     <ClInclude Include="Renderer\Shader\ShaderInterop.h">
       <Filter>Engine\Renderer\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\ImGui.hpp">
+      <Filter>Engine\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imconfig.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imgui.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imstb_rectpack.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imstb_textedit.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imstb_truetype.h">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\examples\imgui_impl_dx12.h">
+      <Filter>ThirdParty\ImGui\example</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\examples\imgui_impl_win32.h">
+      <Filter>ThirdParty\ImGui\example</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\ImGuizmo.h">
+      <Filter>ThirdParty\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

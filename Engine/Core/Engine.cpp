@@ -6,6 +6,7 @@
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 #include "Engine/Debug/Log.hpp"
 #include "Engine/Renderer/ImmediateRenderer.hpp"
+#include "Engine/Gui/ImGui.hpp"
 
 Engine* gEngine = nullptr;
 
@@ -27,6 +28,7 @@ void Engine::init() {
   ImmediateRenderer::get().startUp();
   mReady = true;
 
+  ImGui::startup();
 
   // FileSystem& fs = FileSystem::Get();
 //
@@ -86,6 +88,8 @@ Engine& Engine::Get() {
 }
 
 Engine::~Engine() {
+
+  ImGui::shutdown();
   //Log::shutDown();
   //SAFE_DELETE(mRenderer);
   SAFE_DELETE(mWindow);

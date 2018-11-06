@@ -15,6 +15,11 @@ class RHIBuffer;
 class RHITexture;
 class RootSignature;
 
+enum eTransitionBarrierFlag {
+  TRANSITION_FULL = 0,
+  TRANSITION_BEGIN = 0x1,
+  TRANSITION_END = (0x1 << 1),
+};
 class RHIContext: std::enable_shared_from_this<RHIContext> {
 public:
   using sptr_t = S<RHIContext>;
@@ -33,7 +38,8 @@ public:
   void copyResource(const RHIResource& from, RHIResource& to);
 
   size_t readBuffer(const RHIBuffer& res, void* data, size_t maxSize);
-  virtual void resourceBarrier(const RHIResource* res, RHIResource::State newState, bool forceSync = false);
+  virtual void transitionBarrier(const RHIResource* res, RHIResource::State newState, eTransitionBarrierFlag = TRANSITION_FULL);
+  virtual void uavBarrier(const RHIResource* res);
 
   //-------------------------------------------------
   void beforeFrame();

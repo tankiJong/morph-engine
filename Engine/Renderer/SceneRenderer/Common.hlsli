@@ -84,7 +84,7 @@ float3 HUEtoRGB(in float H)
   return saturate(float3(R,G,B));
 }
 
-float Epsilon = 1e-10;
+static const float Epsilon = 1e-10;
  
 float3 RGBtoHCV(in float3 RGB)
 {

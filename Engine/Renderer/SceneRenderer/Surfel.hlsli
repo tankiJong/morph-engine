@@ -2,7 +2,7 @@
 #include "./Common.hlsli"
 #include "../Shader/Math.hlsl"
 
-#define TOTAL_HISTORY 15u
+#define TOTAL_HISTORY 28u
 
 struct BezierCurve {
   min16float2 start;
@@ -78,6 +78,7 @@ struct SurfelHistoryBuffer {
   float4 buffer[TOTAL_HISTORY];
   uint nextToWrite;
   uint3 __padding;
+	BezierCurve weightCurve;
 
 	inline void write(float3 data, float prevVariance) {
 		uint index = nextToWrite % TOTAL_HISTORY;
@@ -207,24 +208,22 @@ struct SurfelHistoryBuffer {
 };
 
 struct surfel_t {
-  float3 position;
-	float  __padding0;
+  min16float3 position;
+	min16float  __padding0;
 
-  float3 normal;
-	float  __padding1;
+  min16float3 normal;
+	min16float  __padding1;
 
-  float3 color;
-	float  __padding2;
+  min16float3 color;
+	min16float  __padding2;
 
-  float3 indirectLighting;
-  float	 age;
+  min16float3 indirectLighting;
+  min16float	 age;
 	
-	float4 __padding3;
 	// min16float age;
 
   // float id;
 
-	BezierCurve weightCurve;
 	// min16float2 __padding;
 };
 

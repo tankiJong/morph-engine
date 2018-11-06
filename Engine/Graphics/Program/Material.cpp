@@ -68,7 +68,7 @@ void Material::finialize(RHIContext& ctx) const {
   for(uint i = 0; i < NUM_MAT_TEXTURE; i++) {
     if(mPropertyTextures[i] != nullptr) {
       mDescriptorSet->setSrv(1, i, mPropertyTextures[i]->srv());
-      ctx.resourceBarrier(mPropertyTextures[i].get(), RHIResource::State::ShaderResource);
+      ctx.transitionBarrier(mPropertyTextures[i].get(), RHIResource::State::ShaderResource);
     } else {
       mDescriptorSet->setSrv(1, i, *ShaderResourceView::nullView());
     }

@@ -147,6 +147,7 @@ enum eBlendFactor {
   BLEND_F_INV_DST_ALPHA,
   NUM_BLEND_F,
 };
+
 // ---------------------- STRUCT -----------------------------
 
 struct uniform_time_t {

@@ -6,7 +6,7 @@
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
 		"DescriptorTable(SRV(t10, numDescriptors = 6), visibility = SHADER_VISIBILITY_ALL)," \
-		"DescriptorTable(UAV(u0, numDescriptors = 4), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(UAV(u0, numDescriptors = 4), SRV(t20, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
 
@@ -19,8 +19,8 @@ StructuredBuffer<vertex_t> gVerts: register(t14);
 
 RWTexture2D<float4> uTexScene: register(u0);
 RWTexture2D<float4> gIndirect: register(u1);
-RWTexture2D<float4> gTexAO: register(u2);
-RWTexture2D<float4> uSpawnChance: register(u3);
+RWTexture2D<float4> uSpawnChance: register(u2);
+Texture2D<float4> gTexAO: register(t20);
 
 
 
@@ -188,4 +188,7 @@ void main( uint3 threadId: SV_DispatchThreadID )
 	float3 color = PhongLighting(pix);
 	uTexScene[pix] = float4(color, 1.f);
 }
+
+
+
 

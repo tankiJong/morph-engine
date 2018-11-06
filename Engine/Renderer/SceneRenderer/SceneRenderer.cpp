@@ -65,8 +65,21 @@ struct surfel_t {
   vec3 indirectLighting;
   float age;
 
-  vec4 __padding3;
 
+  std::string toString() {
+    return Stringf("%s, %s, %s, %s",
+                   position.toString().c_str(),
+                   normal.toString().c_str(),
+                   color.toString().c_str(),
+                   indirectLighting.toString().c_str());
+  }
+};
+
+struct surfel_histroy_t {
+  static constexpr uint TOTAL_HISTORY = 28;
+  vec4 buffer[TOTAL_HISTORY];
+  uint32_t nextToWrite;
+  uint32_t __padding[3];
   struct {
     vec2 start;
     vec2 end;
@@ -79,21 +92,6 @@ struct surfel_t {
     float scale;
     float _padding;
   } weightCurve;
-
-  std::string toString() {
-    return Stringf("%s, %s, %s, %s",
-                   position.toString().c_str(),
-                   normal.toString().c_str(),
-                   color.toString().c_str(),
-                   indirectLighting.toString().c_str());
-  }
-};
-
-struct surfel_histroy_t {
-  static constexpr uint TOTAL_HISTORY = 15;
-  vec4 buffer[TOTAL_HISTORY];
-  uint32_t nextToWrite;
-  uint32_t __padding[3];
 } ;
 
 struct SurfelBucketInfo {
@@ -297,10 +295,14 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   setupFrame();
   setupView(ctx);
   ctx.copyResource(*mAO, *mGAO);
+  ctx.transitionBarrier(mGAO.get(), RHIResource::State::NonPixelShader, TRANSITION_BEGIN);
+  ctx.transitionBarrier(mAO.get(), RHIResource::State::UnorderedAccess, TRANSITION_BEGIN);
   genGBuffer(ctx);
+  genAO(ctx);
 
   static bool pt = false;
   if (Input::Get().isKeyJustDown('P')) {
+    mFrameData.frameCount = 0;
     ctx.clearRenderTarget(mScene->rtv(), Rgba::black);
     pt = !pt;
   }
@@ -313,7 +315,6 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   accumlateGI(ctx);
   computeSurfelCoverage(ctx);
   accumlateSurfels(ctx);
-  genAO(ctx);
   
   if(!Input::Get().isKeyDown(KEYBOARD_SPACE)) {
     deferredLighting(ctx);
@@ -428,15 +429,16 @@ void SceneRenderer::updateDescriptors() {
   }
   {
     DescriptorSet::Layout layout;
-    layout.addRange(DescriptorSet::Type::TextureUav, 0, 4);
+    layout.addRange(DescriptorSet::Type::TextureUav, 0, 3);
+    layout.addRange(DescriptorSet::Type::TextureSrv, 0, 1);
 
     mDDeferredLightingDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
 
 
     mDDeferredLightingDescriptors->setUav(0, 0, *mScene->uav());
     mDDeferredLightingDescriptors->setUav(0, 1, *mIndirectLight->uav());
-    mDDeferredLightingDescriptors->setUav(0, 2, *mAO->uav());
-    mDDeferredLightingDescriptors->setUav(0, 3, *mSurfelSpawnChance->uav());
+    mDDeferredLightingDescriptors->setUav(0, 2, *mSurfelSpawnChance->uav());
+    mDDeferredLightingDescriptors->setSrv(0, 3, mGAO->srv());
   }
 }
 
@@ -468,10 +470,10 @@ void SceneRenderer::genGBuffer(RHIContext& ctx) {
   GraphicsState::sptr_t gs = GraphicsState::create(desc);
   ctx.setGraphicsState(*gs);
 
-  ctx.resourceBarrier(mGAlbedo.get(), RHIResource::State::RenderTarget);
-  ctx.resourceBarrier(mGNormal.get(), RHIResource::State::RenderTarget);
-  ctx.resourceBarrier(mGPosition.get(), RHIResource::State::RenderTarget);
-  ctx.resourceBarrier(mGDepth.get(), RHIResource::State::DepthStencil);
+  ctx.transitionBarrier(mGAlbedo.get(), RHIResource::State::RenderTarget);
+  ctx.transitionBarrier(mGNormal.get(), RHIResource::State::RenderTarget);
+  ctx.transitionBarrier(mGPosition.get(), RHIResource::State::RenderTarget);
+  ctx.transitionBarrier(mGDepth.get(), RHIResource::State::DepthStencil);
 
   prog->apply(ctx, true);
 
@@ -490,6 +492,9 @@ void SceneRenderer::genGBuffer(RHIContext& ctx) {
       }
     }
   }
+
+  ctx.transitionBarrier(mGVelocity.get(), RHIResource::State::NonPixelShader, TRANSITION_BEGIN);
+
 
   if(!mAccelerationStructure) {
     SCOPED_GPU_EVENT("Gen AccelerationStructure");
@@ -526,7 +531,7 @@ void SceneRenderer::genGBuffer(RHIContext& ctx) {
     for(uint i = 0; i < mTargetScene.Renderables().size(); i++) {
       Renderable* r = mTargetScene.Renderables()[i];
       for(auto& attribute: r->mesh()->layout().attributes()) {
-        ctx.resourceBarrier(&r->mesh()->vertices(attribute.streamIndex)->res(), RHIResource::State::NonPixelShader);
+        ctx.transitionBarrier(&r->mesh()->vertices(attribute.streamIndex)->res(), RHIResource::State::NonPixelShader);
         descriptors->setSrv(0, attribute.streamIndex, r->mesh()->vertices(attribute.streamIndex)->srv());
       }
       //
@@ -568,14 +573,14 @@ void SceneRenderer::genAO(RHIContext& ctx) {
     prog->setUav(*mAO->uav(), 0);
 
   }
-  ctx.resourceBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGVelocity.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGAO.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mAO.get(), RHIResource::State::UnorderedAccess);
+  ctx.transitionBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGVelocity.get(), RHIResource::State::NonPixelShader, TRANSITION_END);
+  ctx.transitionBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGAO.get(), RHIResource::State::NonPixelShader, TRANSITION_END);
+  ctx.transitionBarrier(mAO.get(), RHIResource::State::UnorderedAccess, TRANSITION_END);
 
   ctx.setComputeState(*computeState);
 
@@ -601,13 +606,13 @@ void SceneRenderer::computeSurfelCoverage(RHIContext& ctx) {
     desc.setProgram(gSurfelCoverageProgram);
     computeState = ComputeState::create(desc);
   }
-  ctx.resourceBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mSurfels[0].get(), RHIResource::State::UnorderedAccess);
-  ctx.resourceBarrier(mSurfelCoverage.get(), RHIResource::State::UnorderedAccess);
+  ctx.transitionBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mSurfels[0].get(), RHIResource::State::UnorderedAccess);
+  ctx.transitionBarrier(mSurfelCoverage.get(), RHIResource::State::UnorderedAccess);
   ctx.setComputeState(*computeState);
 
   // mDGenAOUavDescriptors->setUav(0, 1, mTargetScene.accelerationStructure());
@@ -633,14 +638,14 @@ void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
     desc.setProgram(gSurfelPlacementProgram);
     computeState = ComputeState::create(desc);
   }
-  ctx.resourceBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mSurfels[0].get(), RHIResource::State::UnorderedAccess);
-  ctx.resourceBarrier(mSurfelBuckets.get(), RHIResource::State::UnorderedAccess);
-  ctx.resourceBarrier(mSurfelCoverage.get(), RHIResource::State::UnorderedAccess);
+  ctx.transitionBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mSurfels[0].get(), RHIResource::State::UnorderedAccess);
+  ctx.transitionBarrier(mSurfelBuckets.get(), RHIResource::State::UnorderedAccess);
+  ctx.transitionBarrier(mSurfelCoverage.get(), RHIResource::State::UnorderedAccess);
 
   ctx.setComputeState(*computeState);
 
@@ -666,13 +671,13 @@ void SceneRenderer::accumlateGI(RHIContext& ctx) {
     desc.setProgram(gSurfelGIProgram);
     computeState = ComputeState::create(desc);
   }
-  ctx.resourceBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mSurfels[0].get(), RHIResource::State::UnorderedAccess);
-  ctx.resourceBarrier(mSurfelVisual.get(), RHIResource::State::UnorderedAccess);
+  ctx.transitionBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mSurfels[0].get(), RHIResource::State::UnorderedAccess);
+  ctx.transitionBarrier(mSurfelVisual.get(), RHIResource::State::UnorderedAccess);
 
   ctx.setComputeState(*computeState);
 
@@ -696,13 +701,13 @@ void SceneRenderer::visualizeSurfels(RHIContext& ctx) {
     desc.setProgram(gSurfelVisualProgram);
     computeState = ComputeState::create(desc);
   }
-  ctx.resourceBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mSurfels[0].get(), RHIResource::State::UnorderedAccess);
-  ctx.resourceBarrier(mSurfelVisual.get(), RHIResource::State::UnorderedAccess);
+  ctx.transitionBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mSurfels[0].get(), RHIResource::State::UnorderedAccess);
+  ctx.transitionBarrier(mSurfelVisual.get(), RHIResource::State::UnorderedAccess);
 
   ctx.setComputeState(*computeState);
 
@@ -737,7 +742,7 @@ void SceneRenderer::deferredLighting(RHIContext& ctx) {
     SCOPED_GPU_EVENT("UpSamle, apply diffuse");
     ctx.setComputeState(*computeState);
   
-    ctx.resourceBarrier(mAO.get(), RHIResource::State::UnorderedAccess, true);
+    ctx.uavBarrier(mIndirectLight.get());
     mDSharedDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 0);
     mDGBufferDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 1);
     mDDeferredLightingDescriptors->bindForCompute(ctx, *gDeferredLighting->rootSignature(), 2);
@@ -763,10 +768,10 @@ void SceneRenderer::computeIndirectLighting(RHIContext & ctx) {
 
   {
     ctx.setComputeState(*computeStateIndirect);
-    ctx.resourceBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
-    ctx.resourceBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
-    ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
-    ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
+    ctx.transitionBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
+    ctx.transitionBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
+    ctx.transitionBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
+    ctx.transitionBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
 
     // ctx.resourceBarrier(mIndirectLight.get(), RHIResource::State::UnorderedAccess);
     
@@ -778,7 +783,7 @@ void SceneRenderer::computeIndirectLighting(RHIContext & ctx) {
     uint x = uint(mIndirectLight->width()) / 64 + 1;
     uint y = uint(mIndirectLight->height()) / 8 + 1;
 
-    ctx.dispatch(x, y, 0xfff / 0xf / 4);
+    ctx.dispatch(x, y, 0xfff / (64));
   }
   
 }
@@ -813,7 +818,7 @@ void SceneRenderer::setupFrame() {
   ctx->clearRenderTarget(mGVelocity->rtv(), Rgba(0, 0, 0, 0));
   ctx->clearRenderTarget(mIndirectLight->rtv(), Rgba::black);
   ctx->clearDepthStencilTarget(*mGDepth->dsv(), true, true);
-    ctx->resourceBarrier(mScene.get(), RHIResource::State::UnorderedAccess);
+    ctx->transitionBarrier(mScene.get(), RHIResource::State::UnorderedAccess);
 }
 
 void SceneRenderer::setupView(RHIContext& ctx) {
@@ -873,11 +878,11 @@ void SceneRenderer::pathTracing(RHIContext& ctx) {
     computeState = ComputeState::create(desc);
   }
 
-  ctx.resourceBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
-  ctx.resourceBarrier(mScene.get(), RHIResource::State::UnorderedAccess);
+  ctx.transitionBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mScene.get(), RHIResource::State::UnorderedAccess);
 
   ctx.setComputeState(*computeState);
   progIns->apply(ctx, false);
@@ -926,7 +931,7 @@ void SceneRenderer::fxaa(RHIContext & ctx) {
   }
   ctx.setFrameBuffer(fbo);
 
-  ctx.resourceBarrier(mScene.get(), RHIResource::State::ShaderResource);
+  ctx.transitionBarrier(mScene.get(), RHIResource::State::ShaderResource);
 
   ctx.setGraphicsState(*graphicsState);
   progIns->apply(ctx, false);

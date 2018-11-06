@@ -87,6 +87,7 @@ protected:
   mutable ConstantBufferView::sptr_t mCbv;
 
   mutable State mState = State::Common;
+  mutable bool mInTransition = false;
 };
 
 void setName(const RHIResource& res, const wchar_t* name);

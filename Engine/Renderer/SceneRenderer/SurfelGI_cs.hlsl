@@ -94,16 +94,16 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 	Ray ray = startRay;
 	uint bounce = 0;
 
-	float3	colors[4];
-	float3 diffuses[4];
-	float4 totals[4];
-	float dots[4];
+	float3	colors[10];
+	float3 diffuses[10];
+	float4 totals[10];
+	float dots[10];
 
 	diffuses[0] = float3(0,0,0); // I only want the indirect part
 	colors[0] =	startColor;
 	dots[0] = saturate(dot(startRay.direction, startNormal));
 
-	for(uint xx = 0; xx < 2; xx++) {
+	for(uint xx = 0; xx < 1; xx++) {
 		bounce++;
 		uint vertCount, stride;
 		gVerts.GetDimensions(vertCount, stride);
@@ -159,7 +159,7 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 	return indirect;
 }
 
-float3 adaptiveAverage(float3 original, float3 sample, float variance) {
+float3 adaptiveAverage(float3 original, float3 ssample, float variance) {
 	float diff =  abs(variance);
 	// Debug.Log("Original: " + original + "|Diff: " + diff);
 	float k = diff;
@@ -168,7 +168,7 @@ float3 adaptiveAverage(float3 original, float3 sample, float variance) {
 	// k = lerp(1.f / (1.f * 1024.f), 1.f / 8.f, diff);
 	// k = k * k * k;
 	// k = smoothstep(0, 0.9f, k);
-	return (original * (1 - k) + sample * k);
+	return (original * (1 - k) + ssample * k);
 }
 
 
@@ -189,11 +189,11 @@ void updateSurfels(inout surfel_t surfel, inout SurfelHistoryBuffer history) {
 	float range = .0f;
 	normalizedVariance = clamp(abs(normalizedVariance) - float4(range, range, range, range), 0 , 1);
 	// normalizedVariance = normalizedVariance * normalizedVariance * ( 3 - 2 * normalizedVariance);
-	surfel.weightCurve.setForce(normalizedVariance.w);
-	surfel.weightCurve.setScale(normalizedVariance.w);
-	surfel.weightCurve.update();
+	history.weightCurve.setForce(normalizedVariance.w);
+	history.weightCurve.setScale(normalizedVariance.w);
+	history.weightCurve.update();
 	
-	float3 weightedAvg = history.weightedAverage(surfel.weightCurve).xyz;
+	float3 weightedAvg = history.weightedAverage(history.weightCurve).xyz;
 	float3 adaptive = adaptiveAverage(surfel.indirectLighting, weightedAvg, normalizedVariance.w);
 	surfel.indirectLighting = clamp(adaptive,
 																weightedAvg - sqrt(variance.xyz), weightedAvg + sqrt(variance.xyz));

@@ -159,8 +159,8 @@ bool RHIDevice::rhiPostInit() {
   }
 
   mCurrentBackBufferIndex = mSwapChain->GetCurrentBackBufferIndex();
-  mRenderContext->resourceBarrier(mBackBuffers[mCurrentBackBufferIndex].get(), RHIResource::State::RenderTarget);
-  mRenderContext->resourceBarrier(mDepthBuffer[mCurrentBackBufferIndex].get(), RHIResource::State::DepthStencil);
+  mRenderContext->transitionBarrier(mBackBuffers[mCurrentBackBufferIndex].get(), RHIResource::State::RenderTarget);
+  mRenderContext->transitionBarrier(mDepthBuffer[mCurrentBackBufferIndex].get(), RHIResource::State::DepthStencil);
 
   return true;
 }
@@ -236,13 +236,13 @@ void RHIDevice::executeDeferredRelease() {
 }
 
 void RHIDevice::present() {
-  mRenderContext->resourceBarrier(backBuffer().get(), RHIResource::State::Present);
+  mRenderContext->transitionBarrier(backBuffer().get(), RHIResource::State::Present);
   mRenderContext->flush();
   mFrameFence->gpuSignal(mRenderContext->mContextData->commandQueue());
   d3d_call(mSwapChain->Present(0, 0));
   executeDeferredRelease();
 
   mCurrentBackBufferIndex = mSwapChain->GetCurrentBackBufferIndex();
-  mRenderContext->resourceBarrier(backBuffer().get(), RHIResource::State::RenderTarget);
-  mRenderContext->resourceBarrier(depthBuffer().get(), RHIResource::State::DepthStencil);
+  mRenderContext->transitionBarrier(backBuffer().get(), RHIResource::State::RenderTarget);
+  mRenderContext->transitionBarrier(depthBuffer().get(), RHIResource::State::DepthStencil);
 }

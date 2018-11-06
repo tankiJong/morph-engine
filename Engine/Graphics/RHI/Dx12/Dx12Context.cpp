@@ -57,8 +57,8 @@ void RHIContext::flush() {
 }
 
 void RHIContext::copyBufferRegion(const RHIBuffer* dst, size_t dstOffset, RHIBuffer* src, size_t srcOffset, size_t byteCount) {
-  resourceBarrier(dst, RHIResource::State::CopyDest);
-  resourceBarrier(src, RHIResource::State::CopySource);
+  transitionBarrier(dst, RHIResource::State::CopyDest);
+  transitionBarrier(src, RHIResource::State::CopySource);
   mContextData->commandList()->CopyBufferRegion(
     dst->handle().Get(), dstOffset, 
     src->handle().Get(), src->gpuAddressOffset() + srcOffset, 
@@ -66,26 +66,60 @@ void RHIContext::copyBufferRegion(const RHIBuffer* dst, size_t dstOffset, RHIBuf
   mCommandsPending = true;
 }
 
-void RHIContext::resourceBarrier(const RHIResource* res, RHIResource::State newState, bool forceSync) {
+void RHIContext::transitionBarrier(const RHIResource* res, RHIResource::State newState, eTransitionBarrierFlag flags) {
   // if resource has cpu access, no need to do anything
 
   const RHIBuffer* buffer = dynamic_cast<const RHIBuffer*>(res);
-  if (buffer && buffer->cpuAccess() != RHIBuffer::CPUAccess::None)return;
+  if (buffer && buffer->cpuAccess() != RHIBuffer::CPUAccess::None) return;
 
   if(res->state() != newState) {
-    D3D12_RESOURCE_BARRIER barrier;
-    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-    barrier.Transition.pResource = res->handle().Get();
-    barrier.Transition.StateBefore = asDx12ResourceState(res->state());
-    barrier.Transition.StateAfter = asDx12ResourceState(newState);
-    barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    if(!res->mInTransition) {
+      EXPECTS(flags == TRANSITION_BEGIN || flags == TRANSITION_FULL);
+      D3D12_RESOURCE_BARRIER barrier;
+      barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+      barrier.Transition.pResource = res->handle().Get();
+      barrier.Transition.StateBefore = asDx12ResourceState(res->state());
+      barrier.Transition.StateAfter = asDx12ResourceState(newState);
+      barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-    mContextData->commandList()->ResourceBarrier(1, &barrier);
-    mCommandsPending = true;
+      switch(flags) { 
+        case TRANSITION_FULL: 
+          barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+          res->mInTransition = false;
+          res->mState = newState;
+        break;
+        case TRANSITION_BEGIN:
+          barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY;
+          res->mInTransition = true;
+        break;
+      }
+      
 
-    res->mState = newState;
-  } else if(newState == RHIResource::State::UnorderedAccess && forceSync) {
+      mContextData->commandList()->ResourceBarrier(1, &barrier);
+      mCommandsPending = true;
+    } else {
+      EXPECTS(flags == TRANSITION_END);
+
+      D3D12_RESOURCE_BARRIER barrier;
+      barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+      barrier.Transition.pResource = res->handle().Get();
+      barrier.Transition.StateBefore = asDx12ResourceState(res->state());
+      barrier.Transition.StateAfter = asDx12ResourceState(newState);
+      barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+      barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_END_ONLY;
+      
+      res->mInTransition = false;
+      res->mState = newState;
+
+      mContextData->commandList()->ResourceBarrier(1, &barrier);
+      mCommandsPending = true;
+      
+    }
+  }
+}
+
+void RHIContext::uavBarrier(const RHIResource* res) {
     D3D12_RESOURCE_BARRIER barrier;
     barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
     barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -93,7 +127,6 @@ void RHIContext::resourceBarrier(const RHIResource* res, RHIResource::State newS
     
     mContextData->commandList()->ResourceBarrier(1, &barrier);
     mCommandsPending = true;
-  }
 }
 
 void RHIContext::beforeFrame() {
@@ -184,7 +217,7 @@ void RHIContext::setFrameBuffer(const FrameBuffer& fbo) {
     if(rtv) {
       rtvHandles[i] = rtv->handle()->cpuHandle(0);
       RHIResource::scptr_t res = rtv->res().lock();
-      resourceBarrier(res.get(), RHIResource::State::RenderTarget);
+      transitionBarrier(res.get(), RHIResource::State::RenderTarget);
     } else {
       rtvHandles[i] = RenderTargetView::nullView()->handle()->cpuHandle(0);
     }
@@ -195,7 +228,7 @@ void RHIContext::setFrameBuffer(const FrameBuffer& fbo) {
     rtvDepthHandle = fbo.depthStencilTarget()->handle()->cpuHandle(0);
 
     RHIResource::scptr_t res = fbo.depthStencilTarget()->res().lock();
-    resourceBarrier(res.get(), RHIResource::State::DepthStencil);
+    transitionBarrier(res.get(), RHIResource::State::DepthStencil);
 
   } else {
     rtvDepthHandle = DepthStencilView::nullView()->handle()->cpuHandle(0);
@@ -266,7 +299,7 @@ void RHIContext::clearRenderTarget(const RenderTargetView& rtv, const vec4& colo
 
   EXPECTS(ptr);
 
-  resourceBarrier(ptr.get(), RHIResource::State::RenderTarget);
+  transitionBarrier(ptr.get(), RHIResource::State::RenderTarget);
   mContextData->commandList()->ClearRenderTargetView(rtv.handle()->cpuHandle(0), (FLOAT*)&color, 0, nullptr);
 }
 
@@ -279,7 +312,7 @@ void RHIContext::clearDepthStencilTarget(const DepthStencilView& dsv, bool clear
   if (flag == 0) return;
 
   RHIResource::scptr_t res = dsv.res().lock();
-  resourceBarrier(res.get(), RHIResource::State::DepthStencil);
+  transitionBarrier(res.get(), RHIResource::State::DepthStencil);
 
   mContextData->commandList()
     ->ClearDepthStencilView(
@@ -318,7 +351,7 @@ void RHIContext::updateTexture(const RHITexture& texture, const void* data) {
   ID3D12Resource* textureUploadHeap = buffer->handle().Get();
 
   //
-  resourceBarrier(&texture, RHIResource::State::CopyDest);
+  transitionBarrier(&texture, RHIResource::State::CopyDest);
 
   uint pixelSize;
 
@@ -365,8 +398,8 @@ void RHIContext::updateTexture(const RHITexture& texture, const void* data) {
 }
 
 void RHIContext::copyResource(const RHIResource& from, RHIResource& to) {
-  resourceBarrier(&from, RHIResource::State::CopySource);
-  resourceBarrier(&to, RHIResource::State::CopyDest);
+  transitionBarrier(&from, RHIResource::State::CopySource);
+  transitionBarrier(&to, RHIResource::State::CopyDest);
 
   mContextData->commandList()->CopyResource(to.handle().Get(), from.handle().Get());
   mCommandsPending = true;
@@ -383,7 +416,7 @@ size_t RHIContext::readBuffer(const RHIBuffer& res, void* data, size_t maxSize) 
   ID3D12Resource* readBackHeap = buffer->handle().Get();
 
   //
-  resourceBarrier(&res, RHIResource::State::CopySource);
+  transitionBarrier(&res, RHIResource::State::CopySource);
 
   copyResource(res, *buffer);
 

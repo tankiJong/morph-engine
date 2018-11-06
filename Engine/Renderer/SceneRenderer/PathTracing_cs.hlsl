@@ -70,7 +70,7 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 	colors[0] =	startColor;
 	dots[0] = saturate(dot(startRay.direction, startNormal));
 	uint xx  = 0;
-	for(; xx < 6; xx++) {
+	for(; xx < 3; xx++) {
 		bounce++;
 		uint vertCount, stride;
 		gVerts.GetDimensions(vertCount, stride);
