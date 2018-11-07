@@ -320,8 +320,9 @@ PrebuildCheck.bat</Command>
 PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </PostBuildEvent>
     <FxCompile>
-      <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <ShaderModel>6.1</ShaderModel>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">
@@ -362,8 +363,9 @@ PrebuildCheck.bat</Command>
 PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </PostBuildEvent>
     <FxCompile>
-      <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <ShaderModel>6.1</ShaderModel>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">
@@ -404,8 +406,9 @@ PrebuildCheck.bat</Command>
 PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </PostBuildEvent>
     <FxCompile>
-      <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <ShaderModel>6.1</ShaderModel>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -443,8 +446,9 @@ PrebuildCheck.bat</Command>
 PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </PostBuildEvent>
     <FxCompile>
-      <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <ShaderModel>6.1</ShaderModel>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">
@@ -482,8 +486,9 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       </Command>
     </PostBuildEvent>
     <FxCompile>
-      <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <ShaderModel>6.1</ShaderModel>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">
@@ -521,8 +526,9 @@ PrebuildCheck.bat</Command>
 PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </PostBuildEvent>
     <FxCompile>
-      <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <ShaderModel>6.1</ShaderModel>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">
@@ -560,8 +566,9 @@ PrebuildCheck.bat</Command>
 PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </PostBuildEvent>
     <FxCompile>
-      <ShaderModel>5.1</ShaderModel>
-      <EnableUnboundedDescriptorTables>true</EnableUnboundedDescriptorTables>
+      <ShaderModel>6.1</ShaderModel>
+      <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -604,8 +611,9 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </FxCompile>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
-      <ShaderModel>5.1</ShaderModel>
+      <ShaderModel>6.1</ShaderModel>
       <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">
@@ -648,8 +656,9 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </FxCompile>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
-      <ShaderModel>5.1</ShaderModel>
+      <ShaderModel>6.1</ShaderModel>
       <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">
@@ -692,8 +701,9 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </FxCompile>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
-      <ShaderModel>5.1</ShaderModel>
+      <ShaderModel>6.1</ShaderModel>
       <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">
@@ -736,8 +746,9 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </FxCompile>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
-      <ShaderModel>5.1</ShaderModel>
+      <ShaderModel>6.1</ShaderModel>
       <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -783,8 +794,9 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </FxCompile>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
-      <ShaderModel>5.1</ShaderModel>
+      <ShaderModel>6.1</ShaderModel>
       <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">
@@ -830,8 +842,9 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </FxCompile>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
-      <ShaderModel>5.1</ShaderModel>
+      <ShaderModel>6.1</ShaderModel>
       <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">
@@ -877,8 +890,9 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </FxCompile>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)Temporary\$(ProjectName)_$(PlatformName)_$(Configuration)\CompiledShader\bin\%(Filename).cso</ObjectFileOutput>
-      <ShaderModel>5.1</ShaderModel>
+      <ShaderModel>6.1</ShaderModel>
       <EnableUnboundedDescriptorTables>false</EnableUnboundedDescriptorTables>
+      <AllResourcesBound>true</AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -2701,6 +2715,13 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\SurfelVisual_cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Compute</ShaderType>
@@ -2788,6 +2809,13 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\GenGBuffer_vs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Vertex</ShaderType>

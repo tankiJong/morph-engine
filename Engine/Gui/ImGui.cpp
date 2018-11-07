@@ -69,6 +69,7 @@ void ImGui::render() {
   FrameBuffer fbo;
   fbo.setColorTarget(&rt->rtv(), 0);
   ctx->bindDescriptorHeap();
+  ctx->transitionBarrier(rt.get(), RHIResource::State::RenderTarget);
 
   Render();
   ImGui_ImplDX12_RenderDrawData(GetDrawData(), RHIDevice::get()->defaultRenderContext()->contextData()->commandList().Get());

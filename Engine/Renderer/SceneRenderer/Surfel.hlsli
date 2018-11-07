@@ -5,16 +5,16 @@
 #define TOTAL_HISTORY 28u
 
 struct BezierCurve {
-  min16float2 start;
-  min16float2 end;
+  float2 start;
+  float2 end;
 
-  min16float2 tangentStart;
-  min16float2 tangentEnd;
+  float2 tangentStart;
+  float2 tangentEnd;
 
-	min16float smooth;
-	min16float force;
-	min16float scale;
-	min16float __padding;
+	float smooth;
+	float force;
+	float scale;
+	float __padding;
 	inline float evaluate(float t) {
 		float2 a = lerp(start, tangentStart, t);
 		float2 b = lerp(tangentStart, tangentEnd, t);
@@ -208,23 +208,23 @@ struct SurfelHistoryBuffer {
 };
 
 struct surfel_t {
-  min16float3 position;
-	min16float  __padding0;
+  float3 position;
+	float  __padding0;
 
-  min16float3 normal;
-	min16float  __padding1;
+  float3 normal;
+	float  __padding1;
 
-  min16float3 color;
-	min16float  __padding2;
+  float3 color;
+	float  __padding2;
 
-  min16float3 indirectLighting;
-  min16float	 age;
+  float3 indirectLighting;
+  float	 age;
 	
-	// min16float age;
+	// float age;
 
   // float id;
 
-	// min16float2 __padding;
+	// float2 __padding;
 };
 
 

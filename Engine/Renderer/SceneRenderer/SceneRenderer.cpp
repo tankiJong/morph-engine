@@ -311,7 +311,11 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
     pathTracing(ctx);
     return;
   }
-  computeIndirectLighting(ctx);
+
+  if(shouldRecomputeIndirect()) {
+    computeIndirectLighting(ctx);
+  }
+
   accumlateGI(ctx);
   computeSurfelCoverage(ctx);
   accumlateSurfels(ctx);
@@ -784,6 +788,8 @@ void SceneRenderer::computeIndirectLighting(RHIContext & ctx) {
     uint y = uint(mIndirectLight->height()) / 8 + 1;
 
     ctx.dispatch(x, y, 0xfff / (64));
+    // ctx.dispatch(0xfff / (16*8), 1, 1);
+
   }
   
 }
@@ -811,12 +817,14 @@ void SceneRenderer::setupFrame() {
 
   auto ctx = RHIDevice::get()->defaultRenderContext();
 
+  if(shouldRecomputeIndirect()) {
+    ctx->clearRenderTarget(mIndirectLight->rtv(), Rgba::black);
+  }
 
   ctx->clearRenderTarget(mGAlbedo->rtv(), Rgba::black);
   ctx->clearRenderTarget(mGNormal->rtv(), Rgba::gray);
   ctx->clearRenderTarget(mGPosition->rtv(), Rgba::black);
   ctx->clearRenderTarget(mGVelocity->rtv(), Rgba(0, 0, 0, 0));
-  ctx->clearRenderTarget(mIndirectLight->rtv(), Rgba::black);
   ctx->clearDepthStencilTarget(*mGDepth->dsv(), true, true);
     ctx->transitionBarrier(mScene.get(), RHIResource::State::UnorderedAccess);
 }
@@ -939,4 +947,9 @@ void SceneRenderer::fxaa(RHIContext & ctx) {
   ctx.draw(0, 3);
 
   ctx.copyResource(*mScene, *RHIDevice::get()->backBuffer());
+}
+
+bool SceneRenderer::shouldRecomputeIndirect() const {
+  return uint(mFrameData.frameCount) % 2 == 0;
+  // return true;
 }

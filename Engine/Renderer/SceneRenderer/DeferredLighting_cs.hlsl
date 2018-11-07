@@ -6,7 +6,7 @@
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
 		"DescriptorTable(SRV(t10, numDescriptors = 6), visibility = SHADER_VISIBILITY_ALL)," \
-		"DescriptorTable(UAV(u0, numDescriptors = 4), SRV(t20, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(UAV(u0, numDescriptors = 3), SRV(t20, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
 

@@ -83,6 +83,7 @@ protected:
   void fxaa(RHIContext& ctx);
   const RenderScene& mTargetScene;
 
+  bool shouldRecomputeIndirect() const;
   FrameBuffer mGFbo;
   // G-Buffers
   Texture2::sptr_t mGAlbedo;
