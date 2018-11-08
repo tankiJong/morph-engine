@@ -23,6 +23,8 @@ public:
     uint16_t previousReceivedAckBitField;
 
     uint8_t unreliableCount;
+    uint8_t reliableCount;
+    uint8_t messageCount;
   };
 
   static constexpr uint16_t INVALID_PACKET_ACK = 0xffffui16;
@@ -35,10 +37,10 @@ public:
 
   void begin(const UDPConnection& connection);
   void end();
-  bool appendUnreliable(const NetMessage& msg);
+  bool append(NetMessage& msg);
 
   void read(header_t& header);
-  bool read(NetMessage& outMessage);
+  bool read(NetMessage& outMessage, bool relialbe);
 
   void receivedTime(double second);
 
@@ -64,6 +66,8 @@ public:
     mSenderAddr = addr;
   }
 
+  span<const NetMessage* const> messagesReliable() const { return mStampedMessageReliable; }
+
 protected:
   void write(const header_t& header);
   bool write(const NetMessage& msg);
@@ -73,7 +77,8 @@ protected:
   double mTimestamp;
 
   // temproal things
-  std::vector<const NetMessage*> mStampedMessage;
+  std::vector<const NetMessage*> mStampedMessageUnreliable;
+  std::vector<const NetMessage*> mStampedMessageReliable;
   size_t mStampUsableSize = NET_PACKET_MTU;
   header_t mStampedHeader;
   NetAddress mSenderAddr;

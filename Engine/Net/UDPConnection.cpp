@@ -2,16 +2,39 @@
 #include "Engine/Net/NetPacket.hpp"
 #include "Engine/Net/UDPSession.hpp"
 #include "Engine/Debug/Log.hpp"
+#include "Engine/Math/Cyclic.hpp"
+
+span<const uint16_t> UDPConnection::PacketTracker::reliables() const {
+  EXPECTS(mSentReliableCount <= MAX_RELIABLES_PER_PACKET);
+  return span<const uint16_t>{ mSentReliable.data(), mSentReliableCount };
+}
 
 void UDPConnection::PacketTracker::bind(const NetPacket& packet) {
   sendSec = GetCurrentTimeSeconds();
   ack = packet.ack();
+
+  auto reliableMsgs = packet.messagesReliable();
+  mSentReliableCount = 0;
+  for(const NetMessage* msg: reliableMsgs) {
+    registerReliable(msg);
+  }
+
   isUsing = true;
+}
+
+void UDPConnection::PacketTracker::registerReliable(const NetMessage* msg) {
+  mSentReliable[mSentReliableCount] = msg->reliableId();
+  mSentReliableCount++;
 }
 
 bool UDPConnection::send(NetMessage& msg) {
   mOwner->finalize(msg);
-  mOutboundUnreliables.push_back(msg);
+
+  if(msg.reliable()) {
+    mUnsentReliable.push_back(msg);
+  } else {
+    mOutboundUnreliables.push_back(msg);
+  }
 
   return true;
 }
@@ -24,20 +47,61 @@ bool UDPConnection::flush(bool force) {
 
   NetPacket packet;
 
-  // TODO: change how I construct the packet, this logic is buggy
   packet.begin(*this);
 
-  auto current = mOutboundUnreliables.cbegin();
-  while(current != mOutboundUnreliables.cend()) {
-    bool appended = 
-      packet.appendUnreliable(*current);
-    
-    if(!appended) {
-      break;
+  mSentReliable.reserve(mSentReliable.size() + mUnsentReliable.size());
+  
+  {
+    auto current = mSentReliable.rbegin();
+    if(!mSentReliable.empty()) {
+      mOldestUnconfirmedRelialbeId = current->reliableId();
     }
-
-    ++current;
+    while(current != mSentReliable.rend()) {
+      if( cycLess(current->reliableId(), mOldestUnconfirmedRelialbeId) ) {
+        mOldestUnconfirmedRelialbeId = current->reliableId();
+      }
+      if (current->secondAfterLastSend() > DEFAULT_RELIABLE_RESEND_SEC) {
+        bool appended = 
+          packet.append(*current);
+      }
+      ++current;
+    }
   }
+
+  {
+    while (!mUnsentReliable.empty() && canSendNewReliable()) {
+      mSentReliable.push_back(mUnsentReliable.back());
+      NetMessage& current = mSentReliable.back();
+
+      bool appended =
+        packet.append(current);
+
+      if(!appended) {
+        mSentReliable.pop_back();
+        break;
+      } else {
+        current.reliableId(mNextReliableId);
+        mNextReliableId++;
+        current.lastSendSec() = GetCurrentTimeSeconds();
+        mUnsentReliable.pop_back();
+      }
+    }
+  }
+
+  {
+    auto current = mOutboundUnreliables.begin();
+    while(current != mOutboundUnreliables.end()) {
+      bool appended = 
+        packet.append(*current);
+      
+      if(!appended) {
+        break;
+      }
+
+      ++current;
+    }
+  }
+
 
   packet.end();
 
@@ -47,7 +111,7 @@ bool UDPConnection::flush(bool force) {
 
   increaseAck();
   mLastSendSec = GetCurrentTimeSeconds();
-  
+
   mOutboundUnreliables.clear();
 
   return true;
@@ -68,6 +132,35 @@ float UDPConnection::rtt(double rtt) {
 
 uint16_t UDPConnection::previousReceivedAckBitField() const {
   return mReceivedBitField;
+}
+
+bool UDPConnection::process(const NetMessage& msg) {
+  if(msg.reliable()) {
+    uint16_t reliableId = msg.reliableId();
+    bool processed = isReliableReceived(reliableId);
+
+    if(!processed) {
+      if(cycGreater(reliableId, mHighestReceivedReliableId)) {
+
+        uint16_t minId = mHighestReceivedReliableId - RELIALBE_WINDOW_SIZE + 1;
+
+        mHighestReceivedReliableId = reliableId;
+        mReceivedReliableMessage.set(reliableId, true);
+
+        uint16_t maxId = mHighestReceivedReliableId - RELIALBE_WINDOW_SIZE + 1;
+
+        for(uint16_t i = minId; cycLess(i, maxId); i++) {
+          mReceivedReliableMessage.set(i, false);
+        }
+      } else {
+        mReceivedReliableMessage.set(reliableId, true);
+      }
+    }
+
+    return !processed;
+  }
+
+  return true;
 }
 
 void UDPConnection::heartbeatFrequency(double freq) {
@@ -104,7 +197,7 @@ bool UDPConnection::onReceive(const NetPacket::header_t& header) {
   {
     uint16_t ack = header.ack;
     // update the data which will carry out in the next packet
-    if (ack - mLargestReceivedAck <= 0x8000) {
+    if (cycLessEq(mLargestReceivedAck, ack)) {
       uint shift = ack - mLargestReceivedAck;
       mReceivedBitField <<= shift;
       uint16_t mask = 0x1 << (shift - 1u);
@@ -118,6 +211,26 @@ bool UDPConnection::onReceive(const NetPacket::header_t& header) {
   }
 
   return true;
+}
+
+bool UDPConnection::isReliableReceived(uint16_t reliableId) const {
+  uint16_t minId = mHighestReceivedReliableId - RELIALBE_WINDOW_SIZE + 1;
+
+  uint16_t maxId = mHighestReceivedReliableId;
+
+  if(cycLess(reliableId, minId)) {
+    return true;
+  }
+
+  if(cycGreater(reliableId, maxId)) {
+    return false;
+  }
+
+  return mReceivedReliableMessage.test(reliableId);
+}
+
+size_t UDPConnection::pendingReliableCount() const {
+  return mSentReliable.size() + mUnsentReliable.size();
 }
 
 uint16_t UDPConnection::increaseAck() {
@@ -177,22 +290,35 @@ bool UDPConnection::tryAppendHeartbeat() {
 }
 
 bool UDPConnection::confirmReceived(uint16_t ack) {
-  // if (ack == NetPacket::INVALID_PACKET_ACK) {
-  //   Log::logf("try to confirm receive invalid ack");
-  //   return false;
-  // }
+
 
   PacketTracker& pt = packetTracker(ack);
   if (!pt.occupied(ack)) return false;
 
 
   // compute rtt and update tracker
-  if(ack - mLargestReceivedAck <= 0x8000) {
+  if(cycLess(mLargestReceivedAck, ack)) {
     double packetRtt = GetCurrentTimeSeconds() - pt.sendSec;
     // Log::logf("send: %lf, rtt: %lf", tracker.sendSec, packetRtt);
     rtt(packetRtt);
     // Log::logf("[%u]computed rtt: %lf, ack: %u, largestReceivedAck: %u", mIndexOfSession, rtt(), ack, mLargestReceivedAck);
   }
+
+  // confirm reliable message
+  auto reliables = pt.reliables();
+  for(uint16_t reliable: reliables) {
+    // bool confirmed = false;
+    for(uint i = mSentReliable.size() - 1; i < mSentReliable.size(); i--) {
+      if(mSentReliable[i].reliableId() == reliable) {
+        mSentReliable[i] = mSentReliable.back();
+        mSentReliable.pop_back();
+        // confirmed = true;
+        break;
+      }
+    }
+    // ENSURES(confirmed);
+  }
+
   pt.reset();
 
   return true;
@@ -200,4 +326,14 @@ bool UDPConnection::confirmReceived(uint16_t ack) {
 
 UDPConnection::PacketTracker& UDPConnection::packetTracker(uint ack) {
   return mTrackers[ack % PACKET_TRACKER_CACHE_SIZE];
+}
+
+bool UDPConnection::canSendNewReliable() const {
+  uint16_t nextReliable = mNextReliableId;
+
+  if (mSentReliable.empty()) return true;
+
+  uint16_t diff = nextReliable - mOldestUnconfirmedRelialbeId;
+
+  return diff <= RELIALBE_WINDOW_SIZE;
 }

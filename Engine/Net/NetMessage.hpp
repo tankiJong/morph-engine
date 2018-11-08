@@ -12,6 +12,7 @@ enum eMessageOption {
   // convenience
   NETMSSAGE_OPTION_RELIALBE_IN_ORDER = NETMESSAGE_OPTION_RELIABLE | NETMESSAGE_OPTION_IN_ORDER,
 };
+enum_class_operators(eMessageOption);
 
 class NetMessage: public BytePacker {
   friend class UDPSession;
@@ -42,13 +43,24 @@ public:
   NetMessage& operator=(const NetMessage& rhs);
   const std::string& name() const { return mName; }
   uint8_t index() const { return mIndex; }
+  static uint8_t headerSize(bool reliable) { return reliable ? 3 : 1; }
 
-  bool reliable() const { return mReliableId < INVALID_MESSAGE_RELIABLE_ID; }
+  uint8_t headerSize() const { return headerSize(reliable()); }
+  bool reliable() const {
+    return is_set(mDefinition->options, NETMESSAGE_OPTION_RELIABLE);
+  }
   uint16_t reliableId() const { return mReliableId; }
+  void reliableId(uint16_t id) { mReliableId = id; }
   bool connectionless() const;
+
+  double secondAfterLastSend() const;
+
+  double& lastSendSec() { return mLastSendSec; }
+  double lastSendSec() const { return mLastSendSec; }
 protected:
 
   void setDefinition(const Def& def);
+
   byte_t mLocalBuffer[NET_MESSAGE_MTU] = {};
   const Def* mDefinition = nullptr;
   std::string mName = "";
@@ -57,4 +69,3 @@ protected:
   uint16_t mReliableId = INVALID_MESSAGE_RELIABLE_ID;
 };
 
-enum_class_operators(eMessageOption);

@@ -14,6 +14,7 @@ struct Time {
   double second;
   uint64_t hpc;
   uint millisecond;
+
 };
 
 double GetCurrentTimeSeconds();

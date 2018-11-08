@@ -23,7 +23,12 @@ void NetPacket::fill(const void* data, size_t size) {
 }
 
 void NetPacket::begin(const UDPConnection& connection) {
-  EXPECTS(mStampedMessage.empty());
+  
+  mStampedMessageReliable.clear();
+  mStampedMessageUnreliable.clear();
+
+  EXPECTS(mStampedMessageReliable.empty());
+  EXPECTS(mStampedMessageUnreliable.empty());
   mStampedHeader.connectionIndex = connection.owner()->selfIndex();
   mStampedHeader.ack = connection.nextAck();
   mStampedHeader.lastReceivedAck = connection.largestReceivedAck();
@@ -34,60 +39,86 @@ void NetPacket::begin(const UDPConnection& connection) {
 }
 
 void NetPacket::end() {
-  size_t size = mStampedMessage.size();
+  size_t sizeReliable = mStampedMessageReliable.size();
+  size_t sizeUnreliable = mStampedMessageUnreliable.size();
 
-  ENSURES(size < 0xff);
+  ENSURES(sizeReliable + sizeUnreliable < 0xff);
 
-  mStampedHeader.unreliableCount = (uint8_t)size;
+  mStampedHeader.unreliableCount = (uint8_t)sizeUnreliable;
+  mStampedHeader.reliableCount = (uint8_t)sizeReliable;
+  mStampedHeader.messageCount = 
+    mStampedHeader.unreliableCount + mStampedHeader.reliableCount;
 
   write(mStampedHeader);
 
-  for(const NetMessage* msg: mStampedMessage) {
+  for(const NetMessage* msg: mStampedMessageReliable) {
     write(*msg);
   }
-
-  mStampedMessage.clear();
+  for (const NetMessage* msg : mStampedMessageUnreliable) {
+    write(*msg);
+  }
 }
 
-bool NetPacket::appendUnreliable(const NetMessage& msg) {
-  size_t requireSize = 3 + msg.size();
+bool NetPacket::append(NetMessage& msg) {
+  size_t requireSize = 2 + msg.headerSize() + msg.size();
 
   if (mStampUsableSize < requireSize) return false;
 
-  mStampedMessage.push_back(&msg);
+  if(msg.reliable()) {
+    if (mStampedMessageReliable.size() >= 
+        UDPConnection::PacketTracker::MAX_RELIABLES_PER_PACKET) {
+      return false;
+    }
+    mStampedMessageReliable.push_back(&msg);
+    msg.lastSendSec() = GetCurrentTimeSeconds();
+  } else {
+    mStampedMessageUnreliable.push_back(&msg);
+  }
+
   mStampUsableSize -= requireSize;
   
   return true;
 }
 
 void NetPacket::read(header_t& header) {
-  *this 
+  *this
     >> header.connectionIndex
     >> header.ack
     >> header.lastReceivedAck
     >> header.previousReceivedAckBitField
-    >> header.unreliableCount;
+    >> header.unreliableCount
+    >> header.reliableCount
+    >> header.messageCount;
 }
 
-bool NetPacket::read(NetMessage& outMessage) {
+bool NetPacket::read(NetMessage& outMessage, bool reliable) {
 
   if (tellr() >= tellw()) return false;
 
   uint16_t total;
   uint8_t index;
+
   *this >> total;
 
   if (tellw() - tellr() < total) {
     return false;
   }
   *this >> index;
-
-  void* buf = _alloca(total - 1u);
-
-  size_t size = consume(buf, total - 1u);
-  ENSURES(total - 1u == size);
-
   new(&outMessage) NetMessage(index);
+
+  if(reliable) {
+    uint16_t reliableId;
+    *this >> reliableId;
+
+    outMessage.reliableId(reliableId);
+  }
+
+  uint headerSize = NetMessage::headerSize(reliable);
+  void* buf = _alloca(total - headerSize);
+
+  size_t size = consume(buf, total - headerSize);
+  ENSURES(total - headerSize == size);
+
   outMessage.append(buf, size);
   
   return true;
@@ -103,12 +134,14 @@ void NetPacket::write(const header_t& header) {
     << header.ack
     << header.lastReceivedAck
     << header.previousReceivedAckBitField
-    << header.unreliableCount;
+    << header.unreliableCount
+    << header.reliableCount
+    << header.messageCount;
 }
 
 bool NetPacket::write(const NetMessage& msg) {
   bool reliable = msg.reliable();
-  uint16_t total = (uint16_t)msg.size() + (reliable ? 3 : 1);
+  uint16_t total = (uint16_t)(msg.size() + msg.headerSize());
   uint8_t index = msg.index();
   *this << total << index;
 
@@ -117,7 +150,7 @@ bool NetPacket::write(const NetMessage& msg) {
     *this << reliableId;
   }
 
-  append(msg.data(), msg.size());
+  BytePacker::append(msg.data(), msg.size());
 
   return true;
 }

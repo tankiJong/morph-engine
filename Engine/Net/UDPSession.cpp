@@ -66,7 +66,6 @@ bool UDPSession::send(uint8_t index, NetMessage& msg, bool needFlush) {
     Log::tagf("net", "Fail to send message to an invalid connection [%u]", index);
     return false;
   }
-  finalize(msg);
   bool result = mConnections[index].send(msg);
 
   if(needFlush) {
@@ -170,11 +169,20 @@ bool UDPSession::verify(const NetPacket& packet) {
 
   p.read(header);
 
-  for(uint8_t i = 0; i < header.unreliableCount; i++) {
+  for(uint8_t i = 0; i < header.reliableCount; i++) {
     NetMessage msg;
-    bool valid = p.read(msg);
+    bool valid = p.read(msg, true);
     if (!valid) {
-      Log::logf("received invalid packet");
+      Log::logf("received packet contains invalid reliable message");
+      return false;
+    }
+  }
+
+  for (uint8_t i = 0; i < header.unreliableCount; i++) {
+    NetMessage msg;
+    bool valid = p.read(msg, false);
+    if (!valid) {
+      Log::logf("received invalid packet contains invalid unreliable message");
       return false;
     }
   }
@@ -250,13 +258,13 @@ void UDPSession::renderUI() const {
 
 
   ms.color(Rgba(200, 200, 200));
-  const char* formatStr        = "%-8s%-25s%-10s%-10s%-10s%-10s%-10s%-10s%-30s";
-  const char* contentFormatStr = "%-8u%-25s%-10s%-10.3f%-10.3lf%-10.3lf%-10u%-10u%-30s";
+  const char* formatStr        = "%-8s%-25s%-10s%-10s%-10s%-10s%-10s%-10s%-30s%-10s";
+  const char* contentFormatStr = "%-8u%-25s%-10s%-10.3f%-10.3lf%-10.3lf%-10u%-10u%-30s%-10u";
   ms.text("==== Connections ====", 18.f, font.get(), cursorStart);
   cursorStart -= { 0, LINE_PADDING + font->lineHeight(18.f), 0 };
 
   ms.color(Rgba::white);
-  ms.text(Stringf(formatStr, "idx", "address", "rtt", "loss", "lrcv(s)", "lsnt(s)", "sntack", "rcvack", "rcvbits"), 16.f, font.get(), cursorStart);
+  ms.text(Stringf(formatStr, "idx", "address", "rtt", "loss", "lrcv(s)", "lsnt(s)", "sntack", "rcvack", "rcvbits", "reliables"), 16.f, font.get(), cursorStart);
   cursorStart -= { 0, LINE_PADDING + font->lineHeight(16.f), 0 };
 
   ms.color(Rgba(200, 180, 180));
@@ -281,7 +289,7 @@ void UDPSession::renderUI() const {
               GetCurrentTimeSeconds() - connection.lastReceiveSecond(),
               GetCurrentTimeSeconds() - connection.lastSendSecond(), 
               connection.lastSendAck(), connection.largestReceivedAck(),
-              buff), 16.f, font.get(), cursorStart);
+              buff, connection.pendingReliableCount()), 16.f, font.get(), cursorStart);
     cursorStart -= { 0, LINE_PADDING + font->lineHeight(16.f), 0 };
   }
   
@@ -331,16 +339,43 @@ void UDPSession::processPackets() {
     if (packet->receivedTime() > currentTime) break;
     mPendingPackets.pop();
 
-    NetPacket::header_t header;
+    NetPacket::header_t header{};
     packet->read(header);
 
     UDPConnection* conn = connection(header.connectionIndex);
+    conn->onReceive(header);
 
     Sender sender{ conn, packet->senderAddr(), this };
-    
+
+    for(uint i = 0; i < header.reliableCount; i++) {
+      NetMessage msg;
+      packet->read(msg, true);
+      finalize(msg);
+
+      EXPECTS(msg.name().length() > 0);
+
+      if (conn != nullptr) {
+
+        bool shouldHandle = conn->process(msg);
+
+        if (shouldHandle) {
+          handle(msg, sender);
+        }
+
+      } else {
+
+        if (msg.connectionless()) {
+          handle(msg, sender);
+        } else {
+          Log::log("receive message which require a connection, throw away");
+        }
+
+      }
+    }
+
     for (uint i = 0; i < header.unreliableCount; i++) {
       NetMessage msg;
-      packet->read(msg);
+      packet->read(msg, false);
       finalize(msg);
 
       EXPECTS(msg.name().length() > 0);
@@ -348,7 +383,6 @@ void UDPSession::processPackets() {
       if (conn != nullptr) {
 
         handle(msg, sender);
-        conn->onReceive(header);
 
       } else {
 

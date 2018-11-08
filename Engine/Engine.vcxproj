@@ -532,6 +532,7 @@
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Input\XboxController.cpp" />
     <ClCompile Include="Math\Curves.cpp" />
+    <ClCompile Include="Math\Cyclic.cpp" />
     <ClCompile Include="Math\MathUtils.cpp" />
     <ClCompile Include="Math\Noise\Noise.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -739,6 +740,7 @@
     <ClInclude Include="Input\KeyState.hpp" />
     <ClInclude Include="Input\XboxController.hpp" />
     <ClInclude Include="Math\Curves.hpp" />
+    <ClInclude Include="Math\Cyclic.hpp" />
     <ClInclude Include="Math\MathUtils.hpp" />
     <ClInclude Include="Math\Noise\Noise.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

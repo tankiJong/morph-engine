@@ -46,7 +46,6 @@ double InitializeTime( LARGE_INTEGER& out_initialTime )
 	return( 1.0 / static_cast< double >( countsPerSecond.QuadPart ) );
 }
 
-
 //-----------------------------------------------------------------------------------------------
 double GetCurrentTimeSeconds()
 {

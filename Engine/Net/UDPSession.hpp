@@ -24,8 +24,10 @@ class UDPSession {
 public:
   static constexpr uint8_t INVALID_CONNECTION_ID = 0xffui8;
   static constexpr double DEFAULT_SEND_FREQ = 20;
+
   struct MessageHandle {
     
+    uint16_t mOldestSentRelialbeId = UINT16_MAX;
   };
 
   struct Sender {

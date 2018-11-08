@@ -34,8 +34,8 @@ public:
   BytePacker(BytePacker&& mv);
   BytePacker& operator=(BytePacker&& rhs);
 
-  BytePacker(BytePacker&) = delete;
-  BytePacker& operator=(BytePacker&) = delete;
+  BytePacker(const BytePacker&) = delete;
+  BytePacker& operator=(const BytePacker&) = delete;
 
   void setEndianness(eEndianness e);
 
