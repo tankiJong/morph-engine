@@ -950,6 +950,6 @@ void SceneRenderer::fxaa(RHIContext & ctx) {
 }
 
 bool SceneRenderer::shouldRecomputeIndirect() const {
-  return uint(mFrameData.frameCount) % 2 == 0;
-  // return true;
+  // return uint(mFrameData.frameCount) % 2 == 0;
+  return true;
 }

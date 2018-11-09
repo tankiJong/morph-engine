@@ -59,7 +59,7 @@ protected:
 #define MOUSE_LBUTTON        0x01
 #define MOUSE_RBUTTON        0x02
 #define KEYBOARD_CANCEL         0x03
-#define MOUSE_MBUTTON        0x04    /* NOT contiguous with L & RBUTTON */
+#define MOUSE_MBUTTON        0x10    /* NOT contiguous with L & RBUTTON */
 
 #if(_WIN32_WINNT >= 0x0500)
 #define MOUSE_XBUTTON1       0x05    /* NOT contiguous with L & RBUTTON */

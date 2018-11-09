@@ -45,6 +45,7 @@ Input::Input() {
       // Raw physical keyboard "key-was-just-depressed" event (case-insensitive, not translated)
       case WM_KEYDOWN:
       case WM_LBUTTONDOWN:
+      case WM_MBUTTONDOWN:
       case WM_RBUTTONDOWN: {
         onKeyDown((unsigned char)wparam);
         break;
@@ -61,6 +62,11 @@ Input::Input() {
       }
       case WM_RBUTTONUP: {
         onKeyUp((unsigned char)MOUSE_RBUTTON);
+        break;
+      }
+      case WM_MBUTTONUP:
+      {
+        onKeyUp((unsigned char)MOUSE_MBUTTON);
         break;
       }
 
