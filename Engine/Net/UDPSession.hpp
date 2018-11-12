@@ -19,6 +19,12 @@ enum eNetCoreMessage: uint8_t {
   NETMSG_CORE_COUNT,
 };
 
+struct UDPSender {
+  UDPConnection* connection;
+  NetAddress address;
+  UDPSession* session;
+};
+
 class UDPSession {
   friend class UDPConnection;
 public:
@@ -30,22 +36,18 @@ public:
     uint16_t mOldestSentRelialbeId = UINT16_MAX;
   };
 
-  struct Sender {
-    UDPConnection* connection;
-    NetAddress address;
-    UDPSession* session;
-  };
+  using Sender = UDPSender;
 
   using message_handle_t = std::function<bool(NetMessage, Sender&)>;
 
   UDPSession();
 
   template<typename Func>
-  MessageHandle on(const char* name, Func&& func, eMessageOption op = eMessageOption(0)) {
-    return on(NetMessage::Def::INVALID_MESSAGE_INDEX, name, func, op);
+  MessageHandle on(const char* name, Func&& func, eMessageOption op = eMessageOption(0), uint8_t messageChannel = 0) {
+    return on(NetMessage::Def::INVALID_MESSAGE_INDEX, name, func, op, messageChannel);
   }
 
-  MessageHandle on(uint8_t index, const char* name, const message_handle_t& func, eMessageOption option = eMessageOption(0));
+  MessageHandle on(uint8_t index, const char* name, const message_handle_t& func, eMessageOption option = eMessageOption(0), uint8_t messageChannel = 0);
 
 
   bool bind(uint16_t port);

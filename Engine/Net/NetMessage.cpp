@@ -13,6 +13,7 @@ NetMessage::NetMessage(const NetMessage& msg)
   mName = msg.mName;
   mLastSendSec = msg.mLastSendSec;
   mReliableId = msg.mReliableId;
+  mSequenceId = msg.mSequenceId;
 }
 
 NetMessage& NetMessage::operator=(const NetMessage& rhs) {

@@ -23,11 +23,11 @@ UDPSession::UDPSession() {
   registerCoreMessage();
 }
 
-UDPSession::MessageHandle UDPSession::on(uint8_t index, const char* name, const message_handle_t& func, eMessageOption option) {
+UDPSession::MessageHandle UDPSession::on(uint8_t index, const char* name, const message_handle_t& func, eMessageOption option, uint8_t messageChannel) {
   if(index == NetMessage::Def::INVALID_MESSAGE_INDEX) {
-    mUnIndexedMessageDefs.push_back({ NetMessage::Def::INVALID_MESSAGE_INDEX, name, option });
+    mUnIndexedMessageDefs.push_back({ NetMessage::Def::INVALID_MESSAGE_INDEX, messageChannel, name, option });
   } else {
-    mIndexedMessageDefs.push_back({ index, name, option });
+    mIndexedMessageDefs.push_back({ index, messageChannel, name, option });
   }
 
   finalizeMessageDefinition();
@@ -66,6 +66,7 @@ bool UDPSession::send(uint8_t index, NetMessage& msg, bool needFlush) {
     Log::tagf("net", "Fail to send message to an invalid connection [%u]", index);
     return false;
   }
+
   bool result = mConnections[index].send(msg);
 
   if(needFlush) {
@@ -171,7 +172,7 @@ bool UDPSession::verify(const NetPacket& packet) {
 
   for(uint8_t i = 0; i < header.reliableCount; i++) {
     NetMessage msg;
-    bool valid = p.read(msg, true);
+    bool valid = p.read(mMessageDefs, msg);
     if (!valid) {
       Log::logf("received packet contains invalid reliable message");
       return false;
@@ -180,7 +181,7 @@ bool UDPSession::verify(const NetPacket& packet) {
 
   for (uint8_t i = 0; i < header.unreliableCount; i++) {
     NetMessage msg;
-    bool valid = p.read(msg, false);
+    bool valid = p.read(mMessageDefs, msg);
     if (!valid) {
       Log::logf("received invalid packet contains invalid unreliable message");
       return false;
@@ -258,13 +259,13 @@ void UDPSession::renderUI() const {
 
 
   ms.color(Rgba(200, 200, 200));
-  const char* formatStr        = "%-8s%-25s%-10s%-10s%-10s%-10s%-10s%-10s%-30s%-10s";
-  const char* contentFormatStr = "%-8u%-25s%-10s%-10.3f%-10.3lf%-10.3lf%-10u%-10u%-30s%-10u";
+  const char* formatStr        = "%-8s%-25s%-10s%-10s%-10s%-10s%-10s%-10s%-30s%-10s%-10s";
+  const char* contentFormatStr = "%-8u%-25s%-10s%-10.3f%-10.3lf%-10.3lf%-10u%-10u%-30s%-10u%-10u";
   ms.text("==== Connections ====", 18.f, font.get(), cursorStart);
   cursorStart -= { 0, LINE_PADDING + font->lineHeight(18.f), 0 };
 
   ms.color(Rgba::white);
-  ms.text(Stringf(formatStr, "idx", "address", "rtt", "loss", "lrcv(s)", "lsnt(s)", "sntack", "rcvack", "rcvbits", "reliables"), 16.f, font.get(), cursorStart);
+  ms.text(Stringf(formatStr, "idx", "address", "rtt", "loss", "lrcv(s)", "lsnt(s)", "sntack", "rcvack", "rcvbits", "reliables", "stored_inorder0"), 16.f, font.get(), cursorStart);
   cursorStart -= { 0, LINE_PADDING + font->lineHeight(16.f), 0 };
 
   ms.color(Rgba(200, 180, 180));
@@ -289,7 +290,7 @@ void UDPSession::renderUI() const {
               GetCurrentTimeSeconds() - connection.lastReceiveSecond(),
               GetCurrentTimeSeconds() - connection.lastSendSecond(), 
               connection.lastSendAck(), connection.largestReceivedAck(),
-              buff, connection.pendingReliableCount()), 16.f, font.get(), cursorStart);
+              buff, connection.pendingReliableCount(), connection.messageChannel(0).outOfOrderMessages.size()), 16.f, font.get(), cursorStart);
     cursorStart -= { 0, LINE_PADDING + font->lineHeight(16.f), 0 };
   }
   
@@ -349,18 +350,20 @@ void UDPSession::processPackets() {
 
     for(uint i = 0; i < header.reliableCount; i++) {
       NetMessage msg;
-      packet->read(msg, true);
+      packet->read(mMessageDefs, msg);
       finalize(msg);
 
       EXPECTS(msg.name().length() > 0);
 
+
       if (conn != nullptr) {
-
-        bool shouldHandle = conn->process(msg);
-
-        if (shouldHandle) {
-          handle(msg, sender);
-        }
+        conn->process(msg, sender);
+        //
+        // bool shouldHandle = conn->process(msg);
+        //
+        // if (shouldHandle) {
+        //   handle(msg, sender);
+        // }
 
       } else {
 
@@ -375,7 +378,7 @@ void UDPSession::processPackets() {
 
     for (uint i = 0; i < header.unreliableCount; i++) {
       NetMessage msg;
-      packet->read(msg, false);
+      packet->read(mMessageDefs, msg);
       finalize(msg);
 
       EXPECTS(msg.name().length() > 0);

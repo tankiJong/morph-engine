@@ -30,6 +30,13 @@ void UDPConnection::PacketTracker::registerReliable(const NetMessage* msg) {
 bool UDPConnection::send(NetMessage& msg) {
   mOwner->finalize(msg);
 
+
+  if (msg.inorder()) {
+    auto& channel = mMessageChannels[msg.definition()->channelIndex];
+    msg.sequenceId(channel.nextSendSequenceId);
+    channel.nextSendSequenceId++;
+  }
+
   if(msg.reliable()) {
     mUnsentReliable.push_back(msg);
   } else {
@@ -60,9 +67,15 @@ bool UDPConnection::flush(bool force) {
       if( cycLess(current->reliableId(), mOldestUnconfirmedRelialbeId) ) {
         mOldestUnconfirmedRelialbeId = current->reliableId();
       }
-      if (current->secondAfterLastSend() > DEFAULT_RELIABLE_RESEND_SEC) {
+
+      double time = current->secondAfterLastSend();
+      if ( time > DEFAULT_RELIABLE_RESEND_SEC) {
         bool appended = 
           packet.append(*current);
+
+        if(appended) {
+          current->lastSendSec() = GetCurrentTimeSeconds();
+        }
       }
       ++current;
     }
@@ -134,7 +147,7 @@ uint16_t UDPConnection::previousReceivedAckBitField() const {
   return mReceivedBitField;
 }
 
-bool UDPConnection::process(const NetMessage& msg) {
+bool UDPConnection::process(NetMessage& msg, UDPSession::Sender& sender) {
   if(msg.reliable()) {
     uint16_t reliableId = msg.reliableId();
     bool processed = isReliableReceived(reliableId);
@@ -155,9 +168,51 @@ bool UDPConnection::process(const NetMessage& msg) {
       } else {
         mReceivedReliableMessage.set(reliableId, true);
       }
+
+      if(msg.inorder()) {
+        auto& channel = mMessageChannels[msg.definition()->channelIndex];
+
+        if(cycLess(msg.sequenceId(), channel.nextExpectReceiveSequenceId)) {
+          Log::logf("received sequence id[%u]\texpect[%u], throw away", msg.sequenceId(), channel.nextExpectReceiveSequenceId);
+        }
+
+        if(msg.sequenceId() == channel.nextExpectReceiveSequenceId) {
+          mOwner->handle(msg, sender);
+          channel.nextExpectReceiveSequenceId++;
+
+          while(!channel.outOfOrderMessages.empty()) {
+            bool hasprocessed = false;
+            for (uint i = channel.outOfOrderMessages.size() - 1; i < channel.outOfOrderMessages.size(); --i) {
+              auto& message = channel.outOfOrderMessages[i];
+
+              if (message.sequenceId() == channel.nextExpectReceiveSequenceId) {
+                mOwner->handle(message, sender);
+                channel.nextExpectReceiveSequenceId++;
+
+                message = channel.outOfOrderMessages.back();
+                channel.outOfOrderMessages.pop_back();
+
+                hasprocessed = true;
+                break;
+              }
+            }
+
+            if (!hasprocessed) break;
+          }
+        }
+
+        if(cycGreater(msg.sequenceId(), channel.nextExpectReceiveSequenceId)) {
+          Log::logf("message with sequenceid[%u] is out of order, saved", msg.sequenceId());
+          channel.outOfOrderMessages.push_back(msg);
+        }
+      } else {
+        mOwner->handle(msg, sender);
+      }
     }
 
     return !processed;
+  } else {
+    mOwner->handle(msg, sender);
   }
 
   return true;

@@ -5,6 +5,7 @@
 #include <vector>
 #include "Engine/Core/Time/Time.hpp"
 #include "Engine/Net/NetAddress.hpp"
+#include "Engine/Net/NetMessage.hpp"
 
 class NetMessage;
 class UDPConnection;
@@ -40,7 +41,7 @@ public:
   bool append(NetMessage& msg);
 
   void read(header_t& header);
-  bool read(NetMessage& outMessage, bool relialbe);
+  bool read(span<const NetMessage::Def> definitions, NetMessage& outMessage);
 
   void receivedTime(double second);
 

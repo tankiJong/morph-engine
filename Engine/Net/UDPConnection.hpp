@@ -5,16 +5,24 @@
 #include <vector>
 #include "Engine/Net/NetPacket.hpp"
 #include <bitset>
+#include "Engine/Net/UDPSession.hpp"
 
 class NetMessage;
 class UDPSession;
-
+class UDPSender;
+class NetMessageChannel {
+public:
+  uint16_t nextSendSequenceId = 0;
+  uint16_t nextExpectReceiveSequenceId = 0;
+  std::vector<NetMessage>outOfOrderMessages;
+};
 
 
 class UDPConnection {
   friend class NetPacket;
 public:
   static constexpr uint16_t RELIALBE_WINDOW_SIZE = 64;
+  static constexpr uint8_t MAX_MESSAGE_CHANNEL_COUNT = 8;
   struct PacketTracker {
     static constexpr uint16_t MAX_RELIABLES_PER_PACKET = 32;
     double sendSec;
@@ -39,7 +47,7 @@ public:
   };
 
   static constexpr double DEFAULT_HEARTBEAT_RATE = 5.0;
-  static constexpr double DEFAULT_RELIABLE_RESEND_SEC = .1;
+  static constexpr double DEFAULT_RELIABLE_RESEND_SEC = .1f;
   bool valid() const { return mOwner != nullptr; }
 
   bool send(NetMessage& msg);
@@ -65,7 +73,7 @@ public:
   uint16_t lastSendAck() const { return mLastSendAck; }
   uint16_t largestReceivedAck() const { return mLargestReceivedAck;  }
 
-  bool process(const NetMessage& msg);
+  bool process(NetMessage& msg, UDPSender& sender);
   uint8_t indexOfSession() const { return mIndexOfSession; };
 
   void heartbeatFrequency(double freq);
@@ -76,6 +84,8 @@ public:
 
   bool isReliableReceived(uint16_t reliableId) const;
   size_t pendingReliableCount() const;
+
+  const NetMessageChannel& messageChannel(uint index) const { return mMessageChannels[index]; }
 protected:
   static constexpr uint PACKET_TRACKER_CACHE_SIZE = 64;
 
@@ -116,5 +126,7 @@ protected:
   uint16_t mOldestUnconfirmedRelialbeId = UINT16_MAX;
 
   uint16_t mHighestReceivedReliableId = UINT16_MAX;
+
+  std::array<NetMessageChannel, MAX_MESSAGE_CHANNEL_COUNT> mMessageChannels;
 };
 

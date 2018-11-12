@@ -91,7 +91,7 @@ void NetPacket::read(header_t& header) {
     >> header.messageCount;
 }
 
-bool NetPacket::read(NetMessage& outMessage, bool reliable) {
+bool NetPacket::read(span<const NetMessage::Def> definitions, NetMessage& outMessage) {
 
   if (tellr() >= tellw()) return false;
 
@@ -104,16 +104,24 @@ bool NetPacket::read(NetMessage& outMessage, bool reliable) {
     return false;
   }
   *this >> index;
-  new(&outMessage) NetMessage(index);
 
-  if(reliable) {
+  outMessage.setDefinition(definitions[index]);
+
+  if(outMessage.reliable()) {
     uint16_t reliableId;
     *this >> reliableId;
 
     outMessage.reliableId(reliableId);
+
+    if(outMessage.inorder()) {
+      uint16_t sequenceId;
+      *this >> sequenceId;
+
+      outMessage.sequenceId(sequenceId);
+    }
   }
 
-  uint headerSize = NetMessage::headerSize(reliable);
+  uint headerSize = outMessage.headerSize();
   void* buf = _alloca(total - headerSize);
 
   size_t size = consume(buf, total - headerSize);
@@ -148,6 +156,11 @@ bool NetPacket::write(const NetMessage& msg) {
   if(reliable) {
     uint16_t reliableId = msg.reliableId();
     *this << reliableId;
+
+    if(msg.inorder()) {
+      uint16_t sequenceId = msg.sequenceId();
+      *this << sequenceId;
+    }
   }
 
   BytePacker::append(msg.data(), msg.size());
