@@ -13,6 +13,7 @@ public:
   bool valid() const { return mPort != 0; }
 
   uint16_t port() const { return mPort; }
+  void port(uint16_t p);
   static NetAddress local(uint16_t port = 80);
   static NetAddress any(uint16_t port = 80);
   const char* toString() const;

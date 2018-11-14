@@ -10,6 +10,7 @@
 #include "Engine/Renderer/Font.hpp"
 #include "Engine/Renderer/Geometry/Mesher.hpp"
 #include "Engine/Application/Window.hpp"
+#include <optional>
 
 bool onHeartBeat(NetMessage, UDPSession::Sender&) {
   return true;
@@ -21,6 +22,13 @@ UDPSession::UDPSession() {
   // * heartbeat
   
   registerCoreMessage();
+}
+
+UDPSession::~UDPSession() {
+  disconnect();
+  for(UDPConnection& connection: mConnections) {
+    connection.flush(true);
+  }
 }
 
 UDPSession::MessageHandle UDPSession::on(uint8_t index, const char* name, const message_handle_t& func, eMessageOption option, uint8_t messageChannel) {
@@ -37,16 +45,71 @@ UDPSession::MessageHandle UDPSession::on(uint8_t index, const char* name, const 
   return MessageHandle();
 }
 
+void UDPSession::host(const char* id, uint16_t port) {
+  bind(port);
+  bool connected = connect(0, mSock.address());
+  if(connected) {
+    connection(0)->connectionState(CONNECTION_READY);
+    sessionState(SESSION_READY);
+  } else {
+    sessionState(SESSION_DISCONNECTED);
+    mLastError = SESSION_ERROR_INTERNAL;
+  }
+
+}
+
+void UDPSession::join(const char* id, const NetAddress& host) {
+  bind(host.port());
+
+  connect(HOST_CONNECTION_INDEX, host);
+  connect(INVALID_CONNECTION_ID, mSock.address());
+  selfConnection()->connectionState(CONNECTION_CONNECTING);
+  sessionState(SESSION_CONNECTING);
+}
+
+void UDPSession::disconnect() {
+  if(sessionState() != SESSION_DISCONNECTED) {
+    NetMessage message(NETMSG_UPDATE_CONN_STATE);
+    uint8_t index = selfIndex();
+    uint8_t state = uint8_t(CONNECTION_DISCONNECTED);
+
+    message << index << state;
+
+    sendOthers(message);
+
+    for(UDPConnection& connection: mConnections) {
+      if (!connection.valid()) continue;
+
+      connection.disconnect();
+    }
+
+    sessionState(SESSION_DISCONNECTED);
+  }
+}
+
+bool UDPSession::isHosting() const {
+  return
+    mSessionState == SESSION_READY && mSelfIndex == HOST_CONNECTION_INDEX;
+}
+
+void UDPSession::sessionState(eSessionState state) {
+  mSessionState = state;
+}
+
 bool UDPSession::bind(uint16_t port) {
-  bool re= mSock.bind(NetAddress::local(port));
+  if(!mSock.closed()) {
+    mSock.close();
+  }
+
+  bool re = mSock.bind(NetAddress::local(port), 100);
   mSock.unsetOption(SOCKET_OPTION_BLOCKING);
+
+  sessionState(SESSION_BOUND);
   return re;
 }
 
 bool UDPSession::connect(uint8_t index, const NetAddress& addr) {
-  if(mConnections.size() <= index) {
-    mConnections.resize(index + 1);
-  }
+  EXPECTS(index < mConnections.size());
 
   if(mConnections[index].valid()) {
     Log::errorf("the request connection is already binded.");
@@ -56,7 +119,13 @@ bool UDPSession::connect(uint8_t index, const NetAddress& addr) {
   if(addr == mSock.address()) {
     mSelfIndex = index;
   }
-  return mConnections[index].set(*this, index, addr);
+  bool connected = mConnections[index].set(*this, index, addr);
+
+  if (connected) mConnections[index].connectionState(CONNECTION_CONNECTED);
+}
+
+void UDPSession::err(eSessionError errorCode) {
+  mLastError = errorCode;
 }
 
 bool UDPSession::send(uint8_t index, NetMessage& msg, bool needFlush) {
@@ -80,16 +149,39 @@ bool UDPSession::in() {
   byte_t buf[NET_PACKET_MTU];
   NetAddress addr;
 
+
+  if(mSessionState == SESSION_CONNECTING) {
+    mJoinTimeout += GetMainClock().frame.second;
+    UDPConnection& connection = *selfConnection();
+
+    if(mJoinTimeout <= JOIN_TIMEOUT_SEC) {
+      if(connection.connected()) {
+        sessionState(SESSION_JOINING);
+        mJoinTimeout = 0;
+      } else {
+        NetMessage msg(NETMSG_JOIN_REQUEST);
+        hostConnection()->send(msg);
+      }
+    } else {
+      // timeout
+      mLastError = SESSION_ERROR_JOIN_TIMEOUT;
+      connection.disconnect();
+      mJoinTimeout = 0;
+    }
+
+  }
+
+  if(mSessionState == SESSION_JOINING) {
+    UDPConnection& connection = *selfConnection();
+    if(connection.connected()) {
+      sessionState(SESSION_READY);
+    }
+  }
   while(true) {
     size_t size = mSock.receive(addr, buf, NET_PACKET_MTU);
 
     if(size == 0) {
       break;
-    }
-
-    if(addr.port() == 10084u) {
-      int i = 0;
-      i++;
     }
 
     NetPacket* packet = allocPacket();
@@ -112,7 +204,7 @@ bool UDPSession::in() {
     ENSURES(latency >= mMinSimLatencyMs && latency <= mMaxSimLatencyMs)
     double currentTime = GetCurrentTimeSeconds();
     packet->receivedTime(currentTime + latency * 0.001f);
-
+    packet->senderAddr(addr);
     mPendingPackets.push(packet);
   }
 
@@ -125,6 +217,10 @@ bool UDPSession::out() {
   for(UDPConnection& connection: mConnections) {
     if (!connection.valid()) continue;
     connection.flush();
+
+    if(GetCurrentTimeSeconds() - connection.lastReceiveSecond() > CONNECTION_TIMEOUT_SEC) {
+      connection.disconnect();
+    }
   }
 
   return true;
@@ -138,6 +234,29 @@ bool UDPSession::send(uint8_t index, const NetPacket& packet) {
   return size > 0;
 }
 
+bool UDPSession::send(NetAddress& addr, NetMessage& msg) {
+
+  NetPacket packet;
+  finalize(msg);
+  packet.append(msg);
+  packet.end();
+  
+  size_t size = mSock.send(addr, packet.data(), packet.size());
+
+  return size > 0;
+}
+
+bool UDPSession::sendOthers(NetMessage& msg) {
+  bool success = true;
+  for(UDPConnection& connection: mConnections) {
+    if(connection.valid() && &connection != selfConnection()) {
+      success = success && connection.send(msg);
+    }
+  }
+
+  return success;
+}
+
 const UDPConnection* UDPSession::connection(uint8_t index) const {
   if(index >= mConnections.size()) return nullptr;
   return &mConnections[index];
@@ -145,7 +264,7 @@ const UDPConnection* UDPSession::connection(uint8_t index) const {
 
 UDPConnection* UDPSession::connection(uint8_t index) {
   if (index >= mConnections.size()) return nullptr;
-  return &mConnections[index];
+  return mConnections[index].valid() ? &mConnections[index] : nullptr;
 }
 
 
@@ -155,7 +274,7 @@ const UDPConnection* UDPSession::connection(const NetAddress& addr) const {
 
 UDPConnection* UDPSession::connection(const NetAddress& addr) {
   for(UDPConnection& connection: mConnections) {
-    if(connection.addr() == addr) {
+    if(connection.addr() == addr && connection.valid()) {
       return &connection;
     }
   }
@@ -303,6 +422,22 @@ void UDPSession::renderUI() const {
   delete mesh;
 }
 
+eSessionError UDPSession::err() {
+  eSessionError error = mLastError;
+  mLastError = SESSION_OK;
+  return error;
+}
+
+UDPConnection* UDPSession::hostConnection() {
+  return &mConnections[HOST_CONNECTION_INDEX];
+}
+
+UDPConnection* UDPSession::selfConnection() {
+  return mSessionState == SESSION_DISCONNECTED  
+       ? nullptr
+       : &mConnections[mSelfIndex];
+}
+
 bool UDPSession::NetPacketComp::operator()(const NetPacket* lhs, const NetPacket* rhs) {
   return (*lhs) > (*rhs);
 }
@@ -344,7 +479,10 @@ void UDPSession::processPackets() {
     packet->read(header);
 
     UDPConnection* conn = connection(header.connectionIndex);
-    conn->onReceive(header);
+
+    if(conn != nullptr) {
+      conn->onReceive(header);
+    }
 
     Sender sender{ conn, packet->senderAddr(), this };
 
@@ -355,24 +493,14 @@ void UDPSession::processPackets() {
 
       EXPECTS(msg.name().length() > 0);
 
-
       if (conn != nullptr) {
         conn->process(msg, sender);
-        //
-        // bool shouldHandle = conn->process(msg);
-        //
-        // if (shouldHandle) {
-        //   handle(msg, sender);
-        // }
-
       } else {
-
-        if (msg.connectionless()) {
-          handle(msg, sender);
+        if(msg.connectionless()) {
+          conn->process(msg, sender);
         } else {
-          Log::log("receive message which require a connection, throw away");
+          Log::logf("receive message %u which require a connection, throw away", msg.index());
         }
-
       }
     }
 
@@ -392,7 +520,7 @@ void UDPSession::processPackets() {
         if(msg.connectionless()) {
           handle(msg, sender);
         } else {
-          Log::log("receive message which require a connection, throw away");
+          Log::logf("receive message %u which require a connection, throw away", msg.index());
         }
 
       }
@@ -432,6 +560,112 @@ void UDPSession::registerCoreMessage() {
   }, NETMESSAGE_OPTION_CONNECTIONLESS);
 
   on(uint8_t(NETMSG_HEARTBEAT), "heartbeat", onHeartBeat);
+
+  on(uint8_t(NETMSG_JOIN_REQUEST), "join_request", [](NetMessage msg, UDPSession::Sender& sender) {
+
+    // ignore if already connected
+    if(sender.session->connection(sender.address) != nullptr) {
+      return true;
+    }
+
+    bool canJoin = true;
+    eSessionError err;
+    // can i host
+    canJoin = sender.session->isHosting();
+    if(!canJoin) {
+      err = SESSION_ERROR_JOIN_DENIED_NOT_HOST;
+      Log::warnf("will deny because session is not hosting");
+    }
+    // do i have more room
+    std::optional<uint8_t> index = sender.session->aquireNextAvailableConnection();
+    if(!index) {
+      err = SESSION_ERROR_JOIN_DENIED_FULL;
+      Log::warnf("will deny because session is full");
+    }
+
+    canJoin = canJoin && index;
+    if(!canJoin) {
+      Log::logf("deny join request from %s", sender.address.toString());
+
+      NetMessage message(NETMSG_JOIN_DENY);
+
+      uint8_t errCode = (uint8_t)err;
+      msg << errCode;
+      
+      sender.session->send(sender.address, message);
+      return true;
+    }
+
+    sender.session->connect(index.value(), sender.address);
+
+    Log::logf("accept join request from %s", sender.address.toString());
+    NetMessage message(NETMSG_JOIN_ACCEPT);
+    message << index.value();
+    
+    sender.session->connection(index.value())->send(message);
+
+    return true;  
+  }, NETMESSAGE_OPTION_CONNECTIONLESS);
+
+
+  on(uint8_t(NETMSG_JOIN_ACCEPT), "join_accept", [this](NetMessage msg, Sender& sender) {
+    Log::log("receive join accept message");
+
+    bool success = this->onJoinAccepted(msg, sender);
+    
+    
+    EXPECTS(sender.session->selfConnection()->connectionState() == CONNECTION_CONNECTED);
+    
+    NetMessage message(NETMSG_UPDATE_CONN_STATE);
+    uint8_t index = sender.session->selfIndex();
+    uint8_t state = uint8_t(CONNECTION_CONNECTED);
+    
+    message << index << state;
+    success = success && sender.session->sendOthers(message);
+
+    return success;
+
+  }, NETMSSAGE_OPTION_RELIALBE_IN_ORDER, 1);
+
+  on(uint8_t(NETMSG_JOIN_DENY), "join_denied", [](NetMessage msg, UDPSession::Sender& sender) {
+
+    if(sender.session->sessionState() != SESSION_JOINING) {
+      Log::logf("not in joining state, ignore deny msg. state: %u", sender.session->sessionState());
+      return true;
+    }
+
+    uint8_t errCode;
+    msg >> errCode;
+
+    Log::errorf("the join request got denied, code: %u", errCode);
+    sender.session->err(SESSION_ERROR_JOIN_DENIED);
+    return true;
+  });
+
+  on(uint8_t(NETMSG_UPDATE_CONN_STATE), "update_conn_state", [](NetMessage msg, UDPSession::Sender& sender) {
+    uint8_t connectionIndex, newState;
+    
+    msg >> connectionIndex >> newState;
+    
+    Log::logf("receive state sync msg from %u, new state: %u", connectionIndex, newState);
+    
+    UDPConnection* conn = sender.session->connection(connectionIndex);
+    EXPECTS(sender.connection != nullptr);
+    EXPECTS(sender.connection == conn);
+    
+    sender.connection->connectionState(eConnectionState(newState));
+
+    if(newState == CONNECTION_DISCONNECTED) {
+      sender.connection->disconnect();
+    }
+
+    if(connectionIndex == HOST_CONNECTION_INDEX && newState == CONNECTION_DISCONNECTED) {
+      sender.session->disconnect();
+    }
+    return true;
+  }, NETMSSAGE_OPTION_RELIALBE_IN_ORDER, 1);
+  // NETMSG_NEW_CONNECTION,
+  // NETMSG_UPDATE_CONN_STATE,
 }
 
 void UDPSession::finalizeMessageDefinition() {
@@ -457,4 +691,34 @@ void UDPSession::finalizeMessageDefinition() {
       ++unindexedIter;
     }
   }
+}
+
+bool UDPSession::onJoinAccepted(NetMessage msg, UDPSession::Sender& sender) {
+  uint8_t index;
+  msg >> index;
+
+  UDPConnection& tempConnection = *selfConnection();
+  mConnections[index] = std::move(tempConnection);
+  mConnections[index].set(*this, index, mConnections[index].addr());
+  new(&tempConnection) UDPConnection();
+
+  mSelfIndex = index;
+  selfConnection()->connectionState(CONNECTION_CONNECTED);
+  ENSURES(selfConnection()->connected());
+  
+
+  return true;
+}
+
+std::optional<uint8_t> UDPSession::aquireNextAvailableConnection() {
+  for (uint8_t i = 1; i < mConnections.size(); ++i) {
+    UDPConnection& conn = mConnections[i];
+    if(!conn.valid()) {
+      new(&conn) UDPConnection();
+
+      return i;
+    }
+  }
+
+  return std::nullopt;
 }

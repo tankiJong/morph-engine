@@ -17,9 +17,9 @@ public:
   NetPacket(const NetPacket& packet);
 
   struct header_t {
-    uint8_t connectionIndex;
+    uint8_t connectionIndex = UINT8_MAX;
 
-    uint16_t ack;
+    uint16_t ack = 0;
     uint16_t lastReceivedAck;
     uint16_t previousReceivedAckBitField;
 

@@ -5,11 +5,11 @@
 #include <vector>
 #include "Engine/Net/NetPacket.hpp"
 #include <bitset>
-#include "Engine/Net/UDPSession.hpp"
 
 class NetMessage;
 class UDPSession;
-class UDPSender;
+struct UDPSender;
+
 class NetMessageChannel {
 public:
   uint16_t nextSendSequenceId = 0;
@@ -17,12 +17,24 @@ public:
   std::vector<NetMessage>outOfOrderMessages;
 };
 
+enum eConnectionState : uint8_t {
+  CONNECTION_DISCONNECTED,   // connection should be cleaned up (has been disconnected)
+  CONNECTION_CONNECTING,     // connection just created, but not yet assigned an index
+  CONNECTION_CONNECTED,      // assigned an index, but not considered joined
+  CONNECTION_JOINING,        // for P2P - host has told me about all connections and put me into a joining state.  I mark myself as soon as
+  // I form a connection with everyone
+  CONNECTION_READY,          // game ready (knows about everyone else and they know about him)
+  CONNECTION_MIGRATING,      // lost the host, and is trying to migrate
+};
 
 class UDPConnection {
   friend class NetPacket;
 public:
   static constexpr uint16_t RELIALBE_WINDOW_SIZE = 64;
   static constexpr uint8_t MAX_MESSAGE_CHANNEL_COUNT = 8;
+  static constexpr double DEFAULT_HEARTBEAT_RATE = 5.0;
+  static constexpr double DEFAULT_RELIABLE_RESEND_SEC = .1f;
+
   struct PacketTracker {
     static constexpr uint16_t MAX_RELIABLES_PER_PACKET = 32;
     double sendSec;
@@ -46,9 +58,16 @@ public:
     void registerReliable(const NetMessage* msg);
   };
 
-  static constexpr double DEFAULT_HEARTBEAT_RATE = 5.0;
-  static constexpr double DEFAULT_RELIABLE_RESEND_SEC = .1f;
+  struct Info {
+    static constexpr uint MAX_ID_LENGTH = 64;
+    NetAddress address;
+    char id[MAX_ID_LENGTH];
+    uint8_t indexInSession;
+  };
+
+  ~UDPConnection();
   bool valid() const { return mOwner != nullptr; }
+  void invalidate() { mOwner = nullptr; }
 
   bool send(NetMessage& msg);
   bool flush(bool force = false);
@@ -74,7 +93,9 @@ public:
   uint16_t largestReceivedAck() const { return mLargestReceivedAck;  }
 
   bool process(NetMessage& msg, UDPSender& sender);
-  uint8_t indexOfSession() const { return mIndexOfSession; };
+  uint8_t indexOfSession() const { return mIndexOfSession; }
+
+  bool connected() const { return mConnectionState == CONNECTION_CONNECTED; };
 
   void heartbeatFrequency(double freq);
   double tickFrequency(double freq);
@@ -86,6 +107,12 @@ public:
   size_t pendingReliableCount() const;
 
   const NetMessageChannel& messageChannel(uint index) const { return mMessageChannels[index]; }
+
+  void connectionState(eConnectionState state);
+
+  eConnectionState connectionState() const { return mConnectionState; }
+
+  void disconnect();
 protected:
   static constexpr uint PACKET_TRACKER_CACHE_SIZE = 64;
 
@@ -128,5 +155,9 @@ protected:
   uint16_t mHighestReceivedReliableId = UINT16_MAX;
 
   std::array<NetMessageChannel, MAX_MESSAGE_CHANNEL_COUNT> mMessageChannels;
+
+  eConnectionState mConnectionState = CONNECTION_DISCONNECTED;
+
+  Info mInfo;
 };
 

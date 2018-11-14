@@ -27,9 +27,14 @@ void UDPConnection::PacketTracker::registerReliable(const NetMessage* msg) {
   mSentReliableCount++;
 }
 
+UDPConnection::~UDPConnection() {
+  if(valid()) {
+    flush(true);
+  }
+}
+
 bool UDPConnection::send(NetMessage& msg) {
   mOwner->finalize(msg);
-
 
   if (msg.inorder()) {
     auto& channel = mMessageChannels[msg.definition()->channelIndex];
@@ -135,6 +140,7 @@ bool UDPConnection::set(UDPSession& session, uint8_t index, const NetAddress& ad
   mIndexOfSession = index;
   mAddress = addr;
   mHeartBeatTimer.flush();
+  mLastReceivedSec = GetCurrentTimeSeconds();
   return true;
 }
 
@@ -286,6 +292,16 @@ bool UDPConnection::isReliableReceived(uint16_t reliableId) const {
 
 size_t UDPConnection::pendingReliableCount() const {
   return mSentReliable.size() + mUnsentReliable.size();
+}
+
+void UDPConnection::connectionState(eConnectionState state) {
+  mConnectionState = state;
+}
+
+void UDPConnection::disconnect() {
+  connectionState(CONNECTION_DISCONNECTED);
+  flush(true);
+  invalidate();
 }
 
 uint16_t UDPConnection::increaseAck() {

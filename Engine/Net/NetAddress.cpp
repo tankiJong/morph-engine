@@ -87,6 +87,21 @@ bool NetAddress::fromSockaddr(const sockaddr& addr) {
   return true;
 }
 
+void NetAddress::port(uint16_t p) {
+  mPort = p;
+
+  sockaddr_storage sockadd;
+  int len = sizeof(sockaddr_storage);
+  toSockaddr((sockaddr&)sockadd, len);
+
+  sockaddr_in& ipv4 = (sockaddr_in&)sockadd;
+  char buf[256];
+  buf[0] = 0;
+
+  inet_ntop(ipv4.sin_family, &ipv4.sin_addr, buf, 256);
+  sprintf_s(mNameCache, "%s:%u", buf, mPort);
+}
+
  NetAddress NetAddress::local(uint16_t port) {
   char name[256];
 

@@ -14,16 +14,20 @@ bool UDPSocket::bind(const NetAddress& addr, uint16_t portRange) {
 
   ASSERT_OR_RETURN(sock != INVALID_SOCKET, false);
 
-  sockaddr_storage sockadd;
-  int len = sizeof(sockaddr_storage);
-  addr.toSockaddr((sockaddr&)sockadd, len);
+  for(uint16_t i = 0; i <= portRange; i++) {
+    NetAddress address = addr;
+    address.port(addr.port() + i);
+    sockaddr_storage sockadd;
+    int len = sizeof(sockaddr_storage);
+    address.toSockaddr((sockaddr&)sockadd, len);
 
-  int result = ::bind(sock, (sockaddr*)&sockadd, len);
+    int result = ::bind(sock, (sockaddr*)&sockadd, len);
 
-  if (0 == result) {
-    mHandle = sock;
-    mAddress = addr;
-    return true;
+    if (0 == result) {
+      mHandle = sock;
+      mAddress = address;
+      return true;
+    }
   }
 
   return false;
