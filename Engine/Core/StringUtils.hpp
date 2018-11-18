@@ -45,7 +45,6 @@ template<>
 inline uint parse(const char* str) {
   char* end;
   uint val = strtol(str, &end, 10);
-  ENSURES(*end == '\0');
 
   return val;
 }

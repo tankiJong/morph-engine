@@ -45,4 +45,6 @@ public:
   const static vec4 forward;
 
   const static vec4 zero;
+
+  const static vec4 one;
 };

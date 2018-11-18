@@ -47,7 +47,7 @@ bool RHIDevice::init() {
   // Falcor Comment: DX12 guarantees at least 1,000,000 descriptors
 
   poolDesc
-    .setDescCount(DescriptorPool::Type::TextureSrv, 1e4)
+    .setDescCount(DescriptorPool::Type::TextureSrv, uint(1e4))
     .setDescCount(DescriptorPool::Type::Sampler, 2048)
     .setShaderVisibility(true);
 
@@ -83,7 +83,7 @@ void RHIDevice::releaseResource(rhi_obj_handle_t res) {
   if(res != nullptr) {
 
     // Some static objects get here when the application exits
-    if(this && !this->mPendingDelete) {
+    if(this && !this->mPendingDelete && mFrameFence) {
       mDeferredRelease.push({ mFrameFence->cpuValue(), res });
     }
   }

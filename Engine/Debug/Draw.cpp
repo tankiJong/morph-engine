@@ -1,21 +1,26 @@
 ﻿#include "Draw.hpp"
 #include "Engine/Core/Time/Clock.hpp"
 #include "Engine/Core/Gradient.hpp"
-#include "Engine/Renderer/Geometry/Mesher.hpp"
-#include "Engine/Renderer/Renderer.hpp"
-#include "Engine/Renderer/Font.hpp"
-#include "Engine/Renderer/Shader/Material.hpp"
+#include "Engine/Graphics/Font.hpp"
+#include "Engine/Graphics/Model/Mesher.hpp"
 #include "Engine/Math/Primitives/aabb3.hpp"
-
-Renderer* gRenderer = nullptr;
+#include "Engine/Graphics/Program/Program.hpp"
+#include "Engine/Math/Transform.hpp"
+#include "Engine/Renderer/ImmediateRenderer.hpp"
+#include "Debug_Wireframe_ps.h"
+#include "Debug_Wireframe_vs.h"
+#include "Engine/Graphics/RHI/RHIDevice.hpp"
+ImmediateRenderer* gRenderer = nullptr;
 Camera* gCamera = nullptr;
 Camera* gCamera2D = nullptr;
 const Clock* gDefaultColock = nullptr;
 
 float gDefaultDuration = Debug::INF;
 Debug::eDebugDrawDepthMode gDefaultDepthMode = Debug::DEBUG_DEPTH_DEFAULT;
-Material* gDebugMaterial = nullptr;
 Mesher gDebugMesher;
+S<const Program> gDebugProgram;
+S<const Program> gDebugProgramDepthAlways;
+RHIBuffer::sptr_t gTintBuffer;
 
 bool gEnabled = true;
 struct Debug::DebugDrawMeta {
@@ -51,18 +56,17 @@ struct Debug::DebugDrawMeta {
 
   virtual void render() {
     vec4 col = this->decayColor.evaluate((float)this->progress(this->clock->total.second)).normalized();
-    gDebugMaterial->setProperty("tint", col);
 
-    gRenderer->setMaterial(gDebugMaterial, 0);
-    gRenderer->setCamera(this->cam);
-
+    gRenderer->setView(*this->cam);
+    gTintBuffer->updateData(col);
+    gRenderer->setUniform(UNIFORM_USER_1, *gTintBuffer->cbv());
     switch(depthMode) { 
-      case DEBUG_DEPTH_DEFAULT: break;
+      case DEBUG_DEPTH_DEFAULT:
       case DEBUG_DEPTH_ENABLE:
-        gRenderer->enableDepth(COMPARE_LESS, false);
+        gRenderer->setProgram(gDebugProgram);
       break;
       case DEBUG_DEPTH_DISABLE:
-        gRenderer->enableDepth(COMPARE_ALWAYS, false);
+        gRenderer->setProgram(gDebugProgramDepthAlways);
       break;
       case DEBUG_DEPTH_XRAY:
         INFO("unsupported depth mode for debug draw");
@@ -82,29 +86,30 @@ struct DebugDrawMetaText: public Debug::DebugDrawMeta {
     : DebugDrawMeta(decayColor, mesh, duration, clockOverride), font(font) {}
   const Font& font;
   virtual void render() {
-    vec4 col = this->decayColor.evaluate((float)this->progress(this->clock->total.second)).normalized();
-    gDebugMaterial->setProperty("tint", col);
-
-    g_theRenderer->setMaterial(gDebugMaterial, 1);
-
-    g_theRenderer->setTexture(TEXTURE_DIFFUSE,font.texture(0));
-    gRenderer->setSampler(0, &Sampler::Linear());
-    gRenderer->setCamera(this->cam);
-
-    switch (depthMode) {
-      case Debug::DEBUG_DEPTH_DEFAULT: break;
-      case Debug::DEBUG_DEPTH_ENABLE:
-        gRenderer->enableDepth(COMPARE_LESS, false);
-        break;
-      case Debug::DEBUG_DEPTH_DISABLE:
-        gRenderer->enableDepth(COMPARE_ALWAYS, false);
-        break;
-      case Debug::DEBUG_DEPTH_XRAY:
-        INFO("unsupported depth mode for debug draw");
-        break;
-    }
-
-    gRenderer->drawMesh(*this->mesh);
+    EXPECTS(false);
+    // vec4 col = this->decayColor.evaluate((float)this->progress(this->clock->total.second)).normalized();
+    //
+    // gRenderer->setView(*this->cam);
+    // gRenderer->setUniform(UNIFORM_USER_1, *gTintBuffer->cbv());
+    //
+    // g_theRenderer->setTexture(TEXTURE_DIFFUSE,font.texture(0));
+    // gRenderer->setSampler(0, &Sampler::Linear());
+    // gRenderer->setCamera(this->cam);
+    //
+    // switch (depthMode) {
+    //   case Debug::DEBUG_DEPTH_DEFAULT: break;
+    //   case Debug::DEBUG_DEPTH_ENABLE:
+    //     gRenderer->enableDepth(COMPARE_LESS, false);
+    //     break;
+    //   case Debug::DEBUG_DEPTH_DISABLE:
+    //     gRenderer->enableDepth(COMPARE_ALWAYS, false);
+    //     break;
+    //   case Debug::DEBUG_DEPTH_XRAY:
+    //     INFO("unsupported depth mode for debug draw");
+    //     break;
+    // }
+    //
+    // gRenderer->drawMesh(*this->mesh);
   }
 };
 std::vector<Debug::DebugDrawMeta*> gDebugDrawCalls;
@@ -119,7 +124,7 @@ bool Debug::DrawHandle::terminate() const {
   return false;
 }
 
-void Debug::setRenderer(Renderer* renderer) {
+void Debug::setRenderer(ImmediateRenderer* renderer) {
   EXPECTS(renderer != nullptr);
 
   gRenderer = renderer;
@@ -165,6 +170,15 @@ void Debug::toggleDebugRender() {
   gEnabled = !gEnabled;
 }
 
+void Debug::drawInit() {
+  gTintBuffer = RHIBuffer::create(sizeof(vec4), 
+    RHIResource::BindingFlag::ConstantBuffer, 
+    RHIBuffer::CPUAccess::Write);
+  NAME_RHIRES(gTintBuffer);
+
+  gRenderer = &ImmediateRenderer::get();
+}
+
 template<typename F>
 Debug::DrawHandle* drawMeta(const Gradient& color, float duration, const Clock* clockOverride, F&& f, bool is3D = true) {
   static_assert(std::is_invocable_v<F, Mesher>);
@@ -206,11 +220,24 @@ Debug::DrawHandle* drawMetaText(const Gradient& color, const Font* font, float d
 }
 
 void Debug::drawNow() {
+  SCOPED_GPU_EVENT("Debug draw");
   if(!gEnabled) return;
-  // will change to material later
-  if(!gDebugMaterial) {
-    gDebugMaterial = Resource<Material>::clone("material/debug/default");
+
+  if(!gDebugProgram) {
+    gDebugProgram 
+      = Resource<Program>::get("internal/Shader/debug/default");
+    gDebugProgramDepthAlways 
+      = Resource<Program>::get("internal/Shader/debug/always");
   }
+
+
+
+  gRenderer->setRenderTarget(&RHIDevice::get()->backBuffer()->rtv(), 0);
+  gRenderer->setDepthStencilTarget(RHIDevice::get()->depthBuffer()->dsv());
+
+  gRenderer->setRenderRegion(*RHIDevice::get()->backBuffer());
+
+
   for(uint i = 0; i < gDebugDrawCalls.size(); ++i) {
     DebugDrawMeta*& comp = gDebugDrawCalls[i];
     
@@ -512,3 +539,47 @@ const Debug::DrawHandle* Debug::drawText(std::string_view text, float size, cons
   });
 }
 
+DEF_RESOURCE(Program, "internal/Shader/debug/default") {
+  Program::sptr_t prog = Program::sptr_t(new Program());
+
+  prog->stage(SHADER_TYPE_VERTEX).setFromBinary(gDebug_Wireframe_vs, sizeof(gDebug_Wireframe_vs));
+  prog->stage(SHADER_TYPE_FRAGMENT).setFromBinary(gDebug_Wireframe_ps, sizeof(gDebug_Wireframe_ps));
+  prog->compile();
+
+  prog->compile();
+  RenderState state;
+
+  state.isWriteDepth = FLAG_FALSE;
+  state.depthMode = COMPARE_LESS;
+  state.colorBlendOp = BLEND_OP_ADD;
+  state.colorSrcFactor = BLEND_F_SRC_ALPHA;
+  state.colorDstFactor = BLEND_F_DST_ALPHA;
+  state.alphaBlendOp = BLEND_OP_ADD;
+  state.alphaSrcFactor = BLEND_F_SRC_ALPHA;
+  state.alphaDstFactor = BLEND_F_DST_ALPHA;
+  prog->setRenderState(state);
+
+  return S<Program>(prog);
+}
+
+DEF_RESOURCE(Program, "internal/Shader/debug/always") {
+  Program::sptr_t prog = Program::sptr_t(new Program());
+
+  prog->stage(SHADER_TYPE_VERTEX).setFromBinary(gDebug_Wireframe_vs, sizeof(gDebug_Wireframe_vs));
+  prog->stage(SHADER_TYPE_FRAGMENT).setFromBinary(gDebug_Wireframe_ps, sizeof(gDebug_Wireframe_ps));
+  prog->compile();
+
+  prog->compile();
+  RenderState state;
+  state.isWriteDepth = FLAG_FALSE;
+  state.depthMode = COMPARE_ALWAYS;
+  state.colorBlendOp = BLEND_OP_ADD;
+  state.colorSrcFactor = BLEND_F_SRC_ALPHA;
+  state.colorDstFactor = BLEND_F_DST_ALPHA;
+  state.alphaBlendOp = BLEND_OP_ADD;
+  state.alphaSrcFactor = BLEND_F_SRC_ALPHA;
+  state.alphaDstFactor = BLEND_F_DST_ALPHA;
+  prog->setRenderState(state);
+
+  return S<Program>(prog);
+}

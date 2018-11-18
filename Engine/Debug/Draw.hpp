@@ -6,8 +6,8 @@
 #include "Engine/Graphics/Model/Mesh.hpp"
 #include "Engine/Core/Gradient.hpp"
 struct aabb3;
+class ImmediateRenderer;
 class Transform;
-class Renderer;
 class Texture;
 class Clock;
 class Font;
@@ -34,7 +34,7 @@ namespace Debug {
   };
 
   inline constexpr float INF = INFINITY;
-  void setRenderer(Renderer* renderer);
+  void setRenderer(ImmediateRenderer* renderer);
   void setCamera2D(Camera* camera);
   void setCamera(Camera* camera);
   void setClock(const Clock* clock = nullptr);
@@ -43,7 +43,7 @@ namespace Debug {
   void clear();
   void toggleDebugRender(bool isEnabled);
   void toggleDebugRender();
-  void init();
+  void drawInit();
   void drawNow();
   // draw APIs: <Geometry Info>, float duration, <Color Info>, Clock* clockOverride
   // Complete version

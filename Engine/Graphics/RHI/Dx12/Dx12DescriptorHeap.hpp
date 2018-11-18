@@ -6,9 +6,9 @@
 #include <utility>
 
 class Dx12DescriptorHeap: public std::enable_shared_from_this<Dx12DescriptorHeap>{
+public:
   struct Chunk;
   class Allocation;
-public:
   using sptr_t = S<Dx12DescriptorHeap>;
   using scptr_t = S<const Dx12DescriptorHeap>;
   using rhi_handle_t = descriptor_heap_handle_t;

@@ -184,6 +184,18 @@
     <Filter Include="ThirdParty\ImGui\example">
       <UniqueIdentifier>{40dc15c7-8758-4653-8077-4f980fbb4728}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Net">
+      <UniqueIdentifier>{fdfbd86c-ba5c-4482-9f7d-87b902f4a272}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer\TextRenderer">
+      <UniqueIdentifier>{17b12f5c-f9d0-4e22-b93c-385ace6da55e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer\UIRenderer">
+      <UniqueIdentifier>{45a0ed6e-12a3-4eae-8ff9-7e92a7bfb5b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\tinyobjloader">
+      <UniqueIdentifier>{27f7f92d-2d5c-4064-b41e-674aad3ab66e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -641,6 +653,48 @@
     </ClCompile>
     <ClCompile Include="..\ThirdParty\imgui\ImGuizmo.cpp">
       <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\Net.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\NetAddress.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\NetMessage.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\NetPacket.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\Socket.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\TCPSocket.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\UDPConnection.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\UDPSession.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\UDPSocket.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\Console\RemoteConsole.cpp">
+      <Filter>Engine\Debug\Console</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\BytePacker.cpp">
+      <Filter>Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Endianness.cpp">
+      <Filter>Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\TextRenderer\TextRenderer.cpp">
+      <Filter>Engine\Renderer\TextRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Application.cpp">
+      <Filter>Engine\Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1298,6 +1352,51 @@
     <ClInclude Include="..\ThirdParty\imgui\ImGuizmo.h">
       <Filter>ThirdParty\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="Net\Net.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\NetAddress.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\NetMessage.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\NetPacket.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\Socket.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\TCPSocket.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\UDPConnection.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\UDPSession.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\UDPSocket.hpp">
+      <Filter>Engine\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\Console\RemoteConsole.hpp">
+      <Filter>Engine\Debug\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\BytePacker.hpp">
+      <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Endianness.hpp">
+      <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\TextRenderer\TextRenderer.hpp">
+      <Filter>Engine\Renderer\TextRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\tinyobjloader\tiny_obj_loader.h">
+      <Filter>ThirdParty\tinyobjloader</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Application.hpp">
+      <Filter>Engine\Application</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\ThirdParty\fmod\fmod_vc.lib">
@@ -1473,6 +1572,24 @@
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\fxaa_vs.hlsl">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\UiRenderer\UI_Text_Unlit_ps.hlsl">
+      <Filter>Engine\Renderer\UIRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\UiRenderer\UI_Text_Unlit_vs.hlsl">
+      <Filter>Engine\Renderer\UIRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\UiRenderer\UI_Solid_ps.hlsl">
+      <Filter>Engine\Renderer\UIRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\UiRenderer\UI_Solid_vs.hlsl">
+      <Filter>Engine\Renderer\UIRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Debug\Debug_Wireframe_ps.hlsl">
+      <Filter>Engine\Debug</Filter>
+    </FxCompile>
+    <FxCompile Include="Debug\Debug_Wireframe_vs.hlsl">
+      <Filter>Engine\Debug</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

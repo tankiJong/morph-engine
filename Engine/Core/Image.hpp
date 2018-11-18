@@ -4,6 +4,7 @@
 #include "Engine/Core/Rgba.hpp"
 #include "Engine/Math/Primitives/uvec2.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Engine/Graphics/RHI/RHIType.hpp"
 
 class Image {
 public:
@@ -22,6 +23,7 @@ public:
   inline Rgba* data() { return mTexels.data(); }
   inline const Rgba* data() const { return mTexels.data(); }
   inline uint size() const { return mDimensions.x * mDimensions.y; };
+  eTextureFormat format() { return mFormat; }
 
   Rgba& operator()(uint x, uint y);
 
@@ -29,4 +31,5 @@ public:
 private:
   uvec2 mDimensions;
   std::vector<Rgba> mTexels;
+  eTextureFormat mFormat = TEXTURE_FORMAT_RGBA8;
 };

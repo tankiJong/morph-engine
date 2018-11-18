@@ -4,6 +4,7 @@
 #include "Engine/Graphics/RHI/RootSignature.hpp"
 #include "Engine/Graphics/Program/Program.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 D3D12_DESCRIPTOR_RANGE_TYPE asDx12RangeType(const RootSignature::desc_type_t type);
 
@@ -11,19 +12,19 @@ D3D12_DESCRIPTOR_RANGE_TYPE asDx12RangeType(const RootSignature::desc_type_t typ
 void ProgramIns::setCbv(const ConstantBufferView& cbv, uint registerIndex, uint registerSpace) {
 
   loc_t loc = locateBindPoint(cbv.info().type, registerIndex, registerSpace);
-  mDescriptorSets[loc.descriptorSetIndex]->setCbv(loc.rangeIndex, loc.zeroOffset, cbv);
+  mDescriptorSets[loc.descriptorSetIndex]->setCbv(uint(loc.rangeIndex), uint(loc.zeroOffset), cbv);
 }
 
 void ProgramIns::setSrv(const ShaderResourceView& srv, uint registerIndex, uint registerSpace) {
 
   loc_t loc = locateBindPoint(srv.info().type, registerIndex, registerSpace);
-  mDescriptorSets[loc.descriptorSetIndex]->setSrv(loc.rangeIndex, loc.zeroOffset, srv);
+  mDescriptorSets[loc.descriptorSetIndex]->setSrv((uint)loc.rangeIndex, (uint)loc.zeroOffset, srv);
 }
 
 void ProgramIns::setUav(const UnorderedAccessView& uav, uint registerIndex, uint registerSpace) {
   
   loc_t loc = locateBindPoint(uav.info().type, registerIndex, registerSpace);
-  mDescriptorSets[loc.descriptorSetIndex]->setUav(loc.rangeIndex, loc.zeroOffset, uav);
+  mDescriptorSets[loc.descriptorSetIndex]->setUav((uint)loc.rangeIndex, (uint)loc.zeroOffset, uav);
 }
 
 ProgramIns::ProgramIns(const S<Program>& program) {
@@ -50,7 +51,7 @@ ProgramIns::loc_t ProgramIns::locateBindPoint(DescriptorPool::Type type, uint re
     const S<DescriptorSet>& set = mDescriptorSets[i];
 
     for(size_t k = 0; k < set->rangeCount(); k++) {
-      auto& range = set->range(k);
+      auto& range = set->range((uint)k);
 
       if (dx12Type != asDx12RangeType(range.type)) continue;
       if (registerSpace != range.registerSpace) continue;
@@ -74,7 +75,7 @@ void GraphicsProgramIns::apply(RHIContext& ctx, bool bindRootSignature) {
   }
 
   for(size_t i = 0; i < mDescriptorSets.size(); i++) {
-    mDescriptorSets[i]->bindForGraphics(ctx, *mProg->rootSignature(), i);
+    mDescriptorSets[i]->bindForGraphics(ctx, *mProg->rootSignature(), (uint)i);
   }
 }
 
@@ -88,7 +89,7 @@ void ComputeProgramIns::apply(RHIContext& ctx, bool bindRootSignature) {
   }
 
   for (size_t i = 0; i < mDescriptorSets.size(); i++) {
-    mDescriptorSets[i]->bindForCompute(ctx, *mProg->rootSignature(), i);
+    mDescriptorSets[i]->bindForCompute(ctx, *mProg->rootSignature(), (uint)i);
   }
 }
 

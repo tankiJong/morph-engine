@@ -208,7 +208,7 @@ void updateSurfels(inout surfel_t surfel, inout SurfelHistoryBuffer history) {
 
 void main( uint3 threadId : SV_DispatchThreadID, uint3 localThreadId : SV_GroupThreadID, uint3 groupId: SV_GroupId )
 {
-	seed = threadId.x * 10000 + threadId.y * 121144 + gTime * 367860;	
+	seed = threadId.x + threadId.y * 1000 + asuint(gTime);	
 
 	//[loop]
 	//for(uint kk = 0; kk < 2; kk++) {

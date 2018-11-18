@@ -2,6 +2,7 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RHIResource.hpp"
 #include "Engine/Graphics/RHI/RHIType.hpp"
+#include "Engine/Math/Primitives/uvec2.hpp"
 
 class ShaderResourceView;
 
@@ -13,11 +14,12 @@ public:
 
   uint width() const { return mWidth; }
   uint height() const { return mHeight; }
+  uvec2 size() const { return uvec2{ mWidth, mHeight }; }
   eTextureFormat format() const { return mFormat; }
   const ShaderResourceView& srv() const;
 protected:
   RHITexture(RHIResource::Type type, uint width, uint height, 
-             uint depth, eTextureFormat format, BindingFlag flags, const void* data, size_t size)
+             uint depth, eTextureFormat format, BindingFlag flags, const void* /*data*/, size_t /*size*/)
     : RHIResource(type, flags), mWidth(width), mHeight(height), mDepth(depth), mFormat(format) {
   }
   RHITexture(rhi_resource_handle_t res);

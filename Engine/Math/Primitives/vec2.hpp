@@ -86,8 +86,10 @@ const vec2 transFromBasis(const vec2& originalVector,
                         const vec2& fromBasisI, const vec2& fromBasisJ);
 
 // Decomposes "originalVector" into two component vectors, which add up to the original:
+
 //   "vectorAlongI" is the vector portion in the "newBasisI" direction, and
 //   "vectorAlongJ" is the vector portion in the "newBasisJ" direction.
+
 void decompose(const vec2& originalVector,
                               const vec2& newBasisI, const vec2& newBasisJ,
                               vec2& out_vectorAlongI, vec2& out_vectorAlongJ);

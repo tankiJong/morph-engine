@@ -56,8 +56,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 		uint i = info.startIndex;
 		while(i < info.startIndex + count) {
 			if(isCovered(position, normal, uSurfels[i]) > 0) {
-				float4 normalVar = uSurfelsHistory[i].normalizedHSLVariance();
-				color =	float4(uSurfelsHistory[i].weightCurve.scale / 5.f, 0 ,0 , 1.f);
+				color =	float4(uSurfels[i].indirectLighting * 4 * uSurfels[i].color, 1.f);
 				// color =	float4( 0, normalVar.w, 0 , 1.f);
 			}
 			i++;

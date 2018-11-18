@@ -6,6 +6,7 @@ const vec4 vec4::right  (1, 0, 0, 0);
 const vec4 vec4::up     (0, 1, 0, 0);
 const vec4 vec4::forward(0, 0, 1, 0);
 const vec4 vec4::zero   (0, 0, 0, 0);
+const vec4 vec4::one    (1, 1, 1, 1);
 
 vec3 vec4::xyz() const {
   return { x,y,z };

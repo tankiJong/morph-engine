@@ -131,7 +131,6 @@ void RHIContext::uavBarrier(const RHIResource* res) {
 
 void RHIContext::beforeFrame() {
   // D3D12_VIEWPORT mViewport;
-  D3D12_RECT mScissorRect;
 
   // mViewport.TopLeftX = 0;
   // mViewport.TopLeftY = 0;
@@ -140,13 +139,9 @@ void RHIContext::beforeFrame() {
   // mViewport.MinDepth = D3D12_MIN_DEPTH;
   // mViewport.MaxDepth = D3D12_MAX_DEPTH;
 
-  mScissorRect.left = 0;
-  mScissorRect.top = 0;
-  mScissorRect.right = Window::Get()->bounds().width();
-  mScissorRect.bottom = Window::Get()->bounds().height();
+
 
   // mContextData->commandList()->RSSetViewports(1, &mViewport);
-  mContextData->commandList()->RSSetScissorRects(1, &mScissorRect);
 
   // D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(
   //   RHIDevice::get()->cpuDescriptorPool()->handle(D3D12_DESCRIPTOR_HEAP_TYPE_RTV)->GetCPUDescriptorHandleForHeapStart());
@@ -176,13 +171,11 @@ void RHIContext::draw(uint start, uint count) {
 }
 
 void RHIContext::drawIndexed(uint vertStart, uint idxStart, uint count) {
-  mContextData->commandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   mContextData->commandList()->DrawIndexedInstanced(count, 1, idxStart, vertStart, 0);
   mCommandsPending = true;
 }
 
 void RHIContext::drawInstanced(uint startVert, uint startIns, uint vertCount, uint insCount) {
-  mContextData->commandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   mContextData->commandList()->DrawInstanced(vertCount, insCount, startVert, startIns);
   mCommandsPending = true;
 }
@@ -258,11 +251,31 @@ void RHIContext::setIndexBuffer(const IndexBuffer* ibo) {
   mContextData->commandList()->IASetIndexBuffer(&ib);
 }
 
+void RHIContext::setPrimitiveTopology(const eDrawPrimitive prim) {
+  switch(prim) { 
+    case DRAW_UNKNOWN:
+      mContextData->commandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_UNDEFINED);
+    break;
+    case DRAW_POINTS: 
+      mContextData->commandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+    break;
+    case DRAW_LINES: 
+      mContextData->commandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+    break;
+    case DRAW_TRIANGES: 
+      mContextData->commandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    break;
+    case NUM_PRIMITIVE_TYPES:
+    default: 
+    BAD_CODE_PATH();
+  }
+}
+
 void RHIContext::setViewport(const aabb2& bounds) {
   D3D12_VIEWPORT viewport;
 
-  viewport.TopLeftX = 0;
-  viewport.TopLeftY = 0;
+  viewport.TopLeftX = bounds.mins.x;
+  viewport.TopLeftY = bounds.mins.x;
   viewport.Width = bounds.width();
   viewport.Height = bounds.height();
   viewport.MinDepth = D3D12_MIN_DEPTH;
@@ -270,6 +283,16 @@ void RHIContext::setViewport(const aabb2& bounds) {
 
 
   mContextData->commandList()->RSSetViewports(1, &viewport);
+}
+
+void RHIContext::setScissorRect(const aabb2& rect) {
+  D3D12_RECT scissorRect;
+
+  scissorRect.left = rect.mins.x;
+  scissorRect.top = rect.mins.y;
+  scissorRect.right = rect.maxs.x;
+  scissorRect.bottom = rect.maxs.y;
+  mContextData->commandList()->RSSetScissorRects(1, &scissorRect);
 }
 
 void RHIContext::bindDescriptorHeap() {
@@ -412,10 +435,6 @@ size_t RHIContext::readBuffer(const RHIBuffer& res, void* data, size_t maxSize) 
 
   auto buffer = RHIBuffer::create(readbackBufferSize, RHIBuffer::BindingFlag::None, RHIBuffer::CPUAccess::Read, nullptr);
 
-
-  ID3D12Resource* readBackHeap = buffer->handle().Get();
-
-  //
   transitionBarrier(&res, RHIResource::State::CopySource);
 
   copyResource(res, *buffer);

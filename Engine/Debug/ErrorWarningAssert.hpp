@@ -166,6 +166,8 @@ int SystemDialogue_YesNoCancel( const std::string& messageTitle, const std::stri
 }
 #endif
 
+
+#define ASSERT_OR_RETURN(condition, rtn) { bool re = condition; if(!re) return rtn; }
 //-----------------------------------------------------------------------------------------------
 // EXPECTS
 //

@@ -6,14 +6,15 @@
 #include "Engine/Application/Window.hpp"
 #include "Engine/Math/Primitives/AABB2.hpp"
 #include "Engine/Input/Input.hpp"
-#include "Engine/Core/Delegate.hpp"
 #include "Engine/Tool/Parser.hpp"
 #include "Engine/Graphics/Camera.hpp"
 #include "Engine/Graphics/Font.hpp"
 #include "Engine/Renderer/ImmediateRenderer.hpp"
-#include "Engine/Graphics/Program/Program.hpp"
 #include "Engine/Graphics/Model/Mesher.hpp"
 #include "Engine/Graphics/RHI/Texture.hpp"
+#include "Engine/Debug/Console/RemoteConsole.hpp"
+#include "Engine/Graphics/Program/Program.hpp"
+#include "Engine/Graphics/RHI/RHIDevice.hpp"
 
 #define WM_CHAR                 0x0102
 #define WM_KEYDOWN              0x0100
@@ -100,6 +101,17 @@ bool saveLog(std::string path, const std::deque<std::string>& logStream) {
 }
 
 void Console::init() {
+  Window::Get()->addWinMessageHandler([this](unsigned msg, size_t wParam, size_t lParam) {
+    if (!mIsOpened) return;
+    consoleCharHandler(msg, wParam, lParam);
+    consoleControlHandler(msg, wParam, lParam);
+  });
+  mFont = Font::Default();
+  EXPECTS(mFont != nullptr);
+  LINE_HEIGHT = mFont->lineHeight(FONT_SIZE);
+  hookInBuiltInCommand();
+
+  mInputStream.reserve(1024u);
   const aabb2& bounds = Window::Get()->bounds();
   mCamera = new Camera();
   mCamera->setProjectionOrtho(bounds.width(), bounds.height(), -1.f, 1.f);
@@ -203,17 +215,19 @@ void Console::consoleControlHandler(unsigned msg, size_t wParam, size_t) {
         return;
       case KEYBOARD_UP:
         if (mCommandLog.empty()) return;
+        mNextCommandLogIndex++;
         if(mNextCommandLogIndex == mCommandLog.size()) {
           mNextCommandLogIndex = 0;
         }
-        replaceInput(*(mCommandLog.rbegin() + (mNextCommandLogIndex++)));
+        replaceInput(*(mCommandLog.rbegin() + (mNextCommandLogIndex)));
         return;
       case KEYBOARD_DOWN:
         if (mCommandLog.empty()) return;
+        mNextCommandLogIndex--;
         if (mNextCommandLogIndex == uint(-1)) {
           mNextCommandLogIndex = (uint)mCommandLog.size() - 1;
         }
-        replaceInput(*(mCommandLog.rbegin() + (mNextCommandLogIndex--)));
+        replaceInput(*(mCommandLog.rbegin() + (mNextCommandLogIndex)));
         return;
 
       // selection & cursor
@@ -277,6 +291,10 @@ void Console::record(const std::string& msg, Severity level) {
     case DEBUG_ERROR:
       mLogStream.push_back("\x1b[255m" + msg + "\x1b[0m");
       break;
+  }
+
+  for(auto& outputHandler: mOutputHandler) {
+    outputHandler(msg, level);
   }
 
   if (mLineNumberAtBottom != 0 && mLineNumberAtBottom + mTotalLineLogCanRender < mLogStream.size()) {
@@ -348,41 +366,44 @@ void Console::hookInBuiltInCommand() {
     return flag;
   });
 
-  hook("debug_draw", "[enable] 1/0", "enable/disable the debug_draw(time will still elapse).", [](Command& command) {
-    int a = command.arg<0, int>();
-    if(a == 0) {
-      Debug::toggleDebugRender(false);
-      log("disable debug renderer.", DEBUG_INFO);
-      return true;
-    }
-
-    if (a == 1) {
-      Debug::toggleDebugRender(true);
-      log("enable debug renderer.", DEBUG_INFO);
-      return true;
-    }
-
-    return false;
-  });
-
-  hook("debug_draw_clear", "[]", "enable/disable the debug_draw(time will still elapse).", [](Command&) {
-    Debug::clear();
-    return true;
-  });
+  // hook("debug_draw", "[enable] 1/0", "enable/disable the debug_draw(time will still elapse).", [](Command& command) {
+  //   int a = command.arg<0, int>();
+  //   if(a == 0) {
+  //     Debug::toggleDebugRender(false);
+  //     log("disable debug renderer.", DEBUG_INFO);
+  //     return true;
+  //   }
+  //
+  //   if (a == 1) {
+  //     Debug::toggleDebugRender(true);
+  //     log("enable debug renderer.", DEBUG_INFO);
+  //     return true;
+  //   }
+  //
+  //   return false;
+  // });
+  //
+  // hook("debug_draw_clear", "[]", "enable/disable the debug_draw(time will still elapse).", [](Command&) {
+  //   Debug::clear();
+  //   return true;
+  // });
   
 }
 
 void Console::render() const {
+  SCOPED_GPU_EVENT("Render console");
   ImmediateRenderer& renderer = ImmediateRenderer::get();
   float inputBoxHeight = LINE_HEIGHT;
   float descender = mFont->descender(FONT_SIZE);
   const aabb2& screenBounds = { vec2::zero, vec2{(float)mCamera->width(), (float)mCamera->height()}};
   renderer.setView(*mCamera);
   renderer.setModelMatrix(mat44::identity);
-  static const Shader* defaultShader = Resource<Shader>::get("shader/ui/default").get();
-  renderer.setShader(defaultShader);
-  renderer.setTexture(TEXTURE_DIFFUSE, mFont->texture(0)->srv());
+  renderer.setRenderTarget(&RHIDevice::get()->backBuffer()->rtv());
+  renderer.setDepthStencilTarget(nullptr);
+  
+  auto prog = Resource<Program>::get("internal/Shader/ui/solid");
 
+  renderer.setProgram(prog);
   Mesher ms;
 
   // ###### draw input box
@@ -464,14 +485,13 @@ void Console::render() const {
   delete layout;
 
   // ###### render text
-
   Mesher printer;
 
   printer.begin(DRAW_TRIANGES);
   // ### input text
   printer.color(Rgba::white);
   printer.text( inputText, FONT_SIZE, mFont.get(),
-               vec3{ screenBounds.mins + vec2(WORD_PADDING, descender), -.2f }, vec3::right);
+               vec3{ screenBounds.mins + vec2(WORD_PADDING, descender), 0.f }, vec3::right);
 
   // ###### draw log
   {
@@ -506,16 +526,81 @@ void Console::render() const {
     }
   }
 
+  /*
+  // remote Console widget
+  const float WIDGET_WIDTH = 500.f;
+  const vec2 WIDGET_PADDING{ 40.f, 60.f };
+  const float WIDGET_FONT_SIZE = 16;
+  const float WIDGET_LINE_HEIGHT = 16;
+  vec2 tr = screenBounds.maxs - WIDGET_PADDING - vec2{ 0, WIDGET_LINE_HEIGHT * .5f };
+  vec2 tl = tr - vec2{ WIDGET_WIDTH, 0.f };
+
+  RemoteConsole& rc = RemoteConsole::get();
+
+
+  std::string consoleState = "NOT READY";
+
+  Rgba modeColor;
+  switch(rc.state()) { 
+    case RemoteConsole::STATE_INIT:
+    case RemoteConsole::STATE_TRY_JOIN:
+    case RemoteConsole::STATE_TRY_HOST:
+    case RemoteConsole::STATE_DELAY: 
+      consoleState = "NOT READY";
+      modeColor = Rgba::black;
+    break;
+    case RemoteConsole::STATE_JOIN: 
+      consoleState = "CLIENT mode";
+      modeColor = Rgba::yellow;
+    break;
+    case RemoteConsole::STATE_HOST: 
+      consoleState = "HOST mode";
+      modeColor = Rgba::red;
+    break;
+  }
+  vec3 current = { tl, 1.f };
+  printer.text("Remote Console Service Running: ", WIDGET_FONT_SIZE, mFont.get(), current);
+  float advance = mFont->advance("Remote Console Service Running: ", WIDGET_FONT_SIZE);
+  printer.color(modeColor);
+  printer.text(consoleState, WIDGET_FONT_SIZE, mFont.get(), current + vec3::right * advance);
+
+  if(rc.ready()) {
+    current -= vec3::up * WIDGET_LINE_HEIGHT;
+    printer.color(Rgba::magenta);
+    printer.text(
+      Stringf("MY IP: %s", 
+              NetAddress::local(0).toString()), 
+              WIDGET_FONT_SIZE, mFont.get(), current);
+
+    current -= vec3::up * WIDGET_LINE_HEIGHT;
+    printer.color(Rgba::gray);
+    printer.text("Current Connections: ", WIDGET_FONT_SIZE, mFont.get(), current);
+
+    EXPECTS(rc.mServiceState == RemoteConsole::STATE_HOST || rc.mServiceState == RemoteConsole::STATE_JOIN);
+
+    uint start = rc.mServiceState == RemoteConsole::STATE_HOST ? 1 : 0;
+
+    while (start < rc.mConnections.size()) {
+      current -= vec3::up * WIDGET_LINE_HEIGHT;
+      printer.text(
+        Stringf("[%u] %s", start, rc.mConnections[start].socket.address().toString()), 
+        WIDGET_FONT_SIZE, mFont.get(), current);
+      start++;
+    }
+  }
+  */
   printer.end();
 
-  Mesh* text = printer.createMesh<vertex_pcu_t>();
-  static const Shader* fontShader = Resource<Shader>::get("shader/ui/font").get();
-  renderer.setShader(fontShader);
-  renderer.setTexture(mFont->texture(0));
-  renderer.setSampler(0, &Sampler::Linear());
-  renderer.drawMesh(*text);
+  if(printer.mVertices.count() != 0) {
+    auto textprog = Resource<Program>::get("internal/Shader/ui/text");
 
-  delete text;
+    renderer.setProgram(textprog);
+    renderer.setTexture(TEXTURE_DIFFUSE, mFont->texture(0)->srv());
+    Mesh* text = printer.createMesh<vertex_pcu_t>();
+    renderer.drawMesh(*text);
+    delete text;
+  }
+
 }
 
 void Console::open() {
@@ -609,17 +694,7 @@ bool Console::clear() {
 }
 
 Console::Console() {
-  Window::Get()->addWinMessageHandler([this](unsigned msg, size_t wParam, size_t lParam) {
-    if (!mIsOpened) return;
-    consoleCharHandler(msg, wParam, lParam);
-    consoleControlHandler(msg, wParam, lParam);
-  });
-  mFont = Font::Default();
-  EXPECTS(mFont != nullptr);
-  LINE_HEIGHT = mFont->lineHeight(FONT_SIZE);
-  hookInBuiltInCommand();
-
-  mInputStream.reserve(1024u);
+  
 
 
 //  for(uint i = 0; i < 20; i++) {
@@ -690,4 +765,3 @@ void Console::autoCompleteNext(const std::string& txt) {
     mSelection.max = 0;
   }
 }
-

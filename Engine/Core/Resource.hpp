@@ -41,7 +41,8 @@ public:
    * \return whether the action is successful
    */
   static bool define(std::string_view name, T* res, const fs::path& path = "") {
-    if (auto kv = sDatabase.find(name); kv != sDatabase.end()) {
+    if (sDatabase == nullptr) sDatabase = new std::map<std::string, ResourceItem<T>, std::less<>>();
+    if (auto kv = sDatabase->find(name); kv != sDatabase->end()) {
       ERROR_RECOVERABLE("resource already exists");
       return false;
     }
@@ -49,8 +50,24 @@ public:
       ERROR_RECOVERABLE("fail to define resource(nullptr)");
       return false;
     }
-    auto& item = sDatabase[std::string(name)];
+    auto& item = (*sDatabase)[std::string(name)];
     item.res.reset(res);
+    item.path = path;
+    return true;
+  }
+
+  static bool define(S<T> res, std::string_view name, const fs::path& path = "") {
+    if (sDatabase == nullptr) sDatabase = new std::map<std::string, ResourceItem<T>, std::less<>>();
+    if (auto kv = sDatabase->find(name); kv != sDatabase->end()) {
+      ERROR_RECOVERABLE("resource already exists");
+      return false;
+    }
+    if (res == nullptr) {
+      ERROR_RECOVERABLE("fail to define resource(nullptr)");
+      return false;
+    }
+    auto& item = (*sDatabase)[std::string(name)];
+    item.res = std::move(res);
     item.path = path;
     return true;
   }
@@ -61,7 +78,7 @@ public:
   }
 
   static const ResourceItem<T>* res(std::string_view name) {
-    if (auto kv = sDatabase.find(name); kv != sDatabase.end()) {
+    if (auto kv = sDatabase->find(name); kv != sDatabase->end()) {
       return &kv->second;
     } else {
       ERROR_RECOVERABLE(Stringf("fail to find resource of name: %s", name.data()));
@@ -72,7 +89,7 @@ public:
   static bool reload() {
     
     bool success = true;
-    for(auto& [k,res]: sDatabase) {
+    for(auto& [k,res]: *sDatabase) {
       success = success && reload(res.path, *res.res);
     }
 
@@ -83,7 +100,7 @@ public:
     return define(name, res, file);
   }
 protected:
-  static std::map<std::string, ResourceItem<T>, std::less<>> sDatabase; 
+  static std::map<std::string, ResourceItem<T>, std::less<>>* sDatabase; 
 
   /*
    * This function is required for the resource system to work.
@@ -93,4 +110,15 @@ protected:
 };
 
 template<typename T>
-std::map<std::string, ResourceItem<T>, std::less<>> Resource<T>::sDatabase = {};
+std::map<std::string, ResourceItem<T>, std::less<>>* Resource<T>::sDatabase = nullptr;
+
+#define DEF_RESOURCE(Type, name) \
+struct APPEND(__RES_DEF, __LINE__) { \
+  APPEND(__RES_DEF, __LINE__)() { \
+    auto res = _Reg(); \
+    Resource<Type>::define(res, name); \
+  }; \
+  static S<Type> _Reg(); \
+}; \
+static APPEND(__RES_DEF, __LINE__) APPEND(__RES_DEFIns, __LINE__); \
+inline S<Type> APPEND(__RES_DEF, __LINE__)::_Reg()

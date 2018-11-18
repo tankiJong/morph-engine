@@ -6,7 +6,7 @@
 #include "Engine/Math/Primitives/AABB2.hpp"
 #include "Engine/Math/Primitives/ivec2.hpp"
 
-typedef delegate<void(uint msg, size_t wparam, size_t lparam)> WinMsgDelegate;
+typedef std::function<void(uint msg, size_t wparam, size_t lparam)> WinMsgDelegate;
 
 class Window {
   friend class Engine;

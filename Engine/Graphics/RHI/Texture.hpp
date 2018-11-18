@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RHITexture.hpp"
+#include "Engine/Core/Resource.hpp"
 
 class RenderTargetview;
 class DepthStencilView;
@@ -27,6 +28,7 @@ protected:
   DepthStencilView::sptr_t mDsv;
   template<typename TexType, typename ...Args>
   friend typename TexType::sptr_t createOrFail(const void* data, size_t size, Args ... args);
+  friend class Resource<Texture2>;
   Texture2(uint width, uint height, eTextureFormat format,
            BindingFlag flag = BindingFlag::ShaderResource,
            const void* data = nullptr, size_t size = 0)
@@ -55,3 +57,6 @@ protected:
   bool rhiInit(const void* data, size_t size) override;
 };
 
+
+template<>
+ResDef<Texture2> Resource<Texture2>::load(const std::string& file);

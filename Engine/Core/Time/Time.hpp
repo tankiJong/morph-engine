@@ -28,4 +28,6 @@ struct Timestamp {
   int64 stamp;
   Timestamp();
   std::string toString() const;
+
+  static Timestamp ms(float millisecond);
 };

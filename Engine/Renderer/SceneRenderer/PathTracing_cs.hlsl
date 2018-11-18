@@ -110,10 +110,10 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 	totals[bounce] = float4(0, 0, 0, 0.f);
 	colors[bounce] = float3(0, 0, 0);
 	for(int i = bounce; i >= 1; i--) {
-		float3 indirect = totals[i].xyz * dots[i - 1] * 2 * 3.141592f;
+		float3 indirect = totals[i].xyz * dots[i - 1] * 2 * M_PI;
 		
 		totals[i - 1].xyz
-			= (indirect + diffuses[i-1]) * colors[i - 1] / 3.1415926f;
+			= (indirect + diffuses[i-1]) * colors[i - 1] / M_PI;
 	}
 	
 	float3 indirect = totals[1].xyz * dots[0];
@@ -125,7 +125,8 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 [numthreads(16, 16, 1)]
 void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex, uint3 groupId: SV_GroupId )
 {
-	seed = threadId.x * 10000 + threadId.y * 121144 + gTime * 367860;
+	seed = threadId.x * 10000 + threadId.y * 121144 + gFrameCount;	
+
 
 	uint2 pix = threadId.xy;
 
@@ -155,10 +156,10 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	// uTexScene[pix] = (uTexScene[pix] *gFrameCount + float4(direction * .5f + .5f, 1.f))	/ (gFrameCount + 1);
 	// return;
 
-	indirect /= (8.f / (2 * 3.1415926f));
+	indirect /= (8.f / (2 * M_PI));
 
 	// float3 indirect = float3(0,0,0);
-	float3 finalColor = ( diffuse + indirect ) * color / 3.14159f;
+	float3 finalColor = ( diffuse + indirect ) * color / M_PI;
 
 	const float GAMMA = 1.f / 2.1;
 	finalColor =  pow(finalColor, float3(GAMMA, GAMMA, GAMMA));

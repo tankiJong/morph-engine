@@ -1,4 +1,6 @@
-﻿#include "Engine/Core/common.hpp"
+﻿#define TINYOBJLOADER_IMPLEMENTATION
+#include "Engine/Core/common.hpp"
+#include "ThirdParty/tinyobjloader/tiny_obj_loader.h"
 #include "Mesher.hpp"
 #include "Mesh.hpp"
 //#include "Engine/Renderer/Font.hpp"
@@ -6,6 +8,9 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Primitives/ivec2.hpp"
 #include "Engine/Math/Primitives/AABB2.hpp"
+#include "Engine/Graphics/Font.hpp"
+#include "Engine/File/FileSystem.hpp"
+#include "Engine/Debug/Log.hpp"
 
 class MikktBinding : public SMikkTSpaceContext {
 public:
@@ -533,94 +538,95 @@ Mesher& Mesher::cone(const vec3& origin, const vec3& direction, float length, fl
   return *this;
 }
 
-//Mesher& Mesher::text(const span<const std::string_view> asciiTexts, float size, const Font* font,
-//                     const vec3& position, const vec3& right, const vec3& up) {
-//
-//  vec3 cursor = position;
-//  vec3 lineStart = cursor;
-//
-//  for (auto& asciiText : asciiTexts) {
-//    text(asciiText, size, font, cursor, right, up);
-//    cursor = lineStart - font->lineHeight(size) * up;
-//  }
-//
-//  return *this;
-//}
-//
-//Mesher& Mesher::text(const std::string_view asciiText,
-//                     float size,
-//                     const Font* font,
-//                     const vec3& position,
-//                     const vec3& right,
-//                     const vec3& up) {
-//  if (asciiText.empty()) return *this;
-//  vec3 cursor = position;
-//  vec3 lineStart = cursor;
-//
-//  uint i = 0;
-//  {
-//    aabb2 bounds = font->bounds(asciiText[i], size);
-//    vec3 bottomLeft = cursor + bounds.mins.x * right + bounds.mins.y * up;
-//    vec3 bottomRight = cursor + bounds.maxs.x * right + bounds.mins.y * up;
-//    vec3 topRight = cursor + bounds.maxs.x * right + bounds.maxs.y * up;
-//    vec3 topLeft = cursor + bounds.mins.x * right + bounds.maxs.y * up;
-//    auto uvs = font->uv(asciiText[0]).vertices();
-//    uint start =
-//      uv(uvs[0])
-//      .vertex3f(bottomLeft);
-//    uv(uvs[1])
-//      .vertex3f(bottomRight);
-//    uv(uvs[2])
-//      .vertex3f(topRight);
-//    uv(uvs[3])
-//      .vertex3f(topLeft);
-//    quad(start, start + 1, start + 2, start + 3);
-//  }
-//  //    end();
-//
-//  cursor += font->advance('\0', asciiText[i], size) * right;
-//  while (++i < asciiText.size()) {
-//    aabb2 bounds = font->bounds(asciiText[i], size);
-//    vec3 bottomLeft = cursor + bounds.mins.x * right + bounds.mins.y * up;
-//    vec3 bottomRight = cursor + bounds.maxs.x * right + bounds.mins.y * up;
-//    vec3 topRight = cursor + bounds.maxs.x * right + bounds.maxs.y * up;
-//    vec3 topLeft = cursor + bounds.mins.x * right + bounds.maxs.y * up;
-//    auto uvs = font->uv(asciiText[i]).vertices();
-//
-//    uint start =
-//      uv(uvs[0])
-//      .vertex3f(bottomLeft);
-//    uv(uvs[1])
-//      .vertex3f(bottomRight);
-//    uv(uvs[2])
-//      .vertex3f(topRight);
-//    uv(uvs[3])
-//      .vertex3f(topLeft);
-//    quad(start, start + 1, start + 2, start + 3);
-//
-//    cursor += font->advance(asciiText[i - 1], asciiText[i], size) * right;
-//  }
-//
-//  return *this;
-//}
-//
-//Mesher& Mesher::text(const span<const std::string> asciiTexts,
-//                     float size,
-//                     const Font* font,
-//                     const vec3& position,
-//                     const vec3& right,
-//                     const vec3& up) {
-//
-//  vec3 cursor = position;
-//  vec3 lineStart = cursor;
-//
-//  for (auto& asciiText : asciiTexts) {
-//    text(asciiText, size, font, cursor, right, up);
-//    cursor = lineStart - font->lineHeight(size) * up;
-//  }
-//
-//  return *this;
-//}
+Mesher& Mesher::text(const span<const std::string_view> asciiTexts, float size, const Font* font,
+                     const vec3& position, const vec3& right, const vec3& up) {
+
+  vec3 cursor = position;
+  vec3 lineStart = cursor;
+
+  for (auto& asciiText : asciiTexts) {
+    text(asciiText, size, font, cursor, right, up);
+    cursor = lineStart - font->lineHeight(size) * up;
+  }
+
+  return *this;
+}
+
+Mesher& Mesher::text(const std::string_view asciiText,
+                     float size,
+                     const Font* font,
+                     const vec3& position,
+                     const vec3& right,
+                     const vec3& up) {
+  if (asciiText.empty()) return *this;
+  vec3 cursor = position;
+  vec3 lineStart = cursor;
+
+  uint i = 0;
+  {
+    aabb2 bounds = font->bounds(asciiText[i], size);
+    vec3 bottomLeft = cursor + bounds.mins.x * right + bounds.mins.y * up;
+    vec3 bottomRight = cursor + bounds.maxs.x * right + bounds.mins.y * up;
+    vec3 topRight = cursor + bounds.maxs.x * right + bounds.maxs.y * up;
+    vec3 topLeft = cursor + bounds.mins.x * right + bounds.maxs.y * up;
+    auto uvs = font->uv(asciiText[0]).vertices();
+    uint start =
+      uv(uvs[0])
+      .vertex3f(bottomLeft);
+    uv(uvs[1])
+      .vertex3f(bottomRight);
+    uv(uvs[2])
+      .vertex3f(topRight);
+    uv(uvs[3])
+      .vertex3f(topLeft);
+    quad(start, start + 1, start + 2, start + 3);
+  }
+  //    end();
+
+  cursor += font->advance('\0', asciiText[i], size) * right;
+  while (++i < asciiText.size()) {
+    aabb2 bounds = font->bounds(asciiText[i], size);
+    vec3 bottomLeft = cursor + bounds.mins.x * right + bounds.mins.y * up;
+    vec3 bottomRight = cursor + bounds.maxs.x * right + bounds.mins.y * up;
+    vec3 topRight = cursor + bounds.maxs.x * right + bounds.maxs.y * up;
+    vec3 topLeft = cursor + bounds.mins.x * right + bounds.maxs.y * up;
+    auto uvs = font->uv(asciiText[i]).vertices();
+
+    uint start =
+      uv(uvs[0])
+      .vertex3f(bottomLeft);
+    uv(uvs[1])
+      .vertex3f(bottomRight);
+    uv(uvs[2])
+      .vertex3f(topRight);
+    uv(uvs[3])
+      .vertex3f(topLeft);
+    quad(start, start + 1, start + 2, start + 3);
+
+    cursor += font->advance(asciiText[i - 1], asciiText[i], size) * right;
+  }
+
+  return *this;
+}
+
+Mesher& Mesher::text(const span<const std::string> asciiTexts,
+                     float size,
+                     const Font* font,
+                     const vec3& position,
+                     const vec3& right,
+                     const vec3& up) {
+
+  vec3 cursor = position;
+  vec3 lineStart = cursor;
+
+  for (auto& asciiText : asciiTexts) {
+    text(asciiText, size, font, cursor, right, up);
+    cursor = lineStart - font->lineHeight(size) * up;
+  }
+
+  return *this;
+}
+
 
 void Mesher::mikkt() {
   EXPECTS(!mCurrentIns.useIndices);
@@ -718,3 +724,100 @@ void Mesher::surfacePatch(const std::function<vec3(const vec2&, const ivec2&)>& 
 //
 //  return *this;
 //}
+
+
+// blender exporter: z-fwd, y-up
+void Mesher::obj(fs::path objFile) {
+  tinyobj::attrib_t attrib;
+  std::vector<tinyobj::shape_t> shapes;
+  std::vector<tinyobj::material_t> materials;
+
+  std::string err;
+
+  auto file = FileSystem::Get().locate(objFile);
+
+  if(!file) {
+    Log::errorf("Fail to load obj file, cannot find %s", objFile.generic_string().c_str());
+    Log::errorf("==> traslated as: %s", file->generic_string().c_str());
+  }
+  bool ret = tinyobj::LoadObj(
+    &attrib, &shapes, &materials, &err, file->generic_string().c_str(), nullptr, true);
+
+  if(!err.empty()) {
+    Log::warnf("Obj Loading Warning: %s", err.c_str());
+  }
+
+  if(!ret) {
+    Log::errorf("fail to load object from file: %s", objFile.c_str());
+  }
+
+  for(size_t s = 0; s<shapes.size(); s++) {
+    size_t indexOffset = 0;
+
+    for(size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
+      int fv = shapes[s].mesh.num_face_vertices[f];
+
+      EXPECTS(fv % 3 == 0);
+      for(size_t v = 0; v < fv; v+=3) {
+        vec3 v1, v2, v3;
+        vec2 t1, t2, t3;
+
+        {
+          tinyobj::index_t idx = shapes[s].mesh.indices[indexOffset + v];
+
+          v1.x = -attrib.vertices[3 * idx.vertex_index + 0];
+          v1.y = attrib.vertices[3 * idx.vertex_index + 1];
+          v1.z = attrib.vertices[3 * idx.vertex_index + 2];
+
+          if(attrib.texcoords.size() > 0) {
+            t1.x = attrib.texcoords[2 * idx.texcoord_index + 0];
+            t1.y = attrib.texcoords[2 * idx.texcoord_index + 1];
+          }
+          
+        }
+
+        {
+          tinyobj::index_t idx = shapes[s].mesh.indices[indexOffset + v + 1];
+
+          v2.x = -attrib.vertices[3 * idx.vertex_index + 0];
+          v2.y = attrib.vertices[3 * idx.vertex_index + 1];
+          v2.z = attrib.vertices[3 * idx.vertex_index + 2];
+
+          if (attrib.texcoords.size() > 0) {
+            t2.x = attrib.texcoords[2 * idx.texcoord_index + 0];
+            t2.y = attrib.texcoords[2 * idx.texcoord_index + 1];
+          }
+        }
+
+        {
+          tinyobj::index_t idx = shapes[s].mesh.indices[indexOffset + v + 2];
+
+          v3.x = -attrib.vertices[3 * idx.vertex_index + 0];
+          v3.y = attrib.vertices[3 * idx.vertex_index + 1];
+          v3.z = attrib.vertices[3 * idx.vertex_index + 2];
+
+          if (attrib.texcoords.size() > 0) {
+            t3.x = attrib.texcoords[2 * idx.texcoord_index + 0];
+            t3.y = attrib.texcoords[2 * idx.texcoord_index + 1];
+          }
+        }
+
+        normal((v3 - v1).cross(v2 - v1).normalized());
+        uv(t1);
+        vertex3f(v1);
+
+        uv(t2);
+        vertex3f(v2);
+
+        uv(t3);
+        vertex3f(v3);
+      }
+
+      indexOffset += fv;
+    }
+
+    genNormal();
+    mikkt();
+
+  }
+}

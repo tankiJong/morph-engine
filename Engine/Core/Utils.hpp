@@ -71,6 +71,8 @@ public:
     return std::static_pointer_cast<const Derived>(pShared);
   }
 };
+#define BIT_FLAG(f) (1U<<(f))
+
 #define align_to(_alignment, _val) (((_val + _alignment - 1) / _alignment) * _alignment)
 #define enum_class_operators(e_) inline e_ operator& (e_ a, e_ b){return static_cast<e_>(static_cast<int>(a)& static_cast<int>(b));}  \
     inline e_ operator| (e_ a, e_ b){return static_cast<e_>(static_cast<int>(a)| static_cast<int>(b));} \
@@ -80,4 +82,8 @@ public:
     inline bool is_set(e_ val, e_ flag) { return (val & flag) != (e_)0;}
 
 
+
+#define KB *1024
+#define MB *1024*KB
+#define GB *1024*MB
 

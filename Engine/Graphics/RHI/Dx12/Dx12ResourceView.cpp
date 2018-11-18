@@ -223,7 +223,7 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(W<const RHIBuffer> res) 
   if (ptr) {
     desc.Format = DXGI_FORMAT_R32_TYPELESS;
     desc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_RAW;
-    desc.Buffer.NumElements = ptr->size() / sizeof(float);
+    desc.Buffer.NumElements = (uint)ptr->size() / sizeof(float);
     resHandle = ptr->handle();
   } else {
     desc.Format = DXGI_FORMAT_UNKNOWN;

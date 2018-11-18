@@ -7,6 +7,8 @@
 #include "Engine/Math/Primitives/uvec2.hpp"
 #include "Engine/Math/Primitives/mat44.hpp"
 
+#undef max
+#undef min
 class uvec2;
 constexpr float fSQRT_3_OVER_3 = 0.577350269f;
 class FloatRange;

@@ -5,6 +5,9 @@
 #include "Engine/Math/Transform.hpp"
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Graphics/RHI/RHI.hpp"
+#include "Engine/Math/Primitives/vec4.hpp"
+
+class uvec2;
 class aabb2;
 enum eCamreraFlag {
   CAM_CLEAR_DEPTH = 0b10,
@@ -28,8 +31,8 @@ public:
   void setProjectionOrtho(float width, float height, float near, float far);
   void setProjectionPrespective(float fovDeg, float width, float height, float near, float far);
 
-  inline uint width() const { return mWidth; }
-  inline uint height() const { return mHeight; }
+  inline float width() const { return mWidth; }
+  inline float height() const { return mHeight; }
 
   vec3 screenToWorld(uvec2 pixel, float distanceFromCamera);
   uvec2 worldToScreen(vec3 position);

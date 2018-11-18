@@ -15,21 +15,20 @@ Random rnd(uint seed)
 {
 	Random re;
 
+	seed = (seed ^ 61) ^ (seed >> 16);
+  seed *= 9;
+  seed = seed ^ (seed >> 4);
+  seed *= 0x27d4eb2d;
+  seed = seed ^ (seed >> 15);
 	re.value = seed;
-	const uint BIT_NOISE1 = 0xD2A80A23; // 0b1101'0010'1010'1000'0000'1010'0010'0011;
-	const uint BIT_NOISE2 = 0xA884F197; // 0b1010'1000'1000'0100'1111'0001'1001'0111;
-	const uint BIT_NOISE3 = 0x1B56C4E9; // 0b0001'1011'0101'0110'1100'0100'1110'1001;
+	
+	seed = (seed ^ 61) ^ (seed >> 16);
+  seed *= 9;
+  seed = seed ^ (seed >> 4);
+  seed *= 0x27d4eb2d;
+  seed = seed ^ (seed >> 15);
+	re.seed = seed;
 
-	uint mangledBits = seed;
-	mangledBits *= BIT_NOISE1;
-	mangledBits += seed;
-	mangledBits ^= (mangledBits >> 7);
-	mangledBits += BIT_NOISE2;
-	mangledBits ^= (mangledBits >> 8);
-	mangledBits *= BIT_NOISE3;
-	mangledBits ^= (mangledBits >> 11);
-
-	re.seed = mangledBits;
 	return re;
 }
 

@@ -5,7 +5,54 @@
 #include "Engine/Graphics/Program/Program.hpp"
 #include "Engine/Graphics/Model/Vertex.hpp"
 
-void setFboDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, FrameBuffer::Desc& fboDesc) {
+void setDepthStencilState(D3D12_DEPTH_STENCIL_DESC& dsv, const RenderState& rs) {
+  dsv.DepthEnable = TRUE;
+  
+  switch(rs.depthMode) { 
+    case COMPARE_NEVER:
+      dsv.DepthFunc = D3D12_COMPARISON_FUNC_NEVER;
+    break;
+    case COMPARE_LESS:
+      dsv.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+    break;
+    case COMPARE_LEQUAL:
+      dsv.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+    break;
+    case COMPARE_GREATER:
+      dsv.DepthFunc = D3D12_COMPARISON_FUNC_GREATER;
+    break;
+    case COMPARE_GEQUAL:
+      dsv.DepthFunc = D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+    break;
+    case COMPARE_EQUAL:
+      dsv.DepthFunc = D3D12_COMPARISON_FUNC_EQUAL;
+    break;
+    case COMPARE_NOT_EQUAL:
+      dsv.DepthFunc = D3D12_COMPARISON_FUNC_NOT_EQUAL;
+    break;
+    case COMPARE_ALWAYS:
+      dsv.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+    break;
+    case NUM_COMPARE:
+    default: 
+      BAD_CODE_PATH();
+  }
+
+  switch(rs.isWriteDepth) { 
+    case FLAG_FALSE:
+      dsv.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+    break;
+    case FLAG_TRUE:
+      dsv.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+    break;
+    default:
+      BAD_CODE_PATH();
+  }
+
+
+}
+
+void setFboDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, FrameBuffer::Desc& fboDesc, const RenderState& renderState) {
   static_assert(FrameBuffer::NUM_MAX_COLOR_TARGET <= 8);
   uint numRtv = 0;
   for(uint i = 0; i<FrameBuffer::NUM_MAX_COLOR_TARGET; i++) {
@@ -18,11 +65,9 @@ void setFboDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, FrameBuffer::Desc& fbo
 
    if(fboDesc.depthTargetFormat() != TEXTURE_FORMAT_UNKNOWN) {
      desc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-     desc.DepthStencilState.DepthEnable = TRUE;
+
+     setDepthStencilState(desc.DepthStencilState, renderState);
      desc.DepthStencilState.StencilEnable = TRUE;
-  
-     desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-     desc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
      
      desc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
      desc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
@@ -109,7 +154,9 @@ void setRasterizerState(const RenderState& renderState, D3D12_RASTERIZER_DESC& r
   rs.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
   rs.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
   rs.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
-  rs.DepthClipEnable = TRUE;
+
+  
+  rs.DepthClipEnable = renderState.alphaBlendOp == COMPARE_ALWAYS ? FALSE : TRUE;
   rs.MultisampleEnable = TRUE;
   rs.AntialiasedLineEnable = TRUE;
   rs.ForcedSampleCount = 0;
@@ -233,12 +280,27 @@ bool GraphicsState::rhiInit() {
 
   setDx12InputLayout(desc, *mDesc.mLayout);
   setRasterizerState(mDesc.mProgram->renderState(), desc.RasterizerState);
-  setFboDesc(desc, mDesc.mFboDesc);
+  setFboDesc(desc, mDesc.mFboDesc, mDesc.mProgram->renderState());
   desc.SampleMask = mDesc.mSampleMask;
   desc.pRootSignature = mDesc.mRootSignature ? mDesc.mRootSignature->handle().Get() : nullptr;
 
   desc.BlendState = blendDesc;
-  desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+  switch(mDesc.mPrimType) { 
+    case PrimitiveType::Point: 
+      desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+    break;
+    case PrimitiveType::Line: 
+      desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+    break;
+    case PrimitiveType::Triangle: 
+      desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    break;
+    case PrimitiveType::Patch:
+    case PrimitiveType::Undefined:
+    default: 
+    BAD_CODE_PATH();
+  }
   desc.SampleDesc.Count = 1;
 
   d3d_call(RHIDevice::get()->nativeDevice()->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&mRhiHandle)));

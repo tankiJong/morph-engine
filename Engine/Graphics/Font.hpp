@@ -6,8 +6,8 @@
 #include "Engine/File/Path.hpp"
 #include "Engine/Persistence/json.forward.hpp"
 #include "Engine/Core/Resource.hpp"
+#include "Engine/Graphics/RHI/Texture.hpp"
 class Font;
-class Texture2;
 class  Glyph {
   friend void from_json(const json& j, Glyph& g);
   friend Font* fromJson(const fs::path& path);

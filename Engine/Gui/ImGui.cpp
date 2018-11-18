@@ -63,6 +63,7 @@ void ImGui::beginFrame() {
 }
 
 void ImGui::render() {
+  SCOPED_GPU_EVENT("ImGui");
   RHIContext::sptr_t ctx = RHIDevice::get()->defaultRenderContext();
 
   auto& rt = RHIDevice::get()->backBuffer();

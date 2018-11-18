@@ -80,65 +80,65 @@ std::array<face, 4> lineAsFace(std::string_view line) {
     comps.size() == 5 ? chunkAsFace(comps[4]) : face(),
   };
 }
-void Mesher::obj(fs::path objFile) {
-  static std::vector<vec3> positions;
-  static std::vector<vec2> uvs;
-  static std::vector<vec3> normals;
-  static std::vector<std::array<face, 4>> faces;
-  positions.clear();
-  uvs.clear();
-  normals.clear();
 
-  positions.reserve(1000u);
-  uvs.reserve(1000u);
-  normals.reserve(1000u);
-
-  std::ifstream f = FileSystem::Get().asStream(objFile);
-
-  std::string line;
-  while (std::getline(f, line)) {
-    switch(asType(line.c_str())) {
-      case LINE_PASS: continue;
-
-      case LINE_POSITION: 
-        positions.push_back(lineAsVec3(line));
-      break;
-      case LINE_NORMAL: 
-        normals.push_back(lineAsVec3(line));
-      break;
-
-      case LINE_UV: 
-        uvs.push_back(lineAsVec3(line).xy()); 
-      break;
-
-      case LINE_FACE: 
-        faces.push_back(lineAsFace(line));
-      break;
-
-      default:
-        ERROR_AND_DIE("should not reach here");
-    }
-  }
-
-  for(std::array<face, 4>& face: faces) {
-    std::array<uint, 6> content4 = { 0,1,2,0,2,3 };
-    std::array<uint, 6> content3 = {0,1,2};
-    span<uint> indices = content4;
-    if (face[3].positon == -1) indices = content3;
-    
-    for(auto i: indices) {
-      uv(uvs[face[i].uv-1]);
-      normal(normals[face[i].normal-1] * vec3(-1.f, 1.f, 1.f));
-      vertex3f(positions[face[i].positon-1] * vec3(-1.f, 1.f, 1.f));
-    }
+// void Mesher::obj(fs::path objFile) {
+//   static std::vector<vec3> positions;
+//   static std::vector<vec2> uvs;
+//   static std::vector<vec3> normals;
+//   static std::vector<std::array<face, 4>> faces;
+//   positions.clear();
+//   uvs.clear();
+//   normals.clear();
 //
-//    if(size == 4) {
-//      quad();
-//    } else {
-//      triangle();
-//    }
-  }
-
-  f.close();
-}
-
+//   positions.reserve(1000u);
+//   uvs.reserve(1000u);
+//   normals.reserve(1000u);
+//
+//   std::ifstream f = FileSystem::Get().asStream(objFile);
+//
+//   std::string line;
+//   while (std::getline(f, line)) {
+//     switch(asType(line.c_str())) {
+//       case LINE_PASS: continue;
+//
+//       case LINE_POSITION: 
+//         positions.push_back(lineAsVec3(line));
+//       break;
+//       case LINE_NORMAL: 
+//         normals.push_back(lineAsVec3(line));
+//       break;
+//
+//       case LINE_UV: 
+//         uvs.push_back(lineAsVec3(line).xy()); 
+//       break;
+//
+//       case LINE_FACE: 
+//         faces.push_back(lineAsFace(line));
+//       break;
+//
+//       default:
+//         ERROR_AND_DIE("should not reach here");
+//     }
+//   }
+//
+//   for(std::array<face, 4>& face: faces) {
+//     std::array<uint, 6> content4 = { 0,1,2,0,2,3 };
+//     std::array<uint, 6> content3 = {0,1,2};
+//     span<uint> indices = content4;
+//     if (face[3].positon == -1) indices = content3;
+//     
+//     for(auto i: indices) {
+//       uv(uvs[face[i].uv-1]);
+//       normal(normals[face[i].normal-1] * vec3(-1.f, 1.f, 1.f));
+//       vertex3f(positions[face[i].positon-1] * vec3(-1.f, 1.f, 1.f));
+//     }
+// //
+// //    if(size == 4) {
+// //      quad();
+// //    } else {
+// //      triangle();
+// //    }
+//   }
+//
+//   f.close();
+// }

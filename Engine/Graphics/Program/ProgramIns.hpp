@@ -32,7 +32,7 @@ protected:
 
   ProgramIns(const S<Program>& program);
 
-  static constexpr uint INVALID_SET_INDEX = ~0;
+  static constexpr uint INVALID_SET_INDEX = UINT_MAX;
   loc_t locateBindPoint(DescriptorPool::Type type, uint registerIndex, uint registerSpace = 0) const;
 
   S<const Program> mProg;

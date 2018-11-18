@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include <vector>
-#include "Engine/Core/common.hpp"
 #include "Engine/Core/StringUtils.hpp"
-#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 class ArgumentNotFoundException : public std::exception {
 
@@ -23,7 +21,7 @@ public:
 class Command {
   struct Arg {
     char name[64]{'\0'};
-    char value[64]{'\0'};
+    char value[2048]{'\0'};
 
     Arg(std::string kv);
     Arg(std::string v, std::string k = "");

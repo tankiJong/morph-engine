@@ -118,7 +118,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	if( length(normal) < 0.0001f ) return;
 	float occlusion = 0.f;
 
-	seed = threadId.x * 102467 + threadId.y * 346755 + groupIndex + uint(gTime*10000);
+	seed = threadId.x * 102467 + threadId.y * 346755 + groupIndex + asuint(gTime);
 
 	float hitDistance = 0;
 	
@@ -135,7 +135,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 		occlusion += occ;
 	}
 	 		 
-	occlusion = occlusion / ((hitDistance * hitDistance) + 1);
+	occlusion = 1 / ((hitDistance * hitDistance) + 1);
 
 	occlusion = 1.f - occlusion;
 

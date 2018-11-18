@@ -57,8 +57,9 @@ public:
   void setFrameBuffer(const FrameBuffer& fbo);
   void setVertexBuffer(const VertexBuffer& vbo, uint streamIndex);
   void setIndexBuffer(const IndexBuffer* ibo);
-
+  void setPrimitiveTopology(const eDrawPrimitive prim);
   void setViewport(const aabb2& bounds);
+  void setScissorRect(const aabb2& rect);
   void bindDescriptorHeap();
 
   void clearRenderTarget(const RenderTargetView& rtv, const Rgba& rgba);

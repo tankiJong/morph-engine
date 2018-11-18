@@ -447,7 +447,7 @@ mat44 mat44::makeOrtho(float l, float r, float b, float t, float nz, float fz) {
 }
 
 mat44 mat44::makeOrtho(float width, float height, float near, float far) {
-  return makeOrtho(-width * .5f, width * .5f, -height * .5f, height * .5f, near, far);
+  return makeOrtho(0, width, 0, height, near, far);
 }
 
 

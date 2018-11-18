@@ -1,5 +1,4 @@
 ﻿#include "Font.hpp"
-#include <utility>
 #include "Engine/Persistence/json.hpp"
 #include "Engine/File/FileSystem.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
@@ -91,7 +90,7 @@ float Font::advance(std::string_view text, float size, float aspectScale) const 
 }
 
 float Font::advance(char previous, char c, float size, float aspectScale) const {
-  const Face& f = mFaces[c];
+  const Face& f = face(c);
   float advance = f.advance(size);
   float kerning = f.kerning(previous, size);
   return (advance + kerning) * aspectScale;
@@ -101,7 +100,7 @@ float Font::advance(char previous, char c, float size, float aspectScale) const 
  * \brief the relative box related to the base point
  */
 aabb2 Font::bounds(char c, float size, float aspectScale) const {
-  const Face& f = mFaces[c];
+  const Face& f = face(c);
 
   vec2 xyOffset = f.offset(size);
   vec2 mins(xyOffset.x, xyOffset.y);
@@ -114,7 +113,15 @@ aabb2 Font::bounds(char c, float size, float aspectScale) const {
 }
 
 aabb2 Font::uv(char c) const {
-  return mFaces[c].uv();
+  return face(c).uv();
+}
+
+const Font::Face& Font::face(char c) const {
+  if(c > mFaces.size()) {
+    c = 0;
+  }
+
+  return mFaces[c];
 }
 
 void from_json(const json& j, Glyph& g) {

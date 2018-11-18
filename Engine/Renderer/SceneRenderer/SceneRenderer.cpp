@@ -291,14 +291,13 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
 }
 
 void SceneRenderer::onRenderFrame(RHIContext& ctx) {
-  ctx.beforeFrame();
   setupFrame();
   setupView(ctx);
-  ctx.copyResource(*mAO, *mGAO);
-  ctx.transitionBarrier(mGAO.get(), RHIResource::State::NonPixelShader, TRANSITION_BEGIN);
-  ctx.transitionBarrier(mAO.get(), RHIResource::State::UnorderedAccess, TRANSITION_BEGIN);
+  // ctx.copyResource(*mAO, *mGAO);
+  // ctx.transitionBarrier(mGAO.get(), RHIResource::State::NonPixelShader, TRANSITION_BEGIN);
+  // ctx.transitionBarrier(mAO.get(), RHIResource::State::UnorderedAccess, TRANSITION_BEGIN);
   genGBuffer(ctx);
-  genAO(ctx);
+  // genAO(ctx);
 
   static bool pt = false;
   if (Input::Get().isKeyJustDown('P')) {
@@ -313,12 +312,12 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   }
 
   if(shouldRecomputeIndirect()) {
-    computeIndirectLighting(ctx);
+    // computeIndirectLighting(ctx);
   }
 
-  accumlateGI(ctx);
-  computeSurfelCoverage(ctx);
-  accumlateSurfels(ctx);
+  // accumlateGI(ctx);
+  // computeSurfelCoverage(ctx);
+ //  accumlateSurfels(ctx);
   
   if(!Input::Get().isKeyDown(KEYBOARD_SPACE)) {
     deferredLighting(ctx);
@@ -397,7 +396,7 @@ void SceneRenderer::updateDescriptors() {
   }
   {
     DescriptorSet::Layout layout;
-    layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 2);
+    layout.addRange(DescriptorSet::Type::StructuredBufferUav, 0, 3);
     layout.addRange(DescriptorSet::Type::TextureUav, 0, 1);
 
     mDSurfelVisualDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
@@ -489,6 +488,7 @@ void SceneRenderer::genGBuffer(RHIContext& ctx) {
 
     for(const draw_instr_t& inst: r->mesh()->instructions()) {
       totalCount += inst.elementCount;
+      ctx.setPrimitiveTopology(inst.prim);
       if(inst.useIndices) {
         ctx.drawIndexed(0, inst.startIndex, inst.elementCount);
       } else {
@@ -497,7 +497,7 @@ void SceneRenderer::genGBuffer(RHIContext& ctx) {
     }
   }
 
-  ctx.transitionBarrier(mGVelocity.get(), RHIResource::State::NonPixelShader, TRANSITION_BEGIN);
+  // ctx.transitionBarrier(mGVelocity.get(), RHIResource::State::NonPixelShader, TRANSITION_BEGIN);
 
 
   if(!mAccelerationStructure) {
@@ -813,6 +813,8 @@ void SceneRenderer::setupFrame() {
 
   mSurfels[0] = mSurfelsBuffer[uint(mFrameData.frameCount) % 2];
 
+  mGDepth = RHIDevice::get()->depthBuffer();
+
   updateDescriptors();
 
   auto ctx = RHIDevice::get()->defaultRenderContext();
@@ -820,13 +822,15 @@ void SceneRenderer::setupFrame() {
   if(shouldRecomputeIndirect()) {
     ctx->clearRenderTarget(mIndirectLight->rtv(), Rgba::black);
   }
+  
 
   ctx->clearRenderTarget(mGAlbedo->rtv(), Rgba::black);
   ctx->clearRenderTarget(mGNormal->rtv(), Rgba::gray);
   ctx->clearRenderTarget(mGPosition->rtv(), Rgba::black);
   ctx->clearRenderTarget(mGVelocity->rtv(), Rgba(0, 0, 0, 0));
   ctx->clearDepthStencilTarget(*mGDepth->dsv(), true, true);
-    ctx->transitionBarrier(mScene.get(), RHIResource::State::UnorderedAccess);
+  ctx->transitionBarrier(mScene.get(), RHIResource::State::UnorderedAccess);
+
 }
 
 void SceneRenderer::setupView(RHIContext& ctx) {
@@ -839,7 +843,9 @@ void SceneRenderer::setupView(RHIContext& ctx) {
   mcCamera->updateData(mCameraData, 0, sizeof(camera_t) * 2);
 
   // TODO: setup viewport later
-  ctx.setViewport({ vec2::zero, { Window::Get()->bounds().width(), Window::Get()->bounds().height()} });
+  aabb2 bounds = { vec2::zero, { Window::Get()->bounds().width(), Window::Get()->bounds().height()} };
+  ctx.setViewport(bounds);
+  ctx.setScissorRect(bounds);
 
 }
 

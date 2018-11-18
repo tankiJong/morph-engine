@@ -14,9 +14,10 @@ public:
   static Engine& Get();
 
   ~Engine();
+  void init();
+  void destory();
 protected:
   Engine() = default;
-  void init();
 
   Renderer* mRenderer = nullptr;
   Window* mWindow = nullptr;

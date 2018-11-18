@@ -2,6 +2,9 @@
 #include "Engine/Graphics/RHI/ResourceView.hpp"
 #include "Texture.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Engine/Core/Image.hpp"
+#include "Engine/File/FileSystem.hpp"
+
 
 template<typename TexType, typename ...Args>
 typename TexType::sptr_t createOrFail(const void* data, size_t size, Args ... args) {
@@ -45,3 +48,27 @@ const UnorderedAccessView* Texture2::uav() const {
 
   return mUav.get();
 }
+
+template<>
+ResDef<Texture2> Resource<Texture2>::load(const std::string& file) {
+  auto name = make_wstring(file);
+  if (file == "$default") {
+    Texture2* tex = new Texture2(1, 1, TEXTURE_FORMAT_RGBA8, RHIResource::BindingFlag::ShaderResource);
+    tex->rhiInit(&Rgba::white, sizeof(vec4));
+    setName(*tex, name.c_str());
+    return { file, tex };
+  }
+
+  FileSystem& vfs = FileSystem::Get();
+  auto realPath = vfs.locate(file);
+
+  if (!realPath) return { file, nullptr };
+
+  Image img(realPath->string());
+
+  Texture2* tex = new Texture2(img.dimension().x, img.dimension().y, 
+                               img.format(), RHIResource::BindingFlag::ShaderResource);
+  tex->rhiInit(img.data(), img.size());
+  setName(*tex, name.c_str());
+  return { file, tex };
+};
