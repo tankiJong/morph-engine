@@ -428,7 +428,7 @@ const Debug::DrawHandle* Debug::drawCube(const vec3& center, const vec3& dimensi
     mesher.vertex3f(vertices);
 
     mesher.quad(0, 1, 2, 3)
-          .quad(4, 5, 6, 7)
+          .quad(7, 6, 5, 4)
           .quad(4, 5, 1, 0)
           .quad(5, 6, 2, 1)
           .quad(6, 7, 3, 2)
@@ -553,10 +553,11 @@ DEF_RESOURCE(Program, "internal/Shader/debug/default") {
   state.depthMode = COMPARE_LESS;
   state.colorBlendOp = BLEND_OP_ADD;
   state.colorSrcFactor = BLEND_F_SRC_ALPHA;
-  state.colorDstFactor = BLEND_F_DST_ALPHA;
+  state.colorDstFactor = BLEND_F_INV_SRC_ALPHA;
   state.alphaBlendOp = BLEND_OP_ADD;
   state.alphaSrcFactor = BLEND_F_SRC_ALPHA;
-  state.alphaDstFactor = BLEND_F_DST_ALPHA;
+  state.alphaDstFactor = BLEND_F_INV_SRC_ALPHA;
+  state.cullMode = CULL_NONE;
   prog->setRenderState(state);
 
   return S<Program>(prog);
@@ -575,10 +576,11 @@ DEF_RESOURCE(Program, "internal/Shader/debug/always") {
   state.depthMode = COMPARE_ALWAYS;
   state.colorBlendOp = BLEND_OP_ADD;
   state.colorSrcFactor = BLEND_F_SRC_ALPHA;
-  state.colorDstFactor = BLEND_F_DST_ALPHA;
+  state.colorDstFactor = BLEND_F_INV_SRC_ALPHA;
   state.alphaBlendOp = BLEND_OP_ADD;
   state.alphaSrcFactor = BLEND_F_SRC_ALPHA;
-  state.alphaDstFactor = BLEND_F_DST_ALPHA;
+  state.alphaDstFactor = BLEND_F_INV_SRC_ALPHA;
+  state.cullMode = CULL_NONE;
   prog->setRenderState(state);
 
   return S<Program>(prog);

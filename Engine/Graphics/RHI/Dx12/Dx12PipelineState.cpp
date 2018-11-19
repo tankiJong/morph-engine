@@ -174,7 +174,7 @@ D3D12_BLEND toDx12Blend(eBlendFactor f) {
     case BLEND_F_DST_ALPHA: 
     return D3D12_BLEND_DEST_ALPHA;
     case BLEND_F_INV_SRC_ALPHA: 
-    return D3D12_BLEND_SRC_ALPHA;
+    return D3D12_BLEND_INV_SRC_ALPHA;
     case BLEND_F_INV_DST_ALPHA: 
     return D3D12_BLEND_INV_DEST_ALPHA;
   }
@@ -207,7 +207,6 @@ void setDx12BlendState(const RenderState& rs, D3D12_RENDER_TARGET_BLEND_DESC& bs
   };
 
   if(rs.alphaBlendOp == BLEND_OP_DISABLE || rs.colorBlendOp == BLEND_OP_DISABLE) {
-    EXPECTS(rs.alphaBlendOp == rs.colorBlendOp);
     bs.BlendEnable = FALSE;
     return;
   }

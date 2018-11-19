@@ -300,11 +300,11 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   // genAO(ctx);
 
   static bool pt = false;
-  if (Input::Get().isKeyJustDown('P')) {
-    mFrameData.frameCount = 0;
-    ctx.clearRenderTarget(mScene->rtv(), Rgba::black);
-    pt = !pt;
-  }
+  // if (Input::Get().isKeyJustDown('P')) {
+  //   mFrameData.frameCount = 0;
+  //   ctx.clearRenderTarget(mScene->rtv(), Rgba::black);
+  //   pt = !pt;
+  // }
 
   if (pt) {
     pathTracing(ctx);

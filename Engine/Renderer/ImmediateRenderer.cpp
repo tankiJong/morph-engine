@@ -200,8 +200,12 @@ DEF_RESOURCE(Program, "internal/Shader/ui/text") {
   RenderState state;
   state.isWriteDepth = FLAG_FALSE;
   state.depthMode = COMPARE_ALWAYS;
-  state.colorBlendOp = BLEND_OP_DISABLE;
-  state.alphaBlendOp = BLEND_OP_DISABLE;
+  state.colorBlendOp = BLEND_OP_ADD;
+  state.colorSrcFactor = BLEND_F_SRC_ALPHA;
+  state.colorDstFactor = BLEND_F_INV_SRC_ALPHA;
+  state.alphaBlendOp = BLEND_OP_ADD;
+  state.alphaSrcFactor = BLEND_F_SRC_ALPHA;
+  state.alphaDstFactor = BLEND_F_INV_SRC_ALPHA;
   prog->setRenderState(state);
 
   return S<Program>(prog);

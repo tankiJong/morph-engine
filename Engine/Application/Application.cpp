@@ -59,8 +59,15 @@ void Application::_update() {
 
   onStartFrame();
 
-  onInput();
-  onUpdate();
+  _input();
+
+  {
+    if(Console::Get()->isOpen() && !Input::Get().isKeyJustDown(KEYBOARD_OEM_3)) {
+      Console::Get()
+        ->update((float)GetMainClock().frame.second);
+    }
+  }
+
   postUpdate();
 
   onRender();
@@ -68,9 +75,24 @@ void Application::_update() {
   ImGui::render();
   Debug::drawNow();
 
+  if (Console::Get()->isOpen()) {
+    Console* cons = Console::Get();
+    cons->render();
+  }
+
   RHIDevice::get()->present();
 
   onEndFrame();
+}
+
+void Application::_input() {
+  if(!Console::Get()->isOpen()) {
+    onInput();
+  }
+
+  if (Input::Get().isKeyJustDown(KEYBOARD_OEM_3)) {
+    Console::Get()->toggle();
+  }
 }
 
 void Application::windowProc(uint wmMessageCode, size_t /*wParam*/, size_t /*lParam*/) {

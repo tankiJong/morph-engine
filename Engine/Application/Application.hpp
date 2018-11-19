@@ -2,6 +2,7 @@
 #include "Engine/Core/common.hpp"
 
 class Engine;
+class Input;
 class Application {
   enum eRunStatus {
     APP_CREATED,
@@ -20,7 +21,7 @@ public:
   virtual void onUpdate() {}
   virtual void postUpdate() {}
 
-  virtual void onRender() {}
+  virtual void onRender() const {}
 
   virtual void onGui() {}
   virtual void onQuit() {}
@@ -36,6 +37,7 @@ private:
   void _init();
   void _destroy();
   void _update();
+  void _input();
 
   void __stdcall windowProc(uint wmMessageCode, size_t wParam, size_t lParam);
   Engine* mEngine = nullptr;
