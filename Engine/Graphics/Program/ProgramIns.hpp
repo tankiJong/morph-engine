@@ -30,7 +30,7 @@ protected:
     uint zeroOffset;
   };
 
-  ProgramIns(const S<Program>& program);
+  ProgramIns(const S<const Program>& program);
 
   static constexpr uint INVALID_SET_INDEX = UINT_MAX;
   loc_t locateBindPoint(DescriptorPool::Type type, uint registerIndex, uint registerSpace = 0) const;
@@ -42,9 +42,9 @@ protected:
 class GraphicsProgramIns: public ProgramIns {
 public:
   virtual void apply(RHIContext& ctx, bool bindRootSignature) override;
-  static S<GraphicsProgramIns> create(const S<Program>& program);
+  static S<GraphicsProgramIns> create(const S<const Program>& program);
 
-  GraphicsProgramIns(const S<Program>& program): ProgramIns(program) {};
+  GraphicsProgramIns(const S<const Program>& program): ProgramIns(program) {};
 };
 
 class ComputeProgramIns: public ProgramIns {
@@ -52,5 +52,5 @@ public:
   virtual void apply(RHIContext& ctx, bool bindRootSignature) override;
   static S<ComputeProgramIns> create(const S<Program>& program);
 
-  ComputeProgramIns(const S<Program>& program): ProgramIns(program) {};
+  ComputeProgramIns(const S<const Program>& program): ProgramIns(program) {};
 };

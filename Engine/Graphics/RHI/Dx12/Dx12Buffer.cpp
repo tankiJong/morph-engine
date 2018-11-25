@@ -91,7 +91,5 @@ void* RHIBuffer::map(MapType type) {
 }
 
 void RHIBuffer::unmap() {
-  D3D12_RANGE r{};
-
-  mRhiHandle->Unmap(0, &r);
+  mRhiHandle->Unmap(0, nullptr);
 }

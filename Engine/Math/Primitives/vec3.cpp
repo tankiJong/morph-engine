@@ -33,10 +33,6 @@ vec3::vec3(const vec2& vec, float z)
   , y(vec.y)
   , z(z) {}
 
-vec3::vec3(const vec3& vec) 
-  : x(vec.x)
-  , y(vec.y)
-  , z(vec.z) {}
 vec3::vec3(const char* str) {
   fromString(str);
 }

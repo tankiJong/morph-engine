@@ -5,10 +5,13 @@
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Math/Primitives/FloatRange.hpp"
 #include "Engine/Graphics/Model/Mesh.hpp"
+#include "Engine/Memory/Pool.hpp"
 
 class aabb2;
 class Mesh;
 class Font;
+class BVH;
+
 class Mesher {
   friend class MikktBinding;
 public:
@@ -60,7 +63,7 @@ public:
   void mikkt();
   template<typename VertexType = vertex_lit_t>
   owner<Mesh*> createMesh();
-
+  owner<BVH*> createBVH(uint maxDepth);
   template<typename VertexType = vertex_lit_t>
   void resetMesh(Mesh& mesh);
 
@@ -73,12 +76,13 @@ protected:
   vertex_t mStamp;
   draw_instr_t mCurrentIns;
   bool isDrawing = false;
+
 };
 
 template< typename VertexType >
 owner<Mesh*> Mesher::createMesh() {
   GUARANTEE_OR_DIE(isDrawing == false, "createMesh called without calling end()");
-  VertexMesh<VertexType>* m = new VertexMesh<VertexType>();
+  VertexMesh<VertexType>* m = VertexMesh<VertexType>::pool.acquire();
   
   m->setInstructions(mIns);
   m->setVertices(mVertices);

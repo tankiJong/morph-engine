@@ -24,7 +24,9 @@ public:
   void startUp();
   void cleanUp();
 
-  const FrameBuffer* currentFbo() const { return mFrameBuffer.get(); };
+  const FrameBuffer* currentFbo() const { return mFrameBuffer.get(); }
+
+  S<RHIContext>& context() { return mRhiContext; };
   FrameBuffer* currentFbo() { return mFrameBuffer.get(); };
 
   void drawMesh(Mesh& mesh);

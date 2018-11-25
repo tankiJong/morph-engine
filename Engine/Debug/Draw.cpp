@@ -59,7 +59,7 @@ struct Debug::DebugDrawMeta {
 
     gRenderer->setView(*this->cam);
     gTintBuffer->updateData(col);
-    gRenderer->setUniform(UNIFORM_USER_1, *gTintBuffer->cbv());
+    gRenderer->context()->transitionBarrier(gTintBuffer.get(), RHIResource::State::ConstantBuffer);
     switch(depthMode) { 
       case DEBUG_DEPTH_DEFAULT:
       case DEBUG_DEPTH_ENABLE:
@@ -173,7 +173,7 @@ void Debug::toggleDebugRender() {
 void Debug::drawInit() {
   gTintBuffer = RHIBuffer::create(sizeof(vec4), 
     RHIResource::BindingFlag::ConstantBuffer, 
-    RHIBuffer::CPUAccess::Write);
+    RHIBuffer::CPUAccess::None);
   NAME_RHIRES(gTintBuffer);
 
   gRenderer = &ImmediateRenderer::get();
@@ -181,7 +181,7 @@ void Debug::drawInit() {
 
 template<typename F>
 Debug::DrawHandle* drawMeta(const Gradient& color, float duration, const Clock* clockOverride, F&& f, bool is3D = true) {
-  static_assert(std::is_invocable_v<F, Mesher>);
+  static_assert(std::is_invocable_v<F, Mesher&>);
   Mesher& mesher = gDebugMesher;
   mesher.clear();
 
@@ -231,12 +231,12 @@ void Debug::drawNow() {
   }
 
 
-
   gRenderer->setRenderTarget(&RHIDevice::get()->backBuffer()->rtv(), 0);
   gRenderer->setDepthStencilTarget(RHIDevice::get()->depthBuffer()->dsv());
 
   gRenderer->setRenderRegion(*RHIDevice::get()->backBuffer());
 
+  gRenderer->setUniform(UNIFORM_USER_1, *gTintBuffer->cbv());
 
   for(uint i = 0; i < gDebugDrawCalls.size(); ++i) {
     DebugDrawMeta*& comp = gDebugDrawCalls[i];
@@ -553,10 +553,10 @@ DEF_RESOURCE(Program, "internal/Shader/debug/default") {
   state.depthMode = COMPARE_LESS;
   state.colorBlendOp = BLEND_OP_ADD;
   state.colorSrcFactor = BLEND_F_SRC_ALPHA;
-  state.colorDstFactor = BLEND_F_INV_SRC_ALPHA;
+  state.colorDstFactor = BLEND_F_DST_ALPHA;
   state.alphaBlendOp = BLEND_OP_ADD;
   state.alphaSrcFactor = BLEND_F_SRC_ALPHA;
-  state.alphaDstFactor = BLEND_F_INV_SRC_ALPHA;
+  state.alphaDstFactor = BLEND_F_DST_ALPHA;
   state.cullMode = CULL_NONE;
   prog->setRenderState(state);
 
@@ -576,10 +576,10 @@ DEF_RESOURCE(Program, "internal/Shader/debug/always") {
   state.depthMode = COMPARE_ALWAYS;
   state.colorBlendOp = BLEND_OP_ADD;
   state.colorSrcFactor = BLEND_F_SRC_ALPHA;
-  state.colorDstFactor = BLEND_F_INV_SRC_ALPHA;
+  state.colorDstFactor = BLEND_F_DST_ALPHA;
   state.alphaBlendOp = BLEND_OP_ADD;
   state.alphaSrcFactor = BLEND_F_SRC_ALPHA;
-  state.alphaDstFactor = BLEND_F_INV_SRC_ALPHA;
+  state.alphaDstFactor = BLEND_F_DST_ALPHA;
   state.cullMode = CULL_NONE;
   prog->setRenderState(state);
 

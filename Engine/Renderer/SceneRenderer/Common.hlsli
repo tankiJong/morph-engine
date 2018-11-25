@@ -3,6 +3,7 @@
 
 #include "../Shader/Math.hlsl"
 #include "../Shader/Random.hlsli"
+#include "Bvh.hlsli"
 
 #define RootSig_Common "DescriptorTable(CBV(b0, numDescriptors = 4), SRV(t0, numDescriptors = 1), visibility = SHADER_VISIBILITY_ALL),"
 
@@ -14,17 +15,6 @@ struct vertex_t {
 };
 
 
-struct Ray {
-	float3 position;
-	float3 direction;
-};
-
-struct Contact {
-	float4 position;
-	float3 normal;
-	float t;
-	bool valid;
-};
 
 struct light_info_t {
   float4 color;
@@ -134,33 +124,11 @@ Ray GenPrimaryRay(float3 ndc) {
 
 	float3 origin = mul(invView, float4(0, 0, 0, 1.f)).xyz;
 	ray.direction = normalize(worldCoords - origin);
+	ray.directionInv = 1.f / ray.direction;
 
 	return ray;
 }
 
-Contact triIntersection(float3 a, float3 b, float3 c, float color, Ray ray) {
-
-	Contact contact;
-
-	float3 ab = b - a;
-	float3 ac = c - a;
-	float3 normal = normalize(cross(ac, ab));
-	contact.normal = normal;
-
-	contact.valid = dot(normal, ray.direction) < 0;
-
-	float t = (dot(a, normal) - dot(ray.position, normal)) / dot(ray.direction, normal);
-	contact.t = t;
-	contact.position.xyz = ray.position + t * ray.direction;
-	contact.position.w = color;
-
-	float3 p = contact.position.xyz;
-	contact.valid = contact.valid && dot(cross(p - a, b - a), normal) >= 0;
-	contact.valid = contact.valid && dot(cross(p - b, c - b), normal) >= 0;
-	contact.valid = contact.valid && dot(cross(p - c, a - c), normal) >= 0;
-
-	return contact;
-}
 
 float3 GetRandomDirection(inout uint seed, float3 normal) {
 	
@@ -200,7 +168,7 @@ Ray GenReflectionRay(inout uint seed, float4 position, float3 normal) {
 
 	ray.direction = ssample;
 	ray.position = position.xyz + 0.0001f * ssample;
-
+	ray.directionInv = 1.f / ray.direction;
 	return ray;
 }
 

@@ -27,7 +27,7 @@ void ProgramIns::setUav(const UnorderedAccessView& uav, uint registerIndex, uint
   mDescriptorSets[loc.descriptorSetIndex]->setUav((uint)loc.rangeIndex, (uint)loc.zeroOffset, uav);
 }
 
-ProgramIns::ProgramIns(const S<Program>& program) {
+ProgramIns::ProgramIns(const S<const Program>& program) {
   mProg = program;
 
   auto layouts = mProg->descriptorLayout();
@@ -79,7 +79,7 @@ void GraphicsProgramIns::apply(RHIContext& ctx, bool bindRootSignature) {
   }
 }
 
-S<GraphicsProgramIns> GraphicsProgramIns::create(const S<Program>& program) {
+S<GraphicsProgramIns> GraphicsProgramIns::create(const S<const Program>& program) {
   return S<GraphicsProgramIns>(new GraphicsProgramIns(program));
 }
 

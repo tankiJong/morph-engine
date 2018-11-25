@@ -24,6 +24,9 @@
 #include "DeferredLighting_cs.h"
 #include "PathTracing_cs.h"
 #include "SurfelCoverageCompute_cs.h"
+#include "BvhVisual_vs.h";
+#include "BvhVisual_gs.h";
+#include "BvhVisual_ps.h";
 
 #include "fxaa_ps.h"
 #include "fxaa_vs.h"
@@ -32,6 +35,7 @@
 #include "Engine/Input/Input.hpp"
 #include "Engine/Math/Primitives/uvec3.hpp"
 #include "Engine/Graphics/Program/ProgramIns.hpp"
+#include "Engine/Graphics/Model/BVH.hpp"
 static Program::sptr_t gGenGBufferProgram = nullptr;
 
 static Program::sptr_t gGenAOProgram = nullptr;
@@ -288,6 +292,10 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
                             RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess | RHIResource::BindingFlag::RenderTarget);
   NAME_RHIRES(mScene);
 
+  mTargetScene.bvh()->uploadNodesToGpu(mBVH);
+  NAME_RHIRES(mBVH);
+  mTargetScene.bvh()->uploadVerticesToGpu(mVertexData);
+  NAME_RHIRES(mVertexData);
 }
 
 void SceneRenderer::onRenderFrame(RHIContext& ctx) {
@@ -300,11 +308,11 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   // genAO(ctx);
 
   static bool pt = false;
-  // if (Input::Get().isKeyJustDown('P')) {
-  //   mFrameData.frameCount = 0;
-  //   ctx.clearRenderTarget(mScene->rtv(), Rgba::black);
-  //   pt = !pt;
-  // }
+  if (Input::Get().isKeyJustDown('P')) {
+    mFrameData.frameCount = 0;
+    ctx.clearRenderTarget(mScene->rtv(), Rgba::black);
+    pt = !pt;
+  }
 
   if (pt) {
     pathTracing(ctx);
@@ -322,6 +330,8 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   if(!Input::Get().isKeyDown(KEYBOARD_SPACE)) {
     deferredLighting(ctx);
     fxaa(ctx);
+
+    visualizeBVH(ctx);
   } else {
     visualizeSurfels(ctx);
   }
@@ -369,8 +379,8 @@ void SceneRenderer::updateDescriptors() {
     mDGBufferDescriptors->setSrv(0, 1, mGNormal->srv());
     mDGBufferDescriptors->setSrv(0, 2, mGPosition->srv());
     mDGBufferDescriptors->setSrv(0, 3, mGDepth->srv());
-    mDGBufferDescriptors->setSrv(0, 4, mAccelerationStructure ? mAccelerationStructure->srv() : *ShaderResourceView::nullView());
-    mDGBufferDescriptors->setSrv(0, 5, *ShaderResourceView::nullView());
+    mDGBufferDescriptors->setSrv(0, 4, mVertexData->srv());
+    mDGBufferDescriptors->setSrv(0, 5, mBVH->srv());
   }
   {
     DescriptorSet::Layout layout;
@@ -552,7 +562,7 @@ void SceneRenderer::genGBuffer(RHIContext& ctx) {
 void SceneRenderer::genAO(RHIContext& ctx) {
   SCOPED_GPU_EVENT("Gen AO");
 
-  mDGBufferDescriptors->setSrv(0, 5, *ShaderResourceView::nullView());
+  // mDGBufferDescriptors->setSrv(0, 5, *ShaderResourceView::nullView());
 
   static ComputeState::sptr_t computeState;
   static S<ComputeProgramIns> prog;
@@ -572,8 +582,9 @@ void SceneRenderer::genAO(RHIContext& ctx) {
     prog->setSrv(mGPosition->srv(), 12);
     prog->setSrv(mGDepth->srv(), 13);
     prog->setSrv(mGVelocity->srv(), 14);
-    prog->setSrv(mAccelerationStructure->srv(), 15);
-    prog->setSrv(mGAO->srv(), 16);
+    prog->setSrv(mVertexData->srv(), 15);
+    prog->setSrv(mBVH->srv(), 16);
+    prog->setSrv(mGAO->srv(), 17);
     prog->setUav(*mAO->uav(), 0);
 
   }
@@ -582,7 +593,7 @@ void SceneRenderer::genAO(RHIContext& ctx) {
   ctx.transitionBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mGVelocity.get(), RHIResource::State::NonPixelShader, TRANSITION_END);
-  ctx.transitionBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
+  ctx.transitionBarrier(mVertexData.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mGAO.get(), RHIResource::State::NonPixelShader, TRANSITION_END);
   ctx.transitionBarrier(mAO.get(), RHIResource::State::UnorderedAccess, TRANSITION_END);
 
@@ -729,6 +740,43 @@ void SceneRenderer::visualizeSurfels(RHIContext& ctx) {
 
 }
 
+void SceneRenderer::visualizeBVH(RHIContext& ctx) {
+  static S<GraphicsProgramIns> progIns;
+  static GraphicsState::sptr_t graphicsState;
+
+  if(!progIns) {
+    auto prog = Resource<Program>::get("internal/Shader/scene-renderer/bvhVisual");
+
+    progIns = GraphicsProgramIns::create(prog);
+    progIns->setSrv(mBVH->srv(), 0);
+    progIns->setCbv(*mcCamera->cbv(), 1);
+    GraphicsState::Desc desc;
+    desc.setRootSignature(prog->rootSignature());
+    desc.setProgram(prog);
+    desc.setFboDesc(mGFbo.desc());
+    desc.setPrimTye(GraphicsState::PrimitiveType::Point);
+    desc.setVertexLayout(VertexLayout::For<vertex_pcu_t>());
+    graphicsState = GraphicsState::create(desc);
+  }
+
+  FrameBuffer fbo;
+  {
+    FrameBuffer::Desc desc;
+    desc.defineColorTarget(0, TEXTURE_FORMAT_RGBA8, false);
+    fbo.setDesc(desc);
+
+    fbo.setColorTarget(&RHIDevice::get()->backBuffer()->rtv(), 0);
+    fbo.setDepthStencilTarget(mGDepth->dsv());
+  }
+
+  ctx.transitionBarrier(&mBVH->res(), RHIResource::State::ShaderResource);
+  ctx.setGraphicsState(*graphicsState);
+  progIns->apply(ctx, true);
+  ctx.setFrameBuffer(fbo);
+
+  ctx.draw(0, mBVH->elementCount());
+}
+
 void SceneRenderer::deferredLighting(RHIContext& ctx) {
   SCOPED_GPU_EVENT("Deferred Lighting");
 
@@ -815,7 +863,6 @@ void SceneRenderer::setupFrame() {
 
   mGDepth = RHIDevice::get()->depthBuffer();
 
-  updateDescriptors();
 
   auto ctx = RHIDevice::get()->defaultRenderContext();
 
@@ -823,14 +870,22 @@ void SceneRenderer::setupFrame() {
     ctx->clearRenderTarget(mIndirectLight->rtv(), Rgba::black);
   }
   
+  if(!Input::Get().isKeyDown('B')) {
+    ctx->clearRenderTarget(mGAlbedo->rtv(), Rgba::black);
+    ctx->clearRenderTarget(mGNormal->rtv(), Rgba::gray);
+    ctx->clearRenderTarget(mGPosition->rtv(), vec4{ NAN, NAN, NAN,NAN });
+    ctx->clearRenderTarget(mGVelocity->rtv(), Rgba(0, 0, 0, 0));
 
-  ctx->clearRenderTarget(mGAlbedo->rtv(), Rgba::black);
-  ctx->clearRenderTarget(mGNormal->rtv(), Rgba::gray);
-  ctx->clearRenderTarget(mGPosition->rtv(), Rgba::black);
-  ctx->clearRenderTarget(mGVelocity->rtv(), Rgba(0, 0, 0, 0));
+    ctx->transitionBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
+    ctx->transitionBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
+    ctx->transitionBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
+    ctx->transitionBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
+  }
   ctx->clearDepthStencilTarget(*mGDepth->dsv(), true, true);
+
   ctx->transitionBarrier(mScene.get(), RHIResource::State::UnorderedAccess);
 
+  updateDescriptors();
 }
 
 void SceneRenderer::setupView(RHIContext& ctx) {
@@ -883,7 +938,8 @@ void SceneRenderer::pathTracing(RHIContext& ctx) {
     progIns->setSrv(mGAlbedo->srv(), 10);
     progIns->setSrv(mGNormal->srv(), 11);
     progIns->setSrv(mGPosition->srv(), 12);
-    progIns->setSrv(mAccelerationStructure->srv(), 14);
+    progIns->setSrv(mVertexData->srv(), 13);
+    progIns->setSrv(mBVH->srv(), 14);
     progIns->setUav(*mScene->uav(), 0);
 
     ComputeState::Desc desc;
@@ -958,4 +1014,29 @@ void SceneRenderer::fxaa(RHIContext & ctx) {
 bool SceneRenderer::shouldRecomputeIndirect() const {
   // return uint(mFrameData.frameCount) % 2 == 0;
   return true;
+}
+
+DEF_RESOURCE(Program, "internal/Shader/scene-renderer/bvhVisual") {
+  Program::sptr_t prog = Program::sptr_t(new Program());
+
+  prog->stage(SHADER_TYPE_VERTEX).setFromBinary(gBvhVisual_vs, sizeof(gBvhVisual_vs));
+  prog->stage(SHADER_TYPE_GEOMETRY).setFromBinary(gBvhVisual_gs, sizeof(gBvhVisual_gs));
+  prog->stage(SHADER_TYPE_FRAGMENT).setFromBinary(gBvhVisual_ps, sizeof(gBvhVisual_ps));
+  prog->compile();
+
+  prog->compile();
+  RenderState state;
+  state.isWriteDepth = FLAG_FALSE;
+  state.depthMode = COMPARE_ALWAYS;
+  // state.depthMode = COMPARE_LEQUAL;
+  state.colorBlendOp = BLEND_OP_ADD;
+  state.colorSrcFactor = BLEND_F_SRC_ALPHA;
+  state.colorDstFactor = BLEND_F_DST_ALPHA;
+  state.alphaBlendOp = BLEND_OP_ADD;
+  state.alphaSrcFactor = BLEND_F_SRC_ALPHA;
+  state.alphaDstFactor = BLEND_F_DST_ALPHA;
+  state.cullMode = CULL_NONE;
+  prog->setRenderState(state);
+
+  return S<Program>(prog);
 }

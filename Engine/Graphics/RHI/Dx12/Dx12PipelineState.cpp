@@ -252,7 +252,7 @@ bool GraphicsState::rhiInit() {
   // }
   // auto const0 = reflactor->GetResourceBindingDesc(0, &bindingDesc);
 
-  D3D12_SHADER_BYTECODE VS, PS;
+  D3D12_SHADER_BYTECODE VS, PS, GS;
   VS.pShaderBytecode = mDesc.mProgram->stage(SHADER_TYPE_VERTEX).handle();
   VS.BytecodeLength = mDesc.mProgram->stage(SHADER_TYPE_VERTEX).size();
   PS.pShaderBytecode = mDesc.mProgram->stage(SHADER_TYPE_FRAGMENT).handle();
@@ -260,6 +260,12 @@ bool GraphicsState::rhiInit() {
 
   desc.VS = VS;
   desc.PS = PS;
+
+  if(mDesc.mProgram->stage(SHADER_TYPE_GEOMETRY).ready()) {
+    GS.pShaderBytecode = mDesc.mProgram->stage(SHADER_TYPE_GEOMETRY).handle();
+    GS.BytecodeLength = mDesc.mProgram->stage(SHADER_TYPE_GEOMETRY).size();
+    desc.GS = GS;
+  }
 
   TODO("set up render state, rtv");
 
@@ -296,6 +302,7 @@ bool GraphicsState::rhiInit() {
       desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     break;
     case PrimitiveType::Patch:
+      desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
     case PrimitiveType::Undefined:
     default: 
     BAD_CODE_PATH();

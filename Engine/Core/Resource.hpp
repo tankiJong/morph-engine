@@ -13,6 +13,12 @@ struct ResourceItem {
   S<T> res;
   fs::path path;
 };
+
+class ResourceDecl {
+public:
+  virtual void init() = 0;
+};
+
 template<typename T>
 class Resource {
   using ResourceType = Resource<T>;
@@ -78,6 +84,8 @@ public:
   }
 
   static const ResourceItem<T>* res(std::string_view name) {
+    deferDefine();
+
     if (auto kv = sDatabase->find(name); kv != sDatabase->end()) {
       return &kv->second;
     } else {
@@ -99,8 +107,23 @@ public:
     auto [name, res] = load(file);
     return define(name, res, file);
   }
+
+  static void declare(ResourceDecl* decl) {
+    if (sDecls == nullptr) sDecls = new std::vector<ResourceDecl*>();
+    sDecls->push_back(decl);
+  }
+
+  static void deferDefine() {
+    if (sDecls == nullptr) return;
+    for(ResourceDecl* decl: *sDecls) {
+      decl->init();
+    }
+    sDecls->clear();
+  }
 protected:
-  static std::map<std::string, ResourceItem<T>, std::less<>>* sDatabase; 
+  static std::map<std::string, ResourceItem<T>, std::less<>>* sDatabase;
+  static std::vector<ResourceDecl*>* sDecls;
+
 
   /*
    * This function is required for the resource system to work.
@@ -112,13 +135,21 @@ protected:
 template<typename T>
 std::map<std::string, ResourceItem<T>, std::less<>>* Resource<T>::sDatabase = nullptr;
 
+template<typename T>
+std::vector<ResourceDecl*>* Resource<T>::sDecls = nullptr;
+
 #define DEF_RESOURCE(Type, name) \
-struct APPEND(__RES_DEF, __LINE__) { \
+class APPEND(__RES_DEF, __LINE__): public ResourceDecl { \
+public: \
+  using ResType = Type; \
+  static S<ResType> _Reg(); \
   APPEND(__RES_DEF, __LINE__)() { \
-    auto res = _Reg(); \
-    Resource<Type>::define(res, name); \
+    Resource<ResType>::declare(this); \
   }; \
-  static S<Type> _Reg(); \
+  virtual void init () override { \
+    auto res = _Reg(); \
+    Resource<ResType>::define(res, name); \
+  }; \
 }; \
 static APPEND(__RES_DEF, __LINE__) APPEND(__RES_DEFIns, __LINE__); \
 inline S<Type> APPEND(__RES_DEF, __LINE__)::_Reg()

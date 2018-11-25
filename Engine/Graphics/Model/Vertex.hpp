@@ -13,6 +13,7 @@ DeclVertexType(vertex_pcu_t) {
   vertex_pcu_t() = default;
   vertex_pcu_t(const vec3& pos, const Rgba& col, const vec2& uvs) : position(pos), color(col.normalized()), uvs(uvs) {}
   vertex_pcu_t(const vec2& pos, const Rgba& col, const vec2& uvs) : position(pos), color(col.normalized()), uvs(uvs) {}
+  vertex_pcu_t(const vec3& pos, const vec3& col, const vec2& uvs) : position(pos), color(col), uvs(uvs) {}
 };
 
 

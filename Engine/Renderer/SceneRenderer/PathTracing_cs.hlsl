@@ -12,33 +12,12 @@
 Texture2D<float4> gTexAlbedo:   register(t10);
 Texture2D<float4> gTexNormal:   register(t11);
 Texture2D<float4> gTexPosition: register(t12);
-Texture2D gTexDepth: register(t13);
-StructuredBuffer<vertex_t> gVerts: register(t14);
+StructuredBuffer<Prim> gVerts:	register(t13);
+StructuredBuffer<BVHNode> gBvh: register(t14);
 
 RWTexture2D<float4> uTexScene: register(u0);
 
-
-
 static uint seed;
-
-Contact trace(Ray ray) {
-	uint vertCount, stride;
-	gVerts.GetDimensions(vertCount, stride);
-
-	Contact contact;
-	contact.t = 1e6;
-	contact.valid = false;
-
-	for(uint i = 0; i < vertCount; i+=3) {
-		Contact c = triIntersection(gVerts[i].position.xyz, gVerts[i+1].position.xyz, gVerts[i+2].position.xyz, gVerts[i].position.w, ray);
-		bool valid = c.valid && (c.t < contact.t) && (c.t > 0.f);	 // equal to zero avoid the fail intersaction in the corner	edge
-		if(valid)	{
-			contact = c;
-		}
-	}
-
-	return contact;
-}
 
 float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 	// return float3(0,0,0);
@@ -49,7 +28,8 @@ float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 
 	ray.position = surfacePosition + surfaceNormal * 0.0001f;
 
-	Contact c = trace(ray);
+	float4 albedo;
+	Contact c = trace(ray, gBvh, gVerts, albedo);
 
 
 	if(c.valid && c.t < maxDist) return float3(0,0,0);
@@ -75,19 +55,9 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 		uint vertCount, stride;
 		gVerts.GetDimensions(vertCount, stride);
 
-		Contact contact;
-		contact.t = 1e6;
-		contact.valid = false;
+		float4 albedo;
+		Contact contact = trace(ray, gBvh, gVerts, albedo);
 
-		float3 albedo = float3(0,0,0);
-		for(uint i = 0; i < vertCount; i+=3) {
-			Contact c = triIntersection(gVerts[i].position.xyz, gVerts[i+1].position.xyz, gVerts[i+2].position.xyz, gVerts[i].position.w, ray);
-			bool valid = c.valid && (c.t < contact.t) && (c.t >= 0.f);	 // equal to zero avoid the fail intersaction in the corner	edge
-			if(valid)	{
-				contact = c;
-				albedo = gVerts[i].color.xyz;
-			}
-		}
 
 		totals[bounce].w = contact.t;
 		dots[bounce] = 0;
@@ -145,7 +115,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	float3 diffuse = computeDiffuse(position.xyz, normal);
 	float3 indirect = 0;
 	float3 direction;
-	for(uint i = 0; i < 8; i++) {
+	for(uint i = 0; i < 1; i++) {
 		Ray ray = GenReflectionRay(seed, position, normal);
 		// direction += ray.direction;
 		indirect += PathTracing(ray, position.xyz, normal, color);
@@ -156,10 +126,10 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	// uTexScene[pix] = (uTexScene[pix] *gFrameCount + float4(direction * .5f + .5f, 1.f))	/ (gFrameCount + 1);
 	// return;
 
-	indirect /= (8.f / (2 * M_PI));
+	indirect /= (1.f / (2 * M_PI));
 
 	// float3 indirect = float3(0,0,0);
-	float3 finalColor = ( diffuse + indirect ) * color / M_PI;
+	float3 finalColor = ( indirect ) * color / M_PI;
 
 	const float GAMMA = 1.f / 2.1;
 	finalColor =  pow(finalColor, float3(GAMMA, GAMMA, GAMMA));
@@ -168,4 +138,5 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	finalColor = (uTexScene[pix].xyz * gFrameCount + finalColor)	/ (gFrameCount + 1);
 
 	uTexScene[pix] = float4(finalColor, 1.f);
+	uTexScene[pix] = float4(float(boxIntersectCalledTimes) / 50, 0, 0, 1.f);
 }

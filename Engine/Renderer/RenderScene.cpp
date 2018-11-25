@@ -39,6 +39,10 @@ void RenderScene::set(Camera& c) {
   mCamera = &c;
 }
 
+void RenderScene::set(BVH* bvh) {
+  mBvh = bvh;
+}
+
 // void RenderScene::add(Camera& c) {
 //   EXPECTS(notInList(mCameras, &c));
 //

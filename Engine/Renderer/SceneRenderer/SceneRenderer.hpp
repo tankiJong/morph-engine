@@ -74,6 +74,7 @@ protected:
   void accumlateSurfels(RHIContext& ctx);
   void accumlateGI(RHIContext& ctx);
   void visualizeSurfels(RHIContext& ctx);
+  void visualizeBVH(RHIContext& ctx);
   void deferredLighting(RHIContext& ctx);
   void computeIndirectLighting(RHIContext& ctx);
   void setupFrame();
@@ -108,6 +109,9 @@ protected:
   S<RHIBuffer> mcCamera;
   S<RHIBuffer> mcModel;
   S<RHIBuffer> mcLight;
+
+  TypedBuffer::sptr_t mVertexData;
+  TypedBuffer::sptr_t mBVH;
   TypedBuffer::sptr_t mAccelerationStructure;
   TypedBuffer::sptr_t mSurfelsBuffer[2];
   TypedBuffer::sptr_t mSurfels[2];

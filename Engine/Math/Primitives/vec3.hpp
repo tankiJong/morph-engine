@@ -15,7 +15,6 @@ public:
   explicit vec3(const vec2& vec); // have to cast by intention
   explicit vec3(const ivec3 castFrom);
   vec3(const vec2& vec, float z); // have to cast by intention
-  vec3(const vec3& vec);
   vec3(const char* str);
 
   void fromString(const char* data);

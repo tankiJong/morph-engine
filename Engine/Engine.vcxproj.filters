@@ -196,6 +196,9 @@
     <Filter Include="ThirdParty\tinyobjloader">
       <UniqueIdentifier>{27f7f92d-2d5c-4064-b41e-674aad3ab66e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Memory">
+      <UniqueIdentifier>{d4343390-4662-4df4-b692-e0fe12427d18}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -695,6 +698,15 @@
     </ClCompile>
     <ClCompile Include="Application\Application.cpp">
       <Filter>Engine\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Model\BVH.cpp">
+      <Filter>Engine\Graphics\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory\Allocator.cpp">
+      <Filter>Engine\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory\Pool.cpp">
+      <Filter>Engine\Memory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1397,6 +1409,15 @@
     <ClInclude Include="Application\Application.hpp">
       <Filter>Engine\Application</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Model\BVH.hpp">
+      <Filter>Engine\Graphics\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\Allocator.hpp">
+      <Filter>Engine\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\Pool.hpp">
+      <Filter>Engine\Memory</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\ThirdParty\fmod\fmod_vc.lib">
@@ -1513,6 +1534,12 @@
     <None Include="Renderer\SceneRenderer\fullscreen.hlsli">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </None>
+    <None Include="Renderer\SceneRenderer\BvhVisual.hlsli">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </None>
+    <None Include="Renderer\SceneRenderer\Bvh.hlsli">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis">
@@ -1590,6 +1617,15 @@
     </FxCompile>
     <FxCompile Include="Debug\Debug_Wireframe_vs.hlsl">
       <Filter>Engine\Debug</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\BvhVisual_gs.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\BvhVisual_ps.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\BvhVisual_vs.hlsl">
+      <Filter>Engine\Renderer\SceneRenderer</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -24,6 +24,7 @@ void RHIBuffer:: updateData(const void* data, size_t offset, size_t size) {
   if(mCpuAccess == CPUAccess::Write) {
     byte_t* dst = (byte_t*)map(MapType::WriteDiscard) + offset;
     std::memcpy(dst, data, size);
+    unmap();
   } else {
     RHIDevice::get()->defaultRenderContext()->updateBuffer(this, data, offset, size);
   }

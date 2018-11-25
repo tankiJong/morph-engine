@@ -20,7 +20,7 @@ vec4::vec4(const vec3& copy)
   : x(copy.x)
   , y(copy.y)
   , z(copy.z) 
-  , w(0) {}
+  , w(1) {}
 
 vec4::vec4(const vec3& xyz, float w)
   : x(xyz.x)

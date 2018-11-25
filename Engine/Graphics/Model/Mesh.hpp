@@ -5,6 +5,8 @@
 #include "Engine/Core/Resource.hpp"
 #include "Engine/Graphics/RHI/RHIBuffer.hpp"
 #include "Engine/Graphics/RHI/TypedBuffer.hpp"
+#include "Engine/Memory/Pool.hpp"
+
 struct draw_instr_t {
   eDrawPrimitive prim = DRAW_TRIANGES;
   bool useIndices = true;
@@ -64,7 +66,12 @@ public:
       Mesh::setVertices(attr.streamIndex, attr.stride(), vertices.count(), *(start + attr.offsetInVertexArray));
     }
   }
+
+  static Pool<VertexMesh<V>> pool;
 };
+
+template<typename V>
+Pool<VertexMesh<V>> VertexMesh<V>::pool{};
 
 //template<>
 //ResDef<Mesh> Resource<Mesh>::load(const std::string& file);

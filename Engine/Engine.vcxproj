@@ -998,6 +998,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="Framework\Light.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\Font.cpp" />
+    <ClCompile Include="Graphics\Model\BVH.cpp" />
     <ClCompile Include="Graphics\Model\Mesh.cpp" />
     <ClCompile Include="Graphics\Model\Mesher.cpp" />
     <ClCompile Include="Graphics\Model\Vertex.cpp" />
@@ -1076,6 +1077,8 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="Math\Primitives\vec4.cpp" />
     <ClCompile Include="Math\Range.cpp" />
     <ClCompile Include="Math\Transform.cpp" />
+    <ClCompile Include="Memory\Allocator.cpp" />
+    <ClCompile Include="Memory\Pool.cpp" />
     <ClCompile Include="Net\Net.cpp" />
     <ClCompile Include="Net\NetAddress.cpp" />
     <ClCompile Include="Net\NetMessage.cpp" />
@@ -1819,6 +1822,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="Framework\Light.hpp" />
     <ClInclude Include="Graphics\Camera.hpp" />
     <ClInclude Include="Graphics\Font.hpp" />
+    <ClInclude Include="Graphics\Model\BVH.hpp" />
     <ClInclude Include="Graphics\Model\Mesh.hpp" />
     <ClInclude Include="Graphics\Model\Mesher.hpp" />
     <ClInclude Include="Graphics\Model\Vertex.hpp" />
@@ -1891,6 +1895,8 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="Math\Primitives\vec4.hpp" />
     <ClInclude Include="Math\Range.hpp" />
     <ClInclude Include="Math\Transform.hpp" />
+    <ClInclude Include="Memory\Allocator.hpp" />
+    <ClInclude Include="Memory\Pool.hpp" />
     <ClInclude Include="Net\Net.hpp" />
     <ClInclude Include="Net\NetAddress.hpp" />
     <ClInclude Include="Net\NetMessage.hpp" />
@@ -2504,6 +2510,8 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <None Include="..\ThirdParty\WinPixEventRuntime\bin\WinPixEventRuntime.dll" />
     <None Include="..\ThirdParty\WinPixEventRuntime\bin\WinPixEventRuntime_UAP.dll" />
     <None Include="packages.config" />
+    <None Include="Renderer\SceneRenderer\Bvh.hlsli" />
+    <None Include="Renderer\SceneRenderer\BvhVisual.hlsli" />
     <None Include="Renderer\SceneRenderer\fxaa.hlsli" />
     <None Include="Renderer\SceneRenderer\GenGBuffer.hlsli" />
     <None Include="Renderer\SceneRenderer\Lighting.hlsli" />
@@ -2578,6 +2586,54 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Vertex</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">vmain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\BvhVisual_gs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Geometry</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Geometry</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\BvhVisual_ps.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Renderer\SceneRenderer\BvhVisual_vs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FastBreak|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugInline|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DXR|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\DeferredLighting_ComputeIndirect_cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug_DX12|x64'">Compute</ShaderType>

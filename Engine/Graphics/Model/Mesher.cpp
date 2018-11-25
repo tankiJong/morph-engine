@@ -11,6 +11,7 @@
 #include "Engine/Graphics/Font.hpp"
 #include "Engine/File/FileSystem.hpp"
 #include "Engine/Debug/Log.hpp"
+#include "Engine/Graphics/Model/BVH.hpp"
 
 class MikktBinding : public SMikkTSpaceContext {
 public:
@@ -154,8 +155,6 @@ void MikktBinding::mikktSetTSpace(const SMikkTSpaceContext* pContext,
   tangent.z = fvTangent[2];
   tangent.w = (float)bIsOrientationPreserving;
 }
-
-
 
 Mesher& Mesher::begin(eDrawPrimitive prim, bool useIndices) {
   GUARANTEE_OR_DIE(isDrawing == false, "Call begin before previous end get called.");
@@ -820,4 +819,12 @@ void Mesher::obj(fs::path objFile) {
     mikkt();
 
   }
+}
+
+owner<BVH*> Mesher::createBVH(uint maxDepth) {
+  BVH* bvh = new BVH(
+    { mVertices.vertices().position, mVertices.count() },
+    { mVertices.vertices().color, mVertices.count() }, maxDepth);
+
+  return bvh;
 }
