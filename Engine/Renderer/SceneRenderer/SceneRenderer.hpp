@@ -112,7 +112,7 @@ protected:
 
   TypedBuffer::sptr_t mVertexData;
   TypedBuffer::sptr_t mBVH;
-  TypedBuffer::sptr_t mAccelerationStructure;
+  // TypedBuffer::sptr_t mAccelerationStructure;
   TypedBuffer::sptr_t mSurfelsBuffer[2];
   TypedBuffer::sptr_t mSurfels[2];
   TypedBuffer::sptr_t mSurfelsHistory;

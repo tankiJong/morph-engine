@@ -14,7 +14,6 @@ Texture2D<float4> gTexAlbedo:   register(t10);
 Texture2D<float4> gTexNormal:   register(t11);
 Texture2D<float4> gTexPosition: register(t12);
 Texture2D gTexDepth: register(t13);
-StructuredBuffer<vertex_t> gVerts: register(t14);
 
 RWStructuredBuffer<surfel_t> uSurfels: register(u0);
 RWStructuredBuffer<SurfelBucketInfo> uSurfelBucket: register(u1);

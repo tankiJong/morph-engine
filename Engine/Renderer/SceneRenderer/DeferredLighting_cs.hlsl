@@ -15,7 +15,8 @@ Texture2D<float4> gTexAlbedo:   register(t10);
 Texture2D<float4> gTexNormal:   register(t11);
 Texture2D<float4> gTexPosition: register(t12);
 Texture2D gTexDepth: register(t13);
-StructuredBuffer<vertex_t> gVerts: register(t14);
+StructuredBuffer<Prim> gVerts:	register(t14);
+StructuredBuffer<BVHNode> gBvh: register(t15);
 
 RWTexture2D<float4> uTexScene: register(u0);
 RWTexture2D<float4> gIndirect: register(u1);
@@ -29,17 +30,7 @@ Contact trace(Ray ray) {
 	uint vertCount, stride;
 	gVerts.GetDimensions(vertCount, stride);
 
-	Contact contact;
-	contact.t = 1e6;
-	contact.valid = false;
-
-	for(uint i = 0; i < vertCount; i+=3) {
-		Contact c = triIntersection(gVerts[i].position.xyz, gVerts[i+1].position.xyz, gVerts[i+2].position.xyz, gVerts[i].position.w, ray);
-		bool valid = c.valid && (c.t < contact.t) && (c.t >= 0.f);	 // equal to zero avoid the fail intersaction in the corner	edge
-		if(valid)	{
-			contact = c;
-		}
-	}
+	Contact contact = trace(ray, gBvh, gVerts);
 
 	return contact;
 }
@@ -159,15 +150,15 @@ float3 PhongLighting(uint2 pix)
 	// return float3(ambient, ambient, ambient);
 
   // float3 diffuse = float3(0,0,0);
-  float3 diffuse =  Diffuse(surfacePosition, surfaceNormal, gLight.color.xyz, gLight);
-  // float3 diffuse = computeDiffuse(surfacePosition, surfaceNormal);
+  // float3 diffuse =  Diffuse(surfacePosition, surfaceNormal, gLight.color.xyz, gLight);
+  float3 diffuse = computeDiffuse(surfacePosition, surfaceNormal);
   // float3 specular = Specular(surfacePosition, surfaceNormal, 
 	// 													 normalize(eyePosition - surfacePosition), SPECULAR_AMOUNT, SPECULAR_POWER, gLight);
 
-	float3 indirect = ( gIndirect[pix / 2].xyz / gIndirect[pix / 2].w ) * (8 * M_PI) * ambient ;
+	float3 indirect = ( gIndirect[pix / 2].xyz / gIndirect[pix / 2].w ) * (2 * M_PI) * ambient ;
 	
 	// return indirect;
-  float3 color = ( diffuse ) * surfaceColor / M_PI /* + specular*/;
+  float3 color = ( diffuse + indirect ) * surfaceColor / M_PI /* + specular*/;
 
 	const float GAMMA = 1.f / 2.1;
 	color =  pow(color, float3(GAMMA, GAMMA, GAMMA));

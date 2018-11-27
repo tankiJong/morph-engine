@@ -107,7 +107,7 @@ Contact trace(Ray ray,
 							in StructuredBuffer<BVHNode> nodes, 
 							in StructuredBuffer<Prim> prims, out float4 color) {
 	
-	const uint MAX_COLLISION_RECORD = 12;
+	const uint MAX_COLLISION_RECORD = 6;
 	uint currentNodeIndex = 1;
 	uint nextRecord = 0;
 

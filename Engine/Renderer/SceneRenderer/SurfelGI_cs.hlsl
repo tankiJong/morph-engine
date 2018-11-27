@@ -5,7 +5,7 @@
 #define SurfelGI_RootSig \
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
      RootSig_Common \
-		"DescriptorTable(SRV(t10, numDescriptors = 5), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(SRV(t10, numDescriptors = 6), visibility = SHADER_VISIBILITY_ALL)," \
 		"DescriptorTable(UAV(u0, numDescriptors = 4, flags = DESCRIPTORS_VOLATILE), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_ALL),"
 
@@ -13,7 +13,8 @@ Texture2D<float4> gTexAlbedo:   register(t10);
 Texture2D<float4> gTexNormal:   register(t11);
 Texture2D<float4> gTexPosition: register(t12);
 Texture2D gTexDepth: register(t13);
-StructuredBuffer<vertex_t> gVerts: register(t14);
+StructuredBuffer<Prim> gVerts:	register(t14);
+StructuredBuffer<BVHNode> gBvh: register(t15);
 
 RWStructuredBuffer<surfel_t> uSurfels: register(u0);
 RWStructuredBuffer<surfel_t> uSurfelsPreviousFrame: register(u1);
@@ -27,17 +28,7 @@ Contact trace(Ray ray) {
 	uint vertCount, stride;
 	gVerts.GetDimensions(vertCount, stride);
 
-	Contact contact;
-	contact.t = 1e6;
-	contact.valid = false;
-
-	for(uint i = 0; i < vertCount; i+=3) {
-		Contact c = triIntersection(gVerts[i].position.xyz, gVerts[i+1].position.xyz, gVerts[i+2].position.xyz, gVerts[i].position.w, ray);
-		bool valid = c.valid && (c.t < contact.t) && (c.t >= 0.f);	 // equal to zero avoid the fail intersaction in the corner	edge
-		if(valid)	{
-			contact = c;
-		}
-	}
+	Contact contact = trace(ray, gBvh, gVerts);
 
 	return contact;
 }
@@ -108,19 +99,10 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 		uint vertCount, stride;
 		gVerts.GetDimensions(vertCount, stride);
 
-		Contact contact;
-		contact.t = 1e6;
-		contact.valid = false;
 
-		float3 albedo = float3(0,0,0);
-		for(uint i = 0; i < vertCount; i+=3) {
-			Contact c = triIntersection(gVerts[i].position.xyz, gVerts[i+1].position.xyz, gVerts[i+2].position.xyz, gVerts[i].position.w, ray);
-			bool valid = c.valid && (c.t < contact.t) && (c.t >= 0.f);	 // equal to zero avoid the fail intersaction in the corner	edge
-			if(valid)	{
-				contact = c;
-				albedo = gVerts[i].color.xyz;
-			}
-		}
+		float4 albedo;
+		
+		Contact contact = trace(ray, gBvh, gVerts, albedo);
 
 		totals[bounce].w = contact.t;
 		dots[bounce] = 0;

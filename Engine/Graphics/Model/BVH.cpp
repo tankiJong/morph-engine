@@ -109,6 +109,7 @@ BVH::BVH(span<vec3> vertices, span<vec4> color, uint depth) {
     // create node
     Node& current = mNodes.emplace_back();
     current.depth = job.depth;
+
     current.bounds = computeBounds(prims);
     current.indexInArray = mNodes.size() - 1;
     // link back the node 
@@ -165,6 +166,8 @@ BVH::Prim::Prim(const vec3 p[3], const vec4 c[3]) {
   bounds.grow(p[0]);
   bounds.grow(p[1]);
   bounds.grow(p[2]);
+
+  ENSURES(bounds.contains(p[0]) && bounds.contains(p[1]) && bounds.contains(p[0]));
 }
 
 void BVH::render() {
@@ -248,8 +251,8 @@ aabb3 BVH::computeBounds(span<Prim> prims) {
 
   aabb3 bounds;
 
-  for (auto p = prims.begin(); p < prims.end(); ++p) {
-    bounds.grow(p->bounds);
+  for (auto& p: prims) {
+    bounds.grow(p.bounds);
   }
 
   return bounds;

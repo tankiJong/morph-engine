@@ -320,18 +320,18 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   }
 
   if(shouldRecomputeIndirect()) {
-    // computeIndirectLighting(ctx);
+    computeIndirectLighting(ctx);
   }
 
-  // accumlateGI(ctx);
-  // computeSurfelCoverage(ctx);
- //  accumlateSurfels(ctx);
+  accumlateGI(ctx);
+  computeSurfelCoverage(ctx);
+  accumlateSurfels(ctx);
   
   if(!Input::Get().isKeyDown(KEYBOARD_SPACE)) {
     deferredLighting(ctx);
     fxaa(ctx);
 
-    visualizeBVH(ctx);
+    // visualizeBVH(ctx);
   } else {
     visualizeSurfels(ctx);
   }
@@ -510,53 +510,53 @@ void SceneRenderer::genGBuffer(RHIContext& ctx) {
   // ctx.transitionBarrier(mGVelocity.get(), RHIResource::State::NonPixelShader, TRANSITION_BEGIN);
 
 
-  if(!mAccelerationStructure) {
-    SCOPED_GPU_EVENT("Gen AccelerationStructure");
-    DescriptorSet::Layout layout;
-
-    struct vert_t {
-      vec4 position;
-      vec4 color;
-    };
-    mAccelerationStructure = TypedBuffer::create(sizeof(vert_t), totalCount, RHIResource::BindingFlag::UnorderedAccess);
-    NAME_RHIRES(mAccelerationStructure);
-
-    // mapping with the vertex layout
-    layout.addRange(DescriptorPool::Type::TypedBufferSrv, 0, 5);
-    layout.addRange(DescriptorPool::Type::StructuredBufferUav, 0, 1);
-
-    DescriptorSet::sptr_t descriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
-
-    RootSignature::Desc desc;
-    desc.addDescriptorSet(layout);
-    static RootSignature::sptr_t sig = RootSignature::create(desc);
-
-    ComputeState::Desc pipdesc;
-
-    pipdesc.setRootSignature(sig);
-    pipdesc.setProgram(gGenAccelerationStructureProgram);
-
-    static ComputeState::sptr_t computeState = ComputeState::create(pipdesc);
-
-    ctx.setComputeState(*computeState);
-    descriptors->bindForCompute(ctx, *sig, 0);
-
-    descriptors->setUav(1, 0, *mAccelerationStructure->uav());
-    for(uint i = 0; i < mTargetScene.Renderables().size(); i++) {
-      Renderable* r = mTargetScene.Renderables()[i];
-      for(auto& attribute: r->mesh()->layout().attributes()) {
-        ctx.transitionBarrier(&r->mesh()->vertices(attribute.streamIndex)->res(), RHIResource::State::NonPixelShader);
-        descriptors->setSrv(0, attribute.streamIndex, r->mesh()->vertices(attribute.streamIndex)->srv());
-      }
-      //
-      // uint x = r->mesh()->vertices(0)->size() / 16 + 1;
-      // uint y = 1;
-      ctx.dispatch(1, 1, 1);
-    }
-
-    mDGBufferDescriptors->setSrv(0, 4, mAccelerationStructure->srv());
-
-  }
+  // if(!mAccelerationStructure) {
+  //   SCOPED_GPU_EVENT("Gen AccelerationStructure");
+  //   DescriptorSet::Layout layout;
+  //
+  //   struct vert_t {
+  //     vec4 position;
+  //     vec4 color;
+  //   };
+  //   mAccelerationStructure = TypedBuffer::create(sizeof(vert_t), totalCount, RHIResource::BindingFlag::UnorderedAccess);
+  //   NAME_RHIRES(mAccelerationStructure);
+  //
+  //   // mapping with the vertex layout
+  //   layout.addRange(DescriptorPool::Type::TypedBufferSrv, 0, 5);
+  //   layout.addRange(DescriptorPool::Type::StructuredBufferUav, 0, 1);
+  //
+  //   DescriptorSet::sptr_t descriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
+  //
+  //   RootSignature::Desc desc;
+  //   desc.addDescriptorSet(layout);
+  //   static RootSignature::sptr_t sig = RootSignature::create(desc);
+  //
+  //   ComputeState::Desc pipdesc;
+  //
+  //   pipdesc.setRootSignature(sig);
+  //   pipdesc.setProgram(gGenAccelerationStructureProgram);
+  //
+  //   static ComputeState::sptr_t computeState = ComputeState::create(pipdesc);
+  //
+  //   ctx.setComputeState(*computeState);
+  //   descriptors->bindForCompute(ctx, *sig, 0);
+  //
+  //   descriptors->setUav(1, 0, *mAccelerationStructure->uav());
+  //   for(uint i = 0; i < mTargetScene.Renderables().size(); i++) {
+  //     Renderable* r = mTargetScene.Renderables()[i];
+  //     for(auto& attribute: r->mesh()->layout().attributes()) {
+  //       ctx.transitionBarrier(&r->mesh()->vertices(attribute.streamIndex)->res(), RHIResource::State::NonPixelShader);
+  //       descriptors->setSrv(0, attribute.streamIndex, r->mesh()->vertices(attribute.streamIndex)->srv());
+  //     }
+  //     //
+  //     // uint x = r->mesh()->vertices(0)->size() / 16 + 1;
+  //     // uint y = 1;
+  //     ctx.dispatch(1, 1, 1);
+  //   }
+  //
+  //   mDGBufferDescriptors->setSrv(0, 4, mAccelerationStructure->srv());
+  //
+  // }
 }
 
 void SceneRenderer::genAO(RHIContext& ctx) {
@@ -625,7 +625,7 @@ void SceneRenderer::computeSurfelCoverage(RHIContext& ctx) {
   ctx.transitionBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
-  ctx.transitionBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
+  // ctx.transitionBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mSurfels[0].get(), RHIResource::State::UnorderedAccess);
   ctx.transitionBarrier(mSurfelCoverage.get(), RHIResource::State::UnorderedAccess);
   ctx.setComputeState(*computeState);
@@ -657,7 +657,7 @@ void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
   ctx.transitionBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
-  ctx.transitionBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
+  // ctx.transitionBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mSurfels[0].get(), RHIResource::State::UnorderedAccess);
   ctx.transitionBarrier(mSurfelBuckets.get(), RHIResource::State::UnorderedAccess);
   ctx.transitionBarrier(mSurfelCoverage.get(), RHIResource::State::UnorderedAccess);
@@ -690,7 +690,6 @@ void SceneRenderer::accumlateGI(RHIContext& ctx) {
   ctx.transitionBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
-  ctx.transitionBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mSurfels[0].get(), RHIResource::State::UnorderedAccess);
   ctx.transitionBarrier(mSurfelVisual.get(), RHIResource::State::UnorderedAccess);
 
@@ -720,7 +719,7 @@ void SceneRenderer::visualizeSurfels(RHIContext& ctx) {
   ctx.transitionBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mGPosition.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mGDepth.get(), RHIResource::State::NonPixelShader);
-  ctx.transitionBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
+  // ctx.transitionBarrier(mAccelerationStructure.get(), RHIResource::State::NonPixelShader);
   ctx.transitionBarrier(mSurfels[0].get(), RHIResource::State::UnorderedAccess);
   ctx.transitionBarrier(mSurfelVisual.get(), RHIResource::State::UnorderedAccess);
 

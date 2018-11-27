@@ -28,8 +28,7 @@ float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 
 	ray.position = surfacePosition + surfaceNormal * 0.0001f;
 
-	float4 albedo;
-	Contact c = trace(ray, gBvh, gVerts, albedo);
+	Contact c = trace(ray, gBvh, gVerts);
 
 
 	if(c.valid && c.t < maxDist) return float3(0,0,0);
@@ -138,5 +137,5 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	finalColor = (uTexScene[pix].xyz * gFrameCount + finalColor)	/ (gFrameCount + 1);
 
 	uTexScene[pix] = float4(finalColor, 1.f);
-	uTexScene[pix] = float4(float(boxIntersectCalledTimes) / 50, 0, 0, 1.f);
+	// uTexScene[pix] = float4(float(boxIntersectCalledTimes) / 50, 0, 0, 1.f);
 }

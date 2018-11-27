@@ -86,7 +86,8 @@ bool aabb3::grow(const aabb3& bound) {
 
   bool change = false;
   for(vec3& corner: corners) {
-    change = change || grow(corner);
+    bool growed = grow(corner);
+    change = change || growed;
   }
 
   return change;
