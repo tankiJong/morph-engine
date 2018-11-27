@@ -159,15 +159,15 @@ float3 PhongLighting(uint2 pix)
 	// return float3(ambient, ambient, ambient);
 
   // float3 diffuse = float3(0,0,0);
-  float3 diffuse =  Diffuse(surfacePosition, surfaceNormal, gLight.color.xyz, gLight);
-  // float3 diffuse = computeDiffuse(surfacePosition, surfaceNormal);
+  // float3 diffuse =  Diffuse(surfacePosition, surfaceNormal, gLight.color.xyz, gLight);
+  float3 diffuse = computeDiffuse(surfacePosition, surfaceNormal);
   // float3 specular = Specular(surfacePosition, surfaceNormal, 
 	// 													 normalize(eyePosition - surfacePosition), SPECULAR_AMOUNT, SPECULAR_POWER, gLight);
 
 	float3 indirect = ( gIndirect[pix / 2].xyz / gIndirect[pix / 2].w ) * (8 * M_PI) * ambient ;
 	
 	// return indirect;
-  float3 color = ( diffuse ) * surfaceColor / M_PI /* + specular*/;
+  float3 color = ( diffuse + indirect ) * surfaceColor / M_PI /* + specular*/;
 
 	const float GAMMA = 1.f / 2.1;
 	color =  pow(color, float3(GAMMA, GAMMA, GAMMA));
@@ -194,7 +194,7 @@ void main( uint3 threadId: SV_DispatchThreadID )
 	// float v = rnd01(seed).value	+ gFrameCount * uTexScene[pix];
 	// v = v / (1 + gFrameCount);
 	// uTexScene[pix] = float4(v, v, v, 1.f);
-	uTexScene[pix] = float4(color, 1.f);
+	uTexScene[pix] = float4(color, 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b);
 }
 
 

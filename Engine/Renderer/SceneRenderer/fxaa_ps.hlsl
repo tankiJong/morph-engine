@@ -2,8 +2,6 @@
 #define FXAA_PC 1
 #define FXAA_HLSL_5 1
 #define FXAA_QUALITY__PRESET 39
-#define FXAA_GREEN_AS_LUMA 1
-
 
 #include "fxaa.hlsli"
 
@@ -18,9 +16,9 @@ struct PSOutput {
 Texture2D<float4> gTexScene: register(t0);
 SamplerState gSampler : register(s0);
 
-static const float fxaaSubpix = 1.00;
-static const float fxaaEdgeThreshold = 0.2;
-static const float fxaaEdgeThresholdMin = 0;
+static const float fxaaSubpix = 1;
+static const float fxaaEdgeThreshold = 0.125;
+static const float fxaaEdgeThresholdMin = 0.06;
 
 
 

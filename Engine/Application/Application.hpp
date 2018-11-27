@@ -20,7 +20,7 @@ public:
   virtual void onUpdate() {}
   virtual void postUpdate() {}
 
-  virtual void onRender() {}
+  virtual void onRender() const {}
 
   virtual void onGui() {}
   virtual void onQuit() {}
