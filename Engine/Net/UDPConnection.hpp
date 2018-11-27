@@ -67,7 +67,8 @@ public:
 
   ~UDPConnection();
   bool valid() const { return mOwner != nullptr; }
-  void invalidate() { mOwner = nullptr; }
+
+  void invalidate();
 
   bool send(NetMessage& msg);
   bool flush(bool force = false);

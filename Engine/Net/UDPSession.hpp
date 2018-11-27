@@ -61,6 +61,7 @@ public:
   static constexpr uint HOST_CONNECTION_INDEX = 0;
   static constexpr double JOIN_TIMEOUT_SEC = 10;
   static constexpr double CONNECTION_TIMEOUT_SEC = 5;
+  static constexpr float MAX_NET_TIME_DILATION = .5f;
   struct MessageHandle {
     
     uint16_t mOldestSentRelialbeId = UINT16_MAX;
@@ -127,6 +128,8 @@ public:
 
   bool isHosting() const;
 
+  uint64_t sessionTimeMs() const;
+
 protected:
   bool connect(uint8_t index, const NetAddress& addr);
   void err(eSessionError errorCode);
@@ -146,6 +149,7 @@ protected:
 
   void registerCoreMessage();
   void finalizeMessageDefinition();
+
 
   bool onJoinAccepted(NetMessage msg, UDPSession::Sender& sender);
   std::optional<uint8_t> aquireNextAvailableConnection();
@@ -170,5 +174,8 @@ protected:
   eSessionError mLastError = SESSION_OK;
 
   double mJoinTimeout = 0;
+
+  uint64_t mDesiredClientMilliSec;
+  uint64_t mCurrentClientMilliSec;
 };
 

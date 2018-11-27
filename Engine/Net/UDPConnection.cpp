@@ -33,6 +33,10 @@ UDPConnection::~UDPConnection() {
   }
 }
 
+void UDPConnection::invalidate() {
+  mOwner = nullptr;
+  new(this) UDPConnection();
+}
 bool UDPConnection::send(NetMessage& msg) {
   mOwner->finalize(msg);
 
@@ -52,6 +56,7 @@ bool UDPConnection::send(NetMessage& msg) {
 }
 
 bool UDPConnection::flush(bool force) {
+  if (!valid()) return false;
   tryAppendHeartbeat();
   if(!force) {
     if (!shouldSendPacket()) return false;
@@ -302,6 +307,7 @@ void UDPConnection::disconnect() {
   connectionState(CONNECTION_DISCONNECTED);
   flush(true);
   invalidate();
+
 }
 
 uint16_t UDPConnection::increaseAck() {
@@ -355,6 +361,10 @@ bool UDPConnection::tryAppendHeartbeat() {
   if (!mHeartBeatTimer.decrement()) return false;
 
   NetMessage heartbeat("heartbeat");
+
+  uint64_t time = mOwner->sessionTimeMs();
+
+  heartbeat << time;
   send(heartbeat);
 
   return true;
@@ -368,7 +378,7 @@ bool UDPConnection::confirmReceived(uint16_t ack) {
 
 
   // compute rtt and update tracker
-  if(cycLess(mLargestReceivedAck, ack)) {
+  if(cycLessEq(ack, mLastSendAck)) {
     double packetRtt = GetCurrentTimeSeconds() - pt.sendSec;
     // Log::logf("send: %lf, rtt: %lf", tracker.sendSec, packetRtt);
     rtt(packetRtt);

@@ -12,10 +12,6 @@
 #include "Engine/Application/Window.hpp"
 #include <optional>
 
-bool onHeartBeat(NetMessage, UDPSession::Sender&) {
-  return true;
-}
-
 UDPSession::UDPSession() {
   
   // bind core message
@@ -92,6 +88,14 @@ bool UDPSession::isHosting() const {
     mSessionState == SESSION_READY && mSelfIndex == HOST_CONNECTION_INDEX;
 }
 
+uint64_t UDPSession::sessionTimeMs() const {
+  if(isHosting()) {
+    return GetMainClock().total.second * 1000;
+  }
+
+  return mCurrentClientMilliSec;
+}
+
 void UDPSession::sessionState(eSessionState state) {
   mSessionState = state;
 }
@@ -160,12 +164,15 @@ bool UDPSession::in() {
         mJoinTimeout = 0;
       } else {
         NetMessage msg(NETMSG_JOIN_REQUEST);
-        hostConnection()->send(msg);
+        if(hostConnection()->valid()) {
+          hostConnection()->send(msg);
+        }
       }
     } else {
       // timeout
       mLastError = SESSION_ERROR_JOIN_TIMEOUT;
       connection.disconnect();
+      disconnect();
       mJoinTimeout = 0;
     }
 
@@ -214,6 +221,32 @@ bool UDPSession::in() {
 }
 
 bool UDPSession::out() {
+  if(!isHosting()) {
+    uint64_t localDtMs = uint64_t(GetMainClock().frame.second * 1000);
+    mDesiredClientMilliSec += localDtMs;
+
+    uint64_t scaledLocalDtMs = localDtMs;
+
+    if(mCurrentClientMilliSec + scaledLocalDtMs > mDesiredClientMilliSec) {
+      uint64_t delta = mCurrentClientMilliSec + scaledLocalDtMs - mDesiredClientMilliSec;
+
+      float scaleFactor = float(delta) / 200.f * MAX_NET_TIME_DILATION;
+      scaleFactor = clamp(scaleFactor, 0.f, MAX_NET_TIME_DILATION);
+
+      scaledLocalDtMs = uint64_t(float(scaledLocalDtMs) * ( 1.f - scaleFactor ));
+    }
+    if(mCurrentClientMilliSec + scaledLocalDtMs < mDesiredClientMilliSec) {
+      uint64_t delta = mDesiredClientMilliSec - (mCurrentClientMilliSec + scaledLocalDtMs);
+
+      float scaleFactor = float(delta) / 200.f * MAX_NET_TIME_DILATION;
+      scaleFactor = clamp(scaleFactor, 0.f, MAX_NET_TIME_DILATION);
+
+      scaledLocalDtMs = uint64_t(float(scaledLocalDtMs) * ( 1.f + scaleFactor ));
+    }
+    
+    mCurrentClientMilliSec += scaledLocalDtMs;
+  }
+
   for(UDPConnection& connection: mConnections) {
     if (!connection.valid()) continue;
     connection.flush();
@@ -362,7 +395,7 @@ void UDPSession::renderUI() const {
   ms.begin(DRAW_TRIANGES);
 
 
-  ms.text("SESSION INFO", 20.f, font.get(), cursorStart);
+  ms.text(Stringf("SESSION INFO - Time: %u", sessionTimeMs()), 20.f, font.get(), cursorStart);
   cursorStart -= { 0, LINE_PADDING + font->lineHeight(20.f), 0 };
 
   ms.text(
@@ -559,7 +592,17 @@ void UDPSession::registerCoreMessage() {
     return true;
   }, NETMESSAGE_OPTION_CONNECTIONLESS);
 
-  on(uint8_t(NETMSG_HEARTBEAT), "heartbeat", onHeartBeat);
+  on(uint8_t(NETMSG_HEARTBEAT), "heartbeat", [](NetMessage msg, UDPSession::Sender& sender) {
+    if(!sender.session->isHosting()) {
+      uint64_t expectTime;
+      msg >> expectTime;
+
+      sender.session->mDesiredClientMilliSec = 
+        expectTime + uint64_t(sender.connection->rtt() * .5f * 1000.f);
+    }
+
+    return true;
+  });
 
   on(uint8_t(NETMSG_JOIN_REQUEST), "join_request", [](NetMessage msg, UDPSession::Sender& sender) {
 
@@ -601,7 +644,8 @@ void UDPSession::registerCoreMessage() {
     Log::logf("accept join request from %s", sender.address.toString());
     NetMessage message(NETMSG_JOIN_ACCEPT);
     message << index.value();
-    
+    message << sender.session->sessionTimeMs();
+
     sender.session->connection(index.value())->send(message);
 
     return true;  
@@ -611,11 +655,10 @@ void UDPSession::registerCoreMessage() {
   on(uint8_t(NETMSG_JOIN_ACCEPT), "join_accept", [this](NetMessage msg, Sender& sender) {
     Log::log("receive join accept message");
 
-    bool success = this->onJoinAccepted(msg, sender);
-    
+    bool success = sender.session->onJoinAccepted(msg, sender);
     
     EXPECTS(sender.session->selfConnection()->connectionState() == CONNECTION_CONNECTED);
-    
+
     NetMessage message(NETMSG_UPDATE_CONN_STATE);
     uint8_t index = sender.session->selfIndex();
     uint8_t state = uint8_t(CONNECTION_CONNECTED);
@@ -623,14 +666,16 @@ void UDPSession::registerCoreMessage() {
     message << index << state;
     success = success && sender.session->sendOthers(message);
 
+
+
     return success;
 
   }, NETMSSAGE_OPTION_RELIALBE_IN_ORDER, 1);
 
   on(uint8_t(NETMSG_JOIN_DENY), "join_denied", [](NetMessage msg, UDPSession::Sender& sender) {
 
-    if(sender.session->sessionState() != SESSION_JOINING) {
-      Log::logf("not in joining state, ignore deny msg. state: %u", sender.session->sessionState());
+    if(sender.session->sessionState() != SESSION_CONNECTING) {
+      // Log::logf("not in joining state, ignore deny msg. state: %u", sender.session->sessionState());
       return true;
     }
 
@@ -639,6 +684,7 @@ void UDPSession::registerCoreMessage() {
 
     Log::errorf("the join request got denied, code: %u", errCode);
     sender.session->err(SESSION_ERROR_JOIN_DENIED);
+    sender.session->disconnect();
     return true;
   });
 
@@ -696,6 +742,12 @@ void UDPSession::finalizeMessageDefinition() {
 bool UDPSession::onJoinAccepted(NetMessage msg, UDPSession::Sender& sender) {
   uint8_t index;
   msg >> index;
+
+  uint64_t hostTime;
+  msg >> hostTime;
+
+  mDesiredClientMilliSec = hostTime;
+  mCurrentClientMilliSec = hostTime;
 
   UDPConnection& tempConnection = *selfConnection();
   mConnections[index] = std::move(tempConnection);
