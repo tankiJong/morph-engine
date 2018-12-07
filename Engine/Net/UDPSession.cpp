@@ -5,19 +5,18 @@
 #include "Engine/Net/NetMessage.hpp"
 #include "Engine/Debug/Log.hpp"
 #include "Engine/Net/NetPacket.hpp"
-#include "Game/Gameplay/Map.hpp"
 #include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Font.hpp"
 #include "Engine/Renderer/Geometry/Mesher.hpp"
 #include "Engine/Application/Window.hpp"
+#include "Engine/Math/MathUtils.hpp"
+
 #include <optional>
 
 UDPSession::UDPSession() {
   
-  // bind core message
-  // * heartbeat
-  
   registerCoreMessage();
+  mNetObjectManager.init(*this);
 }
 
 UDPSession::~UDPSession() {
@@ -47,6 +46,9 @@ void UDPSession::host(const char* id, uint16_t port) {
   if(connected) {
     connection(0)->connectionState(CONNECTION_READY);
     sessionState(SESSION_READY);
+    for(const auto& cb: mJoinCb) {
+      cb(*this, *connection(0));
+    }
   } else {
     sessionState(SESSION_DISCONNECTED);
     mLastError = SESSION_ERROR_INTERNAL;
@@ -88,6 +90,12 @@ bool UDPSession::isHosting() const {
     mSessionState == SESSION_READY && mSelfIndex == HOST_CONNECTION_INDEX;
 }
 
+bool UDPSession::isHosted() const {
+  return
+    mSessionState == SESSION_READY && 
+    mSelfIndex != HOST_CONNECTION_INDEX;
+}
+
 uint64_t UDPSession::sessionTimeMs() const {
   if(isHosting()) {
     return GetMainClock().total.second * 1000;
@@ -110,6 +118,24 @@ bool UDPSession::bind(uint16_t port) {
 
   sessionState(SESSION_BOUND);
   return re;
+}
+
+// void UDPSession::updateObject(net_object_local_object_t* obj) {
+//   NetObject* netObject = mNetObjectManager.find(obj);
+//   if(netObject != nullptr) {
+//     selfConnection()->netObjectViewCollection().update(netObject, mNetObjectManager);
+//   } else {
+//     Log::log("try to update an object which is not registered in net object system");
+//   }
+// }
+
+void UDPSession::syncObjects() {
+  if(isHosted()) {
+    mNetObjectManager.applySnapshots();
+  } else {
+    mNetObjectManager.updateSnapshots();
+  }
+
 }
 
 bool UDPSession::connect(uint8_t index, const NetAddress& addr) {
@@ -182,6 +208,9 @@ bool UDPSession::in() {
     UDPConnection& connection = *selfConnection();
     if(connection.connected()) {
       sessionState(SESSION_READY);
+      for(const auto& cb: mJoinCb) {
+        cb(*this, connection);
+      }
     }
   }
   while(true) {
@@ -251,6 +280,9 @@ bool UDPSession::out() {
     if (!connection.valid()) continue;
     connection.flush();
 
+    if(connection.indexOfSession() == selfIndex()) {
+      continue;
+    }
     if(GetCurrentTimeSeconds() - connection.lastReceiveSecond() > CONNECTION_TIMEOUT_SEC) {
       connection.disconnect();
     }
@@ -382,8 +414,9 @@ void UDPSession::heartbeatFrequency(float freq) {
 }
 
 void UDPSession::renderUI() const {
+  
   Renderer& renderer = *Renderer::Get();
-
+  renderer.setCamera(g_theUiCamera);
   auto font = Font::Default();
 
   Mesher ms;
@@ -532,7 +565,7 @@ void UDPSession::processPackets() {
         if(msg.connectionless()) {
           conn->process(msg, sender);
         } else {
-          Log::logf("receive message %u which require a connection, throw away", msg.index());
+          // Log::logf("receive message %u which require a connection, throw away", msg.index());
         }
       }
     }
@@ -553,7 +586,7 @@ void UDPSession::processPackets() {
         if(msg.connectionless()) {
           handle(msg, sender);
         } else {
-          Log::logf("receive message %u which require a connection, throw away", msg.index());
+          // Log::logf("receive message %u which require a connection, throw away", msg.index());
         }
 
       }
@@ -639,7 +672,21 @@ void UDPSession::registerCoreMessage() {
       return true;
     }
 
-    sender.session->connect(index.value(), sender.address);
+    bool success = sender.session->connect(index.value(), sender.address);
+
+    if(!success) {
+      Log::warnf("failed to connect to %s, which JUST request to join", sender.address.toString());
+    }
+
+    for(const auto& cb: sender.session->mJoinCb) {
+      cb(*sender.session, *sender.session->connection(index.value()));
+    }
+    auto views = sender.session->selfConnection()->netObjectViewCollection().views();
+    NetObject::ViewCollection& colleciton = sender.session->connection(index.value())->netObjectViewCollection();
+
+    for(auto& view: views) {
+      colleciton.add(sender.session->cloneView(view));
+    }
 
     Log::logf("accept join request from %s", sender.address.toString());
     NetMessage message(NETMSG_JOIN_ACCEPT);
@@ -665,8 +712,6 @@ void UDPSession::registerCoreMessage() {
     
     message << index << state;
     success = success && sender.session->sendOthers(message);
-
-
 
     return success;
 
@@ -702,16 +747,121 @@ void UDPSession::registerCoreMessage() {
     sender.connection->connectionState(eConnectionState(newState));
 
     if(newState == CONNECTION_DISCONNECTED) {
+      for(const auto& cb: sender.session->mLeaveCb) {
+        cb(*sender.session, *sender.connection);
+      }
       sender.connection->disconnect();
     }
 
     if(connectionIndex == HOST_CONNECTION_INDEX && newState == CONNECTION_DISCONNECTED) {
+      for(const auto& cb: sender.session->mLeaveCb) {
+        cb(*sender.session, *sender.session->selfConnection());
+      }
       sender.session->disconnect();
     }
     return true;
   }, NETMSSAGE_OPTION_RELIALBE_IN_ORDER, 1);
-  // NETMSG_NEW_CONNECTION,
-  // NETMSG_UPDATE_CONN_STATE,
+
+  on(uint8_t(NETMSG_OBJECT_CREATE), "object_create", [](NetMessage msg, UDPSession::Sender& sender) {
+    if(sender.session->selfIndex() == sender.connection->indexOfSession()) return false;
+    net_object_id_t objId;
+    net_object_type_t objTypeId;
+
+    msg >> objId >> objTypeId;
+
+    NetObjectManager& objectManager = sender.session->netObjectManager();
+    auto objType = objectManager.type(objTypeId);
+    net_object_local_object_t* object = objType->receiveCreate(msg);
+
+    Log::logf("create object with id: %u", objId);
+
+    if(object != nullptr) {
+      NetObject* netObject = objectManager.createObject(objTypeId, object);
+      Log::log("...... and it's net object");
+
+    }
+
+    return true;
+  }, NETMSSAGE_OPTION_RELIALBE_IN_ORDER, 2);
+
+  on(uint8_t(NETMSG_OBJECT_DESTROY), "object_destory", [](NetMessage msg, UDPSession::Sender& sender) {
+    if(sender.session->selfIndex() == sender.connection->indexOfSession()) return false;
+    net_object_id_t objId;
+    net_object_type_t objTypeId;
+
+    msg >> objId >> objTypeId;
+
+    NetObjectManager& objectManager = sender.session->netObjectManager();
+
+    NetObject* obj = objectManager.find(objId);
+    if(obj == nullptr) {
+      Log::logf("try to destory non-existing object with id: %u", objId);
+      return false;
+    }
+    Log::logf("destory net object with id: %u", objId);
+
+    auto objType = objectManager.type(objTypeId);
+    objType->receiveDestory(msg, obj->ptr);
+
+    objectManager.destoryObject(obj);
+
+    return true;
+  }, NETMSSAGE_OPTION_RELIALBE_IN_ORDER, 2);
+
+  on(uint8_t(NETMSG_OBJECT_UPDATE), "object_update", [](NetMessage msg, UDPSession::Sender& sender) {
+    if(sender.session->selfIndex() == sender.connection->indexOfSession()) return false;
+
+    uint16_t updateProcessed;
+
+    msg >> updateProcessed;
+
+    Log::logf("the message has %u objects", updateProcessed);
+    while(msg.tellr() < msg.tellw()) {
+
+      net_object_id_t objId;
+      Timestamp lastUpdate;
+      uint16_t snapshotSize;
+
+      size_t readed = msg.read(&objId, sizeof(net_object_id_t));
+
+      if(readed < sizeof(net_object_id_t)) break;
+      
+      msg >> lastUpdate >> snapshotSize;
+
+
+      NetObjectManager& objectManager = sender.session->netObjectManager();
+      NetObject* obj = objectManager.find(objId);
+      
+      if(obj == nullptr) {
+        Log::logf("receive object update mseesage for %u, but object does not exist in the manager", objId);
+
+        net_object_snapshot_t* data = (net_object_snapshot_t*)_alloca(snapshotSize);
+        msg.read(data, snapshotSize);
+
+        continue;
+      }
+
+      auto objType = objectManager.type(obj->type);
+
+      NetObject::snapshot_t& snapshot = obj->latestSnapshot();
+      objType->receiveSync(snapshot.data, msg);
+      if(lastUpdate.stamp < snapshot.lastUpdate) {
+        // Log::log("receive expired object update, discard");
+        continue;
+      }
+
+      snapshot.lastUpdate = lastUpdate.stamp;
+      // bool isNew = 
+      // sender.connection->updateView(obj, snapshot.data, lastUpdate.stamp);
+      // if(isNew) {
+      //   objType->applySnapshot(obj->ptr, snapshot, float(sender.session->sessionTimeMs() - lastUpdate.stamp) / 1000.f);
+      // }
+
+    }
+
+    return true;
+  }, NETMESSAGE_OPTION_DEFAULT);
+
 }
 
 void UDPSession::finalizeMessageDefinition() {
@@ -736,6 +886,54 @@ void UDPSession::finalizeMessageDefinition() {
       mMessageDefs[i] = *unindexedIter;
       ++unindexedIter;
     }
+  }
+}
+//
+// void UDPSession::updateNetObjects() {
+//   if(isRunning()) {
+//     selfConnection()->netObjectViewCollection().update(mNetObjectManager);
+//   }
+// }
+
+NetObject::View UDPSession::createView(NetObject& netObject) {
+  NetObject::View view;
+  view.ref = &netObject;
+  // view.snapshot.size = netObjectManager().type(&netObject)->snapshotSize();
+  // view.snapshot.data = (net_object_snapshot_t*)malloc(view.snapshot.size);
+  view.lastUpdate.stamp = sessionTimeMs();
+  return view;
+}
+
+NetObject::View UDPSession::cloneView(const NetObject::View& view) {
+  NetObject::View newView;
+  newView.ref = view.ref;
+  newView.lastUpdate = view.lastUpdate;
+  // newView.snapshot.size = view.snapshot.size;
+  //
+  // newView.snapshot.data = (net_object_snapshot_t*)malloc(view.snapshot.size);
+  // memcpy(newView.snapshot.data, view.snapshot.data, view.snapshot.size);
+
+  return newView;
+}
+
+void UDPSession::destoryView(NetObject::View& view) {
+  view.ref = nullptr;
+  // free(view.snapshot.data);
+  // view.snapshot.size = 0;
+}
+
+void UDPSession::registerToConnections(const NetObject::View& view) {
+  for(UDPConnection& connection: mConnections) {
+    if (!connection.valid()) continue;
+    connection.netObjectViewCollection().add(cloneView(view));
+  }
+}
+
+void UDPSession::unregisterFromConnections(const NetObject& obj) {
+  for(UDPConnection& connection: mConnections) {
+    if (!connection.valid()) continue;
+    NetObject::View view = connection.netObjectViewCollection().remove(&obj);
+    destoryView(view);
   }
 }
 

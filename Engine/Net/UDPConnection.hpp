@@ -5,6 +5,7 @@
 #include <vector>
 #include "Engine/Net/NetPacket.hpp"
 #include <bitset>
+#include "Engine/Net/NetObject.hpp"
 
 class NetMessage;
 class UDPSession;
@@ -96,7 +97,10 @@ public:
   bool process(NetMessage& msg, UDPSender& sender);
   uint8_t indexOfSession() const { return mIndexOfSession; }
 
-  bool connected() const { return mConnectionState == CONNECTION_CONNECTED; };
+  bool connected() const { return mConnectionState == CONNECTION_CONNECTED; }
+
+  void updateView(NetObject* netObject, net_object_snapshot_t* snapshot);
+  bool updateView(NetObject* netObject, net_object_snapshot_t* snapshot, uint64_t lastUpdate);
 
   void heartbeatFrequency(double freq);
   double tickFrequency(double freq);
@@ -114,6 +118,8 @@ public:
   eConnectionState connectionState() const { return mConnectionState; }
 
   void disconnect();
+
+  NetObject::ViewCollection& netObjectViewCollection() { return mNetObjectViews; }
 protected:
   static constexpr uint PACKET_TRACKER_CACHE_SIZE = 64;
 
@@ -121,10 +127,10 @@ protected:
   PacketTracker& track(NetPacket& packet);
   bool shouldSendPacket() const;
   bool tryAppendHeartbeat();
+  void tryAppendNetObjectSync();
   bool confirmReceived(uint16_t ack);
   PacketTracker& packetTracker(uint ack);
   bool canSendNewReliable() const;
-
   NetAddress mAddress;
   UDPSession* mOwner = nullptr;
   uint8_t mIndexOfSession = 0xffui8;
@@ -160,5 +166,7 @@ protected:
   eConnectionState mConnectionState = CONNECTION_DISCONNECTED;
 
   Info mInfo;
+
+  NetObject::ViewCollection mNetObjectViews;
 };
 

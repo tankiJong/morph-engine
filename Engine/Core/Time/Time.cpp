@@ -91,7 +91,8 @@ Timestamp::Timestamp() {
 
 std::string Timestamp::toString() const {
   tm t;
-  localtime_s(&t, &stamp);
+  int64 time = int64(stamp);
+  localtime_s(&t, &time);
 
   return Stringf("%i-%i-%i-%i-%i-%i",   t.tm_year + 1900,
                                         t.tm_mon + 1,

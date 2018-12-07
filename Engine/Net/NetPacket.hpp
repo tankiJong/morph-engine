@@ -48,6 +48,8 @@ public:
   double receivedTime() const { return mTimestamp; };
 
   uint16_t ack() const { return mStampedHeader.ack; }
+
+  size_t avaliabeSpace() const { return mStampUsableSize; }
 public:
   bool operator==(const NetPacket& rhs) const {
     return mTimestamp == rhs.mTimestamp;

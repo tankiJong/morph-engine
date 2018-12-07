@@ -82,9 +82,9 @@ namespace Debug {
   const DrawHandle* drawCone(const vec3& origin, const vec3& direction, float length, float angle, uint slides,
                              float duration = INF, bool framed = true, const Gradient& color = Gradient::white, const Clock* clockoverride = nullptr);
 
-  const DrawHandle* drawSphere(const vec3& center, float size, uint levelX = 10u, uint levelY = 10u, float duration = INF,
+  const DrawHandle* drawSphere(const vec3& center, float size, uint levelX = 10u, uint levelY = 10u, bool framed = true, float duration = INF,
                   const Gradient& color = Gradient::white, const Clock* clockoverride = nullptr);
-  const DrawHandle* drawSphere(const vec3& center, uint levelX = 10u, uint levelY = 10u, float size = 1.f,
+  const DrawHandle* drawSphere(const vec3& center, uint levelX = 10u, uint levelY = 10u, float size = 1.f, bool framed = true,
                   const Gradient& color = Gradient::white, const Clock* clockoverride = nullptr);
 
   const DrawHandle* drawCube(const vec3& center, const vec3& dimension, bool framed = true, float duration = INF,

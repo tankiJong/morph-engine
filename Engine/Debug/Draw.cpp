@@ -364,12 +364,12 @@ const Debug::DrawHandle* Debug::drawCone(const vec3& origin,
   });
 }
 
-const Debug::DrawHandle* Debug::drawSphere(const vec3& center, float size, uint levelX, uint levelY, float duration, const Gradient& color,
-  const Clock* clockoverride) {
+const Debug::DrawHandle* Debug::drawSphere(const vec3& center, float size, uint levelX, uint levelY, bool framed, 
+                                           float duration, const Gradient& color, const Clock* clockoverride) {
   return drawMeta(color, duration, clockoverride, [&](Mesher& mesher) {
     mesher.color(Rgba::white);
     mesher
-      .begin(DRAW_LINES)
+      .begin(framed ? DRAW_LINES : DRAW_TRIANGES)
       .sphere(center, size, levelX, levelY)
       .end();
 

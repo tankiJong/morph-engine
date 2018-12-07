@@ -35,6 +35,7 @@ UDPConnection::~UDPConnection() {
 
 void UDPConnection::invalidate() {
   mOwner = nullptr;
+  mNetObjectViews.NetObject::ViewCollection::~ViewCollection();
   new(this) UDPConnection();
 }
 bool UDPConnection::send(NetMessage& msg) {
@@ -59,7 +60,9 @@ bool UDPConnection::flush(bool force) {
   if (!valid()) return false;
   tryAppendHeartbeat();
   if(!force) {
-    if (!shouldSendPacket()) return false;
+    if (!shouldSendPacket()) {
+      return false;
+    }
   }
 
   NetPacket packet;
@@ -67,7 +70,10 @@ bool UDPConnection::flush(bool force) {
   packet.begin(*this);
 
   mSentReliable.reserve(mSentReliable.size() + mUnsentReliable.size());
-  
+
+  std::sort(mSentReliable.begin(), mSentReliable.end(), [](NetMessage& a, NetMessage& b) {
+    return a.lastSendSec() > b.lastSendSec();
+  });
   {
     auto current = mSentReliable.rbegin();
     if(!mSentReliable.empty()) {
@@ -125,6 +131,60 @@ bool UDPConnection::flush(bool force) {
     }
   }
 
+  {
+    NetMessage objectSync(NETMSG_OBJECT_UPDATE);
+    size_t leftSpace = std::min(packet.avaliabeSpace(), objectSync.capacity());
+    mOwner->finalize(objectSync);
+    if(leftSpace - objectSync.headerSize() < leftSpace) {
+      leftSpace -= objectSync.headerSize();
+      mNetObjectViews.sort();
+
+      // This is the view for this connection; 
+      auto views = mNetObjectViews.views();
+      auto iter = views.begin();
+
+      uint16_t appendedObjCount = 0;
+
+      uint64_t curTime = mOwner->sessionTimeMs();
+
+      objectSync << appendedObjCount;
+
+      while(iter != views.end()) {
+        size_t requireSpace = sizeof(net_object_id_t) + iter->ref->latestSnapshot().size +  sizeof(Timestamp) + sizeof(uint16_t);
+        if(leftSpace < requireSpace) break;
+
+        leftSpace -= requireSpace;
+        NetObject::snapshot_t latestSnapshot = iter->ref->latestSnapshot();
+        iter->lastUpdate.stamp = curTime;
+        // NetObject::View* refView = mOwner->selfConnection()->netObjectViewCollection().find(iter->ref);
+        // if(refView->lastUpdate.stamp > iter->lastUpdate.stamp) {
+        //   memcpy(iter->snapshot.data, refView->snapshot.data, iter->snapshot.size);
+        //   iter->lastUpdate.stamp = refView->lastUpdate.stamp;
+        // }
+
+        // Log::logf("sync net obj: %u", iter->ref->id);
+
+        objectSync << iter->ref->id;
+        objectSync << iter->lastUpdate;
+        objectSync << iter->ref->latestSnapshot().size;
+
+        NetObjectManager::NetObjectDefinition* def = mOwner->netObjectManager().type(iter->ref);
+        def->sendSync(objectSync, latestSnapshot.data);
+
+        ++iter;
+        appendedObjCount++;
+      }
+
+      if(appendedObjCount > 0) {
+        Log::logf("total object sync: %u", appendedObjCount);
+        uint size = objectSync.size();
+        objectSync.seekw(0, BytePacker::SEEK_DIR_BEGIN);
+        objectSync << appendedObjCount;
+        objectSync.seekw(size, BytePacker::SEEK_DIR_BEGIN);
+        packet.append(objectSync);
+      }
+    }
+  }
 
   packet.end();
 
@@ -213,7 +273,7 @@ bool UDPConnection::process(NetMessage& msg, UDPSession::Sender& sender) {
         }
 
         if(cycGreater(msg.sequenceId(), channel.nextExpectReceiveSequenceId)) {
-          Log::logf("message with sequenceid[%u] is out of order, saved", msg.sequenceId());
+          // Log::logf("message with sequenceid[%u] is out of order, saved", msg.sequenceId());
           channel.outOfOrderMessages.push_back(msg);
         }
       } else {
@@ -225,6 +285,18 @@ bool UDPConnection::process(NetMessage& msg, UDPSession::Sender& sender) {
   } else {
     mOwner->handle(msg, sender);
   }
+
+  return true;
+}
+
+bool UDPConnection::updateView(NetObject* netObject, net_object_snapshot_t* /*snapshot*/, uint64_t lastUpdate) {
+  NetObject::View* view = mNetObjectViews.find(netObject);
+  ENSURES(view != nullptr);
+
+  if(view->lastUpdate.stamp > lastUpdate) return false;
+
+  // memcpy(view->snapshot.data, snapshot, view->snapshot.size);
+  view->lastUpdate.stamp = mOwner->sessionTimeMs();
 
   return true;
 }
@@ -348,13 +420,13 @@ UDPConnection::PacketTracker& UDPConnection::track(NetPacket& packet) {
 }
 
 bool UDPConnection::shouldSendPacket() const {
-  bool re = !mOutboundUnreliables.empty();
+  // bool re = !mOutboundUnreliables.empty();
 
   bool canTick = 
     GetCurrentTimeSeconds() - mLastSendSec > 
     std::max(mOwner->tickSecond(), mTickSec);
 
-  return re && canTick;
+  return canTick;
 }
 
 bool UDPConnection::tryAppendHeartbeat() {
@@ -369,6 +441,7 @@ bool UDPConnection::tryAppendHeartbeat() {
 
   return true;
 }
+
 
 bool UDPConnection::confirmReceived(uint16_t ack) {
 

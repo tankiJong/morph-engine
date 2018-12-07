@@ -8,6 +8,7 @@
 #include <queue>
 #include "Engine/Net/NetPacket.hpp"
 #include <optional>
+#include "Engine/Net/NetObject.hpp"
 
 class NetMessage;
 class NetPacket;
@@ -23,6 +24,10 @@ enum eNetCoreMessage: uint8_t {
   NETMSG_NEW_CONNECTION,
   NETMSG_JOIN_FINISHED,
   NETMSG_UPDATE_CONN_STATE,
+
+  NETMSG_OBJECT_CREATE,
+  NETMSG_OBJECT_DESTROY,
+  NETMSG_OBJECT_UPDATE,
 
   NETMSG_CORE_COUNT,
 };
@@ -55,9 +60,10 @@ enum eSessionError {
 
 class UDPSession {
   friend class UDPConnection;
+  friend class NetObjectManager;
 public:
   static constexpr uint8_t INVALID_CONNECTION_ID = 0xffui8;
-  static constexpr double DEFAULT_SEND_FREQ = 20;
+  static constexpr double DEFAULT_SEND_FREQ = 60;
   static constexpr uint HOST_CONNECTION_INDEX = 0;
   static constexpr double JOIN_TIMEOUT_SEC = 10;
   static constexpr double CONNECTION_TIMEOUT_SEC = 5;
@@ -127,9 +133,19 @@ public:
   }
 
   bool isHosting() const;
-
+  bool isHosted() const;
   uint64_t sessionTimeMs() const;
 
+  NetObjectManager& netObjectManager() { return mNetObjectManager; }
+
+  template<typename Func>
+  void onJoin(Func&& func) { mJoinCb.emplace_back(func); }
+
+  template<typename Func>
+  void onLeave(Func&& func) { mLeaveCb.emplace_back(func); }
+
+  void syncObjects();
+  // void updateObject(net_object_local_object_t* obj);
 protected:
   bool connect(uint8_t index, const NetAddress& addr);
   void err(eSessionError errorCode);
@@ -150,6 +166,13 @@ protected:
   void registerCoreMessage();
   void finalizeMessageDefinition();
 
+  // void updateNetObjects();
+
+  NetObject::View createView(NetObject& netObject);
+  NetObject::View cloneView(const NetObject::View& view);
+  void destoryView(NetObject::View& view);
+  void registerToConnections(const NetObject::View& view);
+  void unregisterFromConnections(const NetObject& obj);
 
   bool onJoinAccepted(NetMessage msg, UDPSession::Sender& sender);
   std::optional<uint8_t> aquireNextAvailableConnection();
@@ -177,5 +200,10 @@ protected:
 
   uint64_t mDesiredClientMilliSec;
   uint64_t mCurrentClientMilliSec;
+
+  NetObjectManager mNetObjectManager; 
+
+  std::vector<std::function<void(UDPSession&, UDPConnection&)>> mJoinCb;
+  std::vector<std::function<void(UDPSession&, UDPConnection&)>> mLeaveCb;
 };
 

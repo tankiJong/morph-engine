@@ -26,7 +26,7 @@ double PerformanceCountToSecond(uint64_t count);
 std::string beautifySeconds(double seconds);
 
 struct Timestamp {
-  int64 stamp;
+  uint64_t stamp;
   Timestamp();
   std::string toString() const;
 
