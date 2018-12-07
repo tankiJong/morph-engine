@@ -59,7 +59,7 @@ struct Contact {
 };
 
 static uint boxIntersectCalledTimes = 0;
-
+static uint triangleIntersetionCalledTimes = 0;
 
 #define inbox(v, b1, b2) ((v.x>=b1.x) && (v.y>=b1.y) && (v.z>=b1.z) && (v.x<=b2.x) && (v.y<=b2.y) && (v.z<=b2.z))
 
@@ -80,7 +80,7 @@ bool intersect(in Ray ray, in aabb3 box)
 
 
 Contact triIntersection(float3 a, float3 b, float3 c, float color, Ray ray) {
-
+	triangleIntersetionCalledTimes++;
 	Contact contact;
 
 	float3 ab = b - a;
@@ -103,14 +103,16 @@ Contact triIntersection(float3 a, float3 b, float3 c, float color, Ray ray) {
 	return contact;
 }
 
+static uint boxHit = 0;
+
 Contact trace(Ray ray, 
 							in StructuredBuffer<BVHNode> nodes, 
 							in StructuredBuffer<Prim> prims, out float4 color) {
 	
-	const uint MAX_COLLISION_RECORD = 6;
+	const uint MAX_COLLISION_RECORD = 64;
 	uint currentNodeIndex = 1;
 	uint nextRecord = 0;
-
+	boxHit = 0;
 	BVHNode collisionNodes[MAX_COLLISION_RECORD];
 
 	uint numNode, _;
@@ -148,7 +150,8 @@ Contact trace(Ray ray,
 	Contact contact;
 	contact.t = 1e6;
 	contact.valid = false;
-
+	
+	boxHit = nextRecord-1;
 	for(uint i = 0; i < nextRecord; i++) {
 
 		for(uint k = collisionNodes[i].triRange.start; k < collisionNodes[i].triRange.end; k++) {

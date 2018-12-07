@@ -77,8 +77,8 @@ float4 ComputeIndirect(uint2 pix)
 
 				float dot1 = dot(surfaceNormal, surfeCache[kk].normal);
 				float dot2 = dot(surfaceNormal, surfeCache[kk+1].normal);
-				float iscovered1 = ( dot1 > .9f ? 1.f : 0.f) * weight1;
-				float iscovered2 = ( dot2 > .9f ? 1.f : 0.f) * weight2;
+				float iscovered1 = saturate( dot1 ) * weight1;
+				float iscovered2 = saturate( dot2 ) * weight2;
 
 				indirect = mad( surfeCache[kk].indirectLighting, iscovered1, indirect );
 				total += weight1;

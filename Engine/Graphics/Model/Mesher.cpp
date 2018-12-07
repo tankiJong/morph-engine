@@ -759,6 +759,7 @@ void Mesher::obj(fs::path objFile) {
       EXPECTS(fv % 3 == 0);
       for(size_t v = 0; v < fv; v+=3) {
         vec3 v1, v2, v3;
+        vec3 n1, n2, n3;
         vec2 t1, t2, t3;
 
         {
@@ -768,11 +769,15 @@ void Mesher::obj(fs::path objFile) {
           v1.y = attrib.vertices[3 * idx.vertex_index + 1];
           v1.z = attrib.vertices[3 * idx.vertex_index + 2];
 
-          if(attrib.texcoords.size() > 0) {
+          if(!attrib.texcoords.empty()) {
             t1.x = attrib.texcoords[2 * idx.texcoord_index + 0];
             t1.y = attrib.texcoords[2 * idx.texcoord_index + 1];
           }
-          
+          if(!attrib.normals.empty()) {
+             n1.x =  -attrib.normals[3 * idx.normal_index + 0];
+             n1.y = attrib.normals[3 * idx.normal_index + 1];
+             n1.z = attrib.normals[3 * idx.normal_index + 2];
+          }
         }
 
         {
@@ -782,9 +787,14 @@ void Mesher::obj(fs::path objFile) {
           v2.y = attrib.vertices[3 * idx.vertex_index + 1];
           v2.z = attrib.vertices[3 * idx.vertex_index + 2];
 
-          if (attrib.texcoords.size() > 0) {
+          if (!attrib.texcoords.empty()) {
             t2.x = attrib.texcoords[2 * idx.texcoord_index + 0];
             t2.y = attrib.texcoords[2 * idx.texcoord_index + 1];
+          }
+          if(!attrib.normals.empty()) {
+             n2.x =  -attrib.normals[3 * idx.normal_index + 0];
+             n2.y = attrib.normals[3 * idx.normal_index + 1];
+             n2.z = attrib.normals[3 * idx.normal_index + 2];
           }
         }
 
@@ -795,27 +805,49 @@ void Mesher::obj(fs::path objFile) {
           v3.y = attrib.vertices[3 * idx.vertex_index + 1];
           v3.z = attrib.vertices[3 * idx.vertex_index + 2];
 
-          if (attrib.texcoords.size() > 0) {
+          if (!attrib.texcoords.empty()) {
             t3.x = attrib.texcoords[2 * idx.texcoord_index + 0];
             t3.y = attrib.texcoords[2 * idx.texcoord_index + 1];
           }
+          if(!attrib.normals.empty()) {
+             n3.x =  -attrib.normals[3 * idx.normal_index + 0];
+             n3.y = attrib.normals[3 * idx.normal_index + 1];
+             n3.z = attrib.normals[3 * idx.normal_index + 2];
+          }
         }
 
-        normal((v3 - v1).cross(v2 - v1).normalized());
-        uv(t1);
-        vertex3f(v1);
+        if(attrib.normals.empty()) {
+          uv(t1);
+          vertex3f(v1);
 
-        uv(t2);
-        vertex3f(v2);
+          uv(t2);
+          vertex3f(v2);
 
-        uv(t3);
-        vertex3f(v3);
+          uv(t3);
+          vertex3f(v3);
+        } else {
+          normal(n1);
+          uv(t1);
+          vertex3f(v1);
+
+          normal(n2);
+          uv(t2);
+          vertex3f(v2);
+
+          normal(n3);
+          uv(t3);
+          vertex3f(v3);
+        }
       }
 
       indexOffset += fv;
     }
 
-    genNormal();
+    if(attrib.normals.empty()) {
+      genNormal();
+    }
+
+
     mikkt();
 
   }

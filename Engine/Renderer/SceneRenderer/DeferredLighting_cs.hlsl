@@ -23,18 +23,6 @@ RWTexture2D<float4> gIndirect: register(u1);
 RWTexture2D<float4> uSpawnChance: register(u2);
 Texture2D<float4> gTexAO: register(t20);
 
-
-
-
-Contact trace(Ray ray) {
-	uint vertCount, stride;
-	gVerts.GetDimensions(vertCount, stride);
-
-	Contact contact = trace(ray, gBvh, gVerts);
-
-	return contact;
-}
-
 float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 	// return float3(0,0,0);
 	Ray ray;
@@ -44,7 +32,7 @@ float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 
 	ray.position = surfacePosition + surfaceNormal * 0.0001f;
 
-	Contact c = trace(ray);
+	Contact c = trace(ray, gBvh, gVerts);
 
 
 	if(c.valid && c.t < maxDist) return float3(0,0,0);
@@ -144,8 +132,9 @@ float3 PhongLighting(uint2 pix)
 	gTexAO.GetDimensions(aoSize.x, aoSize.y);
 
   // float ambient = Ambient(aoSize, pix, surfacePosition, surfaceNormal);
-  // float ambient = gTexAO[pix].x;
-  float ambient = 1;
+	// ambient = clamp(smoothstep(0, 1, ambient), 0, 1);
+  float ambient = gTexAO[pix].x;
+  // float ambient = 1;
 	// gTexAO[pix] = float4(ambient, ambient, ambient, 1.f);
 	// return float3(ambient, ambient, ambient);
 
@@ -155,7 +144,7 @@ float3 PhongLighting(uint2 pix)
   // float3 specular = Specular(surfacePosition, surfaceNormal, 
 	// 													 normalize(eyePosition - surfacePosition), SPECULAR_AMOUNT, SPECULAR_POWER, gLight);
 
-	float3 indirect = ( gIndirect[pix / 2].xyz / gIndirect[pix / 2].w ) * (2 * M_PI) * ambient ;
+	float3 indirect = ( gIndirect[pix / 2].xyz / gIndirect[pix / 2].w ) * (4 * M_PI) * ambient ;
 	
 	// return indirect;
   float3 color = ( diffuse + indirect ) * surfaceColor / M_PI /* + specular*/;

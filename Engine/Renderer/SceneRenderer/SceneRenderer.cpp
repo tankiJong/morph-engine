@@ -301,11 +301,11 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
 void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   setupFrame();
   setupView(ctx);
-  // ctx.copyResource(*mAO, *mGAO);
-  // ctx.transitionBarrier(mGAO.get(), RHIResource::State::NonPixelShader, TRANSITION_BEGIN);
-  // ctx.transitionBarrier(mAO.get(), RHIResource::State::UnorderedAccess, TRANSITION_BEGIN);
+  ctx.copyResource(*mAO, *mGAO);
+  ctx.transitionBarrier(mGAO.get(), RHIResource::State::NonPixelShader, TRANSITION_BEGIN);
+  ctx.transitionBarrier(mAO.get(), RHIResource::State::UnorderedAccess, TRANSITION_BEGIN);
   genGBuffer(ctx);
-  // genAO(ctx);
+  genAO(ctx);
 
   static bool pt = false;
   if (Input::Get().isKeyJustDown('P')) {
@@ -507,7 +507,7 @@ void SceneRenderer::genGBuffer(RHIContext& ctx) {
     }
   }
 
-  // ctx.transitionBarrier(mGVelocity.get(), RHIResource::State::NonPixelShader, TRANSITION_BEGIN);
+  ctx.transitionBarrier(mGVelocity.get(), RHIResource::State::NonPixelShader, TRANSITION_BEGIN);
 
 
   // if(!mAccelerationStructure) {
@@ -1007,7 +1007,6 @@ void SceneRenderer::fxaa(RHIContext & ctx) {
 
   ctx.draw(0, 3);
 
-  ctx.copyResource(*mScene, *RHIDevice::get()->backBuffer());
 }
 
 bool SceneRenderer::shouldRecomputeIndirect() const {

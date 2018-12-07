@@ -49,7 +49,7 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 	colors[0] =	startColor;
 	dots[0] = saturate(dot(startRay.direction, startNormal));
 	uint xx  = 0;
-	for(; xx < 3; xx++) {
+	for(; xx < 1; xx++) {
 		bounce++;
 		uint vertCount, stride;
 		gVerts.GetDimensions(vertCount, stride);
@@ -111,7 +111,6 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	float3 color = gTexAlbedo[pix].xyz;
 
 
-	float3 diffuse = computeDiffuse(position.xyz, normal);
 	float3 indirect = 0;
 	float3 direction;
 	for(uint i = 0; i < 1; i++) {
@@ -121,6 +120,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 
 	}
 
+	float3 diffuse = computeDiffuse(position.xyz, normal);
 	// direction /= 8;
 	// uTexScene[pix] = (uTexScene[pix] *gFrameCount + float4(direction * .5f + .5f, 1.f))	/ (gFrameCount + 1);
 	// return;
@@ -128,7 +128,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	indirect /= (1.f / (2 * M_PI));
 
 	// float3 indirect = float3(0,0,0);
-	float3 finalColor = ( indirect ) * color / M_PI;
+	float3 finalColor = ( indirect + diffuse ) * color / M_PI;
 
 	const float GAMMA = 1.f / 2.1;
 	finalColor =  pow(finalColor, float3(GAMMA, GAMMA, GAMMA));
@@ -137,5 +137,6 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	finalColor = (uTexScene[pix].xyz * gFrameCount + finalColor)	/ (gFrameCount + 1);
 
 	uTexScene[pix] = float4(finalColor, 1.f);
-	// uTexScene[pix] = float4(float(boxIntersectCalledTimes) / 50, 0, 0, 1.f);
+	// uTexScene[pix] = float4(float(triangleIntersetionCalledTimes) / 100, 0, 0, 1.f);
+	//uTexScene[pix] = float4(float(boxHit) / 64, 0, 0, 1.f);
 }

@@ -229,7 +229,7 @@ struct surfel_t {
 
 
 
-static const float SURFEL_RADIUS = 0.035f;
+static const float SURFEL_RADIUS = 0.03f;
 // static const float SURFEL_RADIUS = 0.005f;
 static const uint TILE_SIZE = 16;
 
