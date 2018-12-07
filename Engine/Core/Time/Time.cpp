@@ -46,7 +46,6 @@ double InitializeTime( LARGE_INTEGER& out_initialTime )
 	return( 1.0 / static_cast< double >( countsPerSecond.QuadPart ) );
 }
 
-
 //-----------------------------------------------------------------------------------------------
 double GetCurrentTimeSeconds()
 {
@@ -92,7 +91,8 @@ Timestamp::Timestamp() {
 
 std::string Timestamp::toString() const {
   tm t;
-  localtime_s(&t, &stamp);
+  int64 time = int64(stamp);
+  localtime_s(&t, &time);
 
   return Stringf("%i-%i-%i-%i-%i-%i",   t.tm_year + 1900,
                                         t.tm_mon + 1,

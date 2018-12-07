@@ -34,8 +34,8 @@ public:
   BytePacker(BytePacker&& mv);
   BytePacker& operator=(BytePacker&& rhs);
 
-  BytePacker(BytePacker&) = delete;
-  BytePacker& operator=(BytePacker&) = delete;
+  BytePacker(const BytePacker&) = delete;
+  BytePacker& operator=(const BytePacker&) = delete;
 
   void setEndianness(eEndianness e);
 
@@ -84,18 +84,18 @@ protected:
 enum_class_operators(BytePacker::eStorageFlag);
 
 template<typename T>
-BytePacker& operator >>(BytePacker& lhs, T& rhs) {
-  lhs.read(&rhs, sizeof(T));
+BytePacker& operator >>(BytePacker& lhs, T&& rhs) {
+  lhs.read(&rhs, sizeof(T)); // this won't work on machines with different endianness.
   return lhs;
 }
 
 template<typename T>
-BytePacker& operator << (BytePacker& lhs, T& rhs) {
+BytePacker& operator << (BytePacker& lhs, T&& rhs) {
   lhs.write((void*)&rhs, sizeof(T));
   return lhs;
 }
 
 template<typename T>
-void operator >>(T& lhs, BytePacker& rhs) {
+void operator >>(T&& lhs, BytePacker& rhs) {
   rhs.write(&lhs, sizeof(T));
 }

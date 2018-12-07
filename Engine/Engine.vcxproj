@@ -1043,6 +1043,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Input\XboxController.cpp" />
     <ClCompile Include="Math\Curves.cpp" />
+    <ClCompile Include="Math\Cyclic.cpp" />
     <ClCompile Include="Math\MathUtils.cpp" />
     <ClCompile Include="Math\Noise\Noise.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -1082,6 +1083,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="Net\Net.cpp" />
     <ClCompile Include="Net\NetAddress.cpp" />
     <ClCompile Include="Net\NetMessage.cpp" />
+    <ClCompile Include="Net\NetObject.cpp" />
     <ClCompile Include="Net\NetPacket.cpp" />
     <ClCompile Include="Net\Socket.cpp" />
     <ClCompile Include="Net\TCPSocket.cpp" />
@@ -1861,6 +1863,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="Input\KeyState.hpp" />
     <ClInclude Include="Input\XboxController.hpp" />
     <ClInclude Include="Math\Curves.hpp" />
+    <ClInclude Include="Math\Cyclic.hpp" />
     <ClInclude Include="Math\MathUtils.hpp" />
     <ClInclude Include="Math\Noise\Noise.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -1900,6 +1903,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="Net\Net.hpp" />
     <ClInclude Include="Net\NetAddress.hpp" />
     <ClInclude Include="Net\NetMessage.hpp" />
+    <ClInclude Include="Net\NetObject.hpp" />
     <ClInclude Include="Net\NetPacket.hpp" />
     <ClInclude Include="Net\Socket.hpp" />
     <ClInclude Include="Net\TCPSocket.hpp" />

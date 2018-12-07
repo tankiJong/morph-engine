@@ -5,6 +5,7 @@
 #include <vector>
 #include "Engine/Core/Time/Time.hpp"
 #include "Engine/Net/NetAddress.hpp"
+#include "Engine/Net/NetMessage.hpp"
 
 class NetMessage;
 class UDPConnection;
@@ -16,13 +17,15 @@ public:
   NetPacket(const NetPacket& packet);
 
   struct header_t {
-    uint8_t connectionIndex;
+    uint8_t connectionIndex = UINT8_MAX;
 
-    uint16_t ack;
+    uint16_t ack = 0;
     uint16_t lastReceivedAck;
     uint16_t previousReceivedAckBitField;
 
     uint8_t unreliableCount;
+    uint8_t reliableCount;
+    uint8_t messageCount;
   };
 
   static constexpr uint16_t INVALID_PACKET_ACK = 0xffffui16;
@@ -35,16 +38,18 @@ public:
 
   void begin(const UDPConnection& connection);
   void end();
-  bool appendUnreliable(const NetMessage& msg);
+  bool append(NetMessage& msg);
 
   void read(header_t& header);
-  bool read(NetMessage& outMessage);
+  bool read(span<const NetMessage::Def> definitions, NetMessage& outMessage);
 
   void receivedTime(double second);
 
   double receivedTime() const { return mTimestamp; };
 
   uint16_t ack() const { return mStampedHeader.ack; }
+
+  size_t avaliabeSpace() const { return mStampUsableSize; }
 public:
   bool operator==(const NetPacket& rhs) const {
     return mTimestamp == rhs.mTimestamp;
@@ -64,6 +69,8 @@ public:
     mSenderAddr = addr;
   }
 
+  span<const NetMessage* const> messagesReliable() const { return mStampedMessageReliable; }
+
 protected:
   void write(const header_t& header);
   bool write(const NetMessage& msg);
@@ -73,7 +80,8 @@ protected:
   double mTimestamp;
 
   // temproal things
-  std::vector<const NetMessage*> mStampedMessage;
+  std::vector<const NetMessage*> mStampedMessageUnreliable;
+  std::vector<const NetMessage*> mStampedMessageReliable;
   size_t mStampUsableSize = NET_PACKET_MTU;
   header_t mStampedHeader;
   NetAddress mSenderAddr;

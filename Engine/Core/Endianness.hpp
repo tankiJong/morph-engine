@@ -13,17 +13,7 @@ constexpr eEndianness platformEndianness() {
   return (eEndianness)b[0];
 }
 
-inline void toEndianness(eEndianness target, void* data, size_t byteSize) {
-  if (target == platformEndianness()) return;
-  byte_t* begin = (byte_t*)data;
-  auto end = begin + byteSize - 1;
-
-  while (begin < end) {
-    std::swap(*begin, *end);
-    ++begin;
-    --end;
-  }
-}
+void toEndianness(eEndianness target, void* data, size_t byteSize);
 
 inline void fromEndianness(eEndianness from, void* data, size_t byteSize) {
   toEndianness(from, data, byteSize);
