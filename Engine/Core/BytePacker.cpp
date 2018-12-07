@@ -2,6 +2,7 @@
 #include <sstream>
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include <vector>
+#include "Engine/Debug/Log.hpp"
 
 #define DEFAULT_BUFFER_SIZE 16*1024
 
@@ -63,8 +64,6 @@ bool BytePacker::write(const void* data, size_t size) {
 
   if (!re) return false;
 
-  // append already move the nextWrite, so move it back first
-
   // flip the data is endianness does not match
   toEndianness(mByteOrder, mBufferView.data() + nextWriteStamp, size);
 
@@ -121,7 +120,9 @@ bool BytePacker::append(const void* data, size_t size) {
 size_t BytePacker::consume(void* data, size_t size) {
   size_t readCount = std::min(size, mNextWrite - mNextRead + 1);
 
-  ASSERT_RECOVERABLE(readCount == size, "try to read more than the max readable bytes");
+  if(readCount > size) {
+    Log::log("try to read more than the max readable bytes");
+  }
 
   memcpy(data, mBufferView.data() + mNextRead, readCount);
   mNextRead += size;
@@ -231,7 +232,7 @@ void BytePacker::seekr(intptr_t offset, eSeekDir dir) {
 void BytePacker::seekw(intptr_t offset, eSeekDir dir) {
   switch (dir) {
     case SEEK_DIR_BEGIN:
-      EXPECTS(offset > 0);
+      EXPECTS(offset >= 0);
       mNextWrite = (size_t)offset;
       break;
     case SEEK_DIR_END:

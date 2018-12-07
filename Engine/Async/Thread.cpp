@@ -4,8 +4,8 @@
 #define WIN32_LEAN_AND_MEAN		// Always #define this before #including <windows.h>
 #include <windows.h>
 #include <thread>
-#include "Game/Gameplay/Map.hpp"
 #include "Engine/Debug/Console/Console.hpp"
+#include "Engine/Math/MathUtils.hpp"
 
 using thread_handle_t = Thread::thread_handle_t;
 using thread_id_t = Thread::thread_id_t;

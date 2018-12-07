@@ -490,6 +490,9 @@
     <ClCompile Include="Math\Cyclic.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
+    <ClCompile Include="Net\NetObject.cpp">
+      <Filter>Engine\Net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -1013,6 +1016,9 @@
     </ClInclude>
     <ClInclude Include="Math\Cyclic.hpp">
       <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\NetObject.hpp">
+      <Filter>Engine\Net</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

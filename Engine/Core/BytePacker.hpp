@@ -85,7 +85,7 @@ enum_class_operators(BytePacker::eStorageFlag);
 
 template<typename T>
 BytePacker& operator >>(BytePacker& lhs, T&& rhs) {
-  lhs.read(&rhs, sizeof(T));
+  lhs.read(&rhs, sizeof(T)); // this won't work on machines with different endianness.
   return lhs;
 }
 
