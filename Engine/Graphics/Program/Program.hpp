@@ -4,7 +4,7 @@
 #include "Engine/Graphics/RHI/Shader.hpp"
 
 
-class ProgramIns;
+class ProgramInst;
 
 class Program: public std::enable_shared_from_this<Program> {
 public:
@@ -26,7 +26,7 @@ public:
   span<DescriptorSet::Layout> descriptorLayout() { return mLayouts; };
   // void setDescriptorLayout(const DescriptorSet::Layout& layout);
 
-  S<ProgramIns> instantiate();
+  S<ProgramInst> instantiate();
 
 protected:
   std::array<Shader, NUM_SHADER_TYPE> mShaders;

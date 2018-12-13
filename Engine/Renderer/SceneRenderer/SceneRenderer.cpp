@@ -34,7 +34,7 @@
 #include "Engine/Framework/Light.hpp"
 #include "Engine/Input/Input.hpp"
 #include "Engine/Math/Primitives/uvec3.hpp"
-#include "Engine/Graphics/Program/ProgramIns.hpp"
+#include "Engine/Graphics/Program/ProgramInst.hpp"
 #include "Engine/Graphics/Model/BVH.hpp"
 static Program::sptr_t gGenGBufferProgram = nullptr;
 
@@ -461,10 +461,10 @@ void SceneRenderer::genGBuffer(RHIContext& ctx) {
   ctx.setFrameBuffer(mGFbo);
   ctx.bindDescriptorHeap();
 
-  static S<GraphicsProgramIns> prog;
+  static S<GraphicsProgramInst> prog;
 
   if(!prog) {
-    prog = GraphicsProgramIns::create(gGenGBufferProgram);
+    prog = GraphicsProgramInst::create(gGenGBufferProgram);
 
     prog->setCbv(*mcFrameData->cbv(), 0);
     prog->setCbv(*mcCamera->cbv(), 1);
@@ -565,7 +565,7 @@ void SceneRenderer::genAO(RHIContext& ctx) {
   // mDGBufferDescriptors->setSrv(0, 5, *ShaderResourceView::nullView());
 
   static ComputeState::sptr_t computeState;
-  static S<ComputeProgramIns> prog;
+  static S<ComputeProgramInst> prog;
   if(!computeState) {
     ComputeState::Desc desc;
     desc.setRootSignature(gGenAORootSig);
@@ -573,7 +573,7 @@ void SceneRenderer::genAO(RHIContext& ctx) {
     computeState = ComputeState::create(desc);
 
 
-    prog = ComputeProgramIns::create(gGenAOProgram);
+    prog = ComputeProgramInst::create(gGenAOProgram);
 
     prog->setCbv(*mcFrameData->cbv(), 0);
     prog->setCbv(*mcCamera->cbv(), 1);
@@ -740,13 +740,13 @@ void SceneRenderer::visualizeSurfels(RHIContext& ctx) {
 }
 
 void SceneRenderer::visualizeBVH(RHIContext& ctx) {
-  static S<GraphicsProgramIns> progIns;
+  static S<GraphicsProgramInst> progIns;
   static GraphicsState::sptr_t graphicsState;
 
   if(!progIns) {
     auto prog = Resource<Program>::get("internal/Shader/scene-renderer/bvhVisual");
 
-    progIns = GraphicsProgramIns::create(prog);
+    progIns = GraphicsProgramInst::create(prog);
     progIns->setSrv(mBVH->srv(), 0);
     progIns->setCbv(*mcCamera->cbv(), 1);
     GraphicsState::Desc desc;
@@ -919,7 +919,7 @@ void SceneRenderer::dumpSurfels(RHIContext& ctx) {
 
 void SceneRenderer::pathTracing(RHIContext& ctx) {
   static Program::sptr_t prog;
-  static S<ProgramIns> progIns;
+  static S<ProgramInst> progIns;
   static ComputeState::sptr_t computeState;
 
   if(!prog) {
@@ -929,7 +929,7 @@ void SceneRenderer::pathTracing(RHIContext& ctx) {
       .setFromBinary(gPathTracing_cs, sizeof(gPathTracing_cs));
     prog->compile();
 
-    progIns = ComputeProgramIns::create(prog);
+    progIns = ComputeProgramInst::create(prog);
 
     progIns->setCbv(*mcFrameData->cbv(), 0);
     progIns->setCbv(*mcCamera->cbv(), 1);
@@ -965,7 +965,7 @@ void SceneRenderer::pathTracing(RHIContext& ctx) {
 
 void SceneRenderer::fxaa(RHIContext & ctx) {
   static Program::sptr_t prog;
-  static S<ProgramIns> progIns;
+  static S<ProgramInst> progIns;
   static GraphicsState::sptr_t graphicsState;
 
   if (!prog) {
@@ -977,7 +977,7 @@ void SceneRenderer::fxaa(RHIContext & ctx) {
       .setFromBinary(gfxaa_ps, sizeof(gfxaa_ps));
     prog->compile();
 
-    progIns = GraphicsProgramIns::create(prog);
+    progIns = GraphicsProgramInst::create(prog);
 
     progIns->setSrv(mScene->srv(), 0);
 

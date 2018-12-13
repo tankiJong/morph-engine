@@ -1003,8 +1003,10 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="Graphics\Model\Mesher.cpp" />
     <ClCompile Include="Graphics\Model\Vertex.cpp" />
     <ClCompile Include="Graphics\Program\Material.cpp" />
+    <ClCompile Include="Graphics\Program\ParamData.cpp" />
     <ClCompile Include="Graphics\Program\Program.cpp" />
-    <ClCompile Include="Graphics\Program\ProgramIns.cpp" />
+    <ClCompile Include="Graphics\Program\ProgramData.cpp" />
+    <ClCompile Include="Graphics\Program\ProgramInst.cpp" />
     <ClCompile Include="Graphics\RHI\DescriptorPool.cpp" />
     <ClCompile Include="Graphics\RHI\DescriptorSet.cpp" />
     <ClCompile Include="Graphics\RHI\Dx12\Dx12Buffer.cpp" />
@@ -1829,8 +1831,10 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="Graphics\Model\Mesher.hpp" />
     <ClInclude Include="Graphics\Model\Vertex.hpp" />
     <ClInclude Include="Graphics\Program\Material.hpp" />
+    <ClInclude Include="Graphics\Program\ParamData.hpp" />
     <ClInclude Include="Graphics\Program\Program.hpp" />
-    <ClInclude Include="Graphics\Program\ProgramIns.hpp" />
+    <ClInclude Include="Graphics\Program\ProgramData.hpp" />
+    <ClInclude Include="Graphics\Program\ProgramInst.hpp" />
     <ClInclude Include="Graphics\RHI\DescriptorPool.hpp" />
     <ClInclude Include="Graphics\RHI\DescriptorSet.hpp" />
     <ClInclude Include="Graphics\RHI\Dx12\d3d12.h" />

@@ -4,7 +4,7 @@
 #include "Path.hpp"
 #include <filesystem>
 namespace sfs {
-  using namespace std::experimental::filesystem;
+  using namespace std::filesystem;
 }
 
 fs::path fs::workingPath() {
@@ -12,7 +12,7 @@ fs::path fs::workingPath() {
 }
 
 fs::path fs::absolute(const path& path, const Path& base) {
-  return sfs::absolute(path, base);
+  return sfs::absolute(base / path);
 }
 
 bool fs::exists(const path& file) {
@@ -82,23 +82,8 @@ void fs::append(const path& filePath, const void* buffer, size_t size) {
   file.close();
 }
 
-// reference from Boost filesystem
 fs::path fs::relative(const path& p, const path& base) {
-  std::pair<path::iterator, path::iterator> mm
-    = std::mismatch(p.begin(), p.end(), base.begin(), base.end());
-
-  if (mm.first == p.begin() && mm.second == base.begin())
-    return base.root_directory();
-
-  if (mm.first == p.end() && mm.second == base.end())
-    return fs::dotPath();
-
-  path tmp;
-  for (; mm.second != base.end(); ++mm.second)
-    tmp /= fs::dotdotPath();
-  for (; mm.first != p.end(); ++mm.first)
-    tmp /= *mm.first;
-  return tmp;
+  return sfs::relative(p, base);
 }
 
 const fs::path& fs::dotPath() {
@@ -111,4 +96,8 @@ const fs::path& fs::dotdotPath() {
   static const fs::path dotdot("..");
 
   return dotdot;
+}
+
+bool fs::createDir(const path& path) {
+  return create_directory(path);
 }

@@ -1,11 +1,11 @@
 ﻿#include "TextRenderer.hpp"
 
 #include "Engine/Graphics/Program/Program.hpp"
-#include "Engine/Graphics/Program/ProgramIns.hpp"
+#include "Engine/Graphics/Program/ProgramInst.hpp"
 #include "Engine/Core/Resource.hpp"
 TextRenderer::TextRenderer() {
   // Program::sptr_t prog = Resource<Program>::get()
-  // auto progIns = GraphicsProgramIns::create(prog);
+  // auto progIns = GraphicsProgramInst::create(prog);
   // {
   //   {
   //     FrameBuffer::Desc desc;

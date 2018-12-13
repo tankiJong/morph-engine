@@ -152,6 +152,8 @@ void RootSignature::initHandle(ID3DBlobPtr sigBlob) {
   d3d_call(device->CreateRootSignature(0, sigBlob->GetBufferPointer(), sigBlob->GetBufferSize(), IID_PPV_ARGS(&mRhiHandle)));
 
   mBinary.set(sigBlob->GetBufferPointer(), sigBlob->GetBufferSize());
+
+  reflect();
 }
 
 void RootSignature::initHandle(const Blob& sigBlob) {
@@ -161,5 +163,34 @@ void RootSignature::initHandle(const Blob& sigBlob) {
   d3d_call(device->CreateRootSignature(0, sigBlob, sigBlob.size(), IID_PPV_ARGS(&mRhiHandle)));
 
   mBinary = sigBlob.clone();
+
+  reflect();
 }
 
+
+
+void RootSignature::reflect() {
+
+  ID3D12RootSignatureDeserializerPtr deserializer;
+  D3D12CreateRootSignatureDeserializer(mBinary, mBinary.size(), IID_PPV_ARGS(&deserializer));
+
+  const D3D12_ROOT_SIGNATURE_DESC* rdesc = deserializer->GetRootSignatureDesc();
+  
+  Desc desc;
+  for(uint i = 0; i < rdesc->NumParameters; i++) {
+    desc_set_layout_t layout;
+    EXPECTS(rdesc->pParameters[i].ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE);
+
+    const D3D12_ROOT_DESCRIPTOR_TABLE& table = rdesc->pParameters[i].DescriptorTable;
+    for(uint j = 0; j < table.NumDescriptorRanges; ++j) {
+
+      auto& range = table.pDescriptorRanges[j];
+
+      layout.addRange(asRangeType(range.RangeType), range.BaseShaderRegister, range.NumDescriptors, range.RegisterSpace);
+    }
+
+    desc.addDescriptorSet(layout);
+  }
+
+  mDesc = desc;
+}

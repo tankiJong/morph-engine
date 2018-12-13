@@ -9,6 +9,7 @@
 #include "Engine/Gui/ImGui.hpp"
 #include "Engine/Debug/Draw.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
+#include "Engine/Debug/Log.hpp"
 
 bool Application::runFrame() {
   switch(mRunStatus) { 
@@ -43,11 +44,13 @@ void Application::_init() {
 
   Debug::setClock(&GetMainClock());
 
+  Log::startUp();
   onInit();
 }
 
 void Application::_destroy() {
   onDestroy();
+  Log::shutDown();
   mEngine->destory();
   mEngine = nullptr;
 }

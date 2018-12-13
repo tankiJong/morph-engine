@@ -4,9 +4,9 @@
 
 
 namespace fs {
-  using path = std::experimental::filesystem::path;
-  using RecursiveDirectoryIterator = std::experimental::filesystem::recursive_directory_iterator;
-  using DirectoryIterator = std::experimental::filesystem::directory_iterator;
+  using path = std::filesystem::path;
+  using RecursiveDirectoryIterator = std::filesystem::recursive_directory_iterator;
+  using DirectoryIterator = std::filesystem::directory_iterator;
 }
 
 using Path = fs::path;
@@ -14,7 +14,7 @@ using Path = fs::path;
 namespace std {
   template<> struct hash<Path> {
     size_t operator()(const Path& p) const {
-      return experimental::filesystem::hash_value(p);
+      return filesystem::hash_value(p);
     }
   };
 }

@@ -136,7 +136,7 @@ float3 PhongLighting(uint2 pix)
   float ambient = gTexAO[pix].x;
   // float ambient = 1;
 	// gTexAO[pix] = float4(ambient, ambient, ambient, 1.f);
-	// return float3(ambient, ambient, ambient);
+	return float3(ambient, ambient, ambient);
 
   // float3 diffuse = float3(0,0,0);
   // float3 diffuse =  Diffuse(surfacePosition, surfaceNormal, gLight.color.xyz, gLight);

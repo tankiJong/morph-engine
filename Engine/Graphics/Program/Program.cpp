@@ -1,6 +1,6 @@
 #include "Engine/Graphics/RHI/RHI.hpp"
 #include "Program.hpp"
-#include "Engine/Graphics/Program/ProgramIns.hpp"
+#include "Engine/Graphics/Program/ProgramInst.hpp"
 
 static const std::string defaultShaderStr = R"(
 float4 VSMain(float3 position : POSITION) {

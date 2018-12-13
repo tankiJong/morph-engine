@@ -23,4 +23,6 @@ namespace fs {
 
   const path& dotPath();
   const path& dotdotPath();
+
+  bool createDir(const path& path);
 }

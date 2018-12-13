@@ -7,6 +7,7 @@ class DescriptorSet;
 class Texture2;
 class RHIContext;
 class RootSignature;
+
 class Material {
   static constexpr uint NUM_MAT_TEXTURE = TEXTURE_USER_2 - TEXTURE_DIFFUSE + 1;
   static constexpr uint MAT_TEXTURE_SLOT_START = TEXTURE_DIFFUSE;

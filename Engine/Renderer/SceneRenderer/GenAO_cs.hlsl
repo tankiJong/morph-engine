@@ -133,7 +133,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex 
 	float2 ao = ( previousAO.xy * previousAO.w + color ) / (previousAO.w + 1);
 
 	ao.y = occluded ? ao.y : previousAO.y;
-	float4 result = float4(ao, depth, clamp(previousAO.w + 1, 0, 256));
+	float4 result = float4(ao, depth, clamp(previousAO.w + 1, 0, 32));
 	uAO[threadId.xy] = result;
 	// uAO[threadId.xy] = float4(1, 1, 1, 1.f);
 }

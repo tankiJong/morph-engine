@@ -18,7 +18,9 @@ public:
 
   class Desc {
   public:
-    Desc & addDescriptorSet(const desc_set_layout_t& setLayout);
+    Desc& addDescriptorSet(const desc_set_layout_t& setLayout);
+
+    span<const desc_set_layout_t> sets() const { return mSets; }
   protected:
     friend class RootSignature;
     std::vector<desc_set_layout_t> mSets;
@@ -26,6 +28,8 @@ public:
 
   rhi_handle_t handle() const { return mRhiHandle; };
   const Blob& data() const { return mBinary; }
+  const Desc& desc() const { return mDesc; }
+
   static sptr_t create(const Desc& desc);
 #ifdef MORPH_D3D12
   static sptr_t create(const Blob& data);
@@ -39,6 +43,8 @@ protected:
   virtual void initHandle(ID3DBlobPtr sigBlob);
   virtual void initHandle(const Blob& sigBlob);
 #endif
+
+  void reflect();
   RootSignature(const Desc& desc);
   RootSignature() = default;
 

@@ -34,6 +34,7 @@ public:
     tm t;
     localtime_s(&t, &timep);
 
+    fs::createDir("Log");
     std::string filename = "Log/debug.log";
     std::string filenameStamped = Stringf("Log/debug.%s.log", Timestamp().toString().c_str());
 
