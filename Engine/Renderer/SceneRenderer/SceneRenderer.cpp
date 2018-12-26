@@ -939,7 +939,7 @@ void SceneRenderer::pathTracing(RHIContext& ctx) {
     progIns->setSrv(mGPosition->srv(), 12);
     progIns->setSrv(mVertexData->srv(), 13);
     progIns->setSrv(mBVH->srv(), 14);
-    progIns->setUav(*mScene->uav(), 0);
+    progIns->setUav(*mScene->uav(), 0); 
 
     ComputeState::Desc desc;
     desc.setRootSignature(prog->rootSignature());

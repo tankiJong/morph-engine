@@ -221,20 +221,20 @@ void BVH::uploadNodesToGpu(S<TypedBuffer>& buffer) const {
   }
 
   
-#ifdef _DEBUG
-  std::vector<bool> flags(mPrims.size(), false);
-
-  for(const GPUNode& node: nodes) {
-    if(node.childRange.start != node.childRange.end) continue;
-    for(uint i = node.triRange.start; i < node.triRange.end; i++) {
-      flags[i] = true;
-    }
-  }
-
-  for(bool b: flags) {
-    Log::logf("%i", b);
-  }
-#endif
+// #ifdef _DEBUG
+//   std::vector<bool> flags(mPrims.size(), false);
+//
+//   for(const GPUNode& node: nodes) {
+//     if(node.childRange.start != node.childRange.end) continue;
+//     for(uint i = node.triRange.start; i < node.triRange.end; i++) {
+//       flags[i] = true;
+//     }
+//   }
+//
+//   for(bool b: flags) {
+//     Log::logf("%i", b);
+//   }
+// #endif
 
   buffer = TypedBuffer::For<GPUNode>(nodes.size(), RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   buffer->set<const GPUNode>(nodes);
