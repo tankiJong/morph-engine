@@ -14,7 +14,7 @@ EventEmitter& EventEmitter::on(std::string name, void* origin, void* cb, size_t 
   return *this;
 }
 
-EventListener* EventEmitter::findListener(std::string_view name) {
+EventListener* EventEmitter::findListener(std::string_view name) const {
   auto iter = mEventListeners.find(name);
   return iter == mEventListeners.end() ? nullptr : iter->second;
 }

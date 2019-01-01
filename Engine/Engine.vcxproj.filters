@@ -729,6 +729,9 @@
     <ClCompile Include="Event\EventListener.cpp">
       <Filter>Engine\Event</Filter>
     </ClCompile>
+    <ClCompile Include="Event\EventTarget.cpp">
+      <Filter>Engine\Event</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -1455,6 +1458,9 @@
       <Filter>Engine\Event</Filter>
     </ClInclude>
     <ClInclude Include="Event\EventListener.hpp">
+      <Filter>Engine\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Event\EventTarget.hpp">
       <Filter>Engine\Event</Filter>
     </ClInclude>
   </ItemGroup>

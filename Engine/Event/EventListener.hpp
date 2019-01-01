@@ -19,7 +19,7 @@ public:
   }
 
   template<typename ...Args>
-  bool invoke(Args ...args) {
+  bool invoke(Args ...args) const {
     for(CallbackHandle handle: mHandles) {
       std::function<void(Args...)>* func = (std::function<void(Args...)>*)handle.callback;
       (*func)(args...);
@@ -37,11 +37,11 @@ protected:
     void* callback;
     void* _originPointer;
 
-    bool operator==(const CallbackHandle& hd) {
+    bool operator==(const CallbackHandle& hd) const {
       return _originPointer == hd._originPointer;
     }
 
-    bool operator!=(const CallbackHandle& hd) {
+    bool operator!=(const CallbackHandle& hd) const {
       return !(*this == hd);
     }
   };

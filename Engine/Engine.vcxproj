@@ -992,6 +992,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </ClCompile>
     <ClCompile Include="Event\EventEmitter.cpp" />
     <ClCompile Include="Event\EventListener.cpp" />
+    <ClCompile Include="Event\EventTarget.cpp" />
     <ClCompile Include="File\Blob.cpp" />
     <ClCompile Include="File\File.cpp" />
     <ClCompile Include="File\FileSystem.cpp" />
@@ -1822,6 +1823,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </ClInclude>
     <ClInclude Include="Event\EventEmitter.hpp" />
     <ClInclude Include="Event\EventListener.hpp" />
+    <ClInclude Include="Event\EventTarget.hpp" />
     <ClInclude Include="File\Blob.hpp" />
     <ClInclude Include="File\File.hpp" />
     <ClInclude Include="File\FileSystem.hpp" />

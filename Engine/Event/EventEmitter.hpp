@@ -38,7 +38,7 @@ public:
     return listener->invoke(args...);
   };
 
-  EventListener* findListener(std::string_view name);
+  EventListener* findListener(std::string_view name) const;
    
 protected:
   EventEmitter& on(std::string name, void* origin, void* cb, size_t funcSize);
@@ -48,7 +48,5 @@ protected:
   void* allocCallback(size_t size);
   void freeCallback(void *callback);
   std::map<std::string, EventListener*, std::less<>> mEventListeners;
-
-private:
 };
 

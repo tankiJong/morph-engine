@@ -4,22 +4,24 @@
 
 // some actual object, which can receive event
 
+template<typename T>
 class EventTarget;
 
+template<typename T>
 class Event {
-  friend class EventTarget;
+  friend class EventTarget<T>;
 public:
-  Event(): data(buffer) {}
-  EventTarget* source = nullptr;
-  void const* data;
+  EventTarget<T>* source = nullptr;
+  T data;
 private:
   bool cancelBubble = true;
-  byte_t buffer[5 KB];
 };
 
+template<typename D>
 class EventTarget {
 public:
-
+  using Type = EventTarget<D>;
+  using EventType = Event<D>;
 
   template<typename Callback>
   void bind(std::string name, Callback&& cb) {
@@ -33,22 +35,31 @@ public:
     mEventEmitter.off(cb);
   }
 
-  void dispatch(std::string_view name, Event& e);
+  void dispatch(std::string_view name, Event<D>& e) const {
+    Type* next = this;
 
+    while(next != nullptr) {
+      next->mEventEmitter.emit(name, e);
+      if(e.cancelBubble) break;
+      next = next->mParent;
+    }
 
-  EventTarget* parent() { return mParent; }
-  EventTarget& parent(EventTarget* newParent) {
+  };
+
+  Type* parent() const { return mParent; }
+  Type& parent(Type* newParent) {
     mParent = newParent;
     return *this;
   }
+
 protected:
   template<typename Callback>
-  constexpr void checkValidCallback() {
-    static_assert(std::is_invocable_v<Callback, Event>, 
+  constexpr void checkValidCallback() const {
+    static_assert(std::is_invocable_v<Callback, Event<D>>, 
                   "function should pass `Event` as Argument");
-    static_assert(std::is_same_v<decltype(Callback(std::declval<Event>())), void>, 
+    static_assert(std::is_same_v<decltype(Callback(std::declval<Event<D>>())), void>, 
                   "Callback function should return void"); 
   }
-  EventTarget* mParent = nullptr;
+  Type* mParent = nullptr;
   EventEmitter mEventEmitter;
 };
