@@ -12,6 +12,8 @@ public:
   Input();
   ~Input();
 
+  bool anyKeyDown() const;
+
   vec2 mDeltaMousePosition;
 
   void onKeyDown(unsigned char keyCode);

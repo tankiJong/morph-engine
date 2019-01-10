@@ -49,7 +49,7 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 	colors[0] =	startColor;
 	dots[0] = saturate(dot(startRay.direction, startNormal));
 	uint xx  = 0;
-	for(; xx < 1; xx++) {
+	for(; xx < 3; xx++) {
 		bounce++;
 		uint vertCount, stride;
 		gVerts.GetDimensions(vertCount, stride);
@@ -113,7 +113,9 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 
 	float3 indirect = 0;
 	float3 direction;
-	for(uint i = 0; i < 1; i++) {
+
+	const uint SPP = 1;
+	for(uint i = 0; i < SPP; i++) {
 		Ray ray = GenReflectionRay(seed, position, normal);
 		// direction += ray.direction;
 		indirect += PathTracing(ray, position.xyz, normal, color);
@@ -125,7 +127,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	// uTexScene[pix] = (uTexScene[pix] *gFrameCount + float4(direction * .5f + .5f, 1.f))	/ (gFrameCount + 1);
 	// return;
 
-	indirect /= (1.f / (2 * M_PI));
+	indirect /= (float(SPP) / (2 * M_PI));
 
 	// float3 indirect = float3(0,0,0);
 	float3 finalColor = ( indirect + diffuse ) * color / M_PI;

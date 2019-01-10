@@ -85,6 +85,14 @@ Input::~Input() {
 	}
 }
 
+bool Input::anyKeyDown() const {
+  for(auto& s: mKeyStates) {
+    if(s.m_isDown) return true;
+  }
+
+  return false;
+}
+
 void Input::onKeyDown(unsigned char keyCode) {
 	if (!mKeyStates[keyCode].m_isDown) {
 		mKeyStates[keyCode].m_justPressed = 1;

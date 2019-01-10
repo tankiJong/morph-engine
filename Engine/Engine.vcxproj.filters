@@ -378,9 +378,6 @@
     <ClCompile Include="Core\Resource.cpp">
       <Filter>Engine\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Geometry\Mesh.cpp">
-      <Filter>Engine\Renderer\Geometry</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\Geometry\VertexBuffer.cpp">
       <Filter>Engine\Renderer\Geometry</Filter>
     </ClCompile>
@@ -388,9 +385,6 @@
       <Filter>Engine\Renderer\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Geometry\Vertex.cpp">
-      <Filter>Engine\Renderer\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\Geometry\Mesher.cpp">
       <Filter>Engine\Renderer\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Core\Gradient.cpp">
@@ -1082,9 +1076,6 @@
     <ClInclude Include="Core\Resource.hpp">
       <Filter>Engine\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Geometry\Mesh.hpp">
-      <Filter>Engine\Renderer\Geometry</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\Geometry\VertexBuffer.hpp">
       <Filter>Engine\Renderer\Geometry</Filter>
     </ClInclude>
@@ -1092,9 +1083,6 @@
       <Filter>Engine\Renderer\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Geometry\Vertex.hpp">
-      <Filter>Engine\Renderer\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\Geometry\Mesher.hpp">
       <Filter>Engine\Renderer\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Geometry\type.h">

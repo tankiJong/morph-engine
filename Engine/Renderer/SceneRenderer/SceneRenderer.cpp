@@ -314,7 +314,12 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
     pt = !pt;
   }
 
+
   if (pt) {
+    if(Input::Get().anyKeyDown()) {
+      mFrameData.frameCount = 0;
+      ctx.clearRenderTarget(mScene->rtv(), Rgba::black);
+    }
     pathTracing(ctx);
     return;
   }
@@ -896,7 +901,6 @@ void SceneRenderer::setupView(RHIContext& ctx) {
 
   mcCamera->updateData(mCameraData, 0, sizeof(camera_t) * 2);
 
-  // TODO: setup viewport later
   aabb2 bounds = { vec2::zero, { Window::Get()->bounds().width(), Window::Get()->bounds().height()} };
   ctx.setViewport(bounds);
   ctx.setScissorRect(bounds);

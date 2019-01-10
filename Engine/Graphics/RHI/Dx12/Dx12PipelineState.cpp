@@ -267,11 +267,7 @@ bool GraphicsState::rhiInit() {
     desc.GS = GS;
   }
 
-  TODO("set up render state, rtv");
 
-  // default rasterizer
-
-  // default Blend
   D3D12_BLEND_DESC blendDesc;
   blendDesc.AlphaToCoverageEnable = FALSE;
   blendDesc.IndependentBlendEnable = FALSE;

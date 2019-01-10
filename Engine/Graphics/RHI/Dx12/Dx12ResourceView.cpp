@@ -198,7 +198,6 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(const TypedBuffer& res) 
   rhi_handle_t handle = DescriptorSet::create(RHIDevice::get()->cpuDescriptorPool(), layout);
   ENSURES(handle);
 
-  TODO("uav will need a counter res if we actually care about");
   RHIDevice::get()->nativeDevice()->CreateUnorderedAccessView(resHandle.Get(), counterHandle.Get(), &desc, handle->cpuHandle(0));
 
   sptr_t uav = sptr_t(new UnorderedAccessView(res.shared_from_this(), DescriptorPool::Type::TypedBufferUav, handle, 0, 0, 1));
@@ -234,7 +233,6 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(W<const RHIBuffer> res) 
   rhi_handle_t handle = DescriptorSet::create(RHIDevice::get()->cpuDescriptorPool(), layout);
   ENSURES(handle);
 
-  TODO("uav will need a counter res if we actually care about");
   RHIDevice::get()->nativeDevice()->CreateUnorderedAccessView(resHandle.Get(), counterHandle.Get(), &desc, handle->cpuHandle(0));
 
   sptr_t obj;
@@ -271,7 +269,6 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(W<const Texture2> res, u
   rhi_handle_t handle = DescriptorSet::create(RHIDevice::get()->cpuDescriptorPool(), layout);
   ENSURES(handle);
 
-  TODO("uav will need a counter res if we actually care about");
   RHIDevice::get()->nativeDevice()->CreateUnorderedAccessView(resHandle.Get(), counterHandle.Get(), &desc, handle->cpuHandle(0));
 
   sptr_t obj;
