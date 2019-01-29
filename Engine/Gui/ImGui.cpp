@@ -63,12 +63,13 @@ void ImGui::beginFrame() {
 }
 
 void ImGui::render() {
-  SCOPED_GPU_EVENT("ImGui");
   RHIContext::sptr_t ctx = RHIDevice::get()->defaultRenderContext();
+  SCOPED_GPU_EVENT(*ctx, "ImGui");
 
   auto& rt = RHIDevice::get()->backBuffer();
   FrameBuffer fbo;
-  fbo.setColorTarget(&rt->rtv(), 0);
+  fbo.defineColorTarget(rt, 0);
+  ctx->setFrameBuffer(fbo);
   ctx->bindDescriptorHeap();
   ctx->transitionBarrier(rt.get(), RHIResource::State::RenderTarget);
 

@@ -2,7 +2,7 @@
 
 void TypedBuffer::uploadGpu() {
   if (!mCpuDirty) return;
-  EXPECTS(mData.size() == mElementCount * mStride);
+  EXPECTS(mData.size() <= mElementCount * mStride);
   updateData(mData, 0, mData.size());
 }
 

@@ -14,7 +14,7 @@ void d3dTraceHR(const std::string& msg, HRESULT hr) {
   FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, hr, 0, hr_msg, ARRAYSIZE(hr_msg), nullptr);
 
   std::string error_msg = msg + ".\nError! " + hr_msg;
-
+  // HRESULT re = RHIDevice::get()->nativeDevice()->GetDeviceRemovedReason();
   ERROR_AND_DIE(error_msg);
 }
 

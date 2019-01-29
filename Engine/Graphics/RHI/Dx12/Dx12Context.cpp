@@ -129,38 +129,38 @@ void RHIContext::uavBarrier(const RHIResource* res) {
     mCommandsPending = true;
 }
 
-void RHIContext::beforeFrame() {
-  // D3D12_VIEWPORT mViewport;
-
-  // mViewport.TopLeftX = 0;
-  // mViewport.TopLeftY = 0;
-  // mViewport.Width = Window::Get()->bounds().width();
-  // mViewport.Height = Window::Get()->bounds().height();
-  // mViewport.MinDepth = D3D12_MIN_DEPTH;
-  // mViewport.MaxDepth = D3D12_MAX_DEPTH;
-
-
-
-  // mContextData->commandList()->RSSetViewports(1, &mViewport);
-
-  // D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(
-  //   RHIDevice::get()->cpuDescriptorPool()->handle(D3D12_DESCRIPTOR_HEAP_TYPE_RTV)->GetCPUDescriptorHandleForHeapStart());
-  //
-  // uint frameIndex = RHIDevice::get()->mSwapChain->GetCurrentBackBufferIndex();
-  // rtBarrier.Transition.pResource = rt[frameIndex];
-  // rtBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-  // rtBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-  // // Indicate that the back buffer will be used as a render target.
-  // mContextData->commandList()->ResourceBarrier(1, &rtBarrier);
-  //
-  // uint size = RHIDevice::get()->nativeDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-  // rtvHandle.ptr += frameIndex * size;
-  //
-  // mContextData->commandList()->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
-  //
-  // const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-  // mContextData->commandList()->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-}
+// void RHIContext::beforeFrame() {
+//   // D3D12_VIEWPORT mViewport;
+//
+//   // mViewport.TopLeftX = 0;
+//   // mViewport.TopLeftY = 0;
+//   // mViewport.Width = Window::Get()->bounds().width();
+//   // mViewport.Height = Window::Get()->bounds().height();
+//   // mViewport.MinDepth = D3D12_MIN_DEPTH;
+//   // mViewport.MaxDepth = D3D12_MAX_DEPTH;
+//
+//
+//
+//   // mContextData->commandList()->RSSetViewports(1, &mViewport);
+//
+//   // D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(
+//   //   RHIDevice::get()->cpuDescriptorPool()->handle(D3D12_DESCRIPTOR_HEAP_TYPE_RTV)->GetCPUDescriptorHandleForHeapStart());
+//   //
+//   // uint frameIndex = RHIDevice::get()->mSwapChain->GetCurrentBackBufferIndex();
+//   // rtBarrier.Transition.pResource = rt[frameIndex];
+//   // rtBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+//   // rtBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+//   // // Indicate that the back buffer will be used as a render target.
+//   // mContextData->commandList()->ResourceBarrier(1, &rtBarrier);
+//   //
+//   // uint size = RHIDevice::get()->nativeDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+//   // rtvHandle.ptr += frameIndex * size;
+//   //
+//   // mContextData->commandList()->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+//   //
+//   // const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
+//   // mContextData->commandList()->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+// }
 
 void RHIContext::dispatch(uint threadGroupX, uint threadGroupY, uint threadGroupZ) {
   mContextData->commandList()->Dispatch(threadGroupX, threadGroupY, threadGroupZ);

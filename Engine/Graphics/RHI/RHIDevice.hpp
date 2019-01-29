@@ -67,12 +67,20 @@ protected:
 
 class __SCOPED_GPU_EVENT {
 public:
+  __SCOPED_GPU_EVENT(RHIContext& c, const char* name) {
+    ctx = &c;
+    ctx->beginEvent(name);
+  }
   __SCOPED_GPU_EVENT(const char* name) {
-    RHIDevice::get()->defaultRenderContext()->beginEvent(name);
+    ctx = RHIDevice::get()->defaultRenderContext().get();
+    ctx->beginEvent(name);
   }
   ~__SCOPED_GPU_EVENT() {
-    RHIDevice::get()->defaultRenderContext()->endEvent();
+    ctx->endEvent();
   }
+
+  RHIContext* ctx = nullptr;
 };
-#define SCOPED_GPU_EVENT(name) __SCOPED_GPU_EVENT APPEND(__GPU_EVENT, __LINE__)(name)
-#define GPU_FUNCTION_EVENT() SCOPED_GPU_EVENT(__FUNCTION__)
+
+#define SCOPED_GPU_EVENT(ctx, name) __SCOPED_GPU_EVENT APPEND(__GPU_EVENT, __LINE__)(ctx, name)
+#define GPU_FUNCTION_EVENT(ctx) SCOPED_GPU_EVENT(ctx, __FUNCTION__)

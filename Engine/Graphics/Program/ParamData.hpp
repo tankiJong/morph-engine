@@ -26,17 +26,6 @@ public:
     uint zeroOffset;
   };
 
-  bool setSrv(const ShaderResourceView& srv, const BindPoint& bp);
-  bool setCbv(const ConstantBufferView& cbv, const BindPoint& bp);
-  bool setUav(const UnorderedAccessView& uav,const BindPoint& bp);
-
-  bool finalize();
-  const DescriptorSet::sptr_t& descriptorSet() const { return mDescriptorSet; }
-  
-  static sptr_t create(const DescriptorSet::Layout& layout);
-
-protected:
-
   struct ResourceRef {
     RHIResource::scptr_t res;
     DescriptorSet::Type type;
@@ -49,6 +38,18 @@ protected:
 
     // size_t requiredSize = 0;
   };
+
+  bool setSrv(const ShaderResourceView& srv, const BindPoint& bp);
+  bool setCbv(const ConstantBufferView& cbv, const BindPoint& bp);
+  bool setUav(const UnorderedAccessView& uav,const BindPoint& bp);
+
+  bool finalize();
+  const DescriptorSet::sptr_t& descriptorSet() const { return mDescriptorSet; }
+  
+  static sptr_t create(const DescriptorSet::Layout& layout);
+
+protected:
+
 
   using BlockData = std::vector<ResourceRef>;
 

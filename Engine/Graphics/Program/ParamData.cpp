@@ -3,7 +3,6 @@
 #include "Engine/Debug/Log.hpp"
 
 bool ParamData::setSrv(const ShaderResourceView& srv, const BindPoint& bp) {
-  
   auto& res = mBindedResources[bp.rangeIndex][bp.zeroOffset];
 
   res.res = srv.res().lock();
@@ -56,11 +55,14 @@ bool ParamData::finalize() {
       ResourceRef& res = block[offset];
 
       if(res.res == nullptr) {
-        Log::logf("descriptor[%u][%u] is empty, skip", rangeIndex, offset);
-        continue;
+        Log::logf("descriptor[%u][%u] is empty, try to bind null view", rangeIndex, offset);
       }
+
       switch(res.type) {
         case DescriptorSet::Type::Cbv: {
+          if(res.res == nullptr) {
+            res.cbv = ConstantBufferView::nullView().get();
+          }
           EXPECTS(res.cbv);
           mDescriptorSet->setCbv(rangeIndex, offset, *res.cbv);
         }
@@ -71,12 +73,18 @@ bool ParamData::finalize() {
         case DescriptorSet::Type::StructuredBufferSrv:
         case DescriptorSet::Type::TypedBufferSrv:
         case DescriptorSet::Type::TextureSrv:
+          if(res.res == nullptr) {
+            res.srv = ShaderResourceView::nullView().get();
+          }
           EXPECTS(res.srv);
           mDescriptorSet->setSrv(rangeIndex, offset, *res.srv);
         break;
         case DescriptorSet::Type::StructuredBufferUav:
         case DescriptorSet::Type::TypedBufferUav:
         case DescriptorSet::Type::TextureUav:
+          if(res.res == nullptr) {
+            res.uav = UnorderedAccessView::nullView().get();
+          }
           EXPECTS(res.uav);
           mDescriptorSet->setUav(rangeIndex, offset, *res.uav);
         break;
@@ -88,6 +96,7 @@ bool ParamData::finalize() {
     }
   }
 
+  mDirty = false;
   return true;
 }
 

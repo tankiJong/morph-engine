@@ -7,9 +7,10 @@
 #include "Engine/Graphics/Program/Program.hpp"
 #include "Engine/Math/Transform.hpp"
 #include "Engine/Renderer/ImmediateRenderer.hpp"
-#include "Debug_Wireframe_ps.h"
-#include "Debug_Wireframe_vs.h"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
+#include "Debug/Debug_Wireframe_ps.h"
+#include "Debug/Debug_Wireframe_vs.h"
+
 ImmediateRenderer* gRenderer = nullptr;
 Camera* gCamera = nullptr;
 Camera* gCamera2D = nullptr;
@@ -220,7 +221,7 @@ Debug::DrawHandle* drawMetaText(const Gradient& color, const Font* font, float d
 }
 
 void Debug::drawNow() {
-  SCOPED_GPU_EVENT("Debug draw");
+  SCOPED_GPU_EVENT(*RHIDevice::get()->defaultRenderContext(), "Debug draw");
   if(!gEnabled) return;
 
   if(!gDebugProgram) {

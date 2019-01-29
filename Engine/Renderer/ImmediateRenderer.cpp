@@ -10,10 +10,10 @@
 #include "Engine/Graphics/RHI/ResourceView.hpp"
 #include "Engine/Graphics/Model/Vertex.hpp"
 #include "Engine/Graphics/Camera.hpp"
-#include "UI_Text_Unlit_vs.h"
-#include "UI_Text_Unlit_ps.h"
-#include "UI_Solid_vs.h"
-#include "UI_Solid_ps.h"
+#include "Renderer/UiRenderer/UI_Text_Unlit_vs.h"
+#include "Renderer/UiRenderer/UI_Text_Unlit_ps.h"
+#include "Renderer/UiRenderer/UI_Solid_vs.h"
+#include "Renderer/UiRenderer/UI_Solid_ps.h"
 void ImmediateRenderer::startUp() {
   {
     FrameBuffer::Desc desc;
@@ -102,8 +102,11 @@ void ImmediateRenderer::drawMesh(Mesh& mesh) {
 
   mRhiContext->setFrameBuffer(*mFrameBuffer);
   // mRhiContext->setFrameBuffer(fbo);
-  mRhiContext->transitionBarrier(&mesh.indices()->res(), RHIResource::State::IndexBuffer);
-  mRhiContext->setIndexBuffer(mesh.indices().get());
+  if(mesh.indices() != nullptr) {
+    mRhiContext->transitionBarrier(&mesh.indices()->res(), RHIResource::State::IndexBuffer);
+    mRhiContext->setIndexBuffer(mesh.indices().get());
+  }
+
   for (uint i = 0; i < mesh.layout().attributes().size(); ++i) {
     mRhiContext->transitionBarrier(&mesh.vertices(i)->res(), RHIResource::State::VertexBuffer);
     mRhiContext->setVertexBuffer(*mesh.vertices(i), i);

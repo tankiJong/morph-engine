@@ -65,7 +65,7 @@ public:
   static bool define(S<T> res, std::string_view name, const fs::path& path = "") {
     if (sDatabase == nullptr) sDatabase = new std::map<std::string, ResourceItem<T>, std::less<>>();
     if (auto kv = sDatabase->find(name); kv != sDatabase->end()) {
-      ERROR_RECOVERABLE("resource already exists");
+      ERROR_RECOVERABLE(Stringf("'%s' already exists", name.data()));
       return false;
     }
     if (res == nullptr) {
@@ -151,5 +151,5 @@ public: \
     Resource<ResType>::define(res, name); \
   }; \
 }; \
-static APPEND(__RES_DEF, __LINE__) APPEND(__RES_DEFIns, __LINE__); \
+static APPEND(__RES_DEF, __LINE__) APPEND(__RES_DEF_, __LINE__); \
 inline S<Type> APPEND(__RES_DEF, __LINE__)::_Reg()

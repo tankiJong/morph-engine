@@ -35,6 +35,16 @@ void Application::_init() {
   mEngine->init();
 
   FileSystem::Get().mount("/Data", "Data");
+  FileSystem::Get().foreach("/Data", [](const fs::path& p, auto...) {
+    if(p.extension() == ".png" || p.extension() == ".jpg") {
+      Resource<Texture2>::define(p.generic_string());
+    }
+    //
+    // if (p.extension() == ".shader") {
+    //   Resource<Shader>::define(p.generic_string());
+    //   return;
+    // }
+  });
 
   Window::Get()->addWinMessageHandler([this](uint msg, size_t wparam, size_t lparam) {
     this->windowProc(msg, wparam, lparam);
@@ -75,8 +85,8 @@ void Application::_update() {
 
   onRender();
   onGui();
-  ImGui::render();
   Debug::drawNow();
+  ImGui::render();
 
   if (Console::Get()->isOpen()) {
     Console* cons = Console::Get();

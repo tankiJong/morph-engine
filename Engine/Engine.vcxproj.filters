@@ -202,6 +202,12 @@
     <Filter Include="Engine\Event">
       <UniqueIdentifier>{a60e4151-ac2d-431d-acd1-f6c22c275e3f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Renderer\DeferredRenderer">
+      <UniqueIdentifier>{f5961536-cef7-4c63-a7d8-0f0e43e82b50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer\RenderGraph">
+      <UniqueIdentifier>{466ca7ce-6191-4158-b843-d3774938c460}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -725,6 +731,15 @@
     </ClCompile>
     <ClCompile Include="Event\EventTarget.cpp">
       <Filter>Engine\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\DeferredRenderer\DeferredRenderer.cpp">
+      <Filter>Engine\Renderer\DeferredRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderGraph\RenderGraph.cpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderGraph\RenderGraphBuilder.cpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1451,6 +1466,15 @@
     <ClInclude Include="Event\EventTarget.hpp">
       <Filter>Engine\Event</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\DeferredRenderer\DeferredRenderer.hpp">
+      <Filter>Engine\Renderer\DeferredRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderGraph\RenderGraph.hpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderGraph\RenderGraphBuilder.hpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\ThirdParty\fmod\fmod_vc.lib">
@@ -1573,6 +1597,12 @@
     <None Include="Renderer\SceneRenderer\Bvh.hlsli">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
     </None>
+    <None Include="Renderer\DeferredRenderer\GenGBuffer.hlsli">
+      <Filter>Engine\Renderer\DeferredRenderer</Filter>
+    </None>
+    <None Include="Renderer\DeferredRenderer\Common.hlsli">
+      <Filter>Engine\Renderer\DeferredRenderer</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis">
@@ -1659,6 +1689,12 @@
     </FxCompile>
     <FxCompile Include="Renderer\SceneRenderer\BvhVisual_vs.hlsl">
       <Filter>Engine\Renderer\SceneRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\DeferredRenderer\GenGBuffer_ps.hlsl">
+      <Filter>Engine\Renderer\DeferredRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\DeferredRenderer\GenGBuffer_vs.hlsl">
+      <Filter>Engine\Renderer\DeferredRenderer</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

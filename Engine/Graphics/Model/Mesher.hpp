@@ -44,7 +44,24 @@ public:
   // |    |
   // a -- b
   Mesher& quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d);
+
+  // d -- c
+  // |    |
+  // a -- b
+  Mesher& quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d,
+               const vec2& uva, const vec2& uvb, const vec2& uvc, const vec2& uvd);
+
+  // d -- c
+  // |    |
+  // a -- b
   Mesher& quad(const vec3& center, const vec3& xDir, const vec3& yDir, const vec2& size);
+
+  // d -- c
+  // |    |
+  // a -- b
+  Mesher& quad(const vec3& center, const vec3& xDir, const vec3& yDir, const vec2& size,
+               const vec2& uva, const vec2& uvb, const vec2& uvc, const vec2& uvd);
+
   Mesher& quad2(const aabb2& bound, float z = 0);
   Mesher& cube(const vec3& center, const vec3& dimension);
   Mesher& cube(const vec3& origin, const vec3& dimension, 

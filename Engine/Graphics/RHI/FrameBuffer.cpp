@@ -24,10 +24,22 @@ void FrameBuffer::setColorTarget(const RenderTargetView* rtv, uint index) {
 
 void FrameBuffer::setColorTarget(const Texture2::sptr_t& tex, uint index) {
   
-  Expects(index < NUM_MAX_COLOR_TARGET);
-  EXPECTS(tex->format() == mDesc.colorTargetFormat(index));
+  EXPECTS(index < NUM_MAX_COLOR_TARGET);
+
+  auto expectFormat = mDesc.colorTargetFormat(index);
+  EXPECTS(tex->format() ==  expectFormat || expectFormat == TEXTURE_FORMAT_UNKNOWN);
 
   setColorTarget(&tex->rtv(), index);
+}
+
+void FrameBuffer::defineColorTarget(const Texture2::sptr_t tex, uint index, bool allowUav) {
+  mDesc.defineColorTarget(index, tex->format(), allowUav);
+  setColorTarget(tex, index);
+}
+
+void FrameBuffer::defineDepthStencilTarget(const Texture2::sptr_t tex, bool allowUav) {
+  mDesc.defineDepthTarget(tex->format(), allowUav);
+  setDepthStencilTarget(tex);
 }
 
 void FrameBuffer::setDepthStencilTarget(Texture2::sptr_t tex) {

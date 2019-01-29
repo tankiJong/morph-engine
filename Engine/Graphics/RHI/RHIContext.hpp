@@ -42,7 +42,7 @@ public:
   virtual void uavBarrier(const RHIResource* res);
 
   //-------------------------------------------------
-  void beforeFrame();
+  // void beforeFrame();
   // void  afterFrame();
 
   void dispatch(uint threadGroupX, uint threadGroupY, uint threadGroupZ);

@@ -13,23 +13,23 @@
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 #include "Engine/Math/MathUtils.hpp"
 
-#include "GenGBuffer_ps.h"
-#include "GenGBuffer_vs.h"
-#include "SurfelPlacement_cs.h"
-#include "SurfelVisual_cs.h"
-#include "SurfelGI_cs.h"
-#include "GenAccelerationStructure_cs.h"
-#include "GenAO_cs.h"
-#include "DeferredLighting_ComputeIndirect_cs.h"
-#include "DeferredLighting_cs.h"
-#include "PathTracing_cs.h"
-#include "SurfelCoverageCompute_cs.h"
-#include "BvhVisual_vs.h";
-#include "BvhVisual_gs.h";
-#include "BvhVisual_ps.h";
+#include "Renderer/SceneRenderer/GenGBuffer_ps.h"
+#include "Renderer/SceneRenderer/GenGBuffer_vs.h"
+#include "Renderer/SceneRenderer/SurfelPlacement_cs.h"
+#include "Renderer/SceneRenderer/SurfelVisual_cs.h"
+#include "Renderer/SceneRenderer/SurfelGI_cs.h"
+#include "Renderer/SceneRenderer/GenAccelerationStructure_cs.h"
+#include "Renderer/SceneRenderer/GenAO_cs.h"
+#include "Renderer/SceneRenderer/DeferredLighting_ComputeIndirect_cs.h"
+#include "Renderer/SceneRenderer/DeferredLighting_cs.h"
+#include "Renderer/SceneRenderer/PathTracing_cs.h"
+#include "Renderer/SceneRenderer/SurfelCoverageCompute_cs.h"
+#include "Renderer/SceneRenderer/BvhVisual_vs.h";
+#include "Renderer/SceneRenderer/BvhVisual_gs.h";
+#include "Renderer/SceneRenderer/BvhVisual_ps.h";
 
-#include "fxaa_ps.h"
-#include "fxaa_vs.h"
+#include "Renderer/SceneRenderer/fxaa_ps.h"
+#include "Renderer/SceneRenderer/fxaa_vs.h"
 
 #include "Engine/Framework/Light.hpp"
 #include "Engine/Input/Input.hpp"
@@ -461,7 +461,7 @@ void SceneRenderer::updateDescriptors() {
 }
 
 void SceneRenderer::genGBuffer(RHIContext& ctx) {
-  SCOPED_GPU_EVENT("Gen G-Buffer");
+  SCOPED_GPU_EVENT(ctx, "Gen G-Buffer");
 
   ctx.setFrameBuffer(mGFbo);
   ctx.bindDescriptorHeap();
@@ -565,7 +565,7 @@ void SceneRenderer::genGBuffer(RHIContext& ctx) {
 }
 
 void SceneRenderer::genAO(RHIContext& ctx) {
-  SCOPED_GPU_EVENT("Gen AO");
+  SCOPED_GPU_EVENT(ctx, "Gen AO");
 
   // mDGBufferDescriptors->setSrv(0, 5, *ShaderResourceView::nullView());
 
@@ -617,7 +617,7 @@ void SceneRenderer::genAO(RHIContext& ctx) {
 
 void SceneRenderer::computeSurfelCoverage(RHIContext& ctx) {
 
-  SCOPED_GPU_EVENT("Compute Surfel Coverage");
+  SCOPED_GPU_EVENT(ctx, "Compute Surfel Coverage");
 
   static ComputeState::sptr_t computeState;
   if (!computeState) {
@@ -649,7 +649,7 @@ void SceneRenderer::computeSurfelCoverage(RHIContext& ctx) {
 
 void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
 
-  SCOPED_GPU_EVENT("Accumlate Surfels");
+  SCOPED_GPU_EVENT(ctx, "Accumlate Surfels");
 
   static ComputeState::sptr_t computeState;
   if (!computeState) {
@@ -683,7 +683,7 @@ void SceneRenderer::accumlateSurfels(RHIContext& ctx) {
 
 void SceneRenderer::accumlateGI(RHIContext& ctx) {
 
-  SCOPED_GPU_EVENT("Accumlate GI");
+  SCOPED_GPU_EVENT(ctx, "Accumlate GI");
 
   static ComputeState::sptr_t computeState;
   if (!computeState) {
@@ -711,7 +711,7 @@ void SceneRenderer::accumlateGI(RHIContext& ctx) {
 
 void SceneRenderer::visualizeSurfels(RHIContext& ctx) {
 
-  SCOPED_GPU_EVENT("Visualize Surfels");
+  SCOPED_GPU_EVENT(ctx, "Visualize Surfels");
 
   static ComputeState::sptr_t computeState;
   if (!computeState) {
@@ -782,7 +782,7 @@ void SceneRenderer::visualizeBVH(RHIContext& ctx) {
 }
 
 void SceneRenderer::deferredLighting(RHIContext& ctx) {
-  SCOPED_GPU_EVENT("Deferred Lighting");
+  SCOPED_GPU_EVENT(ctx, "Deferred Lighting");
 
   static ComputeState::sptr_t computeState;
 
@@ -795,7 +795,7 @@ void SceneRenderer::deferredLighting(RHIContext& ctx) {
 
   
   {
-    SCOPED_GPU_EVENT("UpSamle, apply diffuse");
+    SCOPED_GPU_EVENT(ctx, "UpSamle, apply diffuse");
     ctx.setComputeState(*computeState);
   
     ctx.uavBarrier(mIndirectLight.get());
@@ -813,7 +813,7 @@ void SceneRenderer::deferredLighting(RHIContext& ctx) {
 }
 
 void SceneRenderer::computeIndirectLighting(RHIContext & ctx) {
-  SCOPED_GPU_EVENT("Compute Indirect");
+  SCOPED_GPU_EVENT(ctx, "Compute Indirect");
   static ComputeState::sptr_t computeStateIndirect;
   if (!computeStateIndirect) {
     ComputeState::Desc desc;
@@ -1026,7 +1026,6 @@ DEF_RESOURCE(Program, "internal/Shader/scene-renderer/bvhVisual") {
   prog->stage(SHADER_TYPE_FRAGMENT).setFromBinary(gBvhVisual_ps, sizeof(gBvhVisual_ps));
   prog->compile();
 
-  prog->compile();
   RenderState state;
   state.isWriteDepth = FLAG_FALSE;
   state.depthMode = COMPARE_ALWAYS;

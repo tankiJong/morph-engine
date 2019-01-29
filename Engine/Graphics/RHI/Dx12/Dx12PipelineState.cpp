@@ -7,7 +7,7 @@
 
 void setDepthStencilState(D3D12_DEPTH_STENCIL_DESC& dsv, const RenderState& rs) {
   dsv.DepthEnable = TRUE;
-  
+  dsv.StencilEnable = false;
   switch(rs.depthMode) { 
     case COMPARE_NEVER:
       dsv.DepthFunc = D3D12_COMPARISON_FUNC_NEVER;
@@ -67,8 +67,8 @@ void setFboDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, FrameBuffer::Desc& fbo
      desc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
      setDepthStencilState(desc.DepthStencilState, renderState);
-     desc.DepthStencilState.StencilEnable = TRUE;
      
+     desc.DepthStencilState.StencilEnable = FALSE;
      desc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
      desc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
   

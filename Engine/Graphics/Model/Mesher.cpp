@@ -443,12 +443,58 @@ Mesher& Mesher::quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d)
   return *this;
 }
 
+Mesher& Mesher::quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d,
+  const vec2& uva, const vec2& uvb, const vec2& uvc, const vec2& uvd) {
+  tangent(b - a, 1);
+  normal((d - a).cross(b - a));
+  if(mCurrentIns.useIndices) {
+    uint start =
+      uv(uva)
+      .vertex3f(a);
+
+    uv(uvb)
+      .vertex3f(b);
+    uv(uvc)
+      .vertex3f(c);
+    uv(uvd)
+      .vertex3f(d);
+
+    quad(start + 0, start + 1, start + 2, start + 3);
+  } else {
+    uv(uva)
+      .vertex3f(a);
+    uv(uvb)
+      .vertex3f(b);
+    uv(uvc)
+      .vertex3f(c);
+
+    uv(uva)
+      .vertex3f(a);
+    uv(uvc)
+      .vertex3f(c);
+    uv(uvd)
+      .vertex3f(d);
+  }
+
+  return *this;
+}
+
 Mesher& Mesher::quad(const vec3& center, const vec3& xDir, const vec3& yDir, const vec2& size) {
   vec3 halfX = xDir * size.x * .5f, halfY = yDir * size.y * .5f;
   return quad(center - halfX - halfY,
               center + halfX - halfY,
               center + halfX + halfY,
               center - halfX + halfY);
+}
+
+Mesher& Mesher::quad(const vec3& center, const vec3& xDir, const vec3& yDir, const vec2& size,
+                     const vec2& uva, const vec2& uvb, const vec2& uvc, const vec2& uvd) {
+  vec3 halfX = xDir * size.x * .5f, halfY = yDir * size.y * .5f;
+  return quad(center - halfX - halfY,
+              center + halfX - halfY,
+              center + halfX + halfY,
+              center - halfX + halfY,
+              uva, uvb, uvc, uvd);
 }
 
 Mesher& Mesher::quad2(const aabb2& bound, float z) {

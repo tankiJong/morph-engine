@@ -391,7 +391,8 @@ void Console::hookInBuiltInCommand() {
 }
 
 void Console::render() const {
-  SCOPED_GPU_EVENT("Render console");
+  SCOPED_GPU_EVENT(
+    *RHIDevice::get()->defaultRenderContext(), "Render console");
   ImmediateRenderer& renderer = ImmediateRenderer::get();
   float inputBoxHeight = LINE_HEIGHT;
   float descender = mFont->descender(FONT_SIZE);
