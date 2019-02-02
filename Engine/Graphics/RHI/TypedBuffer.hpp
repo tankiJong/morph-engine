@@ -75,7 +75,7 @@ public:
     return mStride;
   }
 
-  const ShaderResourceView& srv() const;
+  virtual ShaderResourceView* srv() const override;
 
   template<typename T>
   static sptr_t For(u32 eleCount = 1, BindingFlag bindingFlags = BindingFlag::ShaderResource) {

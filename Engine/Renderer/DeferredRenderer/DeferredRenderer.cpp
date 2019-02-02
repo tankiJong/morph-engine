@@ -130,9 +130,9 @@ void DeferredRenderer::onRenderFrame(RHIContext& ctx) {
 }
 
 void DeferredRenderer::cleanBuffers(RHIContext& ctx) {
-  ctx.clearRenderTarget(mGAlbedo->rtv(), Rgba::white);
-  ctx.clearRenderTarget(mGPosition->rtv(), Rgba::black);
-  ctx.clearRenderTarget(mGNormal->rtv(), Rgba::gray);
+  ctx.clearRenderTarget(*mGAlbedo->rtv(), Rgba::white);
+  ctx.clearRenderTarget(*mGPosition->rtv(), Rgba::black);
+  ctx.clearRenderTarget(*mGNormal->rtv(), Rgba::gray);
   
   ctx.clearDepthStencilTarget(*mGDepth->dsv());
 }

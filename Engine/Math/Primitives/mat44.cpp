@@ -350,6 +350,18 @@ quaternion mat44::quat() const {
   UNIMPLEMENTED_RETURN(quaternion());
 }
 
+mat44 mat44::rotationX(float x) {
+  return makeRotation(x, 0, 0);
+}
+
+mat44 mat44::rotationY(float y) {
+  return makeRotation(0, y, 0);
+}
+
+mat44 mat44::rotationZ(float z) {
+  return makeRotation(0,0,z);
+}
+
 vec3 mat44::scale() const {
   return {
     i.xyz().magnitude(),
@@ -368,7 +380,7 @@ mat44 mat44::makeRotation(float x, float y, float z) {
   float sx = sinDegrees(x), sy = sinDegrees(y), sz = sinDegrees(z);
 
   mat44 re{
-    cz*cy - sz*sx*sy,      sz*cy + cz * sx*sy,    -cx * sy,    0,
+    cz*cy - sz*sx*sy,      sz*cy + cz * sx*sy,   -cx * sy,    0,
     -sz * cx,                           cz*cx,         sx,    0,
     sz*sx*cy + cz * sy, -cz * sx*cy + sz * sy,      cx*cy,    0,
     0,                                      0,          0,    1

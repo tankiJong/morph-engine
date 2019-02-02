@@ -310,7 +310,7 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   static bool pt = false;
   if (Input::Get().isKeyJustDown('P')) {
     mFrameData.frameCount = 0;
-    ctx.clearRenderTarget(mScene->rtv(), Rgba::black);
+    ctx.clearRenderTarget(*mScene->rtv(), Rgba::black);
     pt = !pt;
   }
 
@@ -318,7 +318,7 @@ void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   if (pt) {
     if(Input::Get().anyKeyDown()) {
       mFrameData.frameCount = 0;
-      ctx.clearRenderTarget(mScene->rtv(), Rgba::black);
+      ctx.clearRenderTarget(*mScene->rtv(), Rgba::black);
     }
     pathTracing(ctx);
     return;
@@ -357,10 +357,10 @@ void SceneRenderer::updateDescriptors() {
 
     mGFbo.setDesc(desc);
 
-    mGFbo.setColorTarget(&mGAlbedo->rtv(), 0);
-    mGFbo.setColorTarget(&mGNormal->rtv(), 1);
-    mGFbo.setColorTarget(&mGPosition->rtv(), 2);
-    mGFbo.setColorTarget(&mGVelocity->rtv(), 3);
+    mGFbo.setColorTarget(mGAlbedo->rtv(), 0);
+    mGFbo.setColorTarget(mGNormal->rtv(), 1);
+    mGFbo.setColorTarget(mGPosition->rtv(), 2);
+    mGFbo.setColorTarget(mGVelocity->rtv(), 3);
     mGFbo.setDepthStencilTarget(mGDepth->dsv());
   }
   {
@@ -380,12 +380,12 @@ void SceneRenderer::updateDescriptors() {
 
     mDGBufferDescriptors = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
 
-    mDGBufferDescriptors->setSrv(0, 0, mGAlbedo->srv());
-    mDGBufferDescriptors->setSrv(0, 1, mGNormal->srv());
-    mDGBufferDescriptors->setSrv(0, 2, mGPosition->srv());
-    mDGBufferDescriptors->setSrv(0, 3, mGDepth->srv());
-    mDGBufferDescriptors->setSrv(0, 4, mVertexData->srv());
-    mDGBufferDescriptors->setSrv(0, 5, mBVH->srv());
+    mDGBufferDescriptors->setSrv(0, 0, *mGAlbedo->srv());
+    mDGBufferDescriptors->setSrv(0, 1, *mGNormal->srv());
+    mDGBufferDescriptors->setSrv(0, 2, *mGPosition->srv());
+    mDGBufferDescriptors->setSrv(0, 3, *mGDepth->srv());
+    mDGBufferDescriptors->setSrv(0, 4, *mVertexData->srv());
+    mDGBufferDescriptors->setSrv(0, 5, *mBVH->srv());
   }
   {
     DescriptorSet::Layout layout;
@@ -456,7 +456,7 @@ void SceneRenderer::updateDescriptors() {
     mDDeferredLightingDescriptors->setUav(0, 0, *mScene->uav());
     mDDeferredLightingDescriptors->setUav(0, 1, *mIndirectLight->uav());
     mDDeferredLightingDescriptors->setUav(0, 2, *mSurfelSpawnChance->uav());
-    mDDeferredLightingDescriptors->setSrv(0, 3, mGAO->srv());
+    mDDeferredLightingDescriptors->setSrv(0, 3, *mGAO->srv());
   }
 }
 
@@ -475,7 +475,7 @@ void SceneRenderer::genGBuffer(RHIContext& ctx) {
     prog->setCbv(*mcCamera->cbv(), 1);
     prog->setCbv(*mcModel->cbv(), 2);
     prog->setCbv(*mcLight->cbv(), 3);
-    prog->setSrv(mAO->srv(), 6);
+    prog->setSrv(*mAO->srv(), 6);
   }
 
   GraphicsState::Desc desc;
@@ -583,13 +583,13 @@ void SceneRenderer::genAO(RHIContext& ctx) {
     prog->setCbv(*mcFrameData->cbv(), 0);
     prog->setCbv(*mcCamera->cbv(), 1);
 
-    prog->setSrv(mGNormal->srv(), 11);
-    prog->setSrv(mGPosition->srv(), 12);
-    prog->setSrv(mGDepth->srv(), 13);
-    prog->setSrv(mGVelocity->srv(), 14);
-    prog->setSrv(mVertexData->srv(), 15);
-    prog->setSrv(mBVH->srv(), 16);
-    prog->setSrv(mGAO->srv(), 17);
+    prog->setSrv(*mGNormal->srv(), 11);
+    prog->setSrv(*mGPosition->srv(), 12);
+    prog->setSrv(*mGDepth->srv(), 13);
+    prog->setSrv(*mGVelocity->srv(), 14);
+    prog->setSrv(*mVertexData->srv(), 15);
+    prog->setSrv(*mBVH->srv(), 16);
+    prog->setSrv(*mGAO->srv(), 17);
     prog->setUav(*mAO->uav(), 0);
 
   }
@@ -752,7 +752,7 @@ void SceneRenderer::visualizeBVH(RHIContext& ctx) {
     auto prog = Resource<Program>::get("internal/Shader/scene-renderer/bvhVisual");
 
     progIns = GraphicsProgramInst::create(prog);
-    progIns->setSrv(mBVH->srv(), 0);
+    progIns->setSrv(*mBVH->srv(), 0);
     progIns->setCbv(*mcCamera->cbv(), 1);
     GraphicsState::Desc desc;
     desc.setRootSignature(prog->rootSignature());
@@ -769,7 +769,7 @@ void SceneRenderer::visualizeBVH(RHIContext& ctx) {
     desc.defineColorTarget(0, TEXTURE_FORMAT_RGBA8, false);
     fbo.setDesc(desc);
 
-    fbo.setColorTarget(&RHIDevice::get()->backBuffer()->rtv(), 0);
+    fbo.setColorTarget(RHIDevice::get()->backBuffer()->rtv(), 0);
     fbo.setDepthStencilTarget(mGDepth->dsv());
   }
 
@@ -871,14 +871,14 @@ void SceneRenderer::setupFrame() {
   auto ctx = RHIDevice::get()->defaultRenderContext();
 
   if(shouldRecomputeIndirect()) {
-    ctx->clearRenderTarget(mIndirectLight->rtv(), Rgba::black);
+    ctx->clearRenderTarget(*mIndirectLight->rtv(), Rgba::black);
   }
   
   if(!Input::Get().isKeyDown('B')) {
-    ctx->clearRenderTarget(mGAlbedo->rtv(), Rgba::black);
-    ctx->clearRenderTarget(mGNormal->rtv(), Rgba::gray);
-    ctx->clearRenderTarget(mGPosition->rtv(), vec4{ NAN, NAN, NAN,NAN });
-    ctx->clearRenderTarget(mGVelocity->rtv(), Rgba(0, 0, 0, 0));
+    ctx->clearRenderTarget(*mGAlbedo->rtv(), Rgba::black);
+    ctx->clearRenderTarget(*mGNormal->rtv(), Rgba::gray);
+    ctx->clearRenderTarget(*mGPosition->rtv(), vec4{ NAN, NAN, NAN,NAN });
+    ctx->clearRenderTarget(*mGVelocity->rtv(), Rgba(0, 0, 0, 0));
 
     ctx->transitionBarrier(mGAlbedo.get(), RHIResource::State::NonPixelShader);
     ctx->transitionBarrier(mGNormal.get(), RHIResource::State::NonPixelShader);
@@ -938,11 +938,11 @@ void SceneRenderer::pathTracing(RHIContext& ctx) {
     progIns->setCbv(*mcFrameData->cbv(), 0);
     progIns->setCbv(*mcCamera->cbv(), 1);
     progIns->setCbv(*mcLight->cbv(), 3);
-    progIns->setSrv(mGAlbedo->srv(), 10);
-    progIns->setSrv(mGNormal->srv(), 11);
-    progIns->setSrv(mGPosition->srv(), 12);
-    progIns->setSrv(mVertexData->srv(), 13);
-    progIns->setSrv(mBVH->srv(), 14);
+    progIns->setSrv(*mGAlbedo->srv(), 10);
+    progIns->setSrv(*mGNormal->srv(), 11);
+    progIns->setSrv(*mGPosition->srv(), 12);
+    progIns->setSrv(*mVertexData->srv(), 13);
+    progIns->setSrv(*mBVH->srv(), 14);
     progIns->setUav(*mScene->uav(), 0); 
 
     ComputeState::Desc desc;
@@ -983,7 +983,7 @@ void SceneRenderer::fxaa(RHIContext & ctx) {
 
     progIns = GraphicsProgramInst::create(prog);
 
-    progIns->setSrv(mScene->srv(), 0);
+    progIns->setSrv(*mScene->srv(), 0);
 
     GraphicsState::Desc desc;
     desc.setRootSignature(prog->rootSignature());
@@ -1000,7 +1000,7 @@ void SceneRenderer::fxaa(RHIContext & ctx) {
     desc.defineColorTarget(0, TEXTURE_FORMAT_RGBA8, false);
     fbo.setDesc(desc);
 
-    fbo.setColorTarget(&RHIDevice::get()->backBuffer()->rtv(), 0);
+    fbo.setColorTarget(RHIDevice::get()->backBuffer()->rtv(), 0);
   }
   ctx.setFrameBuffer(fbo);
 

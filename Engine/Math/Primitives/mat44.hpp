@@ -67,6 +67,9 @@ public:
   quaternion quat() const;
 
   // Producers
+  static mat44 rotationX(float x);
+  static mat44 rotationY(float y);
+  static mat44 rotationZ(float z);
   static mat44 makeRotation(const Euler& ea);
   static mat44 makeRotation(float x, float y, float z);
   static mat44 makeRotation2D(float rotationDegreesAboutZ);

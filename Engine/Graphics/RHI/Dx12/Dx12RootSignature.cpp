@@ -111,24 +111,45 @@ bool RootSignature::rhiInit() {
   desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
   // provide a default static sampler to pixel shader
-  D3D12_STATIC_SAMPLER_DESC sampler = {};
-  sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-  sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-  sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-  sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-  sampler.MipLODBias = 0;
-  sampler.MaxAnisotropy = 0;
-  sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-  sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
-  sampler.MinLOD = 0.0f;
-  sampler.MaxLOD = D3D12_FLOAT32_MAX;
-  sampler.ShaderRegister = 0;
-  sampler.RegisterSpace = 0;
-  sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+  D3D12_STATIC_SAMPLER_DESC linearSampler = {};
+  {
+    linearSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+    linearSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    linearSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    linearSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    linearSampler.MipLODBias = 0;
+    linearSampler.MaxAnisotropy = 0;
+    linearSampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+    linearSampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+    linearSampler.MinLOD = 0.0f;
+    linearSampler.MaxLOD = D3D12_FLOAT32_MAX;
+    linearSampler.ShaderRegister = 0;
+    linearSampler.RegisterSpace = 0;
+    linearSampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+  }
+  //
+  // D3D12_STATIC_SAMPLER_DESC closetSampler = {};
+  // {
+  //   linearSampler.Filter = D3d12filterm;
+  //   linearSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+  //   linearSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+  //   linearSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+  //   linearSampler.MipLODBias = 0;
+  //   linearSampler.MaxAnisotropy = 0;
+  //   linearSampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+  //   linearSampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+  //   linearSampler.MinLOD = 0.0f;
+  //   linearSampler.MaxLOD = D3D12_FLOAT32_MAX;
+  //   linearSampler.ShaderRegister = 0;
+  //   linearSampler.RegisterSpace = 0;
+  //   linearSampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+  // }  
 
+
+  
   desc.pParameters = rootParams.data();
   desc.NumParameters = (uint)rootParams.size();
-  desc.pStaticSamplers = &sampler;
+  desc.pStaticSamplers = &linearSampler;
   desc.NumStaticSamplers = 1;
 
   ID3DBlobPtr sigBlob;

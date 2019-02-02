@@ -232,7 +232,7 @@ void Debug::drawNow() {
   }
 
 
-  gRenderer->setRenderTarget(&RHIDevice::get()->backBuffer()->rtv(), 0);
+  gRenderer->setRenderTarget(RHIDevice::get()->backBuffer()->rtv(), 0);
   gRenderer->setDepthStencilTarget(RHIDevice::get()->depthBuffer()->dsv());
 
   gRenderer->setRenderRegion(*RHIDevice::get()->backBuffer());

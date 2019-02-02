@@ -33,7 +33,7 @@ float Attenuation(float intensity, float dis, float3 factor)
 	}	else {
 		atten = m * exp(s * pow(dis/L, beta));
 	}	*/
-  float atten = intensity / ( 4 * dis * dis );
+  float atten = intensity / ( dis * dis );
 	return atten;
 }
 
@@ -41,14 +41,15 @@ float3 Diffuse(float3 surfacePosition, float3 surfaceNormal, float3 surfaceColor
 {
   float3 inDirection = InDirection(light, surfacePosition);
 
+  // float dot3 = 1;
   float dot3 = max(0, dot(-inDirection, surfaceNormal));
 
 	float lightPower = LightPower(light, surfacePosition);
-
+	// float lightPower = 1;
 	float dis = distance(light.position, surfacePosition);
 	float atten = Attenuation(light.color.w, dis, light.attenuation);
 
-	float3 color = dot3 * lightPower * atten * surfaceColor;
+	float3 color = dot3 * lightPower * atten * light.color.rgb * surfaceColor;
   return color;
 }
 

@@ -9,6 +9,7 @@ class ProgramInst;
 class Program: public std::enable_shared_from_this<Program> {
 public:
   using sptr_t = S<Program>;
+  using scptr_t = S<const Program>;
   Program();
   Shader& stage(eShaderType type) {
     return mShaders[type];

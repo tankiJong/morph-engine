@@ -10,6 +10,7 @@ public:
   using sptr_t = S<Fence>;
   using scptr_t = S<const Fence>;
 
+  Fence(Fence&& mv) noexcept;
   ~Fence();
   u64 cpuValue() const { return mCpuValue; }
 

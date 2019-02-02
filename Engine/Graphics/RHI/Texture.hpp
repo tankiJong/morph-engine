@@ -12,8 +12,8 @@ public:
   using scptr_t = std::shared_ptr<const Texture2>;
   using inherit_shared_from_this<RHITexture, Texture2>::shared_from_this;
 
-  const RenderTargetView& rtv();
-  const DepthStencilView* dsv();
+  virtual const RenderTargetView* rtv() const override;
+  virtual const DepthStencilView* dsv() const override;
 
   virtual const UnorderedAccessView* uav() const override;
   static Texture2::sptr_t create(
@@ -24,8 +24,8 @@ public:
 
 
 protected:
-  RenderTargetView::sptr_t mRtv;
-  DepthStencilView::sptr_t mDsv;
+  mutable RenderTargetView::sptr_t mRtv;
+  mutable DepthStencilView::sptr_t mDsv;
   template<typename TexType, typename ...Args>
   friend typename TexType::sptr_t createOrFail(const void* data, size_t size, Args ... args);
   friend class Resource<Texture2>;

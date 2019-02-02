@@ -75,6 +75,9 @@ public:
   inline BindingFlag flags() const { return mBindingFlags; }
   virtual const UnorderedAccessView* uav() const { return nullptr; };
   virtual const ConstantBufferView* cbv() const { return nullptr; };
+  virtual const ShaderResourceView* srv() const { return nullptr; };
+  virtual const RenderTargetView* rtv() const { return nullptr; }
+  virtual const DepthStencilView* dsv() const { return nullptr; }
   virtual ~RHIResource();
 
 protected:

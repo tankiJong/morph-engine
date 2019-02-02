@@ -738,7 +738,14 @@
     <ClCompile Include="Renderer\RenderGraph\RenderGraph.cpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\RenderGraph\RenderGraphBuilder.cpp">
+    <ClCompile Include="Renderer\RenderGraph\RenderNode.cpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderGraph\RenderPass.cpp" />
+    <ClCompile Include="Renderer\RenderGraph\RenderNodeContext.cpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderGraph\RenderEdge.cpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1472,7 +1479,14 @@
     <ClInclude Include="Renderer\RenderGraph\RenderGraph.hpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\RenderGraph\RenderGraphBuilder.hpp">
+    <ClInclude Include="Renderer\RenderGraph\RenderNode.hpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderGraph\RenderPass.hpp" />
+    <ClInclude Include="Renderer\RenderGraph\RenderNodeContext.hpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderGraph\RenderEdge.hpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClInclude>
   </ItemGroup>

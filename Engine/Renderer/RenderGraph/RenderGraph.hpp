@@ -1,24 +1,90 @@
 #pragma once
 
 #include "Engine/Core/common.hpp"
+
+#include <map>
 #include <functional>
+#include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Engine/Renderer/RenderGraph/RenderEdge.hpp"
+#include <unordered_set>
 
 class RenderPass;
+class RenderNode;
 class RHIContext;
-class RenderGraphBuilder;
+class RenderNodeContext;
+class RenderPassExecutor;
 
-class RenderPassExecutor: std::function<void(RHIContext&)> {
+class RenderPassConstructor: public std::function<RenderPassExecutor(RenderNodeContext&)> {
+  using BaseType = std::function<RenderPassExecutor(RenderNodeContext&)>;
 public:
-  template<typename Lambda>
-  RenderPassExecutor(Lambda&& lambda): std::function<void(RHIContext&)>(std::forward(lambda)) {};
+  RenderPassConstructor() = default;
+
+  template<typename Lambda, 
+  typename = std::enable_if_t<!std::is_same_v<std::decay_t<Lambda>, RenderPassConstructor> && !std::is_void_v<Lambda>>>
+  RenderPassConstructor(Lambda&& lambda)
+    : BaseType(std::forward<Lambda>(lambda)) {
+    using RtnType = std::invoke_result_t<Lambda, RenderNodeContext&>;
+    static_assert(std::is_same_v<void, std::invoke_result_t<RtnType, RHIContext&>>);
+  };
+
+  using BaseType::operator();
+
 protected:
-  using BaseType = std::function<void(RHIContext&)>;
 };
 
+class RenderPassExecutor: public std::function<void(RHIContext&)> {
+  using BaseType = std::function<void(RHIContext&)>;
+public:
+  RenderPassExecutor() = default;
+
+  template<typename Lambda, 
+  typename = std::enable_if_t<!std::is_same_v<std::decay_t<Lambda>, RenderPassExecutor> && !std::is_void_v<Lambda>>>
+  RenderPassExecutor(Lambda&& lambda)
+    : BaseType(std::forward<Lambda>(lambda)) {
+    static_assert(std::is_same_v<void, std::invoke_result_t<Lambda, RHIContext&>>);
+  };
+
+  using BaseType::operator();
+protected:
+};
+
+
 class RenderGraph {
+  friend class RenderNode;
 public:
   // using RenderPassExecutor = std::function<void(CommandList&)>;
-  using RenderPassConstructor = std::function<RenderPassExecutor(RenderGraphBuilder&)>;
+  // using RenderPassConstructor = std::function<RenderPassExecutor(RenderNodeContext&)>;
 
-  RenderPass& definePass(std::string_view name, RenderPassConstructor constructor);
+  RenderNode& defineNode(std::string_view name, RenderPassConstructor constructor);
+
+  template<typename RenderPassType, typename ...Args>
+  RenderNode& createNode(std::string_view name, Args ...args) {
+    static_assert(std::is_base_of_v<RenderPass, RenderPassType>, "The type has to derive from RenderPass class");
+    RenderPass* pass = allocatePass<RenderPassType>(args...);
+    return addPass(name, pass);
+  }
+
+  void depend(RenderNode& blocker, RenderNode& blockee);
+
+  void connect(RenderNode& fromNode, std::string_view fromRes, RenderNode& toNode, std::string_view toRes);
+
+  bool execute() const;
+
+  void setOutput(std::string_view passName, std::string_view resName);
+  void setOutput(RenderNode& node, std::string_view resName);
+protected:
+
+  RenderNode& addPass(std::string_view name, RenderPass* pass);
+
+  template<typename RenderPassType, typename ...Args>
+  RenderPass* allocatePass(Args ...args) {
+    return new RenderPassType(args...);
+  }
+
+  void freePass(RenderPass* pass);
+
+  std::map<std::string, RenderNode*, std::greater<>> mDefinedNodes;
+  std::unordered_set<RenderEdge> mEdges;
+  RenderNode* mOutputNode;
+  RHIResource::scptr_t mOutputResource;
 };

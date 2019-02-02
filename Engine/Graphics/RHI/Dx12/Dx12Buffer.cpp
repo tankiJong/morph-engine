@@ -28,7 +28,7 @@ ID3D12ResourcePtr createBuffer(RHIBuffer::State initState, size_t size, const D3
 }
 
 const ConstantBufferView* RHIBuffer::cbv() const {
-  if (!mCbv) {
+  if (!mCbv && is_set(mBindingFlags, BindingFlag::ConstantBuffer)) {
     mCbv = ConstantBufferView::create(shared_from_this());
   }
 
@@ -36,7 +36,7 @@ const ConstantBufferView* RHIBuffer::cbv() const {
 }
 
 const UnorderedAccessView* RHIBuffer::uav() const {
-  if(!mUav) {
+  if(!mUav && is_set(mBindingFlags, BindingFlag::UnorderedAccess)) {
     mUav = UnorderedAccessView::create(shared_from_this());
   }
 

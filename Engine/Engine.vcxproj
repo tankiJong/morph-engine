@@ -1368,8 +1368,11 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Renderer\RenderGraph\RenderEdge.cpp" />
     <ClCompile Include="Renderer\RenderGraph\RenderGraph.cpp" />
-    <ClCompile Include="Renderer\RenderGraph\RenderGraphBuilder.cpp" />
+    <ClCompile Include="Renderer\RenderGraph\RenderNodeContext.cpp" />
+    <ClCompile Include="Renderer\RenderGraph\RenderNode.cpp" />
+    <ClCompile Include="Renderer\RenderGraph\RenderPass.cpp" />
     <ClCompile Include="Renderer\RenderScene.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">true</ExcludedFromBuild>
@@ -2169,8 +2172,11 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FaskBreak|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Renderer\RenderGraph\RenderEdge.hpp" />
     <ClInclude Include="Renderer\RenderGraph\RenderGraph.hpp" />
-    <ClInclude Include="Renderer\RenderGraph\RenderGraphBuilder.hpp" />
+    <ClInclude Include="Renderer\RenderGraph\RenderNodeContext.hpp" />
+    <ClInclude Include="Renderer\RenderGraph\RenderNode.hpp" />
+    <ClInclude Include="Renderer\RenderGraph\RenderPass.hpp" />
     <ClInclude Include="Renderer\RenderScene.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">true</ExcludedFromBuild>

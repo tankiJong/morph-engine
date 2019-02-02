@@ -179,7 +179,7 @@ const DepthStencilView* ImmediateRenderer::defaultDsv() const {
 }
 
 const RenderTargetView& ImmediateRenderer::defaultRtv() const {
-  return RHIDevice::get()->backBuffer()->rtv();
+  return *RHIDevice::get()->backBuffer()->rtv();
 }
 
 ImmediateRenderer* gImmediateRenderer = nullptr;

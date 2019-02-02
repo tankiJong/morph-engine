@@ -144,7 +144,7 @@ float3 PhongLighting(uint2 pix)
   // float3 specular = Specular(surfacePosition, surfaceNormal, 
 	// 													 normalize(eyePosition - surfacePosition), SPECULAR_AMOUNT, SPECULAR_POWER, gLight);
 
-	float3 indirect = ( gIndirect[pix / 2].xyz / gIndirect[pix / 2].w ) * (4 * M_PI) * ambient ;
+	float3 indirect = ( gIndirect[pix / 2].xyz / gIndirect[pix / 2].w ) * (2 * M_PI) * ambient ;
 	
 	// return indirect;
   float3 color = ( diffuse + indirect ) * surfaceColor / M_PI /* + specular*/;

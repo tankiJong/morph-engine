@@ -13,16 +13,16 @@ void TypedBuffer::set(uint stride, uint count, const void* data) {
   mCpuDirty = true;
 }
 
-const ShaderResourceView& TypedBuffer::srv() const {
-  if(!mSrv) {
+ShaderResourceView* TypedBuffer::srv() const {
+  if(!mSrv && is_set(mBindingFlags, BindingFlag::ShaderResource)) {
     mSrv = ShaderResourceView::create(*this);
   }
 
-  return *mSrv;
+  return mSrv.get();
 }
 
 const UnorderedAccessView* TypedBuffer::uav() const {
-  if(!mUav) {
+  if(!mUav && is_set(mBindingFlags, BindingFlag::UnorderedAccess)) {
     mUav = UnorderedAccessView::create(*this);
   }
 

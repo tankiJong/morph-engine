@@ -399,7 +399,7 @@ void Console::render() const {
   const aabb2& screenBounds = { vec2::zero, vec2{(float)mCamera->width(), (float)mCamera->height()}};
   renderer.setView(*mCamera);
   renderer.setModelMatrix(mat44::identity);
-  renderer.setRenderTarget(&RHIDevice::get()->backBuffer()->rtv());
+  renderer.setRenderTarget(RHIDevice::get()->backBuffer()->rtv());
   renderer.setDepthStencilTarget(nullptr);
   
   auto prog = Resource<Program>::get("internal/Shader/ui/solid");
@@ -596,7 +596,7 @@ void Console::render() const {
     auto textprog = Resource<Program>::get("internal/Shader/ui/text");
 
     renderer.setProgram(textprog);
-    renderer.setTexture(TEXTURE_DIFFUSE, mFont->texture(0)->srv());
+    renderer.setTexture(TEXTURE_DIFFUSE, *mFont->texture(0)->srv());
     Mesh* text = printer.createMesh<vertex_pcu_t>();
     renderer.drawMesh(*text);
     delete text;

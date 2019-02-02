@@ -10,6 +10,7 @@ class DescriptorSet;
 
 class ProgramInst {
 public:
+  using sptr_t = S<ProgramInst>;
   virtual ~ProgramInst() = default;
 
   void setCbv(const ConstantBufferView& cbv, uint registerIndex, uint registerSpace = 0);

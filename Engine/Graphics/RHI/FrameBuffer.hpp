@@ -50,12 +50,12 @@ public:
   uint width() const;
   uint height() const;
 
-  void defineColorTarget(const Texture2::sptr_t tex, uint index, bool allowUav = false);
-  void defineDepthStencilTarget(const Texture2::sptr_t tex, bool allowUav = false);
+  void defineColorTarget(const Texture2::scptr_t tex, uint index, bool allowUav = false);
+  void defineDepthStencilTarget(const Texture2::scptr_t tex, bool allowUav = false);
 
   void setColorTarget(const RenderTargetView* rtv, uint index);
-  void setColorTarget(const Texture2::sptr_t& tex, uint index);
-  void setDepthStencilTarget(Texture2::sptr_t tex);
+  void setColorTarget(const Texture2::scptr_t& tex, uint index);
+  void setDepthStencilTarget(Texture2::scptr_t tex);
   void setDepthStencilTarget(const DepthStencilView* dsv);
   void setDesc(const Desc& desc);
 

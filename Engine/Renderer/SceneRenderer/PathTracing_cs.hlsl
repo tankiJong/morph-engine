@@ -137,7 +137,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	finalColor = saturate(finalColor);
 
 	finalColor = (uTexScene[pix].xyz * gFrameCount + finalColor)	/ (gFrameCount + 1);
-
+	
 	uTexScene[pix] = float4(finalColor, 1.f);
 	// uTexScene[pix] = float4(float(triangleIntersetionCalledTimes) / 100, 0, 0, 1.f);
 	//uTexScene[pix] = float4(float(boxHit) / 64, 0, 0, 1.f);

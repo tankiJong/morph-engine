@@ -3,12 +3,12 @@
 #include "RHITexture.hpp"
 
 
-const ShaderResourceView& RHITexture::srv() const {
+ShaderResourceView* RHITexture::srv() const {
 
-  if (!mSrv) {
+  if (!mSrv && is_set(mBindingFlags, BindingFlag::ShaderResource)) {
     mSrv = ShaderResourceView::create(shared_from_this());
   }
 
-  return *mSrv;
+  return mSrv.get();
   
 }

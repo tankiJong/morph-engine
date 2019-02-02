@@ -21,20 +21,20 @@ Texture2::sptr_t Texture2::create(rhi_resource_handle_t res) {
   return Texture2::sptr_t(new Texture2(res));
 }
 
-const RenderTargetView& Texture2::rtv() {
-  if (!mRtv) {
+const RenderTargetView* Texture2::rtv() const {
+  if (!mRtv && is_set(mBindingFlags, BindingFlag::RenderTarget)) {
     mRtv = RenderTargetView::create(shared_from_this());
   }
-  return *mRtv;
+  return mRtv.get();
 }
 
-const DepthStencilView* Texture2::dsv() {
+const DepthStencilView* Texture2::dsv() const {
   if (mFormat != TEXTURE_FORMAT_D24S8) {
     INFO("try to access a texture which is not supposed to have dsv");
     return nullptr;
   }
 
-  if(!mDsv) {
+  if(!mDsv && is_set(mBindingFlags, BindingFlag::DepthStencil)) {
     mDsv = DepthStencilView::create(shared_from_this());
   }
 
