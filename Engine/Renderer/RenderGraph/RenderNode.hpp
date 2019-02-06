@@ -20,25 +20,25 @@ public:
   ~RenderNode();
 
   void init();
-
+  void compile();
   void dependOn(RenderNode& dependency);
   void connectInput(const RenderEdge& edge);
   void connectOutput(const RenderEdge& edge);
 
   RenderEdge::BindingInfo* res(std::string_view name);
 
-  struct Inst {
-    Inst(const Inst&) = delete;
-    const RenderNode* node = nullptr;
-    std::atomic_size_t decrement;
-    Fence::sptr_t fence;
-
-    void issue(RHIContext& ctx);;
-
-    void resolveBarriers(RHIContext& ctx) const;
-  };
-
-  Inst instantiate() const;
+  void run(RHIContext& ctx);
+  // struct Inst {
+  //   Inst(const Inst&) = delete;
+  //   const RenderNode* node = nullptr;
+  //   std::atomic_size_t decrement;
+  //
+  //   void issue(RHIContext& ctx);;
+  //
+  //   void resolveBarriers(RHIContext& ctx) const;
+  // };
+  //
+  // Inst instantiate() const;
 
 protected:
   RenderGraph* mOwner = nullptr;
@@ -50,4 +50,8 @@ protected:
   std::unordered_set<RenderNode*> mOutGoingNodes;
   std::unordered_set<RenderNode*> mInComingNodes;
   RenderNodeContext mNodeContext;
+
+  bool mVisited = false;
+private:
+  bool mIsCompiled = false;
 };

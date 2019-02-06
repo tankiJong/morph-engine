@@ -84,3 +84,13 @@ using Euler = vec3;
 vec3 operator*(float lhs, const vec3& rhs);
 
 vec3 fromSpherical(float r, float thetaDeg, float phiDeg);
+
+// eg: XYZ means (v)XYZ
+enum eRotationOrder {
+  ROTATION_XYZ,
+  ROTATION_XZY,
+  ROTATION_YXZ,
+  ROTATION_YZX,
+  ROTATION_ZXY,
+  ROTATION_ZYX,
+};

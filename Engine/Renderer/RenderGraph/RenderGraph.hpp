@@ -4,9 +4,8 @@
 
 #include <map>
 #include <functional>
-#include "Engine/Debug/ErrorWarningAssert.hpp"
-#include "Engine/Renderer/RenderGraph/RenderEdge.hpp"
 #include <unordered_set>
+#include "Engine/Renderer/RenderGraph/RenderEdge.hpp"
 
 class RenderPass;
 class RenderNode;
@@ -70,6 +69,7 @@ public:
 
   bool execute() const;
 
+  bool compile();
   void setOutput(std::string_view passName, std::string_view resName);
   void setOutput(RenderNode& node, std::string_view resName);
 protected:
@@ -87,4 +87,7 @@ protected:
   std::unordered_set<RenderEdge> mEdges;
   RenderNode* mOutputNode;
   RHIResource::scptr_t mOutputResource;
+
+private:
+  void topologySortVisitor(std::vector<RenderNode*>& sortedNodes, RenderNode* node) const;
 };

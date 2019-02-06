@@ -37,9 +37,9 @@ public:
   vec3 screenToWorld(uvec2 pixel, float distanceFromCamera);
   uvec2 worldToScreen(vec3 position);
 
-  inline vec3 right() const { return (mTransform.localToWorld() * vec4(vec3::right, 0)).xyz(); };
-  inline vec3 up() const { return (mTransform.localToWorld() * vec4(vec3::up, 0)).xyz(); };
-  inline vec3 forward() const { return (mTransform.localToWorld() * vec4(vec3::forward, 0)).xyz(); };
+  inline vec3 right() const { return (mCoordinateTransform.inverse() * mTransform.localToWorld() * vec4(vec3::right, 0)).xyz(); };
+  inline vec3 up() const { return (mCoordinateTransform.inverse() * mTransform.localToWorld() * vec4(vec3::up, 0)).xyz(); };
+  inline vec3 forward() const { return (mCoordinateTransform.inverse() * mTransform.localToWorld() * vec4(vec3::forward, 0)).xyz(); };
 
   void rotate(const Euler& euler);
   void translate(const vec3& translation);
@@ -49,8 +49,11 @@ public:
   inline void setFlag(uint flag) { mFlag = mFlag | flag; }
   inline bool queryFlag(eCamreraFlag flag) const { return flag & mFlag; }
 
+  // an optional mat44 to transform from game world space to view space, useful for game to have different coordinate system
+  void setCoordinateTransform(const mat44& t);
+
   camera_t ubo() const;
-  inline mat44 view() const { return mTransform.worldToLocal(); }
+  inline mat44 view() const { return mCoordinateTransform * mTransform.worldToLocal(); }
   inline mat44 projection() const { return mProjMatrix; };
 protected:
   Transform mTransform;
@@ -64,6 +67,7 @@ protected:
     camera_t cameraBlock;
   };
   float mWidth = 0, mHeight = 0, mDepth = 0;
+  mat44 mCoordinateTransform;
   bool mIsDirty;
   uint mFlag = 0;
 };

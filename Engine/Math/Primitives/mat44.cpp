@@ -125,22 +125,22 @@ mat44& mat44::append(const mat44& matrixToAppend) {
 }
 
 mat44& mat44::rotate2D(float rotationDegreesAboutZ) {
-  append(makeRotation2D(rotationDegreesAboutZ));
+  append(rotation2(rotationDegreesAboutZ));
   return *this;
 }
 
 mat44& mat44::translate2D(const vec2& translation) {
-  append(makeTranslation2D(translation));
+  append(translation2(translation));
   return *this;
 }
 
 mat44& mat44::scale2D(float scaleXY) {
-  append(makeScale2D(scaleXY));
+  append(scale2(scaleXY));
   return *this;
 }
 
 mat44& mat44::scale2D(float scaleX, float scaleY) {
-  append(makeScale2D(scaleX, scaleY));
+  append(scale2(scaleX, scaleY));
   return *this;
 }
 
@@ -324,7 +324,8 @@ mat44 mat44::inverse() const {
   return inver;
 }
 
-Euler mat44::euler() const {
+Euler mat44::euler(eRotationOrder rotationOrder) const {
+  EXPECTS(rotationOrder == ROTATION_ZXY);
   vec3 ii = i.xyz().normalized();
   vec3 jj = j.xyz().normalized();
   vec3 kk = k.xyz().normalized();
@@ -351,15 +352,39 @@ quaternion mat44::quat() const {
 }
 
 mat44 mat44::rotationX(float x) {
-  return makeRotation(x, 0, 0);
+  float cx = cosDegrees(x), cy = cosDegrees(0), cz = cosDegrees(0);
+  float sx = sinDegrees(x), sy = sinDegrees(0), sz = sinDegrees(0);
+
+  return {
+    cz*cy - sz*sx*sy,      sz*cy + cz * sx*sy,   -cx * sy,    0,
+    -sz * cx,                           cz*cx,         sx,    0,
+    sz*sx*cy + cz * sy, -cz * sx*cy + sz * sy,      cx*cy,    0,
+    0,                                      0,          0,    1
+  };
 }
 
 mat44 mat44::rotationY(float y) {
-  return makeRotation(0, y, 0);
+  float cx = cosDegrees(0), cy = cosDegrees(y), cz = cosDegrees(0);
+  float sx = sinDegrees(0), sy = sinDegrees(y), sz = sinDegrees(0);
+
+  return {
+    cz*cy - sz*sx*sy,      sz*cy + cz * sx*sy,   -cx * sy,    0,
+    -sz * cx,                           cz*cx,         sx,    0,
+    sz*sx*cy + cz * sy, -cz * sx*cy + sz * sy,      cx*cy,    0,
+    0,                                      0,          0,    1
+  };
 }
 
 mat44 mat44::rotationZ(float z) {
-  return makeRotation(0,0,z);
+  float cx = cosDegrees(0), cy = cosDegrees(0), cz = cosDegrees(z);
+  float sx = sinDegrees(0), sy = sinDegrees(0), sz = sinDegrees(z);
+
+  return {
+    cz*cy - sz*sx*sy,      sz*cy + cz * sx*sy,   -cx * sy,    0,
+    -sz * cx,                           cz*cx,         sx,    0,
+    sz*sx*cy + cz * sy, -cz * sx*cy + sz * sy,      cx*cy,    0,
+    0,                                      0,          0,    1
+  };
 }
 
 vec3 mat44::scale() const {
@@ -370,23 +395,36 @@ vec3 mat44::scale() const {
   };
 }
 
-mat44 mat44::makeRotation(const Euler& ea) {
-  return makeRotation(ea.x, ea.y, ea.z);
+mat44 mat44::rotation(const Euler& ea, eRotationOrder rotationOrder) {
+  return rotation(ea.x, ea.y, ea.z, rotationOrder);
 }
 
 // change to (v)ZXY : Done
-mat44 mat44::makeRotation(float x, float y, float z) {
-  float cx = cosDegrees(x), cy = cosDegrees(y), cz = cosDegrees(z);
-  float sx = sinDegrees(x), sy = sinDegrees(y), sz = sinDegrees(z);
-
-  mat44 re{
-    cz*cy - sz*sx*sy,      sz*cy + cz * sx*sy,   -cx * sy,    0,
-    -sz * cx,                           cz*cx,         sx,    0,
-    sz*sx*cy + cz * sy, -cz * sx*cy + sz * sy,      cx*cy,    0,
-    0,                                      0,          0,    1
-  };
-
-  return re;
+mat44 mat44::rotation(float x, float y, float z, eRotationOrder rotationOrder) {
+  // float cx = cosDegrees(x), cy = cosDegrees(y), cz = cosDegrees(z);
+  // float sx = sinDegrees(x), sy = sinDegrees(y), sz = sinDegrees(z);
+  //
+  // mat44 re{
+  //   cz*cy - sz*sx*sy,      sz*cy + cz * sx*sy,   -cx * sy,    0,
+  //   -sz * cx,                           cz*cx,         sx,    0,
+  //   sz*sx*cy + cz * sy, -cz * sx*cy + sz * sy,      cx*cy,    0,
+  //   0,                                      0,          0,    1
+  // };
+  switch(rotationOrder) { 
+    case ROTATION_ZXY:
+      return rotationY(y) * rotationX(x) * rotationZ(z);
+    case ROTATION_ZYX:
+      return rotationX(x) * rotationY(y) * rotationZ(z);
+    case ROTATION_XYZ:
+      return rotationZ(z) * rotationY(y) * rotationX(x);
+    case ROTATION_XZY:
+      return rotationY(y) * rotationZ(z) * rotationX(x);
+    case ROTATION_YXZ:
+      return rotationZ(z) * rotationX(x) * rotationY(y);
+    case ROTATION_YZX:
+      return rotationX(x) * rotationZ(z) * rotationY(y);
+  }
+  // return re;
 
 //  return {
 //    cx*cy, cx*sy*sz - sx*cz, cx*sy*cz + sx*sz, 0,
@@ -396,7 +434,7 @@ mat44 mat44::makeRotation(float x, float y, float z) {
 //  };
 }
 
-mat44 mat44::makeRotation2D(float rotationDegreesAboutZ) {
+mat44 mat44::rotation2(float rotationDegreesAboutZ) {
   float cosdeg = cosDegrees(rotationDegreesAboutZ), sindeg = sinDegrees(rotationDegreesAboutZ);
   return {
     cosdeg, -sindeg, 0, 0,
@@ -406,7 +444,7 @@ mat44 mat44::makeRotation2D(float rotationDegreesAboutZ) {
   };
 }
 
-mat44 mat44::makeTranslation2D(const vec2& translation) {
+mat44 mat44::translation2(const vec2& translation) {
   return {
     1, 0, 0, translation.x,
     0, 1, 0, translation.y,
@@ -415,7 +453,7 @@ mat44 mat44::makeTranslation2D(const vec2& translation) {
   };
 }
 
-mat44 mat44::makeTranslation(const vec3& translation) {
+mat44 mat44::translation(const vec3& translation) {
   return {
     1, 0, 0, translation.x,
     0, 1, 0, translation.y,
@@ -424,10 +462,10 @@ mat44 mat44::makeTranslation(const vec3& translation) {
   };
 }
 
-mat44 mat44::makeScale2D(float scaleXY) {
-  return makeScale2D(scaleXY, scaleXY);
+mat44 mat44::scale2(float scaleXY) {
+  return scale2(scaleXY, scaleXY);
 }
-mat44 mat44::makeScale2D(float scaleX, float scaleY) {
+mat44 mat44::scale2(float scaleX, float scaleY) {
   return {
     scaleX,       0, 0, 0,
          0,  scaleY, 0, 0,
@@ -436,7 +474,7 @@ mat44 mat44::makeScale2D(float scaleX, float scaleY) {
   };
 }
 
-mat44 mat44::makeScale(float x, float y, float z) {
+mat44 mat44::scale(float x, float y, float z) {
   return {
     x,  0, 0, 0,
     0,  y, 0, 0,
@@ -445,11 +483,11 @@ mat44 mat44::makeScale(float x, float y, float z) {
   };
 }
 
-mat44 mat44::makeOrtho2D(const vec2& bottomLeft, const vec2& topRight) {
-  return makeOrtho(bottomLeft.x, topRight.x, bottomLeft.y, topRight.y, -1, 1);
+mat44 mat44::ortho2(const vec2& bottomLeft, const vec2& topRight) {
+  return ortho(bottomLeft.x, topRight.x, bottomLeft.y, topRight.y, -1, 1);
 }
 
-mat44 mat44::makeOrtho(float l, float r, float b, float t, float nz, float fz) {
+mat44 mat44::ortho(float l, float r, float b, float t, float nz, float fz) {
   return {
     2/(r-l), 0, 0, (l+r)/(l-r),
     0, 2/(t-b), 0, (t+b)/(b-t),
@@ -458,13 +496,13 @@ mat44 mat44::makeOrtho(float l, float r, float b, float t, float nz, float fz) {
   };
 }
 
-mat44 mat44::makeOrtho(float width, float height, float near, float far) {
-  return makeOrtho(0, width, 0, height, near, far);
+mat44 mat44::ortho(float width, float height, float near, float far) {
+  return ortho(0, width, 0, height, near, far);
 }
 
 
 // This is for openGL, openGL ndc z is from -1 ~ 1(while directx is from 0,1)
-mat44 mat44::makePerspective(float fovDeg, float aspect, float nz, float fz) {
+mat44 mat44::perspective(float fovDeg, float aspect, float nz, float fz) {
   float d = 1.f / tanDegree(fovDeg * .5f);
   return {
     d / aspect, 0, 0, 0,
@@ -474,12 +512,12 @@ mat44 mat44::makePerspective(float fovDeg, float aspect, float nz, float fz) {
   };
 }
 
-mat44 mat44::makePerspective(float fovDeg, float width, float height, float nz, float fz) {
-  return makePerspective(fovDeg, width / height, nz, fz);
+mat44 mat44::perspective(float fovDeg, float width, float height, float nz, float fz) {
+  return perspective(fovDeg, width / height, nz, fz);
 }
 
 mat44 mat44::lookAt(const vec3& position, const vec3& target, const vec3& _up) {
-  mat44 t = mat44::makeTranslation(position);
+  mat44 t = mat44::translation(position);
 
   vec3 _forward = (target - position).normalized();
 

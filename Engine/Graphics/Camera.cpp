@@ -6,7 +6,7 @@
 #undef near
 #undef far
 Camera::Camera() {
-  mViewMatrix = mTransform.worldToLocal();
+  mViewMatrix = view();
 }
 
 Camera::~Camera() {
@@ -23,25 +23,25 @@ void Camera::prepass() const {
 }
 
 void Camera::lookAt(const vec3& position, const vec3& target, const vec3& up) {
-
+  ERROR_AND_DIE("Function is buggy");
   mat44 look = mat44::lookAt(position, target, up);
 
   mTransform.setlocalTransform(look);
-  mViewMatrix = look.inverse();
+  mViewMatrix = view();
 }
 
 void Camera::setProjectionOrtho(float width, float height, float near, float far) {
   mWidth = width;
   mHeight = height;
   mDepth = far - near;
-  mProjMatrix = mat44::makeOrtho(width, height, near, far);
+  mProjMatrix = mat44::ortho(width, height, near, far);
 }
 
 void Camera::setProjectionPrespective(float fovDeg, float width, float height, float near, float far) {
   mWidth = width;
   mHeight = height;
   mDepth = far - near;
-  mProjMatrix = mat44::makePerspective(fovDeg, width, height, near, far);
+  mProjMatrix = mat44::perspective(fovDeg, width, height, near, far);
 }
 
 vec3 Camera::screenToWorld(uvec2 pixel, float distanceFromCamera) {
@@ -90,7 +90,12 @@ void Camera::translate(const vec3& translation) {
   mIsDirty = true;
 }
 
+void Camera::setCoordinateTransform(const mat44& t) {
+  mCoordinateTransform = t; 
+  mViewMatrix = view();
+}
+
 camera_t Camera::ubo() const {
-  mViewMatrix = mTransform.worldToLocal();
+  mViewMatrix = view();
   return cameraBlock;
 }

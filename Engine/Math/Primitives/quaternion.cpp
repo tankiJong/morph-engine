@@ -78,9 +78,9 @@ quaternion quaternion::inverse() const {
   return conjugate();
 }
 
-Euler quaternion::euler() const {
-  return mat().euler();
-}
+// Euler quaternion::euler() const {
+//   return mat().euler();
+// }
 
 // matrix def related
 mat44 quaternion::mat() const {

@@ -300,9 +300,6 @@
     <ClCompile Include="Debug\ErrorWarningAssert.cpp">
       <Filter>Engine\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Camera.cpp">
-      <Filter>Engine\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Math\Primitives\AABB2.cpp">
       <Filter>Engine\Math\Primitives</Filter>
     </ClCompile>
@@ -741,11 +738,13 @@
     <ClCompile Include="Renderer\RenderGraph\RenderNode.cpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\RenderGraph\RenderPass.cpp" />
     <ClCompile Include="Renderer\RenderGraph\RenderNodeContext.cpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\RenderGraph\RenderEdge.cpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderGraph\RenderPass.cpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1004,9 +1003,6 @@
     </ClInclude>
     <ClInclude Include="Tool\Parser.hpp">
       <Filter>Engine\Tool</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\Camera.hpp">
-      <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Math\Primitives\AABB2.hpp">
       <Filter>Engine\Math\Primitives</Filter>
@@ -1482,11 +1478,13 @@
     <ClInclude Include="Renderer\RenderGraph\RenderNode.hpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\RenderGraph\RenderPass.hpp" />
     <ClInclude Include="Renderer\RenderGraph\RenderNodeContext.hpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\RenderGraph\RenderEdge.hpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderGraph\RenderPass.hpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClInclude>
   </ItemGroup>

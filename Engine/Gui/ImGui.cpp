@@ -60,6 +60,9 @@ void ImGui::beginFrame() {
   ImGuiIO& io = ImGui::GetIO(); (void)io;
   ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
+  // static bool show = true;
+  // ImGui::ShowDemoWindow(&show);
+
 }
 
 void ImGui::render() {

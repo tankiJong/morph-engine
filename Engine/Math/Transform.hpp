@@ -14,9 +14,9 @@ struct transform_t {
   /* provide an SRT matrix
    * The rotation is ZXY rotation
    */
-  mat44 localToWorld() const;
-  mat44 worldToLocal() const;
-  void set(const mat44& transform);
+  mat44 localToWorld(eRotationOrder rotationOrder) const;
+  mat44 worldToLocal(eRotationOrder rotationOrder) const;
+  void set(const mat44& transform, eRotationOrder rotationOrder);
 
   inline void translate(const vec3& offset) { position += offset; };
   inline void rotate(float x, float y, float z) { euler += vec3(x, y, z); };
@@ -38,6 +38,7 @@ public:
   void localTranslate(const vec3& offset);
   void setlocalTransform(const mat44& transform);
   void setWorldTransform(const mat44& transform);
+  void setRotationOrder(eRotationOrder order);
   // accessor
   vec3 forward() const;
   vec3 up() const;
@@ -53,7 +54,7 @@ public:
   inline vec3& localScale() { return mLocalTransform.scale; };
 
   inline const vec3 position() const { return (worldMat() * vec4(mLocalTransform.position, 1.f)).xyz(); };
-  inline const Euler rotation() const { return localToWorld().euler(); };
+  inline const Euler rotation() const { return localToWorld().euler(mRotationOrder); };
   inline const vec3 scale() const {
     mat44 model = localToWorld();  
     return { model.x().xyz().magnitude(), 
@@ -63,9 +64,11 @@ public:
   const Transform*& parent() { return mParent; }
 
   static mat44 lookAt(const vec3& position, const vec3& target);
+
 private:
   mat44 worldMat() const;
   mat44 localMat() const;
   transform_t mLocalTransform;
   const Transform* mParent = nullptr;
+  eRotationOrder mRotationOrder = ROTATION_ZXY;
 };

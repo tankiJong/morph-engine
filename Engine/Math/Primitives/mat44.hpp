@@ -63,26 +63,26 @@ public:
   mat44 inverse() const;
   vec3  scale() const;
 
-  Euler euler() const;
+  Euler euler(eRotationOrder rotationOrder) const;
   quaternion quat() const;
 
   // Producers
   static mat44 rotationX(float x);
   static mat44 rotationY(float y);
   static mat44 rotationZ(float z);
-  static mat44 makeRotation(const Euler& ea);
-  static mat44 makeRotation(float x, float y, float z);
-  static mat44 makeRotation2D(float rotationDegreesAboutZ);
-  static mat44 makeTranslation2D(const vec2& translation);
-  static mat44 makeTranslation(const vec3& translation);
-  static mat44 makeScale2D(float scaleXY);
-  static mat44 makeScale2D(float scaleX, float scaleY);
-  static mat44 makeScale(float x, float y, float z);
-  static mat44 makeOrtho2D(const vec2& bottomLeft, const vec2& topRight);
-  static mat44 makeOrtho(float l, float r, float b, float t, float nz, float fz);
-  static mat44 makeOrtho(float width, float height, float near, float far);
-  static mat44 makePerspective(float fovDeg, float aspect, float nz, float fz);
-  static mat44 makePerspective(float fovDeg, float width, float height, float nz, float fz);
+  static mat44 rotation(const Euler& ea, eRotationOrder rotationOrder);
+  static mat44 rotation(float x, float y, float z, eRotationOrder rotationOrder);
+  static mat44 rotation2(float rotationDegreesAboutZ);
+  static mat44 translation2(const vec2& translation);
+  static mat44 translation(const vec3& translation);
+  static mat44 scale2(float scaleXY);
+  static mat44 scale2(float scaleX, float scaleY);
+  static mat44 scale(float x, float y, float z);
+  static mat44 ortho2(const vec2& bottomLeft, const vec2& topRight);
+  static mat44 ortho(float l, float r, float b, float t, float nz, float fz);
+  static mat44 ortho(float width, float height, float near, float far);
+  static mat44 perspective(float fovDeg, float aspect, float nz, float fz);
+  static mat44 perspective(float fovDeg, float width, float height, float nz, float fz);
   static mat44 lookAt(const vec3& position, const vec3& target, const vec3& up = vec3::up);
 public:
   // x,i
@@ -96,4 +96,3 @@ public:
 
   static const mat44 identity;
 };
-

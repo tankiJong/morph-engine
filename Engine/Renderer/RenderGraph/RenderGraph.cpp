@@ -2,6 +2,8 @@
 #include "Engine/Debug/Log.hpp"
 #include "Engine/Renderer/RenderGraph/RenderPass.hpp"
 #include "Engine/Renderer/RenderGraph/RenderNode.hpp"
+#include <stack>
+#include "Engine/Graphics/RHI/RHIDevice.hpp"
 
 class FunctionalRenderPass: public RenderPass {
 
@@ -52,16 +54,52 @@ void RenderGraph::connect(RenderNode& fromNode, std::string_view fromRes, Render
   toNode.connectInput(*edge);
 }
 
+void RenderGraph::topologySortVisitor(std::vector<RenderNode*>& sortedNodes, RenderNode* node) const {
+  if(node->mVisited) return;
+  node->mVisited = true;
+  for(auto n: node->mInComingNodes) {
+    topologySortVisitor(sortedNodes, n);
+  }
+  sortedNodes.push_back(node);
+}
+
 bool RenderGraph::execute() const {
   EXPECTS(mOutputNode != nullptr && mOutputResource != nullptr);
-  
+
+  for(auto& [_, node]: mDefinedNodes) {
+    node->mVisited = false;
+  }
+
+  std::vector<RenderNode*> sortedNodes;
+
+  topologySortVisitor(sortedNodes, mOutputNode);
+
+
+  RHIContext::sptr_t ctx = RHIDevice::get()->defaultRenderContext();
+
+  ctx->bindDescriptorHeap();
+
+  for(auto node: sortedNodes) {
+    node->mNodeContext.apply(*ctx);
+    node->mPass->execute(*ctx);
+  }
+
+  ctx->copyResource(*mOutputResource, *RHIDevice::get()->backBuffer());
+
   return false;
 }
 
+bool RenderGraph::compile() {
+  for(auto& [_, node]: mDefinedNodes) {
+    node->compile();
+  }
 
-void RenderGraph::setOutput(std::string_view passName, std::string_view resName) {
-  
+  return true;
 }
+
+// void RenderGraph::setOutput(std::string_view passName, std::string_view resName) {
+//   
+// }
 
 void RenderGraph::setOutput(RenderNode& node, std::string_view resName) {
   EXPECTS(node.mOwner == this);
@@ -81,6 +119,8 @@ RenderNode& RenderGraph::addPass(std::string_view name, RenderPass* pass) {
   node->init();
 
   mDefinedNodes[std::string(name)] = node;
+
+  return *node;
 }
 
 void RenderGraph::freePass(RenderPass* pass) {

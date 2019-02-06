@@ -26,7 +26,7 @@ public:
   void reset(Program::scptr_t prog, bool forCompute = false);
 
   RenderEdge::BindingInfo* find(std::string_view name);
-  bool exists(RenderEdge::BindingInfo* info);
+  bool exists(RenderEdge::BindingInfo* info) const;
 
   void compile();
   void apply(RHIContext& ctx) const;

@@ -128,7 +128,7 @@ Profile::Overlay::Overlay(aabb2 bound): mBound(bound), mChart(*this) {
   mChart.bound = aabb2{ {0, 0}, { containerSize.x, containerSize.y*.2f } };
   aabb2 bounds = Window::Get()->bounds();
   mCamera = new Camera();
-  mCamera->setProjection(mat44::makeOrtho(0, bounds.width(), 0, bounds.height(), -1.f, 1.f));
+  mCamera->setProjection(mat44::ortho(0, bounds.width(), 0, bounds.height(), -1.f, 1.f));
   mCamera->setColorTarget(Renderer::Get()->getDefaultColorTarget());
 }
 

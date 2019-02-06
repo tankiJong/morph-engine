@@ -3,6 +3,7 @@
 #include "Engine/Graphics/Program/ProgramInst.hpp"
 #include "Engine/Graphics/RHI/VertexLayout.hpp"
 #include "Engine/Graphics/Model/Vertex.hpp"
+#include "Engine/Graphics/RHI/RHIContext.hpp"
 
 RenderNodeContext::~RenderNodeContext() {
   if(mForCompute) {
@@ -84,15 +85,15 @@ void RenderNodeContext::reset(Program::scptr_t prog, bool forCompute) {
 
 RenderEdge::BindingInfo* RenderNodeContext::find(std::string_view name) {
   if(auto kv = mBindingInfos.find(name); kv != mBindingInfos.end()) {
-    return &kv->second;
+    return &(kv->second);
   }
   Log::logf("Fail to find resource `%s`", name);
   DEBUGBREAK;
   return nullptr;
 }
 
-bool RenderNodeContext::exists(RenderEdge::BindingInfo* info) {
-  for(auto [k, v]: mBindingInfos) {
+bool RenderNodeContext::exists(RenderEdge::BindingInfo* info) const {
+  for(const auto& [k, v]: mBindingInfos) {
     if(&v == info) return true;
   }
 
@@ -108,7 +109,13 @@ void RenderNodeContext::compile() {
 }
 
 void RenderNodeContext::apply(RHIContext& ctx) const {
-  
+  if(mForCompute) {
+    ctx.setComputeState(*mComputeState);
+  } else {
+    ctx.setGraphicsState(*mGraphicsState);
+    ctx.setFrameBuffer(mFrameBuffer);
+  }
+  mTargetProgram->apply(ctx, true);
 }
 
 void RenderNodeContext::addBindingInfo(std::string_view name, RHIResource::scptr_t res, RHIResource::State state, uint registerIndex, uint registerSpace) {
