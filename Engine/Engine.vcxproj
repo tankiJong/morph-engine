@@ -1354,6 +1354,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </ClCompile>
     <ClCompile Include="Renderer\RenderGraph\RenderEdge.cpp" />
     <ClCompile Include="Renderer\RenderGraph\RenderGraph.cpp" />
+    <ClCompile Include="Renderer\RenderGraph\RenderGraphRegistry.cpp" />
     <ClCompile Include="Renderer\RenderGraph\RenderNodeContext.cpp" />
     <ClCompile Include="Renderer\RenderGraph\RenderNode.cpp" />
     <ClCompile Include="Renderer\RenderGraph\RenderPass.cpp" />
@@ -2142,6 +2143,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </ClInclude>
     <ClInclude Include="Renderer\RenderGraph\RenderEdge.hpp" />
     <ClInclude Include="Renderer\RenderGraph\RenderGraph.hpp" />
+    <ClInclude Include="Renderer\RenderGraph\RenderGraphRegistry.hpp" />
     <ClInclude Include="Renderer\RenderGraph\RenderNodeContext.hpp" />
     <ClInclude Include="Renderer\RenderGraph\RenderNode.hpp" />
     <ClInclude Include="Renderer\RenderGraph\RenderPass.hpp" />

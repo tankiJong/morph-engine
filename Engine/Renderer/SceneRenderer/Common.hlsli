@@ -34,6 +34,17 @@ struct light_info_t {
   float4x4 vp;
 };
 
+struct DisneyBRDFParam {
+	float subsurface;
+	float specular;
+	float specularTint;
+	float anisotropic;
+	float sheen;
+	float sheenTint;
+	float clearcoat;
+	float clearcoatGloss;
+};
+
 cbuffer cFrameData: register(b0) {
 	float gTime;
 	float gFrameCount;

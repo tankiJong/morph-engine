@@ -221,7 +221,7 @@ Rgba Hue(unsigned char hh) {
 }
 
 template<>
-Rgba lerp(const Rgba& from, const Rgba& to, float t) {
+auto lerp(const Rgba& from, const Rgba& to, float t) {
   TODO("use hue to lerp color");
   float r = (float)from.r * (1 - t) + (float)to.r;
   float g = (float)from.g * (1 - t) + (float)to.g;

@@ -96,6 +96,8 @@ void Application::_update() {
   RHIDevice::get()->present();
 
   onEndFrame();
+
+  Input::Get().afterFrame();
 }
 
 void Application::_input() {

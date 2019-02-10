@@ -479,6 +479,15 @@ Mesher& Mesher::quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d,
   return *this;
 }
 
+Mesher& Mesher::quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d, const aabb2& uvs) {
+  return quad(a, b, c, d, 
+              uvs.mins,
+              {uvs.maxs.x, uvs.mins.y},
+              uvs.maxs,
+              {uvs.mins.x, uvs.maxs.y}
+              );
+}
+
 Mesher& Mesher::quad(const vec3& center, const vec3& xDir, const vec3& yDir, const vec2& size) {
   vec3 halfX = xDir * size.x * .5f, halfY = yDir * size.y * .5f;
   return quad(center - halfX - halfY,

@@ -80,7 +80,7 @@ void ImGui::render() {
   ImGui_ImplDX12_RenderDrawData(GetDrawData(), RHIDevice::get()->defaultRenderContext()->contextData()->commandList().Get());
 }
 
-void ImGui::gizmos(Camera& cam, Transform& target, ImGuizmo::OPERATION op) {
+void ImGui::gizmos(const Camera& cam, Transform& target, ImGuizmo::OPERATION op) {
   mat44 view = cam.view();
   mat44 proj = cam.projection();
 

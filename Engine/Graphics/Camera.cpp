@@ -23,7 +23,7 @@ void Camera::prepass() const {
 }
 
 void Camera::lookAt(const vec3& position, const vec3& target, const vec3& up) {
-  ERROR_AND_DIE("Function is buggy");
+  // ERROR_AND_DIE("Function is buggy");
   mat44 look = mat44::lookAt(position, target, up);
 
   mTransform.setlocalTransform(look);

@@ -46,8 +46,7 @@ float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 
 
 	if(c.valid && c.t < maxDist) return float3(0,0,0);
-	
-	return Diffuse(surfacePosition, surfaceNormal, gLight.color.xyz, gLight);
+	return Diffuse(surfacePosition, surfaceNormal, 1.0f.xxx, gLight);
 
 }
 
@@ -121,7 +120,7 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 
 			GetSurfelAt(contact.position.xyz, contact.normal, indirect);
 			totals[bounce].xyz = 
-				(indirect * 2.f * M_PI + diffuse) * albedo / M_PI;
+				(indirect * 2.f * M_PI + diffuse) * albedo.xyz / M_PI;
 
 		}
 

@@ -13,5 +13,5 @@ namespace ImGui {
   void beginFrame();
   void render();
 
-  void gizmos(Camera& cam, Transform& target, ImGuizmo::OPERATION op);
+  void gizmos(const Camera& cam, Transform& target, ImGuizmo::OPERATION op);
 }

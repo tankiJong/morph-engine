@@ -5,6 +5,7 @@
 #include "Engine/Application/Window.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Core/Engine.hpp"
+#include "Engine/Debug/Log.hpp"
 
 Input* gInput = nullptr;
 
@@ -129,8 +130,8 @@ vec2 Input::mouseClientPositon(bool normalized) const {
 
   if(normalized) {
     ivec2 size = Window::Get()->size();
-    clientPostion.x /= size.x;
-    clientPostion.y /= size.y;
+    clientPostion.x /= float(size.x);
+    clientPostion.y /= float(size.y);
   }
   return vec2(clientPostion.x, clientPostion.y);
 }
@@ -200,10 +201,6 @@ void Input::beforeFrame() {
 }
 
 void Input::afterFrame() {
-  if(mIsMouseLocked) {
-    vec2 center = Window::Get()->clientCenter();
-    mouseSetPosition(center);
-  }
 }
 
 Input& Input::Get() {
@@ -241,10 +238,15 @@ void Input::updateXboxControllers() {
 
 void Input::updateMousePosition() {
   vec2 currentMouse = mouseClientPositon();
+  Log::logf("client Position, %s", currentMouse.toString().c_str());
   if(mIsMouseLocked) {
-    mDeltaMousePosition = Window::Get()->clientCenter() - mMousePosition;
+    mDeltaMousePosition = currentMouse - Window::Get()->clientCenter();
   } else {
     mDeltaMousePosition = currentMouse - mMousePosition;
   }
   mMousePosition = currentMouse;
+  if(mIsMouseLocked) {
+    vec2 center = Window::Get()->clientCenter();
+    mouseSetPosition(center);
+  }
 }

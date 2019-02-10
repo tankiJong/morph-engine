@@ -13,7 +13,7 @@ Image::Image(const std::string& imageFilePath) {
   int numComponents = 0;
   int numComponentsRequested = 0;
 
-  stbi_set_flip_vertically_on_load(true);
+  // stbi_set_flip_vertically_on_load(true);
   ivec2 dimension(mDimensions);
   unsigned char* imageData = stbi_load(imageFilePath.c_str(), &dimension.x, &dimension.y, &numComponents, numComponentsRequested);
   mDimensions.x = dimension.x;

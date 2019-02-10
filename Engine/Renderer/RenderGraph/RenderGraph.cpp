@@ -80,8 +80,7 @@ bool RenderGraph::execute() const {
   ctx->bindDescriptorHeap();
 
   for(auto node: sortedNodes) {
-    node->mNodeContext.apply(*ctx);
-    node->mPass->execute(*ctx);
+    node->run(*ctx);
   }
 
   ctx->copyResource(*mOutputResource, *RHIDevice::get()->backBuffer());

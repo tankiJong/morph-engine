@@ -212,7 +212,7 @@ float lerpf(float from, float to, float fraction) {
 }
 
 template<>
-mat44 lerp<mat44>(const mat44& from, const mat44& to, float fraction) {
+auto lerp<mat44>(const mat44& from, const mat44& to, float fraction) {
 	vec3 right   = slerp(from.i.xyz(), to.i.xyz(), fraction);
 	vec3 up      = slerp(from.j.xyz(), to.j.xyz(), fraction);
 	vec3 forward = slerp(from.k.xyz(), to.k.xyz(), fraction);
@@ -225,25 +225,25 @@ mat44 lerp<mat44>(const mat44& from, const mat44& to, float fraction) {
 float lerp(float from, float to, float fraction) {
   return lerpf(from, to, fraction);
 }
-const vec2 lerp(const vec2& from, const vec2& to, float fraction) {
+vec2 lerp(const vec2& from, const vec2& to, float fraction) {
   float x = lerp(from.x, to.x, fraction);
   float y = lerp(from.y, to.y, fraction);
 
   return vec2(x, y);
 }
-const FloatRange lerp(const FloatRange& from, const FloatRange& to, float fraction) {
+FloatRange lerp(const FloatRange& from, const FloatRange& to, float fraction) {
   float start = lerp(from.min, to.min, fraction);
   float end = lerp(from.max, to.max, fraction);
 
   return FloatRange(start, end);
 }
-const aabb2 lerp(const aabb2& from, const aabb2& to, float fraction) {
+aabb2 lerp(const aabb2& from, const aabb2& to, float fraction) {
   vec2 mins = lerp(from.mins, to.mins, fraction);
   vec2 maxs = lerp(from.maxs, to.maxs, fraction);
 
   return aabb2(mins, maxs);
 }
-const Disc2 lerp(const Disc2& from, const Disc2& to, float fraction) {
+Disc2 lerp(const Disc2& from, const Disc2& to, float fraction) {
   auto center = lerp(from.center, to.center, fraction);
   auto r = lerp(from.radius, to.radius, fraction);
 
@@ -260,19 +260,19 @@ int lerp(int from, int to, float fraction) {
 unsigned char lerp(unsigned char from, unsigned char to, float fraction) {
   return (unsigned char)clamp(lerp((int)from, (int)to, fraction), 0, 255);
 }
-const ivec2 lerp(const ivec2& from, const ivec2& to, float fraction) {
+ivec2 lerp(const ivec2& from, const ivec2& to, float fraction) {
   int x = lerp(from.x, to.x, fraction);
   int y = lerp(from.y, to.y, fraction);
 
   return ivec2(x, y);
 }
-const IntRange lerp(const IntRange& from, const IntRange& to, float fraction) {
+IntRange lerp(const IntRange& from, const IntRange& to, float fraction) {
   int min = lerp(from.min, to.min, fraction);
   int max = lerp(from.max, to.max, fraction);
 
   return IntRange(min, max);
 }
-const Rgba lerp(const Rgba& from, const Rgba& to, float fraction) {
+Rgba lerp(const Rgba& from, const Rgba& to, float fraction) {
   return Rgba(
     lerp(from.r, to.r, fraction),
     lerp(from.g, to.g, fraction),

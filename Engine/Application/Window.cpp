@@ -28,8 +28,8 @@ vec2 Window::clientCenter() const {
   ::GetClientRect(hwnd, &client);
 
   return {
-    (client.left + client.right) / 2.f,
-    (client.top + client.bottom) / 2.f
+    float(client.left + client.right) / 2.f,
+    float(client.top + client.bottom) / 2.f
   };
 }
 

@@ -3,6 +3,7 @@
 #include "Engine/Renderer/RenderGraph/RenderPass.hpp"
 #include "Engine/Debug/Log.hpp"
 #include "Engine/Graphics/RHI/RHIContext.hpp"
+#include "Engine/Graphics/RHI/RHIDevice.hpp"
 
 void RenderNode::init() {
   mPass->construct(mNodeContext);
@@ -37,6 +38,7 @@ RenderEdge::BindingInfo* RenderNode::res(std::string_view name) {
 
 void RenderNode::run(RHIContext& ctx) {
   // resolve barrier
+  SCOPED_GPU_EVENT(ctx, mName.c_str());
 
   for(const RenderEdge* input: mInputs) {
     ctx.transitionBarrier(input->toRes->res.get(), input->toRes->state);

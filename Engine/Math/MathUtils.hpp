@@ -87,17 +87,17 @@ float getFraction(float v, float start, float end);
 float rangeMapf(float v, float inStart, float inEnd, float outStart, float outEnd);
 
 template<typename T>
-T rangeMap(const T& v, const T& inStart, const T& inEnd, const T& outStart, const T& outEnd) {
+auto rangeMap(const T& v, const T& inStart, const T& inEnd, const T& outStart, const T& outEnd) {
   if (inStart == inEnd) {
     return (outStart + outEnd) * 0.5f;
   }
 
-  T inRange = inEnd - inStart,
+  auto inRange = inEnd - inStart,
     outRange = outEnd - outStart,
     inFromStart = v - inStart,
     fractionInRange = inFromStart / inRange;
 
-  T outFromStart = fractionInRange * outRange;
+  auto outFromStart = fractionInRange * outRange;
 
   return outFromStart + outStart;
 };
@@ -117,24 +117,24 @@ float	smoothStep3(float t); // 3rd-degree smooth start/stop (a.k.a. "smoothstep"
 inline float lerpf(float from, float to, float fraction);
 
 template<typename T>
-T lerp(const T& from, const T& to, float fraction) {
+auto lerp(const T& from, const T& to, float fraction) {
   return from * (1.f - fraction) + to * fraction;
 };
 
 template<>
-mat44 lerp(const mat44& from, const mat44& to, float fraction);
+auto lerp(const mat44& from, const mat44& to, float fraction);
 
 float lerp(float from, float to, float fraction);
-const vec2 lerp(const vec2& from, const vec2& to, float fraction);
-const FloatRange lerp(const FloatRange& from, const FloatRange& to, float fraction);
-const aabb2 lerp(const aabb2& from, const aabb2& to, float fraction);
-const Disc2 lerp(const Disc2& from, const Disc2& to, float fraction);
+vec2 lerp(const vec2& from, const vec2& to, float fraction);
+FloatRange lerp(const FloatRange& from, const FloatRange& to, float fraction);
+aabb2 lerp(const aabb2& from, const aabb2& to, float fraction);
+Disc2 lerp(const Disc2& from, const Disc2& to, float fraction);
 
 int lerp(int from, int to, float fraction);
 unsigned char lerp(unsigned char from, unsigned char to, float fraction);
-const ivec2 lerp(const ivec2& from, const ivec2& to, float fraction);
-const IntRange lerp(const IntRange& from, const IntRange& to, float fraction);
-const Rgba lerp(const Rgba& from, const Rgba& to, float fraction);
+ivec2 lerp(const ivec2& from, const ivec2& to, float fraction);
+IntRange lerp(const IntRange& from, const IntRange& to, float fraction);
+Rgba lerp(const Rgba& from, const Rgba& to, float fraction);
 
 vec3 slerp(const vec3& from, const vec3& to, float fraction);
 vec3 slerpUnit(const vec3& from, const vec3& to, float fraction);
