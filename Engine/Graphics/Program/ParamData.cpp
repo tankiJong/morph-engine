@@ -5,6 +5,10 @@
 bool ParamData::setSrv(const ShaderResourceView& srv, const BindPoint& bp) {
   auto& res = mBindedResources[bp.rangeIndex][bp.zeroOffset];
 
+  EXPECTS(res.type == DescriptorPool::Type::TypedBufferSrv ||
+          res.type == DescriptorPool::Type::TextureSrv ||
+          res.type == DescriptorPool::Type::StructuredBufferSrv);
+
   res.res = srv.res().lock();
   ASSERT_OR_RETURN(res.res != nullptr, false);
 
@@ -20,6 +24,8 @@ bool ParamData::setCbv(const ConstantBufferView& cbv, const BindPoint& bp) {
   
   auto& res = mBindedResources[bp.rangeIndex][bp.zeroOffset];
 
+  EXPECTS(res.type == DescriptorPool::Type::Cbv);
+
   res.res = cbv.res().lock();
   ASSERT_OR_RETURN(res.res != nullptr, false);
 
@@ -33,6 +39,10 @@ bool ParamData::setCbv(const ConstantBufferView& cbv, const BindPoint& bp) {
 
 bool ParamData::setUav(const UnorderedAccessView& uav, const BindPoint& bp) {
   auto& res = mBindedResources[bp.rangeIndex][bp.zeroOffset];
+
+  EXPECTS(res.type == DescriptorPool::Type::TypedBufferUav ||
+          res.type == DescriptorPool::Type::TextureUav ||
+          res.type == DescriptorPool::Type::StructuredBufferUav);
 
   res.res = uav.res().lock();
   ASSERT_OR_RETURN(res.res != nullptr, false);
@@ -48,10 +58,10 @@ bool ParamData::setUav(const UnorderedAccessView& uav, const BindPoint& bp) {
 bool ParamData::finalize() {
   if(!mDirty) return true;
 
-  for(size_t rangeIndex = 0; rangeIndex < mBindedResources.size(); rangeIndex++) {
+  for(uint rangeIndex = 0; rangeIndex < (uint)mBindedResources.size(); rangeIndex++) {
     BlockData& block = mBindedResources[rangeIndex];
 
-    for(size_t offset = 0; offset < block.size(); offset++) {
+    for(uint offset = 0; offset < (uint)block.size(); offset++) {
       ResourceRef& res = block[offset];
 
       if(res.res == nullptr) {
@@ -105,8 +115,16 @@ ParamData::sptr_t ParamData::create(const DescriptorSet::Layout& layout) {
   auto* paramData = new ParamData();
   paramData->mBindedResources.resize(layout.rangeCount());
 
-  for(uint i = 0; i < layout.rangeCount(); i++) {
-    paramData->mBindedResources[i].resize(layout.range(i).descCount);
+  for(uint i = 0; i < layout.rangeCount(); i++) {\
+    auto& range = layout.range(i);
+    paramData->mBindedResources[i].resize(range.descCount);
+
+    for(uint j = 0; j < range.descCount; j++) {
+      ResourceRef& ref = paramData->mBindedResources[i][j];
+      ref.res = nullptr;
+      ref.type = range.type;
+      ref.cbv = nullptr;
+    }
   }
 
   paramData->mDescriptorSet = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);

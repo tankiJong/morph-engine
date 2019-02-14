@@ -72,13 +72,13 @@ void DescriptorSet::setUav(uint rangeIndex, uint descIndex, const UnorderedAcces
   setCpuHandle(*this, rangeIndex, descIndex, view.handle()->cpuHandle(0));
 }
 
-void DescriptorSet::bindForGraphics(const RHIContext& ctx, const RootSignature& root, uint rootIndex) {
+void DescriptorSet::bindForGraphics(const RHIContext& ctx, const RootSignature& /*root*/, uint rootIndex) {
   auto commandlist = ctx.contextData()->commandList();
   auto handle = gpuHandle(0);
   commandlist->SetGraphicsRootDescriptorTable(rootIndex, handle);
 }
 
-void DescriptorSet::bindForCompute(const RHIContext& ctx, const RootSignature& root, uint rootIndex) {
+void DescriptorSet::bindForCompute(const RHIContext& ctx, const RootSignature& /*root*/, uint rootIndex) {
   ctx.contextData()->commandList()->SetComputeRootDescriptorTable(rootIndex, gpuHandle(0));
 }
 

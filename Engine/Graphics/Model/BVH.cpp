@@ -111,14 +111,14 @@ BVH::BVH(span<vec3> vertices, span<vec4> color, uint depth) {
     current.depth = job.depth;
 
     current.bounds = computeBounds(prims);
-    current.indexInArray = mNodes.size() - 1;
+    current.indexInArray = (uint)mNodes.size() - 1;
     // link back the node 
     EXPECTS(job.parent->marker == 0xabcdaabb);
 
     if(job.parent->left == nullptr) {
       // I am processing left
       job.parent->left = &current;
-      job.parent->startIndex = job.startIndex;
+      job.parent->startIndex = (uint)job.startIndex;
 
       // I will expect the next node I pop out should be right side if I am trying to traverse back
       ENSURES(jobs.top().parent == job.parent);
@@ -126,13 +126,13 @@ BVH::BVH(span<vec3> vertices, span<vec4> color, uint depth) {
       EXPECTS(job.parent->left->marker == 0xabcdaabb);
       // I am processing right
       job.parent->right = &current;
-      job.parent->elementCount = job.endIndex - job.parent->startIndex;
+      job.parent->elementCount = (uint)job.endIndex - job.parent->startIndex;
     }
 
     if (job.depth >= depth) {
       // I do not have more leafs, correctly set the offset data for my node
-      current.startIndex = job.startIndex;
-      current.elementCount = job.endIndex - job.startIndex;
+      current.startIndex = (uint)job.startIndex;
+      current.elementCount = (uint)job.endIndex - (uint)job.startIndex;
 
       ENSURES(current.left == nullptr && current.right == nullptr);
 
@@ -147,7 +147,7 @@ BVH::BVH(span<vec3> vertices, span<vec4> color, uint depth) {
 
     // recursion
     {
-      uint middleIndex = min(job.startIndex + offset + 1, job.endIndex);
+      size_t middleIndex = min(job.startIndex + offset + 1, job.endIndex);
       Job left = { &current, job.depth + 1, job.startIndex, middleIndex };
 
       EXPECTS(middleIndex <= job.endIndex);
@@ -209,7 +209,7 @@ void BVH::uploadNodesToGpu(S<TypedBuffer>& buffer) const {
       // no children
       gnode.childRange = { i ,i };
     } else {
-      uint size = ((mNodes.size() + 1u) >> (node.depth+1)) - 1u;
+      uint size = (uint)((mNodes.size() + 1u) >> (node.depth+1)) - 1u;
       ENSURES(node.left == &mNodes[i + 1]);
       ENSURES(node.right == &mNodes[i + 1 + size]);
       gnode.childRange = { i + 1, i + 1 + size + size };
@@ -236,13 +236,13 @@ void BVH::uploadNodesToGpu(S<TypedBuffer>& buffer) const {
 //   }
 // #endif
 
-  buffer = TypedBuffer::For<GPUNode>(nodes.size(), RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
+  buffer = TypedBuffer::For<GPUNode>((u32)nodes.size(), RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   buffer->set<const GPUNode>(nodes);
   buffer->uploadGpu();
 }
 
 void BVH::uploadVerticesToGpu(S<TypedBuffer>& buffer) const {
-  buffer = TypedBuffer::For<Prim>(mPrims.size(), RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
+  buffer = TypedBuffer::For<Prim>((u32)mPrims.size(), RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   buffer->set<const Prim>(mPrims);
   buffer->uploadGpu();
 }

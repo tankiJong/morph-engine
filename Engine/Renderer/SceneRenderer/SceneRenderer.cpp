@@ -24,8 +24,11 @@
 #include "Renderer/SceneRenderer/DeferredLighting_cs.h"
 #include "Renderer/SceneRenderer/PathTracing_cs.h"
 #include "Renderer/SceneRenderer/SurfelCoverageCompute_cs.h"
+
 #include "Renderer/SceneRenderer/BvhVisual_vs.h";
+
 #include "Renderer/SceneRenderer/BvhVisual_gs.h";
+
 #include "Renderer/SceneRenderer/BvhVisual_ps.h";
 
 #include "Renderer/SceneRenderer/fxaa_ps.h"
@@ -126,7 +129,7 @@ actual element in the bucket: [startIndex, endIndex)
 */
 void InitSpatialInfo(uint32_t hash, uint32_t arraySize, SurfelBucketInfo& info) {
   uint32_t bucketCount = BUCKET_COUNT * BUCKET_COUNT * BUCKET_COUNT;
-  uint32_t offset = ceil(float(arraySize) / float(bucketCount));
+  uint32_t offset = (uint32_t)ceil(float(arraySize) / float(bucketCount));
 
   uvec3 component;
   GetSpatialHashComponent(hash, component);
@@ -144,7 +147,7 @@ SceneRenderer::~SceneRenderer() {
   mSurfelDump.close();
 }
 
-void SceneRenderer::onLoad(RHIContext& ctx) {
+void SceneRenderer::onLoad(RHIContext&) {
   if(gGenGBufferProgram == nullptr) {
     gGenGBufferProgram = Program::sptr_t(new Program());
     gGenGBufferProgram->stage(SHADER_TYPE_VERTEX)
@@ -204,8 +207,7 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
 
 
   auto size = Window::Get()->bounds().size();
-  uint width = (uint)size.x;
-  uint height = (uint)size.y;
+  uint width = (uint)size.x, height = (uint)size.y;
 
   mAO = Texture2::create(width, height, TEXTURE_FORMAT_RGBA16,
                               RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
@@ -284,7 +286,7 @@ void SceneRenderer::onLoad(RHIContext& ctx) {
                                      RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   NAME_RHIRES(mSurfelCoverage);
 
-  mIndirectLight = Texture2::create(width * .5f, height * .5f, TEXTURE_FORMAT_RGBA16, 
+  mIndirectLight = Texture2::create(width >> 1, height >> 1, TEXTURE_FORMAT_RGBA16, 
                                     RHIResource::BindingFlag::RenderTarget | RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::UnorderedAccess);
   NAME_RHIRES(mIndirectLight);
 

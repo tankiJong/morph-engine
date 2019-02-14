@@ -41,7 +41,7 @@ COMMAND_REG("a1_test_connect", "[IP:HOST][MESSAGE]", "")(Command& cmd) {
     TCPSocket s;
     s.connect(address);
     s.send(ss.data(), ss.size());
-    int re = s.receive(rc, 256u);
+    size_t re = s.receive(rc, 256u);
     if(re > 0) {
       // Log::tagf("net", rc);
     }
@@ -49,45 +49,4 @@ COMMAND_REG("a1_test_connect", "[IP:HOST][MESSAGE]", "")(Command& cmd) {
     // CurrentThread::sleep(100);
   // }
   return true;
-}
-
-COMMAND_REG("a1_test_server", "PORT", "")(Command& cmd) {
-  static bool running = false;
-  static Thread* hostThread;
-
-  if(running) {
-    running = false;
-    hostThread->join();
-    delete hostThread;
-    return true;
-  }
-
-  uint16_t port = (uint16_t)cmd.arg<0, uint>();
-
-  hostThread = new Thread([port]() {
-    TCPSocket host;
-
-    host.listen(port);
-
-    running = true;
-
-    // Log::tagf("net", "Host is listening on %s", host.address().toString());
-    while(running) {
-      TCPSocket* sock = host.accept();
-      if (sock == nullptr) {
-        continue;
-      }
-
-      // Log::tagf("net", "Connection built with %s", sock->address().toString());
-
-      byte_t buf[1024];
-      sock->receive(buf, 1024 - 1u);
-      // Log::tagf("net", "Received from [%s]: %s", sock->address().toString(), buf);
-
-      sock->send("OK", 2);
-
-      delete sock;
-    }
-    
-  });
 }

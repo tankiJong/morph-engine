@@ -35,7 +35,7 @@ Mesh::Mesh(const VertexLayout* layout): mLayout(layout) {
 
 Mesh& Mesh::setIndices(span<const uint> indices) {
   if(!mIndices) {
-    mIndices = IndexBuffer::For<uint>(indices.size(), RHIResource::BindingFlag::IndexBuffer | RHIResource::BindingFlag::ShaderResource);
+    mIndices = IndexBuffer::For<uint>((u32)indices.size(), RHIResource::BindingFlag::IndexBuffer | RHIResource::BindingFlag::ShaderResource);
   }
   mIndices->set(indices);
   mIndices->uploadGpu();

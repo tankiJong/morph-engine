@@ -11,23 +11,33 @@ void RenderNode::init() {
 
 void RenderNode::compile() {
   if(mIsCompiled) return;
+
+  // resolve hidden dependency from input
+  Log::log("============ Ignore dependency warnings begin ===========");
+  for(const RenderEdge* input: mInputs) {
+    if(input->from != nullptr) {
+      dependOn(*input->from);
+    }
+  }
+  Log::log("============ Ignore dependency warnings end =============");
+
   mNodeContext.compile();
   mIsCompiled = true;
 }
 
 void RenderNode::dependOn(RenderNode& dependency) {
   {
-    auto [ _, success ] = dependency.mOutGoingNodes.insert(&dependency);
+    auto [ _, success ] = dependency.mOutGoingNodes.insert(this);
     if(!success) {
-      Log::logf("fail to insert node dependency: `%s` -> `%s`, dependency already exists.", mName.c_str(), dependency.mName.c_str());
-      DEBUGBREAK;
+      Log::warnf("fail to insert node dependency: `%s` -> `%s`, dependency already exists.", mName.c_str(), dependency.mName.c_str());
+      // DEBUGBREAK;
     }
   }
   {
     auto [ _, success ] = mInComingNodes.insert(&dependency);
     if(!success) {
-      Log::logf("fail to insert node dependency: `%s` <- `%s`, dependency already exists.", dependency.mName.c_str(), mName.c_str());
-      DEBUGBREAK;
+      Log::warnf("fail to insert node dependency: `%s` <- `%s`, dependency already exists.", dependency.mName.c_str(), mName.c_str());
+      // DEBUGBREAK;
     }
   }
 }

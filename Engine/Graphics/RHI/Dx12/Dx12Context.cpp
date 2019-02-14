@@ -189,10 +189,10 @@ void RHIContext::setComputeRootSignature(const RootSignature& rootSig) {
 }
 
 void RHIContext::setGraphicsState(const GraphicsState& pso) {
+  mContextData->commandList()->SetPipelineState(pso.handle().Get());
   if(pso.rootSignature()) {
     mContextData->commandList()->SetGraphicsRootSignature(pso.rootSignature()->handle().Get());
   }
-  mContextData->commandList()->SetPipelineState(pso.handle().Get());
 }
 
 void RHIContext::setComputeState(const ComputeState& pso) {
@@ -235,8 +235,8 @@ void RHIContext::setVertexBuffer(const VertexBuffer& vbo, uint streamIndex) {
   D3D12_VERTEX_BUFFER_VIEW vb = {};
 
   vb.BufferLocation = vbo.res().gpuAddress();
-  vb.StrideInBytes = vbo.stride();
-  vb.SizeInBytes = vbo.res().size();
+  vb.StrideInBytes  = (UINT)vbo.stride();
+  vb.SizeInBytes    = (UINT)vbo.res().size();
 
   mContextData->commandList()->IASetVertexBuffers(streamIndex, 1, &vb);
 }
@@ -246,7 +246,7 @@ void RHIContext::setIndexBuffer(const IndexBuffer* ibo) {
   D3D12_INDEX_BUFFER_VIEW ib = {};
 
   ib.BufferLocation = ibo->res().gpuAddress();
-  ib.SizeInBytes = ibo->res().size();
+  ib.SizeInBytes = (UINT)ibo->res().size();
   ib.Format = DXGI_FORMAT_R32_UINT;
   mContextData->commandList()->IASetIndexBuffer(&ib);
 }
@@ -288,10 +288,10 @@ void RHIContext::setViewport(const aabb2& bounds) {
 void RHIContext::setScissorRect(const aabb2& rect) {
   D3D12_RECT scissorRect;
 
-  scissorRect.left = rect.mins.x;
-  scissorRect.top = rect.mins.y;
-  scissorRect.right = rect.maxs.x;
-  scissorRect.bottom = rect.maxs.y;
+  scissorRect.left    = (LONG)rect.mins.x;
+  scissorRect.top     = (LONG)rect.mins.y;
+  scissorRect.right   = (LONG)rect.maxs.x;
+  scissorRect.bottom  = (LONG)rect.maxs.y;
   mContextData->commandList()->RSSetScissorRects(1, &scissorRect);
 }
 
@@ -360,7 +360,7 @@ void RHIContext::updateTextureSubresources(const RHITexture& texture, uint first
   // uint arraySize = 1;
   //
   UNIMPLEMENTED();
-
+  updateTextureSubresources(texture, firstSubresource, subresourceCount, data);
 }
 
 void RHIContext::updateTexture(const RHITexture& texture, const void* data) {

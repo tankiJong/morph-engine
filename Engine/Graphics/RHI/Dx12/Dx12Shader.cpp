@@ -21,7 +21,7 @@ public:
 
     return {};
   }
-  HRESULT Open(D3D_INCLUDE_TYPE IncludeType, LPCSTR pFileName, LPCVOID pParentData, LPCVOID* ppData, UINT* pBytes) override {
+  HRESULT Open(D3D_INCLUDE_TYPE IncludeType, LPCSTR pFileName, LPCVOID /*pParentData*/, LPCVOID* ppData, UINT* pBytes) override {
     std::optional<fs::path> fullPath = resolve(pFileName);
 
     if (!fullPath) return E_FAIL;
@@ -30,7 +30,7 @@ public:
       case D3D_INCLUDE_LOCAL: {
         size_t size;
         const char* ptr;
-        bool result = fs::read(fullPath.value(), ptr, size);
+        fs::read(fullPath.value(), ptr, size);
         *pBytes = (UINT)size;
         *ppData = ptr;
       }

@@ -16,7 +16,7 @@ public:
 
   void onRenderFrame(RHIContext& ctx) override;
 
-  void onRenderGui(RHIContext& ctx) override {};
+  // void onRenderGui(RHIContext& ctx) override {};
 
 protected:
   void cleanBuffers(RHIContext& ctx);

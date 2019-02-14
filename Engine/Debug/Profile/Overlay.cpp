@@ -160,8 +160,8 @@ void Profile::Overlay::update() {
 
   std::array<Report*, MAX_FRAME_RECORDED> reports{ nullptr };
 
-  mChart.yDataRange.min = 0;
-  mChart.yDataRange.max = 0;
+  mChart.yDataRange.mins = 0;
+  mChart.yDataRange.maxs = 0;
   for(uint i = 1; i<= MAX_FRAME_RECORDED; i++) {
     prof_sample_t* sample = dump(i);
 
@@ -194,7 +194,7 @@ void Profile::Overlay::update() {
     report = (Report*)_alloca(sizeof(Report));
     report = new(report) Report();
 
-    for(uint i = mChart.frameRange.min; i <= mChart.frameRange.max; i++) {
+    for(uint i = mChart.frameRange.mins; i <= mChart.frameRange.maxs; i++) {
       prof_sample_t* sample = dump(MAX_FRAME_RECORDED - i);
       if(sample != nullptr) report->accumlateSample(sample, viewType);
     }
@@ -303,23 +303,23 @@ void Profile::Overlay::Chart::onInput() {
     case SELECT_CLEAR: {
       if (bound.contains(positionInChart)) {
         positionInChart.x = clamp(positionInChart.x, 0.f, bound.width());
-        mSelectedRange.min = positionInChart.x;
-        mSelectedRange.max = positionInChart.x + .1f;
+        mSelectedRange.mins = positionInChart.x;
+        mSelectedRange.maxs = positionInChart.x + .1f;
         if (Input::Get().isKeyJustDown(MOUSE_LBUTTON)) {
           Profile::pause();
           selectState = SELECT_SELECTING;
         }
       } else {
-        mSelectedRange.min = mSelectedRange.max;
+        mSelectedRange.mins = mSelectedRange.maxs;
       }
     }
     break;
     case SELECT_SELECTING: {
       positionInChart.x = clamp(positionInChart.x, 0.f, bound.width());
-      mSelectedRange.max = positionInChart.x;
+      mSelectedRange.maxs = positionInChart.x;
       if(Input::Get().isKeyJustUp(MOUSE_LBUTTON)) {
         if (mSelectedRange.size() < .1f && mSelectedRange.size() > -.1f) {
-          mSelectedRange.max = mSelectedRange.min + 1.f;
+          mSelectedRange.maxs = mSelectedRange.mins + 1.f;
         }
         selectState = SELECT_SELECTED;
       }
@@ -367,11 +367,11 @@ void Profile::Overlay::Chart::update() {
     }
   }
 
-  float min = std::min(mSelectedRange.min, mSelectedRange.max);
-  float max = std::max(mSelectedRange.min, mSelectedRange.max);
+  float min = std::min(mSelectedRange.mins, mSelectedRange.maxs);
+  float max = std::max(mSelectedRange.mins, mSelectedRange.maxs);
 
-  frameRange.min = uint(min / (bound.width() / (float)MAX_FRAME_RECORDED));
-  frameRange.max = uint(max / (bound.width() / (float)MAX_FRAME_RECORDED));
+  frameRange.mins = uint(min / (bound.width() / (float)MAX_FRAME_RECORDED));
+  frameRange.maxs = uint(max / (bound.width() / (float)MAX_FRAME_RECORDED));
   if(mSelectedRange.size() != 0) {
     ms.color(kChartSelectedBlendColor);
     ms.quad2({ { min, 0 }, { max, bound.height() } });

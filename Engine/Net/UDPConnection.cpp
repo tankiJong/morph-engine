@@ -177,7 +177,7 @@ bool UDPConnection::flush(bool force) {
 
       if(appendedObjCount > 0) {
         Log::logf("total object sync: %u", appendedObjCount);
-        uint size = objectSync.size();
+        uint size = (uint)objectSync.size();
         objectSync.seekw(0, BytePacker::SEEK_DIR_BEGIN);
         objectSync << appendedObjCount;
         objectSync.seekw(size, BytePacker::SEEK_DIR_BEGIN);
@@ -253,7 +253,7 @@ bool UDPConnection::process(NetMessage& msg, UDPSession::Sender& sender) {
 
           while(!channel.outOfOrderMessages.empty()) {
             bool hasprocessed = false;
-            for (uint i = channel.outOfOrderMessages.size() - 1; i < channel.outOfOrderMessages.size(); --i) {
+            for (uint i = (uint)channel.outOfOrderMessages.size() - 1; i < (uint)channel.outOfOrderMessages.size(); --i) {
               auto& message = channel.outOfOrderMessages[i];
 
               if (message.sequenceId() == channel.nextExpectReceiveSequenceId) {
@@ -462,7 +462,7 @@ bool UDPConnection::confirmReceived(uint16_t ack) {
   auto reliables = pt.reliables();
   for(uint16_t reliable: reliables) {
     // bool confirmed = false;
-    for(uint i = mSentReliable.size() - 1; i < mSentReliable.size(); i--) {
+    for(uint i = (uint)mSentReliable.size() - 1; i < (uint)mSentReliable.size(); i--) {
       if(mSentReliable[i].reliableId() == reliable) {
         mSentReliable[i] = mSentReliable.back();
         mSentReliable.pop_back();

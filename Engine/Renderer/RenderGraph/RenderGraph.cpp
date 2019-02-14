@@ -79,13 +79,13 @@ bool RenderGraph::execute() const {
 
   ctx->bindDescriptorHeap();
 
-  for(auto node: sortedNodes) {
+  for(RenderNode* node: sortedNodes) {
     node->run(*ctx);
   }
 
   ctx->copyResource(*mOutputResource, *RHIDevice::get()->backBuffer());
 
-  return false;
+  return true;
 }
 
 bool RenderGraph::compile() {

@@ -77,7 +77,7 @@ size_t TCPSocket::send(const void* data, size_t size) {
 
 size_t TCPSocket::receive(void* buf, size_t maxSize) {
 
-  int re = ::recv(mHandle, (char*)buf, maxSize, 0);
+  int re = ::recv(mHandle, (char*)buf, (int)maxSize, 0);
 
 
   if(re == 0) {
@@ -99,7 +99,7 @@ size_t TCPSocket::receive(void* buf, size_t maxSize) {
   return re == -1 ? 0 : re;
 }
 
-bool TCPSocket::bind(const NetAddress& addr, uint16_t portRange) {
+bool TCPSocket::bind(const NetAddress& addr, uint16_t /*portRange*/) {
 
   ASSERT_OR_RETURN(!opened(), false);
 
@@ -132,9 +132,9 @@ bool TCPSocket::listen(uint16_t port, uint maxQueued) {
 
   int result = ::listen(mHandle, maxQueued);
   if (result != 0) {
-    bool re;
-    OUT_LOG_FATAL_SOCK_ERROR(re);
-    if (re) {
+    bool rer;
+    OUT_LOG_FATAL_SOCK_ERROR(rer);
+    if (rer) {
       close();
       Log::tagf("net", "fail to listen at %u", port);
       return false;

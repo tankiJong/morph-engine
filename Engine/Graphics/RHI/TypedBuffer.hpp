@@ -46,7 +46,7 @@ public:
 
   template<typename T>
   void set(span<T> data) {
-    mElementCount = data.size();
+    mElementCount = (u32)data.size();
     mStride = sizeof(T);
     mData.set(data.data(), data.size() * sizeof(T));
     mCpuDirty = true;

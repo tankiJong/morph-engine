@@ -36,15 +36,15 @@ NetObject::View* NetObject::ViewCollection::find(NetObject* ref) {
 
 void NetObject::ViewCollection::update(const NetObjectManager& manager) {
   for(View& view: mViews) {
-    auto hook = manager.type(view.ref);
-    // hook->fillSnapshot(view.snapshot.data, view.ref->ptr);
+    // auto hook = manager.type(view.ref);
+    // // hook->fillSnapshot(view.snapshot.data, view.ref->ptr);
     view.lastUpdate.stamp = manager.session()->sessionTimeMs();
   }
 }
 
 void NetObject::ViewCollection::update(NetObject* ref, const NetObjectManager& manager) {
   View& view = *find(ref);
-  auto hook = manager.type(view.ref);
+  // auto hook = manager.type(view.ref);
   // hook->fillSnapshot(view.snapshot.data, view.ref->ptr);
   view.lastUpdate.stamp = manager.session()->sessionTimeMs();
 }
@@ -106,7 +106,8 @@ void NetObjectManager::desync(NetObject* netObject) {
 
   mSession->sendOthers(destory);
 
-  bool result = destoryObject(netObject);
+  // bool result = 
+    destoryObject(netObject);
 
   mSession->unregisterFromConnections(*netObject);
 
@@ -187,7 +188,7 @@ NetObject* NetObjectManager::createObject(net_object_type_t type, net_object_loc
   mObjectPtrLookup[obj->ptr] = obj;
 
   auto objType = this->type(type);
-  obj->mLatestsnapshot.size = objType->snapshotSize();
+  obj->mLatestsnapshot.size = (uint16_t)objType->snapshotSize();
   obj->mLatestsnapshot.data = (net_object_snapshot_t*)malloc(obj->mLatestsnapshot.size);
   this->type(type)->fillSnapshot(obj->mLatestsnapshot.data, obj->ptr);
 

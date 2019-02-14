@@ -16,9 +16,10 @@ class RenderNode {
   friend class RenderGraph;
 public:
   RenderNode(RenderGraph* owner, std::string_view name, RenderPass* pass)
-  : mOwner(owner), mPass(pass), mName(name) {}
+  : mOwner(owner), mPass(pass), mName(name), mNodeContext(this) {}
   ~RenderNode();
 
+  const std::string& name() const { return mName; }
   void init();
   void compile();
   void dependOn(RenderNode& dependency);
@@ -49,7 +50,7 @@ protected:
   std::vector<const RenderEdge*> mOutputs;
   std::unordered_set<RenderNode*> mOutGoingNodes;
   std::unordered_set<RenderNode*> mInComingNodes;
-  RenderNodeContext mNodeContext;
+  RenderNodeContext mNodeContext { this };
 
   bool mVisited = false;
 private:

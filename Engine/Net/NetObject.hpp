@@ -9,7 +9,7 @@ class UDPSession;
 class UDPConnection;
 class NetObjectManager;
 using net_object_type_t = uint8_t;
-using net_object_id_t = uint32_t;
+using net_object_id_t = uint16_t;
 struct net_object_local_object_t {};
 struct net_object_snapshot_t {};
 
@@ -126,7 +126,7 @@ public:
 protected:
   UDPSession* mSession = nullptr;
   std::map<net_object_local_object_t*, NetObject*> mObjectPtrLookup;
-  std::map<uint16_t, NetObject*> mObjectIdLookup;
+  std::map<net_object_id_t, NetObject*> mObjectIdLookup;
   std::array<NetObjectDefinition*, UINT8_MAX> mTypeLookup;
   net_object_id_t mNextUsableId = 0;
 };

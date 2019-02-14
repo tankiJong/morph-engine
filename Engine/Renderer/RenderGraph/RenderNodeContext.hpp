@@ -9,7 +9,7 @@
 
 class RenderNodeContext {
 public:
-  RenderNodeContext() {}
+  RenderNodeContext(RenderNode* owner): mOwner(owner) { }
   ~RenderNodeContext();
   // read
   void readSrv(std::string_view name, RHIResource::scptr_t res, uint registerIndex, uint registerSpace = 0);
@@ -46,4 +46,6 @@ protected:
     ComputeState::sptr_t  mComputeState;
   };
   FrameBuffer mFrameBuffer{};
+
+  RenderNode* mOwner = nullptr;
 };

@@ -80,7 +80,7 @@ u64 RHIBuffer::gpuAddress() const {
   return mRhiHandle->GetGPUVirtualAddress();
 }
 
-void* RHIBuffer::map(MapType type) {
+void* RHIBuffer::map(MapType /*type*/) {
   TODO("switch map type");
   D3D12_RANGE r{ 0, mSize };
   void* data;

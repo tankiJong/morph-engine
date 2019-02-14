@@ -89,7 +89,6 @@ void setFboDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, FrameBuffer::Desc& fbo
 
 
 void setDx12InputLayout(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, const VertexLayout& layout) {
-  D3D12_INPUT_LAYOUT_DESC inputDesc;
   auto attrs = layout.attributes();
 
   D3D12_INPUT_ELEMENT_DESC* eles = new D3D12_INPUT_ELEMENT_DESC[attrs.size()];
@@ -306,6 +305,10 @@ bool GraphicsState::rhiInit() {
   desc.SampleDesc.Count = 1;
 
   d3d_call(RHIDevice::get()->nativeDevice()->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&mRhiHandle)));
+
+  // this is created in setInputLayout
+  delete desc.InputLayout.pInputElementDescs;
+
   return true;
 }
 

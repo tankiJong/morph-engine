@@ -3,7 +3,8 @@
 #include "Engine/Graphics/RHI/Dx12/Dx12Resource.hpp"
 #include "Engine/Graphics/RHI/Texture.hpp"
 
-bool Texture2::rhiInit(const void* data, size_t size) {
+bool Texture2::rhiInit(const void* data, size_t /*size*/) {
+  TODO("`size` should be used here");
   D3D12_RESOURCE_DESC desc = {};
 
   desc.MipLevels = 1;
@@ -31,7 +32,7 @@ bool Texture2::rhiInit(const void* data, size_t size) {
   }
 
   if(mFormat == TEXTURE_FORMAT_D24S8 && is_set(mBindingFlags, Texture2::BindingFlag::ShaderResource | Texture2::BindingFlag::UnorderedAccess)) {
-    TODO(set to typeless later when do the unorder access);
+    TODO("set to typeless later when do the unorder access");
     clearValPtr = nullptr;
   }
 

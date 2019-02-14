@@ -19,6 +19,6 @@ TextRenderer::TextRenderer() {
   // }
 }
 
-void TextRenderer::draw(Mesh& mesh) {
+void TextRenderer::draw(Mesh&) {
  
 }

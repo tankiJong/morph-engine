@@ -164,7 +164,7 @@ bool RootSignature::rhiInit() {
   }
 
   initHandle(sigBlob);
-
+  return true;
 }
 
 void RootSignature::initHandle(ID3DBlobPtr sigBlob) {

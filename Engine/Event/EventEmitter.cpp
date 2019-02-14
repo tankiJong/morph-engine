@@ -1,6 +1,6 @@
 #include "EventEmitter.hpp"
 
-EventEmitter& EventEmitter::on(std::string name, void* origin, void* cb, size_t funcSize) {
+EventEmitter& EventEmitter::on(std::string name, void* origin, void* cb) {
 
   EventListener* listener = findListener(name);
   if(listener == nullptr) {

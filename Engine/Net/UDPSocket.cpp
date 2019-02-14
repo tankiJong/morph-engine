@@ -74,7 +74,7 @@ size_t UDPSocket::receive(NetAddress& outAddr, void* buffer, size_t maxSize) {
 
   SOCKET sock = mHandle;
 
-  int rcvd = ::recvfrom(sock, (char*)buffer, maxSize, 0, (sockaddr*)&storage, &len);
+  int rcvd = ::recvfrom(sock, (char*)buffer, (int)maxSize, 0, (sockaddr*)&storage, &len);
 
   if(rcvd > 0) {
     outAddr.fromSockaddr((sockaddr&)storage);

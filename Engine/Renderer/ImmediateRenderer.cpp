@@ -163,7 +163,8 @@ void ImmediateRenderer::setUniform(eUniformSlot slot, const ConstantBufferView& 
 }
 
 void ImmediateRenderer::setView(const Camera& cam) {
-  mCameraBuffer->updateData(&cam.ubo(), 0, sizeof(camera_t));
+  auto ubo = cam.ubo();
+  mCameraBuffer->updateData(&ubo, 0, sizeof(camera_t));
 }
 
 void ImmediateRenderer::setRenderRegion(const RHITexture& rt, const vec2& offsetBegin, const vec2& offsetEnd) {

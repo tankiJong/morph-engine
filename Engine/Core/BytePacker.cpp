@@ -194,7 +194,7 @@ size_t BytePacker::capacity() const {
 }
 
 const void* BytePacker::data(size_t offset) const {
-  EXPECTS(offset < mBufferView.size());
+  EXPECTS(int(offset) < mBufferView.size());
   return mBufferView.data() + offset;
 }
 

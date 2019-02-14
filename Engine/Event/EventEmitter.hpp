@@ -41,7 +41,7 @@ public:
   EventListener* findListener(std::string_view name) const;
    
 protected:
-  EventEmitter& on(std::string name, void* origin, void* cb, size_t funcSize);
+  EventEmitter& on(std::string name, void* origin, void* cb);
   EventListener* allocListener();
   void freeListener(EventListener* listener);
 

@@ -42,7 +42,7 @@ UDPSession::MessageHandle UDPSession::on(uint8_t index, const char* name, const 
   return MessageHandle();
 }
 
-void UDPSession::host(const char* id, uint16_t port) {
+void UDPSession::host(const char* /*id*/, uint16_t port) {
   bind(port);
   bool connected = connect(0, mSock.address());
   if(connected) {
@@ -58,7 +58,7 @@ void UDPSession::host(const char* id, uint16_t port) {
 
 }
 
-void UDPSession::join(const char* id, const NetAddress& host) {
+void UDPSession::join(const char* /*id*/, const NetAddress& host) {
   bind(host.port());
 
   connect(HOST_CONNECTION_INDEX, host);
@@ -100,7 +100,7 @@ bool UDPSession::isHosted() const {
 
 uint64_t UDPSession::sessionTimeMs() const {
   if(isHosting()) {
-    return GetMainClock().total.second * 1000;
+    return (uint64_t)GetMainClock().total.second * 1000;
   }
 
   return mCurrentClientMilliSec;
@@ -621,7 +621,7 @@ void UDPSession::registerCoreMessage() {
     return true;
   }, NETMESSAGE_OPTION_CONNECTIONLESS);
 
-  on(uint8_t(NETMSG_PONG), "pong", [](NetMessage msg, UDPSession::Sender& sender) {
+  on(uint8_t(NETMSG_PONG), "pong", [](NetMessage msg, UDPSession::Sender&) {
     Log::logf("Pong");
     return true;
   }, NETMESSAGE_OPTION_CONNECTIONLESS);
@@ -777,7 +777,7 @@ void UDPSession::registerCoreMessage() {
     Log::logf("create object with id: %u", objId);
 
     if(object != nullptr) {
-      NetObject* netObject = objectManager.createObject(objTypeId, object);
+      objectManager.createObject(objTypeId, object);
       Log::log("...... and it's net object");
 
     }
@@ -938,7 +938,7 @@ void UDPSession::unregisterFromConnections(const NetObject& obj) {
   }
 }
 
-bool UDPSession::onJoinAccepted(NetMessage msg, UDPSession::Sender& sender) {
+bool UDPSession::onJoinAccepted(NetMessage msg, UDPSession::Sender&) {
   uint8_t index;
   msg >> index;
 

@@ -15,6 +15,7 @@ class BVH;
 class Mesher {
   friend class MikktBinding;
 public:
+  void setWindingOrder(eWindOrder windOrder) { mWindOrder = windOrder; }
   Mesher & begin(eDrawPrimitive prim, bool useIndices = true);
   void end();
   void clear();
@@ -98,7 +99,7 @@ protected:
   vertex_t mStamp;
   draw_instr_t mCurrentIns;
   bool isDrawing = false;
-
+  eWindOrder mWindOrder = WIND_COUNTER_CLOCKWISE;
 };
 
 template< typename VertexType >

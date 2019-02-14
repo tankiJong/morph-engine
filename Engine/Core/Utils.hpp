@@ -87,3 +87,4 @@ public:
 #define MB *1024*KB
 #define GB *1024*MB
 
+#define UNUSED(X) (void*)&X;

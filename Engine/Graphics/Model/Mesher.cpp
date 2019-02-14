@@ -410,7 +410,11 @@ Mesher& Mesher::quad(uint a, uint b, uint c, uint d) {
 
 Mesher& Mesher::quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d) {
   tangent(b - a, 1);
-  normal((d - a).cross(b - a));
+  if(mWindOrder == WIND_COUNTER_CLOCKWISE) {
+    normal((d - a).cross(b - a));
+  } else {
+    normal((b - a).cross(d - a));
+  }
   if(mCurrentIns.useIndices) {
     uint start =
       uv({ 0,0 })
@@ -446,7 +450,11 @@ Mesher& Mesher::quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d)
 Mesher& Mesher::quad(const vec3& a, const vec3& b, const vec3& c, const vec3& d,
   const vec2& uva, const vec2& uvb, const vec2& uvc, const vec2& uvd) {
   tangent(b - a, 1);
-  normal((d - a).cross(b - a));
+  if(mWindOrder == WIND_COUNTER_CLOCKWISE) {
+    normal((d - a).cross(b - a));
+  } else {
+    normal((b - a).cross(d - a));
+  }
   if(mCurrentIns.useIndices) {
     uint start =
       uv(uva)
@@ -694,8 +702,11 @@ vec3 Mesher::normalOf(uint a, uint b, uint c) {
 
   vec3 ab = verts[b] - verts[a];
   vec3 ac = verts[c] - verts[a];
-
-  vec3 xx = vec3::right.cross(vec3::up);
+  if(mWindOrder == WIND_COUNTER_CLOCKWISE) {
+    return ac.cross(ab);;
+  } else {
+    return ab.cross(ac);
+  }
   return ac.cross(ab);
 }
 

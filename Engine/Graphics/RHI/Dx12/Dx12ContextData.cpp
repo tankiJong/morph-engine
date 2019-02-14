@@ -5,7 +5,7 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 
 template<D3D12_COMMAND_LIST_TYPE type>
-static ID3D12CommandAllocatorPtr aquireCommandAlloctor(void* pUserData) {
+static ID3D12CommandAllocatorPtr aquireCommandAlloctor(void* /*pUserData*/) {
   ID3D12CommandAllocatorPtr alloc;
   d3d_call(RHIDevice::get()->nativeDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(&alloc)));
 

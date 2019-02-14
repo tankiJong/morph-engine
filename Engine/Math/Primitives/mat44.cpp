@@ -424,6 +424,7 @@ mat44 mat44::rotation(float x, float y, float z, eRotationOrder rotationOrder) {
     case ROTATION_YZX:
       return rotationX(x) * rotationZ(z) * rotationY(y);
   }
+  BAD_CODE_PATH();
   // return re;
 
 //  return {

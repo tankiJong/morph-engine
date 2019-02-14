@@ -75,7 +75,7 @@ void DeferredRenderer::setScene(RenderScene& scene) {
   mTargetScene = &scene;
 }
 
-void DeferredRenderer::onLoad(RHIContext& ctx) {
+void DeferredRenderer::onLoad(RHIContext&) {
   auto size = Window::Get()->bounds().size();
   uint width = (uint)size.x;
   uint height = (uint)size.y;

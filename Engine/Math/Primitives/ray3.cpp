@@ -34,14 +34,14 @@ contact3 ray3::intersect(const aabb3& box) const {
     return contact3();
   }
   
-   float t = std::max(result.min, result.max);
+   float t = std::max(result.mins, result.maxs);
    if (t < 0) return contact3();
 
   contact3 re;
   if(box.contains(start)) {
-    re.position = evaluate(result.max * rayLength);
+    re.position = evaluate(result.maxs * rayLength);
   } else {
-    re.position = evaluate(result.min * rayLength);
+    re.position = evaluate(result.mins * rayLength);
   }
 
   vec3 center = box.center();

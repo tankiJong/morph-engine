@@ -54,7 +54,7 @@ void BlockAllocator::allocChunk() {
 bool BlockAllocator::own(void* ptr) const {
 
   for(void* chunk: mChunks) {
-    size_t offset = (uint8_t*)ptr - chunk;
+    size_t offset = (uint8_t*)ptr - (uint8_t*)chunk;
     if(offset < CHUNK_SIZE) {
       if(offset % mBlockSize == 0) {
         return true;

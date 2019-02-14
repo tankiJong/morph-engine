@@ -4,6 +4,7 @@
 #include "Engine/Graphics/RHI/VertexLayout.hpp"
 #include "Engine/Graphics/Model/Vertex.hpp"
 #include "Engine/Graphics/RHI/RHIContext.hpp"
+#include "Engine/Renderer/RenderGraph/RenderNode.hpp"
 
 RenderNodeContext::~RenderNodeContext() {
   if(mForCompute) {
@@ -62,7 +63,7 @@ void RenderNodeContext::readWriteUav(std::string_view name, RHIResource::scptr_t
 }
 
 void RenderNodeContext::reset(Program::scptr_t prog, bool forCompute) {
-
+  
   if(mForCompute) {
     mComputeState = nullptr;
   } else {
@@ -179,6 +180,7 @@ void RenderNodeContext::compileForCompute() {
   desc.setRootSignature(mTargetProgram->prog()->rootSignature());
 
   mComputeState = ComputeState::create(desc);
+  mComputeState->handle()->SetName(make_wstring(mOwner->name()).c_str());
 }
 
 void RenderNodeContext::compileForGraphics() {
@@ -205,5 +207,6 @@ void RenderNodeContext::compileForGraphics() {
   desc.setFboDesc(mFrameBuffer.desc());
 
   mGraphicsState = GraphicsState::create(desc);
+  mGraphicsState->handle()->SetName(make_wstring(mOwner->name()).c_str());
   
 }

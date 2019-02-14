@@ -45,7 +45,7 @@ bool ProgramData::bindForGraphics(RHIContext& ctx, const RootSignature& rootSig,
   }
 
   bool result = true;
-  for(size_t i = 0; i < mParamDatas.size(); i++) {
+  for(uint i = 0; i < (uint)mParamDatas.size(); i++) {
     auto& paramData = mParamDatas[i];
     result = result && paramData.data->finalize();
     if(paramData.bind) {
@@ -62,7 +62,7 @@ bool ProgramData::bindForCompute(RHIContext& ctx, const RootSignature& rootSig, 
   }
 
   bool result = true;
-  for(size_t i = 0; i < mParamDatas.size(); i++) {
+  for(uint i = 0; i < (uint)mParamDatas.size(); i++) {
     auto& paramData = mParamDatas[i];
     result = result && paramData.data->finalize();
     if(paramData.bind) {

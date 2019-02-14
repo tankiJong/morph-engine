@@ -238,7 +238,6 @@ void Input::updateXboxControllers() {
 
 void Input::updateMousePosition() {
   vec2 currentMouse = mouseClientPositon();
-  Log::logf("client Position, %s", currentMouse.toString().c_str());
   if(mIsMouseLocked) {
     mDeltaMousePosition = currentMouse - Window::Get()->clientCenter();
   } else {
