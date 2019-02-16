@@ -12,4 +12,16 @@ public:
   ivec3(ivec2 xy, int z);
   explicit ivec3(const uvec3& from);
   ivec2 xy() const;
+
+  ivec3 operator+(const ivec3& rhs) { return { x+rhs.x, y+rhs.y, z+rhs.z }; }
+  ivec3& operator+=(const ivec3& rhs) { x+=rhs.x; y+=rhs.y; z+=rhs.z; return *this; }
+
+  ivec3 operator-(const ivec3& rhs) { return { x-rhs.x, y-rhs.y, z-rhs.z }; }
+  ivec3& operator-=(const ivec3& rhs) { x-=rhs.x; y-=rhs.y; z-=rhs.z; return *this; }
+
+  ivec3 operator*(const ivec3& rhs) { return { x*rhs.x, y*rhs.y, z*rhs.z }; }
+  ivec3& operator*=(const ivec3& rhs) { x*=rhs.x; y*=rhs.y; z*=rhs.z; return *this; }
+
+  ivec3 operator/(const ivec3& rhs) { return { x/rhs.x, y/rhs.y, z/rhs.z }; }
+  ivec3& operator/=(const ivec3& rhs) { x/=rhs.x; y/=rhs.y; z/=rhs.z; return *this; }
 };

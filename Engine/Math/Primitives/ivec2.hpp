@@ -20,6 +20,8 @@ public:
 	const ivec2 operator*(int uniformScale) const;			// vec2 * int
 	int operator*(const ivec2& another) const;            // vec2 * vec2, dot product
 	const ivec2 operator/(int inverseScale) const;			// vec2 / int
+
+	ivec2& operator-();
 	void operator+=(const ivec2& vecToAdd);						// vec2 += vec2
 	void operator-=(const ivec2& vecToSubtract);				// vec2 -= vec2
 	void operator*=(const int uniformScale);					// vec2 *= int
@@ -28,6 +30,7 @@ public:
 	bool operator==(const ivec2& compare) const;				// vec2 == vec2
 	bool operator!=(const ivec2& compare) const;				// vec2 != vec2
 
+	int magnitude2() const;
   void fromString(const char* data);
   std::string toString() const;
 public:

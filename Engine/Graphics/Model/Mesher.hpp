@@ -16,6 +16,7 @@ class Mesher {
   friend class MikktBinding;
 public:
   void setWindingOrder(eWindOrder windOrder) { mWindOrder = windOrder; }
+  void reserve(size_t size);
   Mesher & begin(eDrawPrimitive prim, bool useIndices = true);
   void end();
   void clear();
@@ -105,6 +106,7 @@ protected:
 template< typename VertexType >
 owner<Mesh*> Mesher::createMesh() {
   GUARANTEE_OR_DIE(isDrawing == false, "createMesh called without calling end()");
+  if(mVertices.count() == 0) return nullptr;
   VertexMesh<VertexType>* m = VertexMesh<VertexType>::pool.acquire();
   
   m->setInstructions(mIns);

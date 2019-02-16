@@ -51,8 +51,6 @@ protected:
 class RenderGraph {
   friend class RenderNode;
 public:
-  // using RenderPassExecutor = std::function<void(CommandList&)>;
-  // using RenderPassConstructor = std::function<RenderPassExecutor(RenderNodeContext&)>;
 
   RenderNode& defineNode(std::string_view name, RenderPassConstructor constructor);
 

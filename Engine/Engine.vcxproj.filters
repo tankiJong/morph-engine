@@ -208,6 +208,9 @@
     <Filter Include="Engine\Renderer\RenderGraph">
       <UniqueIdentifier>{466ca7ce-6191-4158-b843-d3774938c460}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Renderer\RenderGraph\RenderPass">
+      <UniqueIdentifier>{7a5f4d55-b94a-4a70-a699-8892cc584aa2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -746,6 +749,10 @@
     </ClCompile>
     <ClCompile Include="Renderer\RenderGraph\RenderPass.cpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderGraph\RenderGraphRegistry.cpp" />
+    <ClCompile Include="Renderer\RenderGraph\RenderPass\BlurPass.cpp">
+      <Filter>Engine\Renderer\RenderGraph\RenderPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1286,9 +1293,6 @@
     <ClInclude Include="Debug\Profile\Report.hpp">
       <Filter>Engine\Debug\Profile</Filter>
     </ClInclude>
-    <ClInclude Include="Config.hpp">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Camera.hpp">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
@@ -1486,6 +1490,13 @@
     </ClInclude>
     <ClInclude Include="Renderer\RenderGraph\RenderPass.hpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderGraph\RenderGraphRegistry.hpp" />
+    <ClInclude Include="Renderer\RenderGraph\RenderPass\BlurPass.hpp">
+      <Filter>Engine\Renderer\RenderGraph\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.hpp">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1707,6 +1718,9 @@
     </FxCompile>
     <FxCompile Include="Renderer\DeferredRenderer\GenGBuffer_vs.hlsl">
       <Filter>Engine\Renderer\DeferredRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="Renderer\RenderGraph\RenderPass\Blur_cs.hlsl">
+      <Filter>Engine\Renderer\RenderGraph\RenderPass</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

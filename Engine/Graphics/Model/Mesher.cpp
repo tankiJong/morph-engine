@@ -156,6 +156,11 @@ void MikktBinding::mikktSetTSpace(const SMikkTSpaceContext* pContext,
   tangent.w = (float)bIsOrientationPreserving;
 }
 
+void Mesher::reserve(size_t size) {
+  mVertices.reserve(size);
+  mIndices.reserve(size);
+}
+
 Mesher& Mesher::begin(eDrawPrimitive prim, bool useIndices) {
   GUARANTEE_OR_DIE(isDrawing == false, "Call begin before previous end get called.");
   mCurrentIns.prim = prim;

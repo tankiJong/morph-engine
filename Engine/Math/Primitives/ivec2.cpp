@@ -59,6 +59,12 @@ const ivec2 ivec2::operator/(int inverseScale) const {
 	return ivec2(this->x / inverseScale, this->y / inverseScale);
 }
 
+ivec2& ivec2::operator-() {
+	x = -x;
+	y = -y;
+
+	return *this;
+}
 
 //-----------------------------------------------------------------------------------------------
 void ivec2::operator+=(const ivec2& vecToAdd) {
@@ -114,6 +120,10 @@ bool ivec2::operator==(const ivec2& compare) const {
 //-----------------------------------------------------------------------------------------------
 bool ivec2::operator!=(const ivec2& compare) const {
 	return x != compare.x || y != compare.y;
+}
+
+int ivec2::magnitude2() const {
+	return x*x + y*y;
 }
 
 void ivec2::fromString(const char* data) {
