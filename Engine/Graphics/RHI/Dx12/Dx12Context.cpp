@@ -66,7 +66,7 @@ void RHIContext::copyBufferRegion(const RHIBuffer* dst, size_t dstOffset, RHIBuf
   mCommandsPending = true;
 }
 
-void RHIContext::transitionBarrier(const RHIResource* res, RHIResource::State newState, eTransitionBarrierFlag flags) {
+void RHIContext::transitionBarrier(const RHIResource* res, RHIResource::State newState, eTransitionBarrierFlag flags, ResourceViewInfo* viewInfo) {
   // if resource has cpu access, no need to do anything
 
   const RHIBuffer* buffer = dynamic_cast<const RHIBuffer*>(res);
@@ -426,6 +426,26 @@ void RHIContext::copyResource(const RHIResource& from, RHIResource& to) {
 
   mContextData->commandList()->CopyResource(to.handle().Get(), from.handle().Get());
   mCommandsPending = true;
+}
+
+void RHIContext::copySubresource(const RHITexture& from, uint fromSubIndex, const RHITexture& to, uint toSubIndex) {
+  transitionBarrier(&from, RHIResource::State::CopySource);
+  transitionBarrier(&to, RHIResource::State::CopyDest);
+
+  D3D12_TEXTURE_COPY_LOCATION fromLoc;
+  D3D12_TEXTURE_COPY_LOCATION toLoc;
+
+  fromLoc.pResource = from.handle().Get();
+  fromLoc.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+  fromLoc.SubresourceIndex = fromSubIndex;
+
+  toLoc.pResource = to.handle().Get();
+  toLoc.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+  toLoc.SubresourceIndex = toSubIndex;
+
+  mContextData->commandList()->CopyTextureRegion(&toLoc, 0, 0, 0, &fromLoc, NULL);
+  mCommandsPending = true;
+
 }
 
 size_t RHIContext::readBuffer(const RHIBuffer& res, void* data, size_t maxSize) {

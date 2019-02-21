@@ -13,7 +13,7 @@ void TypedBuffer::set(uint stride, uint count, const void* data) {
   mCpuDirty = true;
 }
 
-ShaderResourceView* TypedBuffer::srv() const {
+ShaderResourceView* TypedBuffer::srv(uint mipLevel) const {
   if(!mSrv && is_set(mBindingFlags, BindingFlag::ShaderResource)) {
     mSrv = ShaderResourceView::create(*this);
   }

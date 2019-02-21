@@ -36,9 +36,9 @@ public:
   void updateTexture(const RHITexture& texture, const void* data);
 
   void copyResource(const RHIResource& from, RHIResource& to);
-
+  void copySubresource(const RHITexture& from, uint fromSubIndex, const RHITexture& to, uint toSubIndex);
   size_t readBuffer(const RHIBuffer& res, void* data, size_t maxSize);
-  virtual void transitionBarrier(const RHIResource* res, RHIResource::State newState, eTransitionBarrierFlag = TRANSITION_FULL);
+  virtual void transitionBarrier(const RHIResource* res, RHIResource::State newState, eTransitionBarrierFlag = TRANSITION_FULL, ResourceViewInfo* viewInfo = nullptr);
   virtual void uavBarrier(const RHIResource* res);
 
   //-------------------------------------------------
@@ -50,6 +50,7 @@ public:
   void draw(uint start, uint count);
   void drawIndexed(uint vertStart, uint idxStart, uint count);
   void drawInstanced(uint startVert, uint startIns, uint vertCount, uint insCount);
+  void blit(const ShaderResourceView& from, const RenderTargetView& to);
   void setGraphicsRootSignature(const RootSignature& rootSig);
   void setComputeRootSignature(const RootSignature& rootSig);
   void setGraphicsState(const GraphicsState& pso);

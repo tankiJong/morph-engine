@@ -1,6 +1,89 @@
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 #include "Engine/Graphics/RHI/DescriptorSet.hpp"
 
+
+void initTextureSrv(const RHITexture* res, uint mostDetailedMip, uint mipCount, uint firstArraySlice, uint arraySize, D3D12_SHADER_RESOURCE_VIEW_DESC& desc) {
+
+  if(res->format() == TEXTURE_FORMAT_D24S8) {
+    desc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+  } else {
+    desc.Format = toDXGIFormat(res->format());
+  }
+
+  bool isTextureArray = arraySize > 1;
+
+  switch(res->type()) {
+    case RHIResource::Type::Texture1D:
+      if(isTextureArray) {
+        desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
+        desc.Texture1DArray.MipLevels = mipCount;
+        desc.Texture1DArray.MostDetailedMip = mostDetailedMip;
+        desc.Texture1DArray.ArraySize = arraySize;
+        desc.Texture1DArray.FirstArraySlice = firstArraySlice;
+      } else {
+        desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1D;
+        desc.Texture1D.MipLevels = mipCount;
+        desc.Texture1D.MostDetailedMip = mostDetailedMip;
+      }
+    break;
+    case RHIResource::Type::Texture2D:
+      if(isTextureArray) {
+        desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+        desc.Texture2DArray.MipLevels = mipCount;
+        desc.Texture2DArray.MostDetailedMip = mostDetailedMip;
+        desc.Texture2DArray.ArraySize = arraySize;
+        desc.Texture2DArray.FirstArraySlice = firstArraySlice;
+      } else {
+        desc.Texture2D.MipLevels = mipCount;
+        desc.Texture2D.MostDetailedMip = mostDetailedMip;
+      }
+    break;
+    case RHIResource::Type::Texture3D:
+    case RHIResource::Type::TextureCube: 
+    default: 
+    BAD_CODE_PATH();
+  }
+
+  desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+}
+
+void initRtv(const RHITexture* res, uint miplevel, uint firstArraySlice, uint arraySize, D3D12_RENDER_TARGET_VIEW_DESC& desc) {
+  desc = {};
+  uint32_t arrayMultiplier = (res->type() == RHIResource::Type::TextureCube ? 6 : 1);
+
+  if(arraySize == ShaderResourceView::MAX_POSSIBLE) {
+    arraySize = res->arraySize() - firstArraySlice;
+  }
+  
+  switch(res->type()) { 
+    case RHIResource::Type::Texture1D:
+    if(res->arraySize() > 1) {
+      desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1DARRAY;
+      desc.Texture1DArray.ArraySize = arraySize;
+      desc.Texture1DArray.FirstArraySlice = firstArraySlice;
+      desc.Texture1DArray.MipSlice = miplevel;
+    } else {
+      desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1D;
+      desc.Texture1D.MipSlice = miplevel;
+    }
+    break;
+    case RHIResource::Type::Texture2D:
+    case RHIResource::Type::TextureCube: 
+    if(res->arraySize() * arrayMultiplier > 1) {
+      desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+      desc.Texture2DArray.ArraySize = arraySize * arrayMultiplier;
+      desc.Texture2DArray.FirstArraySlice = firstArraySlice * arrayMultiplier;
+      desc.Texture2DArray.MipSlice = miplevel;
+    } else {
+      desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+      desc.Texture2D.MipSlice = miplevel;
+    }
+    break;
+    default: 
+    BAD_CODE_PATH();
+  }
+}
+
 ShaderResourceView::sptr_t ShaderResourceView::create(
   W<const RHITexture> res, uint mostDetailedMip, uint mipCount, uint firstArraySlice, uint arraySize) {
   
@@ -11,20 +94,20 @@ ShaderResourceView::sptr_t ShaderResourceView::create(
   }
 
   D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
-  RHIResource::handle_t resHandle = nullptr;
 
   if(ptr) {
+    initTextureSrv(ptr.get(), mostDetailedMip, mipCount, firstArraySlice, arraySize, desc);
     // this is simple hacky version for texture 2d
-    desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    if(ptr->format() == TEXTURE_FORMAT_D24S8) {
-      desc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-    } else {
-      desc.Format = toDXGIFormat(ptr->format());
-
-    }
-    desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-    desc.Texture2D.MipLevels = 1;
-
+    // desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    // if(ptr->format() == TEXTURE_FORMAT_D24S8) {
+    //   desc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+    // } else {
+    //   desc.Format = toDXGIFormat(ptr->format());
+    //
+    // }
+    // desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    // desc.Texture2D.MipLevels = 1;
+ 
   } else {
     desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -115,9 +198,7 @@ RenderTargetView::sptr_t RenderTargetView::create(W<const RHITexture> res, uint 
   RHIResource::handle_t resHandle = nullptr;
 
   if(ptr) {
-    desc.Format = toDXGIFormat(ptr->format());
-    desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-    desc.Texture2D.MipSlice = mipLevel;
+    initRtv(ptr.get(), mipLevel, firstArraySlice, arraySize, desc);
     resHandle = ptr->handle();
   } else {
     desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;

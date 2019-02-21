@@ -185,7 +185,7 @@ Debug::DrawHandle* drawMeta(const Gradient& color, float duration, const Clock* 
   static_assert(std::is_invocable_v<F, Mesher&>);
   Mesher& mesher = gDebugMesher;
   mesher.clear();
-
+  mesher.color(Rgba::white);
   f(mesher);
 
   Debug::DebugDrawMeta* meta = new Debug::DebugDrawMeta(color, mesher.createMesh(), duration, clockOverride);
@@ -238,6 +238,7 @@ void Debug::drawNow() {
   gRenderer->setRenderRegion(*RHIDevice::get()->backBuffer());
 
   gRenderer->setUniform(UNIFORM_USER_1, *gTintBuffer->cbv());
+
 
   for(uint i = 0; i < gDebugDrawCalls.size(); ++i) {
     DebugDrawMeta*& comp = gDebugDrawCalls[i];
@@ -301,18 +302,22 @@ const Debug::DrawHandle* Debug::drawText2(std::string_view text, float size, con
   }, false);
 }
 
-const Debug::DrawHandle* Debug::drawPoint(const vec3& position, float duration, const Gradient& color, const Clock* clockOverride) {
+const Debug::DrawHandle* Debug::drawPoint(const vec3& position, float size, float duration, const Gradient& color, const Clock* clockOverride) {
 
   return drawMeta(color, duration, clockOverride, [&](Mesher& mesher) {
     mesher.begin(DRAW_LINES, false);
 
+    static const vec3 right = (vec3::right + vec3::up + vec3::forward) * 0.33333f;
+    static const vec3 up = (-vec3::right + vec3::up + vec3::forward) * 0.33333f;
+    static const vec3 fwd = (-vec3::right - vec3::up + vec3::forward) * 0.33333f;
+
     mesher.color(Rgba::white);
-    mesher.vertex3f(vec3::right + position);
-    mesher.vertex3f(-vec3::right + position);
-    mesher.vertex3f(vec3::up + position);
-    mesher.vertex3f(-vec3::up + position);
-    mesher.vertex3f(vec3::forward + position);
-    mesher.vertex3f(-vec3::forward + position);
+    mesher.vertex3f(right * size * .5f + position);
+    mesher.vertex3f(-right * size * .5f + position);
+    mesher.vertex3f(up * size * .5f + position);
+    mesher.vertex3f(-up * size * .5f + position);
+    mesher.vertex3f(fwd * size * .5f + position);
+    mesher.vertex3f(-fwd * size * .5f + position);
 
     mesher.end();
   });
@@ -320,7 +325,7 @@ const Debug::DrawHandle* Debug::drawPoint(const vec3& position, float duration, 
 }
 
 const Debug::DrawHandle* Debug::drawPoint(const vec3& position, const Gradient& color, float duration, const Clock* clockOverride) {
-  return drawPoint(position, duration, color, clockOverride);
+  return drawPoint(position, 1.f, duration, color, clockOverride);
 }
 
 const Debug::DrawHandle* Debug::drawLine(const vec3& from, const vec3& to, float /*thickness*/, float duration, const Rgba& colorStart,

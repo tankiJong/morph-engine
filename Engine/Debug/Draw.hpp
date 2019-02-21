@@ -63,7 +63,7 @@ namespace Debug {
 
   // -------------------- 3D ---------------------------
 
-  const DrawHandle* drawPoint(const vec3& position, float duration, const Gradient& color = Gradient::white, const Clock* clockOverride = nullptr);
+  const DrawHandle* drawPoint(const vec3& position, float size, float duration, const Gradient& color = Gradient::white, const Clock* clockOverride = nullptr);
   const DrawHandle* drawPoint(const vec3& position, const Gradient& color = Gradient::white, float duration = INF, const Clock* clockOverride = nullptr);
 
   const DrawHandle* drawLine(const vec3& from, const vec3& to, float thickness = 1.f, float duration = INF,

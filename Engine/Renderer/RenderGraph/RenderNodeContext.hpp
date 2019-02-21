@@ -6,6 +6,7 @@
 #include "Engine/Graphics/Program/Program.hpp"
 #include "Engine/Renderer/RenderGraph/RenderEdge.hpp"
 #include "Engine/Graphics/RHI/PipelineState.hpp"
+#include <variant>
 
 class RenderNodeContext {
 public:
@@ -41,10 +42,7 @@ protected:
 
   S<ProgramInst> mTargetProgram = nullptr;
   bool mForCompute = false;
-  union {
-    GraphicsState::sptr_t mGraphicsState = nullptr;
-    ComputeState::sptr_t  mComputeState;
-  };
+  std::variant<std::monostate, GraphicsState::sptr_t, ComputeState::sptr_t> mPiplineState;
   FrameBuffer mFrameBuffer{};
 
   RenderNode* mOwner = nullptr;

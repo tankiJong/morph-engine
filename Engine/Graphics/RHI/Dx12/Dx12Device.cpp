@@ -3,8 +3,13 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 #include "Engine/Application/Window.hpp"
 
+extern "C" {
+  __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+  __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+
 struct DeviceData {
-  IDXGIFactory4Ptr dxgiFactory = nullptr;
+  IDXGIFactory5Ptr dxgiFactory = nullptr;
   IDXGISwapChain3Ptr swapChain = nullptr;
   bool isWindowIncluded = false;
 };
@@ -18,7 +23,7 @@ void d3dTraceHR(const std::string& msg, HRESULT hr) {
   ERROR_AND_DIE(error_msg);
 }
 
-void getHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1*& ppAdapter) {
+void getHardwareAdapter(IDXGIFactory5* pFactory, IDXGIAdapter1*& ppAdapter) {
   IDXGIAdapter1* adapter = nullptr;
   ppAdapter = nullptr;
 
@@ -102,7 +107,10 @@ bool RHIDevice::rhiInit() {
 #endif
 
   d3d_call(CreateDXGIFactory2(dxgiFlags, IID_PPV_ARGS(&mDeviceData->dxgiFactory)));
+  BOOL allowTearing = FALSE;
+  HRESULT hr = mDeviceData->dxgiFactory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
 
+  mAllowTearing = allowTearing && SUCCEEDED(hr);
 
   IDXGIAdapter1* hardwareAdapter = nullptr;
   getHardwareAdapter(data->dxgiFactory.Get(), hardwareAdapter);
@@ -206,6 +214,7 @@ bool RHIDevice::createSwapChain() {
   swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
   swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // https://msdn.microsoft.com/en-us/library/hh706346(v=vs.85).aspx
   swapChainDesc.SampleDesc.Count = 1;
+  swapChainDesc.Flags = mAllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
   d3d_call(
     mDeviceData->dxgiFactory->CreateSwapChainForHwnd(
@@ -239,7 +248,11 @@ void RHIDevice::present() {
   mRenderContext->transitionBarrier(backBuffer().get(), RHIResource::State::Present);
   mRenderContext->flush();
   mFrameFence->gpuSignal(mRenderContext->mContextData->commandQueue());
-  d3d_call(mSwapChain->Present(0, 0));
+
+  // need to take care of the full screen mode
+  // UINT presentFlags = (m_tearingSupport && m_windowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
+  UINT presentFlags = mAllowTearing ? DXGI_PRESENT_ALLOW_TEARING : 0;
+  d3d_call(mSwapChain->Present(0, presentFlags));
   executeDeferredRelease();
 
   mCurrentBackBufferIndex = mSwapChain->GetCurrentBackBufferIndex();

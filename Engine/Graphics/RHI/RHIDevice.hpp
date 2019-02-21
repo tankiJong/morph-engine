@@ -60,6 +60,7 @@ protected:
   Texture2::sptr_t       mBackBuffers[FRAME_COUNT];
   Texture2::sptr_t       mDepthBuffer[FRAME_COUNT];
   double                 mGpuTimestampFrequency;
+  bool                   mAllowTearing = false;
   bool mPendingDelete = false;
   uint mCurrentBackBufferIndex = 0;
 };

@@ -3,11 +3,18 @@
 #include "Engine/Graphics/RHI/Dx12/Dx12Resource.hpp"
 #include "Engine/Graphics/RHI/Texture.hpp"
 
-bool Texture2::rhiInit(const void* data, size_t /*size*/) {
+
+bool Texture2::rhiInit(bool genMipmap, const void* data, size_t /*size*/) {
   TODO("`size` should be used here");
   D3D12_RESOURCE_DESC desc = {};
 
-  desc.MipLevels = 1;
+  if(genMipmap) {
+    mMipLevels = (uint)std::log2(std::min(mWidth, mHeight)) + 1u;
+  } else {
+    mMipLevels = 1;
+  }
+
+  desc.MipLevels = mMipLevels;
   desc.Format = toDXGIFormat(mFormat);
   desc.Width = mWidth;
   desc.Height = mHeight;
@@ -43,6 +50,10 @@ bool Texture2::rhiInit(const void* data, size_t /*size*/) {
     RHIDevice::get()->defaultRenderContext()->updateTexture(*this, data);
   }
 
+  if(genMipmap) {
+    generateMipmap(*RHIDevice::get()->defaultRenderContext());
+  }
+
   return true;
 }
 
@@ -51,5 +62,6 @@ RHITexture::RHITexture(rhi_resource_handle_t res): RHIResource(res) {
   mFormat = toTextureFormat(desc.Format);
   mWidth = (uint)desc.Width;
   mHeight = (uint)desc.Height;
-  mDepth = (uint)desc.DepthOrArraySize;
+  mMipLevels = (uint)desc.MipLevels;
+  mArraySize = (uint)desc.DepthOrArraySize;
 }

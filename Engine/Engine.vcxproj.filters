@@ -1722,5 +1722,11 @@
     <FxCompile Include="Renderer\RenderGraph\RenderPass\Blur_cs.hlsl">
       <Filter>Engine\Renderer\RenderGraph\RenderPass</Filter>
     </FxCompile>
+    <FxCompile Include="Graphics\RHI\Blit_vs.hlsl">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </FxCompile>
+    <FxCompile Include="Graphics\RHI\Blit_ps.hlsl">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -11,7 +11,7 @@ class File;
 
 class FileSystem {
 public:
-  void mount(const fs::path& virtualDir, const fs::path& physicalPath);
+  bool mount(const fs::path& virtualDir, const fs::path& physicalPath);
   void unmount(const fs::path& virtualDir);
 
   std::vector<fs::path> map(const fs::path& virtualPath) const;

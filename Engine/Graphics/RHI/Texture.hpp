@@ -12,31 +12,37 @@ public:
   using scptr_t = std::shared_ptr<const Texture2>;
   using inherit_shared_from_this<RHITexture, Texture2>::shared_from_this;
 
-  virtual const RenderTargetView* rtv() const override;
+  virtual const RenderTargetView* rtv(uint mipLevel = 0) const override;
   virtual const DepthStencilView* dsv() const override;
-
   virtual const UnorderedAccessView* uav() const override;
+
+  void generateMipmap(RHIContext& ctx);
+
   static Texture2::sptr_t create(
     uint width, uint height, eTextureFormat format, 
     BindingFlag flag =  BindingFlag::ShaderResource, 
     const void* data = nullptr, size_t size = 0);
+
+    static Texture2::sptr_t create(
+    uint width, uint height, eTextureFormat format, bool genMip,
+    BindingFlag flag =  BindingFlag::ShaderResource, 
+    const void* data = nullptr, size_t size = 0);
   static Texture2::sptr_t create(rhi_resource_handle_t res);
 
-
 protected:
-  mutable RenderTargetView::sptr_t mRtv;
+  mutable RenderTargetView::sptr_t mRtv[13]; // assume the biggest texture would be 4K...(not true)
   mutable DepthStencilView::sptr_t mDsv;
   template<typename TexType, typename ...Args>
-  friend typename TexType::sptr_t createOrFail(const void* data, size_t size, Args ... args);
+  friend typename TexType::sptr_t createOrFail(bool genMipmap, const void* data, size_t size, Args ... args);
   friend class Resource<Texture2>;
   Texture2(uint width, uint height, eTextureFormat format,
            BindingFlag flag = BindingFlag::ShaderResource,
            const void* data = nullptr, size_t size = 0)
-    :RHITexture(Type::Texture2D, width, height, 1, format, flag, data, size) {
+    :RHITexture(Type::Texture2D, width, height, 1, 1, format, flag, data, size) {
   }
   Texture2(rhi_resource_handle_t res)
     :RHITexture(res) {}
-  bool rhiInit(const void* data, size_t size) override;
+  bool rhiInit(bool genMipmap, const void* data, size_t size) override;
 };
 
 class Texture3 : public RHITexture, public inherit_shared_from_this<RHITexture, Texture3> {
@@ -49,12 +55,12 @@ public:
                           const void* data = nullptr, size_t size = 0);
 protected:
   template<typename TexType, typename ...Args>
-  friend typename TexType::sptr_t createOrFail(const void* data, size_t size, Args ... args);
+  friend typename TexType::sptr_t createOrFail(bool genMipmap, const void* data, size_t size, Args ... args);
   Texture3(uint width, uint height, uint depth, eTextureFormat format, 
            BindingFlag flag = BindingFlag::ShaderResource,
            const void* data = nullptr, size_t size = 0)
-    :RHITexture(Type::Texture2D, width, height, depth, format, flag, data, size) {};
-  bool rhiInit(const void* data, size_t size) override;
+    :RHITexture(Type::Texture2D, width, height, depth, 1, format, flag, data, size) {};
+  bool rhiInit(bool genMipmap, const void* data, size_t size) override;
 };
 
 

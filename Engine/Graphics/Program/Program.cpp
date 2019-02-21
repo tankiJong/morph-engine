@@ -45,9 +45,9 @@ bool Program::compile() {
     std::copy(sets.begin(), sets.end(), mLayouts.begin());
 
   } else {
-    rootSig = mShaders[SHADER_TYPE_VERTEX].rootSignature();
+    rootSig = mShaders[SHADER_TYPE_FRAGMENT].rootSignature();
 
-    span<const DescriptorSet::Layout> sets = mShaders[SHADER_TYPE_VERTEX].descriptorLayouts();
+    span<const DescriptorSet::Layout> sets = mShaders[SHADER_TYPE_FRAGMENT].descriptorLayouts();
     mLayouts.resize(sets.size());
     std::copy(sets.begin(), sets.end(), mLayouts.begin());
   }

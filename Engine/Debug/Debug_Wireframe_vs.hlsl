@@ -1,4 +1,7 @@
-
+#define FXAA_RootSig \
+    "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
+		"DescriptorTable(CBV(c0, numDescriptors = 11), visibility = SHADER_VISIBILITY_ALL)," \
+    "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_PIXEL)," 
 
 struct PSInput {
   float4 position : SV_POSITION;

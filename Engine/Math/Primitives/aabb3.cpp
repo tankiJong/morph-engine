@@ -1,10 +1,6 @@
 ﻿#include "aabb3.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 
-aabb3::aabb3(const vec3& center, const vec3& size) {
-  min = center - size * .5f;
-  max = center + size * .5f;
-}
 
 /*
 *   7 ----- 6
@@ -17,15 +13,15 @@ aabb3::aabb3(const vec3& center, const vec3& size) {
 */
 void aabb3::corners(span<vec3> out) const {
   EXPECTS(out.size() >= 8);
-  out[0] ={ min.x, min.y, min.z }; // min
-  out[1] ={ max.x, min.y, min.z };
-  out[2] ={ max.x, min.y, max.z };
-  out[3] ={ min.x, min.y, max.z };
+  out[0] ={ mins.x, mins.y, mins.z }; // min
+  out[1] ={ maxs.x, mins.y, mins.z };
+  out[2] ={ maxs.x, mins.y, maxs.z };
+  out[3] ={ mins.x, mins.y, maxs.z };
 
-  out[4] ={ min.x, max.y, min.z };
-  out[5] ={ max.x, max.y, min.z };
-  out[6] ={ max.x, max.y, max.z }; // max
-  out[7] ={ min.x, max.y, max.z };
+  out[4] ={ mins.x, maxs.y, mins.z };
+  out[5] ={ maxs.x, maxs.y, mins.z };
+  out[6] ={ maxs.x, maxs.y, maxs.z }; // max
+  out[7] ={ mins.x, maxs.y, maxs.z };
 }
 
 
@@ -43,39 +39,39 @@ vec3 aabb3::corner(uint index) const {
 
   switch(index) {
     case 0:
-      return { max.x, max.y, max.z }; // min
+      return { maxs.x, maxs.y, maxs.z }; // min
     case 1:
-      return { max.x, min.y, min.z };
+      return { maxs.x, mins.y, mins.z };
     case 2:
-      return { max.x, min.y, max.z };
+      return { maxs.x, mins.y, maxs.z };
     case 3:
-      return { min.x, min.y, max.z };
+      return { mins.x, mins.y, maxs.z };
 
     case 4:
-      return { min.x, max.y, min.z };
+      return { mins.x, maxs.y, mins.z };
     case 5:
-      return { max.x, max.y, min.z };
+      return { maxs.x, maxs.y, mins.z };
     case 6:
-      return { max.x, max.y, max.z }; // max
+      return { maxs.x, maxs.y, maxs.z }; // max
     case 7:
-      return { min.x, max.y, max.z };
+      return { mins.x, maxs.y, maxs.z };
   }
 
   ERROR_AND_DIE("aabb3::corners, index out of bound");
 }
 
 bool aabb3::contains(const vec3& pos) const {
-  return pos >= min && pos <= max;
+  return pos >= mins && pos <= maxs;
 }
 
 bool aabb3::grow(const vec3& pos) {
-  const vec3& nMin = vec3::min(min, pos);
-  const vec3& nMax = vec3::max(max, pos);
+  const vec3& nMin = vec3::min(mins, pos);
+  const vec3& nMax = vec3::max(maxs, pos);
 
-  bool result = min == nMin && nMax == max;
+  bool result = mins == nMin && nMax == maxs;
 
-  min = nMin;
-  max = nMax;
+  mins = nMin;
+  maxs = nMax;
 
   return !result; // false => unchanged
 }

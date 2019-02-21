@@ -4,7 +4,7 @@
 #include <fstream>
 #include "Engine/Core/Engine.hpp"
 
-void FileSystem::mount(const fs::path& virtualDir, const fs::path& physicalPath) {
+bool FileSystem::mount(const fs::path& virtualDir, const fs::path& physicalPath) {
   EXPECTS(fs::isDirectory(physicalPath));
 
 
@@ -14,12 +14,13 @@ void FileSystem::mount(const fs::path& virtualDir, const fs::path& physicalPath)
 
   for(fs::path& p: paths) {
     if(fullPath == p) {
-      ERROR_RECOVERABLE("try to mount an existing path to the file system");
-      return;
+      return false;
     }
   }
 
   paths.push_back(fullPath);
+
+  return true;
 }
 
 void FileSystem::unmount(const fs::path& virtualDir) {

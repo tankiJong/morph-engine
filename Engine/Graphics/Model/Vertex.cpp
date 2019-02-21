@@ -39,12 +39,12 @@ vertex_a_t Vertex::vertices() {
   return v;
 }
 
-void Vertex::push(vertex_t v) {
-  mPositions.push_back(v.position);
-  mColors.push_back(v.color);
-  mUVs.push_back(v.uv);
-  mNormals.push_back(v.normal);
-  mTangents.push_back(v.tangent);
+void Vertex::push(const vertex_t& v) {
+  mPositions.emplace_back(v.position);
+  mColors.emplace_back(v.color);
+  mUVs.emplace_back(v.uv);
+  mNormals.emplace_back(v.normal);
+  mTangents.emplace_back(v.tangent);
   mCount++;
 }
 

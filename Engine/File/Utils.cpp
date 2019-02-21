@@ -37,7 +37,7 @@ Blob fs::read(const path& filePath) {
 
   if (file.read(buffer, size)) {
     buffer[size] = 0;
-    Blob b(buffer, (uint)size + 1);
+    Blob b(buffer, (uint)size);
     delete[] buffer;
     return b;
   } else {
@@ -67,7 +67,7 @@ bool fs::read(const path& filePath, const char*& outBuffer, size_t& outSize) {
 }
 
 void fs::write(const path& filePath, const void* buffer, size_t size) {
-  std::ofstream file(filePath.c_str(), std::ofstream::out | std::ofstream::trunc);
+  std::ofstream file(filePath.c_str(), std::ios::binary | std::ofstream::out | std::ofstream::trunc);
 
   file.write((const char*)buffer, size);
   

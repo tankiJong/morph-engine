@@ -3,12 +3,22 @@
 #include "RHITexture.hpp"
 
 
-ShaderResourceView* RHITexture::srv() const {
+ShaderResourceView* RHITexture::srv(uint mipLevel) const {
 
-  if (!mSrv && is_set(mBindingFlags, BindingFlag::ShaderResource)) {
-    mSrv = ShaderResourceView::create(shared_from_this());
+  if (!mSrv[mipLevel] && is_set(mBindingFlags, BindingFlag::ShaderResource)) {
+    mSrv[mipLevel] = ShaderResourceView::create(shared_from_this(), mipLevel);
   }
 
-  return mSrv.get();
+  return mSrv[mipLevel].get();
   
+}
+
+void RHITexture::invalidateViews() {
+  for(auto && srv: mSrv) {
+    srv = nullptr;
+  }
+
+  for(auto && rtv: mSrv) {
+    rtv = nullptr;
+  }
 }

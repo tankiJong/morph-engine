@@ -13,7 +13,7 @@
 #endif
 
 #include <wrl/client.h>
-#include <dxgi1_4.h>
+#include <dxgi1_5.h>
 #include <dxgiformat.h>
 #include "Engine/Graphics/RHI/RHIType.hpp"
 #include <d3dcompiler.h>
@@ -36,7 +36,7 @@ void d3dTraceHR(const std::string& msg, HRESULT hr);
 
 #define MAKE_SMART_COM_PTR(_a) typedef Microsoft::WRL::ComPtr<_a> _a##Ptr 
 
-MAKE_SMART_COM_PTR(IDXGIFactory4);
+MAKE_SMART_COM_PTR(IDXGIFactory5);
 MAKE_SMART_COM_PTR(IDXGISwapChain3);
 MAKE_SMART_COM_PTR(ID3DBlob);
 

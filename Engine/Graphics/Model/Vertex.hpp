@@ -50,7 +50,7 @@ public:
 
   vertex_a_t vertices();
 
-  void push(vertex_t v);
+  void push(const vertex_t& v);
 
   inline uint count() const { return mCount; }
 

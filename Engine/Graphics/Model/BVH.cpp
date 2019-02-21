@@ -23,11 +23,11 @@ const float& visit(const vec3& vec, BVH::eSortPolicy policy) {
 const float& visit(const BVH::Prim& vec, BVH::eSortPolicy policy) {
   switch (policy) {
     case BVH::SORT_X:
-      return vec.bounds.min.x;
+      return vec.bounds.mins.x;
     case BVH::SORT_Y:
-      return vec.bounds.min.y;
+      return vec.bounds.mins.y;
     case BVH::SORT_Z:
-      return vec.bounds.min.z;
+      return vec.bounds.mins.z;
   }
 
   BAD_CODE_PATH();
@@ -260,24 +260,24 @@ aabb3 BVH::computeBounds(span<Prim> prims) {
 
 void BVH::sort(span<Prim> vectices, eSortPolicy policy) {
   const auto compx = [](const Prim& a, const Prim& b) {
-    return a.bounds.min.x != b.bounds.min.x ?
-      (a.bounds.min.x < b.bounds.min.x)
-      : (a.bounds.min.y != b.bounds.min.y ?
-      (a.bounds.min.y < b.bounds.min.y) : (a.bounds.min.z < b.bounds.min.z));
+    return a.bounds.mins.x != b.bounds.mins.x ?
+      (a.bounds.mins.x < b.bounds.mins.x)
+      : (a.bounds.mins.y != b.bounds.mins.y ?
+      (a.bounds.mins.y < b.bounds.mins.y) : (a.bounds.mins.z < b.bounds.mins.z));
   };
 
   const auto compy = [](const Prim& a, const Prim& b) {
-    return a.bounds.min.y != b.bounds.min.y ?
-      (a.bounds.min.y < b.bounds.min.y)
-      : (a.bounds.min.z != b.bounds.min.z ?
-      (a.bounds.min.z < b.bounds.min.z) : (a.bounds.min.x < b.bounds.min.x));
+    return a.bounds.mins.y != b.bounds.mins.y ?
+      (a.bounds.mins.y < b.bounds.mins.y)
+      : (a.bounds.mins.z != b.bounds.mins.z ?
+      (a.bounds.mins.z < b.bounds.mins.z) : (a.bounds.mins.x < b.bounds.mins.x));
   };
 
   const auto compz = [](const Prim& a, const Prim& b) {
-    return a.bounds.min.z != b.bounds.min.z ?
-      (a.bounds.min.z < b.bounds.min.z)
-      : (a.bounds.min.x != b.bounds.min.x ?
-      (a.bounds.min.x < b.bounds.min.x) : (a.bounds.min.y < b.bounds.min.y));
+    return a.bounds.mins.z != b.bounds.mins.z ?
+      (a.bounds.mins.z < b.bounds.mins.z)
+      : (a.bounds.mins.x != b.bounds.mins.x ?
+      (a.bounds.mins.x < b.bounds.mins.x) : (a.bounds.mins.y < b.bounds.mins.y));
   };
 
   switch(policy) { 

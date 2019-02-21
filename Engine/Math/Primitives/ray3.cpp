@@ -10,7 +10,7 @@ contact3 ray3::intersect(const aabb3& box) const {
 
   vec3 vec = direction * rayLength;
 
-  vec2 x(box.min.x, box.max.x), y(box.min.y, box.max.y), z(box.min.z, box.max.z);
+  vec2 x(box.mins.x, box.maxs.x), y(box.mins.y, box.maxs.y), z(box.mins.z, box.maxs.z);
 
   if(direction.x < 0) {
     std::swap(x.x, x.y);
@@ -38,7 +38,8 @@ contact3 ray3::intersect(const aabb3& box) const {
    if (t < 0) return contact3();
 
   contact3 re;
-  if(box.contains(start)) {
+  bool inside = box.contains(start);
+  if(inside) {
     re.position = evaluate(result.maxs * rayLength);
   } else {
     re.position = evaluate(result.mins * rayLength);
@@ -58,9 +59,31 @@ contact3 ray3::intersect(const aabb3& box) const {
     }
   }
 
-  plane_t plane(corners[index[0]], corners[index[1]], corners[index[2]]);
+  float sign = box.contains(start) ? -1.f : 1.f;
+  if(re.position.x == box.mins.x) {
+    re.normal = -sign * vec3::right;
+  }
+  if(re.position.x == box.maxs.x) {
+    re.normal = sign * vec3::right;
+  }
 
-  re.normal = (dir.dot(plane.normal) > 0) ? plane.normal : -plane.normal;
+  if(re.position.y == box.mins.y) {
+    re.normal = -sign * vec3::up;
+  }
+  if(re.position.y == box.maxs.y) {
+    re.normal = sign * vec3::up;
+  }
+
+  if(re.position.z == box.mins.z) {
+    re.normal = -sign * vec3::forward;
+  }
+  if(re.position.z == box.maxs.z) {
+    re.normal = sign * vec3::forward;
+  }
+  //
+  // plane_t plane(corners[index[0]], corners[index[1]], corners[index[2]]);
+  //
+  // re.normal = (dir.dot(plane.normal) > 0) ? plane.normal : -plane.normal;
 
   return re;
 }

@@ -7,11 +7,6 @@
 #include "Engine/Renderer/RenderGraph/RenderNode.hpp"
 
 RenderNodeContext::~RenderNodeContext() {
-  if(mForCompute) {
-    mComputeState.reset();
-  } else {
-    mGraphicsState.reset();
-  }
 }
 
 void RenderNodeContext::readSrv(std::string_view name, RHIResource::scptr_t res, uint registerIndex, uint registerSpace) {
@@ -63,11 +58,8 @@ void RenderNodeContext::readWriteUav(std::string_view name, RHIResource::scptr_t
 }
 
 void RenderNodeContext::reset(Program::scptr_t prog, bool forCompute) {
-  
-  if(mForCompute) {
-    mComputeState = nullptr;
-  } else {
-    mGraphicsState = nullptr;
+  mPiplineState = std::monostate();
+  if(!mForCompute) {
     mFrameBuffer = FrameBuffer();
   }
 
@@ -111,9 +103,9 @@ void RenderNodeContext::compile() {
 
 void RenderNodeContext::apply(RHIContext& ctx) const {
   if(mForCompute) {
-    ctx.setComputeState(*mComputeState);
+    ctx.setComputeState(*std::get<ComputeState::sptr_t>(mPiplineState));
   } else {
-    ctx.setGraphicsState(*mGraphicsState);
+    ctx.setGraphicsState(*std::get<GraphicsState::sptr_t>(mPiplineState));
     ctx.setFrameBuffer(mFrameBuffer);
   }
   mTargetProgram->apply(ctx, true);
@@ -179,8 +171,9 @@ void RenderNodeContext::compileForCompute() {
   desc.setProgram(mTargetProgram->prog());
   desc.setRootSignature(mTargetProgram->prog()->rootSignature());
 
-  mComputeState = ComputeState::create(desc);
-  mComputeState->handle()->SetName(make_wstring(mOwner->name()).c_str());
+  auto computeState = ComputeState::create(desc);
+  mPiplineState = computeState;
+  computeState->handle()->SetName(make_wstring(mOwner->name()).c_str());
 }
 
 void RenderNodeContext::compileForGraphics() {
@@ -206,7 +199,8 @@ void RenderNodeContext::compileForGraphics() {
   }
   desc.setFboDesc(mFrameBuffer.desc());
 
-  mGraphicsState = GraphicsState::create(desc);
-  mGraphicsState->handle()->SetName(make_wstring(mOwner->name()).c_str());
+  auto graphicsState = GraphicsState::create(desc);
+  mPiplineState = graphicsState;
+  graphicsState->handle()->SetName(make_wstring(mOwner->name()).c_str());
   
 }
