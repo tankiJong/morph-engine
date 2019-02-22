@@ -18,8 +18,7 @@ bool Net::startup() {
   WSADATA data;
   int32_t error = ::WSAStartup(version, &data);
 
-  ENSURES(error == 0);
-
+  GUARANTEE_OR_DIE(error == 0, "fail to int win sorcket");
   return true;
 }
 

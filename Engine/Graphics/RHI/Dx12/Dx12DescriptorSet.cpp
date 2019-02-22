@@ -26,7 +26,7 @@ bool DescriptorSet::rhiInit() {
   uint count = 0;
   auto type = mLayout.range(0).type;
   D3D12_DESCRIPTOR_HEAP_TYPE heapType = asoDx12DescriptorHeapType(type);
-
+  UNUSED(heapType);
   mRhiData->rangeBaseOffset.resize(mLayout.rangeCount());
 
   for(size_t i = 0; i<mLayout.rangeCount(); i++) {

@@ -29,34 +29,6 @@ Texture2::sptr_t Texture2::create(rhi_resource_handle_t res) {
   return Texture2::sptr_t(new Texture2(res));
 }
 
-const RenderTargetView* Texture2::rtv(uint mipLevel) const {
-  if (mRtv[mipLevel] == nullptr && is_set(mBindingFlags, BindingFlag::RenderTarget)) {
-    mRtv[mipLevel] = RenderTargetView::create(shared_from_this(), mipLevel);
-  }
-  return mRtv[mipLevel].get();
-}
-
-const DepthStencilView* Texture2::dsv() const {
-  if (mFormat != TEXTURE_FORMAT_D24S8) {
-    INFO("try to access a texture which is not supposed to have dsv");
-    return nullptr;
-  }
-
-  if(!mDsv && is_set(mBindingFlags, BindingFlag::DepthStencil)) {
-    mDsv = DepthStencilView::create(shared_from_this());
-  }
-
-  return mDsv.get();
-}
-
-const UnorderedAccessView* Texture2::uav() const {
-  if(!mUav) {
-    mUav = UnorderedAccessView::create(shared_from_this());
-  }
-
-  return mUav.get();
-}
-
 void Texture2::generateMipmap(RHIContext& ctx) {
   EXPECTS(mType == Type::Texture2D);
 

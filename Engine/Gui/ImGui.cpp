@@ -26,7 +26,6 @@ void ImGui::startup() {
   io.Fonts->AddFontFromFileTTF("Engine/font/FiraMono-Regular.ttf", 16.0f);
 
   bool re1 = ImGui_ImplWin32_Init(Window::Get()->getHandle());
-  ENSURES(re1);
 
   Window::Get()->addWinMessageHandler(WndProc);
 
@@ -39,7 +38,7 @@ void ImGui::startup() {
                   device->nativeDevice().Get(), 
                   int(device->FRAME_COUNT), toDXGIFormat(TEXTURE_FORMAT_RGBA8),
                       imFontDescriptor->cpuHandle(0), imFontDescriptor->gpuHandle(0));
-  ENSURES(re2);
+  GUARANTEE_OR_DIE(re1 && re2, "fail to initialize ImGui");
 
   ImGui::StyleColorsDark();
 

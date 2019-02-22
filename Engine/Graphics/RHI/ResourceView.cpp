@@ -40,7 +40,7 @@ ShaderResourceView::sptr_t ShaderResourceView::nullView() {
 
 UnorderedAccessView::sptr_t UnorderedAccessView::nullView() {
   if(!sNullView) {
-    sNullView = create(W<Texture2>());
+    sNullView = create(W<RHITexture>());
   }
 
   return sNullView;

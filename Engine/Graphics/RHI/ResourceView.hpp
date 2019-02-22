@@ -11,6 +11,8 @@ class Texture2;
 class TypedBuffer;
 
 struct ResourceViewInfo {
+  static const uint MAX_POSSIBLE = uint(-1);
+
   uint mostDetailedMip;
   uint mipCount;
   uint firstArraySlice;
@@ -31,11 +33,34 @@ struct ResourceViewInfo {
   }
 };
 
+
+namespace std {
+  template<>
+  struct hash<ResourceViewInfo> {
+    size_t operator()(const ResourceViewInfo& info) const noexcept {
+      size_t 
+      result = info.mostDetailedMip;
+
+      result ^= info.mipCount;
+      result <<= 1;
+
+      result ^= info.firstArraySlice;
+      result <<= 1;
+
+      result ^= info.arraySize;
+      result <<= 1;
+
+      result ^= (size_t)info.type;
+
+      return  result;
+    }
+  };
+}
+
 template<typename handle_t>
 class ResourceView {
 public:
   using rhi_handle_t = handle_t;
-  static const uint MAX_POSSIBLE = uint(-1);
   virtual ~ResourceView() {};
 
   ResourceView(
@@ -60,7 +85,7 @@ public:
   using scptr_t = S<const ShaderResourceView>;
 
   static sptr_t create(W<const RHITexture> res,
-                       uint mostDetailedMip = 0, uint mipCount = MAX_POSSIBLE, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
+                       uint mostDetailedMip = 0, uint mipCount = ResourceViewInfo::MAX_POSSIBLE, uint firstArraySlice = 0, uint arraySize = ResourceViewInfo::MAX_POSSIBLE);
   static sptr_t create(const TypedBuffer& res);
   static sptr_t nullView();
 protected:
@@ -90,7 +115,7 @@ public:
   using sptr_t = S<RenderTargetView>;
   using scptr_t = S<const RenderTargetView>;
 
-  static sptr_t create(W<const RHITexture> res, uint mipLevel = 0, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
+  static sptr_t create(W<const RHITexture> res, uint mipLevel = 0, uint firstArraySlice = 0, uint arraySize = ResourceViewInfo::MAX_POSSIBLE);
   static sptr_t nullView();
 
 protected:
@@ -104,7 +129,7 @@ public:
   using sptr_t = S<DepthStencilView>;
   using scptr_t = S<const DepthStencilView>;
 
-  static sptr_t create(W<const RHITexture> res, uint mipLevel = 0, uint firstArraySlice = 0, uint arraySize = MAX_POSSIBLE);
+  static sptr_t create(W<const RHITexture> res, uint mipLevel = 0, uint firstArraySlice = 0, uint arraySize = ResourceViewInfo::MAX_POSSIBLE);
   static sptr_t nullView();
 
 protected:
@@ -119,7 +144,7 @@ public:
   using sptr_t = S<UnorderedAccessView>;
   using scptr_t = S<const UnorderedAccessView>;
 
-  static sptr_t create(W<const Texture2> res, uint mipLevel = 0);
+  static sptr_t create(W<const RHITexture> res, uint32_t mipLevel = 0, uint32_t firstArraySlice = 0, uint32_t arraySize = ResourceViewInfo::MAX_POSSIBLE);
   static sptr_t create(W<const RHIBuffer> res);
   static sptr_t create(const TypedBuffer& res);
   static sptr_t nullView();

@@ -82,7 +82,7 @@ public:
     return create(sizeof(T), eleCount, bindingFlags);
   }
 
-  virtual const UnorderedAccessView* uav() const override;
+  virtual const UnorderedAccessView* uav(uint mipLevel = 0) const override;
 
   const RHIBuffer& uavCounter() const { return *mUavCounter; }
   RHIBuffer& uavCounter() { return *mUavCounter; }

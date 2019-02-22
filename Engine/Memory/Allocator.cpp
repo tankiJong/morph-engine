@@ -20,7 +20,7 @@ BlockAllocator::~BlockAllocator() {
 
 void* BlockAllocator::alloc(size_t size) {
   EXPECTS(size <= mBlockSize);
-
+  UNUSED(size);
   if(mFreeBlocks.empty()) {
     allocChunk();
   }

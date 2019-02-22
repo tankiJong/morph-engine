@@ -14,8 +14,8 @@
 
 //-----------------------------------------------------------------------------------------------
 #include <string>
-#include "Engine/core/EngineCommon.hpp"
-
+#include "Engine/Core/EngineCommon.hpp"
+#include "Engine/Core/common.hpp"
 //-----------------------------------------------------------------------------------------------
 enum SeverityLevel
 {
@@ -181,7 +181,7 @@ int SystemDialogue_YesNoCancel( const std::string& messageTitle, const std::stri
 //	- Continues execution
 //
 #if defined( DISABLE_ASSERTS )
-#define EXPECTS( condition )
+#define EXPECTS( condition ) {auto __reeeee = (condition); UNUSED(__reeeee);}
 #else
 #define EXPECTS( condition )											\
 {																									\
@@ -206,7 +206,7 @@ int SystemDialogue_YesNoCancel( const std::string& messageTitle, const std::stri
 //	- Continues execution
 //
 #if defined( DISABLE_ASSERTS )
-#define ENSURES( condition )
+#define ENSURES( condition ) {auto __reeeee = (condition); UNUSED(__reeeee);}
 #else
 #define ENSURES( condition )											\
 {																									\

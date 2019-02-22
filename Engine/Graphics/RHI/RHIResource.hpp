@@ -73,11 +73,11 @@ public:
   inline State state() const { return mState; }
   inline Type type() const { return mType; }
   inline BindingFlag flags() const { return mBindingFlags; }
-  virtual const UnorderedAccessView* uav() const { return nullptr; };
+  virtual const UnorderedAccessView* uav(uint mipLevel = 0) const { UNUSED(mipLevel); return nullptr; };
   virtual const ConstantBufferView* cbv() const { return nullptr; };
   virtual const ShaderResourceView* srv(uint mipLevel = 0) const { UNUSED(mipLevel); return nullptr; };
   virtual const RenderTargetView* rtv(uint mipLevel = 0) const { UNUSED(mipLevel); return nullptr; }
-  virtual const DepthStencilView* dsv() const { return nullptr; }
+  virtual const DepthStencilView* dsv(uint mipLevel = 0) const { UNUSED(mipLevel); return nullptr; }
   virtual ~RHIResource();
 
 protected:

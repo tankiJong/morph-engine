@@ -51,7 +51,7 @@ void initRtv(const RHITexture* res, uint miplevel, uint firstArraySlice, uint ar
   desc = {};
   uint32_t arrayMultiplier = (res->type() == RHIResource::Type::TextureCube ? 6 : 1);
 
-  if(arraySize == ShaderResourceView::MAX_POSSIBLE) {
+  if(arraySize == ResourceViewInfo::MAX_POSSIBLE) {
     arraySize = res->arraySize() - firstArraySlice;
   }
   
@@ -152,7 +152,7 @@ ShaderResourceView::sptr_t ShaderResourceView::create(const TypedBuffer& res) {
 
   RHIDevice::get()->nativeDevice()->CreateShaderResourceView(
     res.handle().Get(), &desc, handle->cpuHandle(0));
-  srv = sptr_t(new ShaderResourceView(res.shared_from_this(), DescriptorPool::Type::TypedBufferSrv, handle, 0, MAX_POSSIBLE, 0, MAX_POSSIBLE));
+  srv = sptr_t(new ShaderResourceView(res.shared_from_this(), DescriptorPool::Type::TypedBufferSrv, handle, 0, ResourceViewInfo::MAX_POSSIBLE, 0, ResourceViewInfo::MAX_POSSIBLE));
   return srv;
 }
 
@@ -322,22 +322,36 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(W<const RHIBuffer> res) 
 
   return uav;
 }
-UnorderedAccessView::sptr_t UnorderedAccessView::create(W<const Texture2> res, uint mipLevel) {
-  Texture2::scptr_t ptr = res.lock();
+UnorderedAccessView::sptr_t UnorderedAccessView::create(W<const RHITexture> res, uint32_t mipLevel, uint32_t firstArraySlice, uint32_t arraySize) {
+  RHITexture::scptr_t ptr = res.lock();
 
   if(!ptr && sNullView) {
     return sNullView;
   }
 
   D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
-  desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+  if(arraySize > 1) {
+    desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+  } else {
+    desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+  }
   
   RHIResource::handle_t resHandle = nullptr;
   RHIResource::handle_t counterHandle = nullptr;
 
   if(ptr) {
     desc.Format = toDXGIFormat(ptr->format());
-    desc.Texture2D.MipSlice = mipLevel;
+
+    if(arraySize > 1) {
+      desc.Texture2DArray.MipSlice = mipLevel;
+      desc.Texture2DArray.ArraySize = arraySize;
+      desc.Texture2DArray.FirstArraySlice = firstArraySlice;
+      desc.Texture2DArray.PlaneSlice = 0;
+    } else {
+      desc.Texture2D.MipSlice = mipLevel;
+      desc.Texture2D.PlaneSlice = 0;
+    }
+    
     resHandle = ptr->handle();
   } else {
     desc = {};

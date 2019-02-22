@@ -325,6 +325,7 @@ mat44 mat44::inverse() const {
 }
 
 Euler mat44::euler(eRotationOrder rotationOrder) const {
+  UNUSED(rotationOrder);
   EXPECTS(rotationOrder == ROTATION_ZXY);
   vec3 ii = i.xyz().normalized();
   vec3 jj = j.xyz().normalized();

@@ -66,7 +66,7 @@ void NetObjectManager::init(UDPSession& session) {
   mSession = &session;
 
   for(NetObjectDefinition* typeLookup: mTypeLookup) {
-    EXPECTS(typeLookup == nullptr);
+    GUARANTEE_OR_DIE(typeLookup == nullptr, "Type already exists");
   }
 }
 

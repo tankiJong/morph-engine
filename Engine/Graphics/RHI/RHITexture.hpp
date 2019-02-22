@@ -3,6 +3,7 @@
 #include "Engine/Graphics/RHI/RHIResource.hpp"
 #include "Engine/Graphics/RHI/RHIType.hpp"
 #include "Engine/Math/Primitives/uvec2.hpp"
+#include <unordered_map>
 
 class ShaderResourceView;
 
@@ -23,7 +24,12 @@ public:
   inline uint arraySize() const { return mArraySize; }
   uvec2 size() const { return uvec2{ mWidth, mHeight }; }
   eTextureFormat format() const { return mFormat; }
+
   virtual ShaderResourceView* srv(uint mipLevel = 0) const override;
+  virtual const RenderTargetView* rtv(uint mipLevel = 0) const override;
+  virtual const DepthStencilView* dsv(uint mipLevel = 0) const override;
+  virtual const UnorderedAccessView* uav(uint mipLevel = 0) const override;
+
   void invalidateViews();
   virtual ~RHITexture() = default;
 protected:
@@ -33,14 +39,18 @@ protected:
   }
   RHITexture(rhi_resource_handle_t res);
 
-
   virtual bool rhiInit(bool genMipmap, const void* data, size_t size) = 0;
+
   uint mWidth = 0;
   uint mHeight = 0;
   uint mDepth = 0;
   uint mArraySize = 0;
   uint mMipLevels = 0;
-  mutable ShaderResourceView::sptr_t mSrv[13];
+
+  mutable std::unordered_map<ResourceViewInfo, ShaderResourceView::sptr_t>  mSrvs;
+  mutable std::unordered_map<ResourceViewInfo, RenderTargetView::sptr_t>    mRtvs;
+  mutable std::unordered_map<ResourceViewInfo, DepthStencilView::sptr_t>    mDsvs;
+  mutable std::unordered_map<ResourceViewInfo, UnorderedAccessView::sptr_t> mUavs;
 
   eTextureFormat mFormat = TEXTURE_FORMAT_RGBA8;
 };

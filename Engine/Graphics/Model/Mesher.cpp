@@ -59,7 +59,7 @@ MikktBinding::MikktBinding(class Mesher* mesher) {
 
 void MikktBinding::genTangent() {
   bool result = genTangSpaceDefault(this);
-
+  UNUSED(result);
   ENSURES(result);
 }
 
@@ -157,7 +157,7 @@ void MikktBinding::mikktSetTSpace(const SMikkTSpaceContext* pContext,
 }
 
 void Mesher::reserve(size_t size) {
-  mVertices.reserve(size);
+  mVertices.reserve((uint)size);
   mIndices.reserve(size);
 }
 

@@ -68,7 +68,7 @@ void RHIContext::copyBufferRegion(const RHIBuffer* dst, size_t dstOffset, RHIBuf
 
 void RHIContext::transitionBarrier(const RHIResource* res, RHIResource::State newState, eTransitionBarrierFlag flags, ResourceViewInfo* viewInfo) {
   // if resource has cpu access, no need to do anything
-
+  UNUSED(viewInfo);
   const RHIBuffer* buffer = dynamic_cast<const RHIBuffer*>(res);
   if (buffer && buffer->cpuAccess() != RHIBuffer::CPUAccess::None) return;
 

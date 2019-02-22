@@ -14,6 +14,7 @@ void TypedBuffer::set(uint stride, uint count, const void* data) {
 }
 
 ShaderResourceView* TypedBuffer::srv(uint mipLevel) const {
+  UNUSED(mipLevel);
   if(!mSrv && is_set(mBindingFlags, BindingFlag::ShaderResource)) {
     mSrv = ShaderResourceView::create(*this);
   }
@@ -21,7 +22,7 @@ ShaderResourceView* TypedBuffer::srv(uint mipLevel) const {
   return mSrv.get();
 }
 
-const UnorderedAccessView* TypedBuffer::uav() const {
+const UnorderedAccessView* TypedBuffer::uav(uint) const {
   if(!mUav && is_set(mBindingFlags, BindingFlag::UnorderedAccess)) {
     mUav = UnorderedAccessView::create(*this);
   }

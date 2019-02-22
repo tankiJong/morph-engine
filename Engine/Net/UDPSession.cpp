@@ -744,7 +744,7 @@ void UDPSession::registerCoreMessage() {
     UDPConnection* conn = sender.session->connection(connectionIndex);
     EXPECTS(sender.connection != nullptr);
     EXPECTS(sender.connection == conn);
-    
+    UNUSED(conn);
     sender.connection->connectionState(eConnectionState(newState));
 
     if(newState == CONNECTION_DISCONNECTED) {

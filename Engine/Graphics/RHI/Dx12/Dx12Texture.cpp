@@ -14,7 +14,7 @@ bool Texture2::rhiInit(bool genMipmap, const void* data, size_t /*size*/) {
     mMipLevels = 1;
   }
 
-  desc.MipLevels = mMipLevels;
+  desc.MipLevels = (uint16_t)mMipLevels;
   desc.Format = toDXGIFormat(mFormat);
   desc.Width = mWidth;
   desc.Height = mHeight;

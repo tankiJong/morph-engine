@@ -27,6 +27,7 @@ void FrameBuffer::setColorTarget(const Texture2::scptr_t& tex, uint index) {
   EXPECTS(index < NUM_MAX_COLOR_TARGET);
 
   auto expectFormat = mDesc.colorTargetFormat(index);
+  UNUSED(expectFormat);
   EXPECTS(tex->format() ==  expectFormat || expectFormat == TEXTURE_FORMAT_UNKNOWN);
 
   setColorTarget(tex->rtv(), index);

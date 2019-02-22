@@ -12,10 +12,6 @@ public:
   using scptr_t = std::shared_ptr<const Texture2>;
   using inherit_shared_from_this<RHITexture, Texture2>::shared_from_this;
 
-  virtual const RenderTargetView* rtv(uint mipLevel = 0) const override;
-  virtual const DepthStencilView* dsv() const override;
-  virtual const UnorderedAccessView* uav() const override;
-
   void generateMipmap(RHIContext& ctx);
 
   static Texture2::sptr_t create(
@@ -30,8 +26,6 @@ public:
   static Texture2::sptr_t create(rhi_resource_handle_t res);
 
 protected:
-  mutable RenderTargetView::sptr_t mRtv[13]; // assume the biggest texture would be 4K...(not true)
-  mutable DepthStencilView::sptr_t mDsv;
   template<typename TexType, typename ...Args>
   friend typename TexType::sptr_t createOrFail(bool genMipmap, const void* data, size_t size, Args ... args);
   friend class Resource<Texture2>;

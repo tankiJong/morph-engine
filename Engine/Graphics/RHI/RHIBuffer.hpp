@@ -51,7 +51,7 @@ public:
   inline const CPUAccess cpuAccess() const { return mCpuAccess; }
 
   virtual const ConstantBufferView* cbv() const override;
-  virtual const UnorderedAccessView* uav() const override;
+  virtual const UnorderedAccessView* uav(uint mipLevel = 0) const override;
 protected:
   bool rhiInit(bool hasInitData);
 

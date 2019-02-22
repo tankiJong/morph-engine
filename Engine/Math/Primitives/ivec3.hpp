@@ -11,7 +11,7 @@ public:
   int x = 0, y = 0, z = 0;
   ivec3() = default;
   ivec3(int x, int y, int z);
-  ivec3(const vec3& copy): x(copy.x), y(copy.y), z(copy.z) {};
+  ivec3(const vec3& copy): x((int)copy.x), y((int)copy.y), z((int)copy.z) {};
   ivec3(ivec2 xy, int z);
   explicit ivec3(const uvec3& from);
   ivec2 xy() const;

@@ -35,7 +35,7 @@ const ConstantBufferView* RHIBuffer::cbv() const {
   return mCbv.get();
 }
 
-const UnorderedAccessView* RHIBuffer::uav() const {
+const UnorderedAccessView* RHIBuffer::uav(uint) const {
   if(!mUav && is_set(mBindingFlags, BindingFlag::UnorderedAccess)) {
     mUav = UnorderedAccessView::create(shared_from_this());
   }
