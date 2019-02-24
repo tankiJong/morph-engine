@@ -14,6 +14,7 @@ public:
   ~RenderNodeContext();
   // read
   void readSrv(std::string_view name, RHIResource::scptr_t res, uint registerIndex, uint registerSpace = 0);
+  void readSrv(std::string_view name, ShaderResourceView& srv, uint registerIndex, uint registerSpace = 0);
   void readCbv(std::string_view name, RHIResource::scptr_t res, uint registerIndex, uint registerSpace = 0);
 
   // write

@@ -13,11 +13,14 @@ class TypedBuffer;
 struct ResourceViewInfo {
   static const uint MAX_POSSIBLE = uint(-1);
 
+  uint arraySize;
+  uint firstArraySlice;
   uint mostDetailedMip;
   uint mipCount;
-  uint firstArraySlice;
-  uint arraySize;
   DescriptorPool::Type type;
+
+  ResourceViewInfo() = default;
+
   ResourceViewInfo(
     uint mostDetailedMip, uint mipCount, 
     uint firstArraySlice, uint arraySize, DescriptorPool::Type type)

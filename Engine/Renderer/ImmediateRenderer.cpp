@@ -102,15 +102,7 @@ void ImmediateRenderer::drawMesh(Mesh& mesh) {
 
   mRhiContext->setFrameBuffer(*mFrameBuffer);
   // mRhiContext->setFrameBuffer(fbo);
-  if(mesh.indices() != nullptr) {
-    mRhiContext->transitionBarrier(&mesh.indices()->res(), RHIResource::State::IndexBuffer);
-    mRhiContext->setIndexBuffer(mesh.indices().get());
-  }
-
-  for (uint i = 0; i < mesh.layout().attributes().size(); ++i) {
-    mRhiContext->transitionBarrier(&mesh.vertices(i)->res(), RHIResource::State::VertexBuffer);
-    mRhiContext->setVertexBuffer(*mesh.vertices(i), i);
-  }
+  mesh.bindForContext(*mRhiContext);
 
   for(const draw_instr_t& instr: mesh.instructions()) {
     mRhiContext->setPrimitiveTopology(instr.prim);

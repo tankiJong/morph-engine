@@ -49,26 +49,26 @@ bool RHIBuffer::rhiInit(bool hasInitData) {
   }
 
   if(mCpuAccess == CPUAccess::Write) {
-
-    mState = State::GenericRead;
+    mState.global = true;
+    mState.globalState = State::GenericRead;
     if(!hasInitData) {
-      mRhiHandle = createBuffer(mState, mSize, UploadHeapProps, mBindingFlags);
+      mRhiHandle = createBuffer(mState.globalState, mSize, UploadHeapProps, mBindingFlags);
 
     } else {
-      mRhiHandle = createBuffer(mState, mSize, UploadHeapProps, mBindingFlags);
+      mRhiHandle = createBuffer(mState.globalState, mSize, UploadHeapProps, mBindingFlags);
     }
 
   } else if(mCpuAccess == CPUAccess::Read && mBindingFlags == BindingFlag::None) {
 
-    mState = State::CopyDest;
-    mRhiHandle = createBuffer(mState, mSize, ReadbackHeapProps, mBindingFlags);
+    mState.globalState = State::CopyDest;
+    mRhiHandle = createBuffer(mState.globalState, mSize, ReadbackHeapProps, mBindingFlags);
 
   } else {
-    mState = State::Common;
+    mState.globalState = State::Common;
 #ifdef MORPH_DXR
     if (is_set(mBindingFlags, BindingFlag::AccelerationStructure)) mState = RHIResource::State::AccelerationStructure;
 #endif
-    mRhiHandle = createBuffer(mState, mSize, DefaultHeapProps, mBindingFlags);
+    mRhiHandle = createBuffer(mState.globalState, mSize, DefaultHeapProps, mBindingFlags);
   }
 
   mRhiHandle->SetName(L"Buffer");

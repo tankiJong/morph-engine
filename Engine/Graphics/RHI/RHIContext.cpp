@@ -62,10 +62,14 @@ void RHIContext::blit(const ShaderResourceView& from, const RenderTargetView& to
   aabb2 viewport{ vec2::zero, { float(destTex->width(destMipLevel)), float(destTex->height(destMipLevel)) } };
 
   inst->setSrv(from, 0);
-  FrameBuffer fbo;
 
-  auto tempTex = Texture2::create(destTex->width(destMipLevel), destTex->height(destMipLevel), destTex->format(), RHIResource::BindingFlag::RenderTarget);
-  fbo.defineColorTarget(tempTex, 0);
+  FrameBuffer::Desc fdesc;
+  fdesc.defineColorTarget(0, destTex->format());
+  FrameBuffer fbo(fdesc);
+  fbo.setColorTarget(&to, 0);
+
+  // auto tempTex = Texture2::create(destTex->width(destMipLevel), destTex->height(destMipLevel), destTex->format(), RHIResource::BindingFlag::RenderTarget);
+  
 
   static GraphicsState::sptr_t graphicsState;
   if(graphicsState == nullptr) {
@@ -80,15 +84,15 @@ void RHIContext::blit(const ShaderResourceView& from, const RenderTargetView& to
   bindDescriptorHeap();
   setViewport(viewport);
   setScissorRect(viewport);
-  transitionBarrier(srcRes.get(), RHIResource::State::ShaderResource);
-  transitionBarrier(tempTex.get(), RHIResource::State::RenderTarget);
+  transitionBarrier(srcRes.get(), RHIResource::State::ShaderResource, TRANSITION_FULL, &from.info());
+  transitionBarrier(destTex.get(), RHIResource::State::RenderTarget, TRANSITION_FULL, &to.info());
   setGraphicsState(*graphicsState);
   inst->apply(*this, true);
   setPrimitiveTopology(DRAW_TRIANGES);
   setFrameBuffer(fbo);
   draw(0, 3);
-  copySubresource(*tempTex, 0, *destTex, to.info().mostDetailedMip);
-  flush();
+  // copySubresource(*tempTex, 0, *destTex, to.info().mostDetailedMip);
+  // flush();
 }
 
 DEF_RESOURCE(Program, "internal/shader/blit") {

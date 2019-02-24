@@ -22,6 +22,18 @@ void RenderNodeContext::readSrv(std::string_view name, RHIResource::scptr_t res,
 
 }
 
+void RenderNodeContext::readSrv(std::string_view name, ShaderResourceView& srv, uint registerIndex, uint registerSpace) {
+  EXPECTS(mTargetProgram != nullptr);
+
+  mTargetProgram->setSrv(srv, registerIndex, registerSpace);
+
+  addBindingInfo(name, srv.res().lock(), 
+                 mForCompute 
+                 ? RHIResource::State::NonPixelShader
+                 : RHIResource::State::ShaderResource,
+                 registerIndex, registerSpace);
+}
+
 void RenderNodeContext::readCbv(std::string_view name, RHIResource::scptr_t res, uint registerIndex, uint registerSpace) {
   EXPECTS(mTargetProgram != nullptr);
 

@@ -12,8 +12,6 @@ public:
   using scptr_t = std::shared_ptr<const Texture2>;
   using inherit_shared_from_this<RHITexture, Texture2>::shared_from_this;
 
-  void generateMipmap(RHIContext& ctx);
-
   static Texture2::sptr_t create(
     uint width, uint height, eTextureFormat format, 
     BindingFlag flag =  BindingFlag::ShaderResource, 

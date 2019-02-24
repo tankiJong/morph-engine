@@ -73,7 +73,7 @@ struct Debug::DebugDrawMeta {
         INFO("unsupported depth mode for debug draw");
       break;
     }
-
+    
     gRenderer->drawMesh(*this->mesh);
   }
 

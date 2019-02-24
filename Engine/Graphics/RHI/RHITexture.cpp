@@ -2,10 +2,14 @@
 #include "Engine/Graphics/RHI/ResourceView.hpp"
 #include "RHITexture.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Engine/Graphics/RHI/RHIContext.hpp"
 
-ShaderResourceView* RHITexture::srv(uint mipLevel) const {
+ShaderResourceView* RHITexture::srv(uint mipLevel, uint mipCount) const {
 
-  ResourceViewInfo info(mipLevel, ResourceViewInfo::MAX_POSSIBLE, 0, ResourceViewInfo::MAX_POSSIBLE, DescriptorPool::Type::TextureSrv);
+  if(mipCount == ResourceViewInfo::MAX_POSSIBLE) {
+    mipCount = mMipLevels - mipLevel;
+  }
+  ResourceViewInfo info(mipLevel, mipCount, 0, mArraySize, DescriptorPool::Type::TextureSrv);
 
   auto kv = mSrvs.find(info);
 
@@ -28,10 +32,9 @@ void RHITexture::invalidateViews() {
   mSrvs.clear();
 }
 
-
 const RenderTargetView* RHITexture::rtv(uint mipLevel) const {
 
-  ResourceViewInfo info(mipLevel, 1, 0, ResourceViewInfo::MAX_POSSIBLE, DescriptorPool::Type::TextureSrv);
+  ResourceViewInfo info(mipLevel, 1, 0, 1, DescriptorPool::Type::TextureSrv);
 
   auto kv = mRtvs.find(info);
 
@@ -50,7 +53,7 @@ const RenderTargetView* RHITexture::rtv(uint mipLevel) const {
 }
 
 const DepthStencilView* RHITexture::dsv(uint mipLevel) const {
-  ResourceViewInfo info(mipLevel, 1, 0, ResourceViewInfo::MAX_POSSIBLE, DescriptorPool::Type::Dsv);
+  ResourceViewInfo info(mipLevel, 1, 0, 1, DescriptorPool::Type::Dsv);
 
   auto kv = mDsvs.find(info);
 
@@ -87,4 +90,14 @@ const UnorderedAccessView* RHITexture::uav(uint mipLevel) const {
   }
 
   return mUavs[info].get();
+}
+
+void RHITexture::generateMipmap(RHIContext& ctx) {
+  EXPECTS(mType == Type::Texture2D);
+
+  for(uint i = 0; i < mMipLevels - 1; i++) {
+    const ShaderResourceView* fromSrv = srv(i, 1);
+    const RenderTargetView* toRtv = rtv(i+1);
+    ctx.blit(*fromSrv, *toRtv);
+  }
 }

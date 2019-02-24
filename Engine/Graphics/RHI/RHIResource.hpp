@@ -2,6 +2,7 @@
 
 #include "Engine/Graphics/RHI/RHI.hpp"
 #include "Engine/Graphics/RHI/ResourceView.hpp"
+#include "Engine/Debug/ErrorWarningAssert.hpp"
 
 class RHIResource: public std::enable_shared_from_this<RHIResource> {
   friend class RHIContext;
@@ -70,12 +71,19 @@ public:
 
   handle_t handle() const { return mRhiHandle; };
 
-  inline State state() const { return mState; }
+  State globalState() const {
+    EXPECTS(mState.global);
+    return mState.globalState;
+  }
+  bool isStateGlobal() const { return mState.global; }
+
+  void setGlobalState(State newState) const;
+  void markGlobalInTransition(bool inTransition) const;
   inline Type type() const { return mType; }
   inline BindingFlag flags() const { return mBindingFlags; }
   virtual const UnorderedAccessView* uav(uint mipLevel = 0) const { UNUSED(mipLevel); return nullptr; };
   virtual const ConstantBufferView* cbv() const { return nullptr; };
-  virtual const ShaderResourceView* srv(uint mipLevel = 0) const { UNUSED(mipLevel); return nullptr; };
+  virtual const ShaderResourceView* srv(uint mipLevel = 0, uint32_t mipCount = ResourceViewInfo::MAX_POSSIBLE) const { UNUSED(mipLevel); UNUSED(mipCount); return nullptr; };
   virtual const RenderTargetView* rtv(uint mipLevel = 0) const { UNUSED(mipLevel); return nullptr; }
   virtual const DepthStencilView* dsv(uint mipLevel = 0) const { UNUSED(mipLevel); return nullptr; }
   virtual ~RHIResource();
@@ -83,15 +91,33 @@ public:
 protected:
   RHIResource(Type type, BindingFlag bindings): mType(type), mBindingFlags(bindings) {}
   RHIResource(rhi_resource_handle_t res);
+
+  mutable bool mInTransition = false;
+
   handle_t mRhiHandle;
   Type mType;
   BindingFlag mBindingFlags;
   mutable UnorderedAccessView::sptr_t mUav;
   mutable ConstantBufferView::sptr_t mCbv;
 
-  mutable State mState = State::Common;
-  mutable bool mInTransition = false;
+  struct {
+    bool global = true;
+    State globalState = State::Undefined;
+    bool globalInTransition = false;
+    std::vector<State> subresourceState;
+    std::vector<bool> subresourceInTransition;
+  } mutable mState;
 };
+
+inline void RHIResource::setGlobalState(State newState) const {
+  // EXPECTS(mState.global);
+  mState.globalState = newState;
+}
+
+inline void RHIResource::markGlobalInTransition(bool inTransition) const {
+  EXPECTS(mState.global);
+  mState.globalInTransition = inTransition;
+}
 
 void setName(const RHIResource& res, const wchar_t* name);
 

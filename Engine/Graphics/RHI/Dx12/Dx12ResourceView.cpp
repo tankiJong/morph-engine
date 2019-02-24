@@ -34,6 +34,7 @@ void initTextureSrv(const RHITexture* res, uint mostDetailedMip, uint mipCount, 
         desc.Texture2DArray.ArraySize = arraySize;
         desc.Texture2DArray.FirstArraySlice = firstArraySlice;
       } else {
+        desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
         desc.Texture2D.MipLevels = mipCount;
         desc.Texture2D.MostDetailedMip = mostDetailedMip;
       }

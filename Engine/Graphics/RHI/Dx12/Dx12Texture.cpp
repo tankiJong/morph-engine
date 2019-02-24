@@ -9,7 +9,10 @@ bool Texture2::rhiInit(bool genMipmap, const void* data, size_t /*size*/) {
   D3D12_RESOURCE_DESC desc = {};
 
   if(genMipmap) {
-    mMipLevels = (uint)std::log2(std::min(mWidth, mHeight)) + 1u;
+    uint dim = mWidth | mHeight | mDepth;
+    unsigned long len;
+    _BitScanReverse(&len, dim);
+    mMipLevels = len + 1u;
   } else {
     mMipLevels = 1;
   }
@@ -45,6 +48,9 @@ bool Texture2::rhiInit(bool genMipmap, const void* data, size_t /*size*/) {
 
   d3d_call(RHIDevice::get()->nativeDevice()->CreateCommittedResource(&DefaultHeapProps, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COMMON, clearValPtr, IID_PPV_ARGS(&mRhiHandle)));
 
+  mState.subresourceState.resize(mMipLevels * mArraySize, mState.globalState);
+  mState.subresourceInTransition.resize(mMipLevels * mArraySize, mState.globalInTransition);
+
   mRhiHandle->SetName(L"Texture");
   if(data) {
     RHIDevice::get()->defaultRenderContext()->updateTexture(*this, data);
@@ -64,4 +70,6 @@ RHITexture::RHITexture(rhi_resource_handle_t res): RHIResource(res) {
   mHeight = (uint)desc.Height;
   mMipLevels = (uint)desc.MipLevels;
   mArraySize = (uint)desc.DepthOrArraySize;
+  mState.global = true;
+  mState.globalState = State::Undefined;
 }

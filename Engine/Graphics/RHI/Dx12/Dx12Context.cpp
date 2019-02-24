@@ -15,6 +15,42 @@
 
 #pragma comment(lib, "ThirdParty/WinPixEventRuntime/bin/WinPixEventRuntime.lib")
 
+
+static void setTransitionBarrier(const RHIResource& res, RHIResource::State newState, RHIResource::State oldState, uint subresourceIndex, ID3D12GraphicsCommandList* cmdList, eTransitionBarrierFlag flag) {
+
+  D3D12_RESOURCE_BARRIER barrier;
+
+  barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+  switch(flag) { 
+    case TRANSITION_FULL: 
+      barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    break;
+    case TRANSITION_BEGIN:
+      barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY;
+    break;
+    case TRANSITION_END: 
+      barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_END_ONLY;
+    break;
+  }
+
+  barrier.Transition.pResource = res.handle().Get();
+  barrier.Transition.StateBefore = asDx12ResourceState(oldState);
+  barrier.Transition.StateAfter = asDx12ResourceState(newState);
+  barrier.Transition.Subresource = subresourceIndex;
+
+  cmdList->ResourceBarrier(1, &barrier);
+
+}
+
+
+static bool setGlobalState(const RHIResource& res, RHIResource::State state, ID3D12GraphicsCommandList* cmdList, eTransitionBarrierFlag flag) {
+  if(res.globalState() == state) return false;
+
+  setTransitionBarrier(
+    res, state, res.globalState(), 
+    D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, cmdList, flag);
+  return true;
+}
 RHIContext::sptr_t RHIContext::create(command_queue_handle_t commandQueue) {
   sptr_t ctx = sptr_t(new RHIContext());
 
@@ -24,6 +60,71 @@ RHIContext::sptr_t RHIContext::create(command_queue_handle_t commandQueue) {
   ENSURES(ctx->mContextData != nullptr);
 
   return ctx;
+}
+
+void RHIContext::textureBarrier(const RHITexture& tex, RHIResource::State newState, eTransitionBarrierFlag flag) {
+
+  bool success = setGlobalState(tex, newState, mContextData->commandList().Get(), flag);
+  tex.setGlobalState(newState);
+  tex.markGlobalInTransition(flag == TRANSITION_BEGIN);
+
+  mCommandsPending = mCommandsPending || success;
+
+}
+
+void RHIContext::bufferBarrier(const RHIBuffer& buffer, RHIResource::State newState, eTransitionBarrierFlag flag) {
+
+  if(buffer.cpuAccess() != RHIBuffer::CPUAccess::None) return;
+  bool success = setGlobalState(buffer, newState, mContextData->commandList().Get(), flag);
+  buffer.setGlobalState(newState);
+  buffer.markGlobalInTransition(flag == TRANSITION_BEGIN);
+
+
+  mCommandsPending = mCommandsPending || success;
+
+}
+
+void RHIContext::subresourceBarrier(const RHITexture& tex,
+  RHIResource::State newState,
+  const ResourceViewInfo* viewInfo,
+  eTransitionBarrierFlag flag) {
+
+  ResourceViewInfo fullResInfo;
+
+  bool setGlobal = false;
+
+  if(viewInfo == nullptr) {
+    fullResInfo.arraySize = tex.arraySize();
+    fullResInfo.firstArraySlice = 0;
+    fullResInfo.mostDetailedMip = 0;
+    fullResInfo.mipCount = tex.mipCount();
+    viewInfo = &fullResInfo;
+    setGlobal = true;
+  }
+
+  for(uint arraySlice = viewInfo->firstArraySlice; 
+      arraySlice < viewInfo->firstArraySlice + viewInfo->arraySize; 
+      arraySlice++) {
+    for(uint mip = viewInfo->mostDetailedMip; 
+        mip < viewInfo->mipCount + viewInfo->mostDetailedMip; 
+        mip++) {
+      
+      RHIResource::State oldState = tex.subresourceState(arraySlice, mip);
+
+      if(oldState != newState) {
+        setTransitionBarrier(tex, newState, oldState, tex.subresourceIndex(arraySlice, mip),
+                             mContextData->commandList().Get(), flag);
+        if(!setGlobal) {
+          tex.setSubresourceState(arraySlice, mip, newState);
+          tex.markSubresourceInTransition(arraySlice, mip, flag == TRANSITION_BEGIN);
+        }
+        mCommandsPending = true;
+      }
+    }
+  }
+
+  if(setGlobal) tex.setGlobalState(newState);
+  
 }
 
 // void RHIContext::initDefaultRenderTarget() {
@@ -66,55 +167,30 @@ void RHIContext::copyBufferRegion(const RHIBuffer* dst, size_t dstOffset, RHIBuf
   mCommandsPending = true;
 }
 
-void RHIContext::transitionBarrier(const RHIResource* res, RHIResource::State newState, eTransitionBarrierFlag flags, ResourceViewInfo* viewInfo) {
+void RHIContext::transitionBarrier(const RHIResource* res, RHIResource::State newState, eTransitionBarrierFlag flags, const ResourceViewInfo* viewInfo) {
   // if resource has cpu access, no need to do anything
-  UNUSED(viewInfo);
-  const RHIBuffer* buffer = dynamic_cast<const RHIBuffer*>(res);
-  if (buffer && buffer->cpuAccess() != RHIBuffer::CPUAccess::None) return;
+  const RHITexture* tex = dynamic_cast<const RHITexture*>(res);
+  if(tex) {
+    bool globalBarrier = tex->isStateGlobal();
+    if(viewInfo) {
+      globalBarrier = globalBarrier && (viewInfo->firstArraySlice == 0);
+      globalBarrier = globalBarrier && (viewInfo->mostDetailedMip == 0);
+      globalBarrier = globalBarrier && (viewInfo->mipCount == tex->mipCount());
+      globalBarrier = globalBarrier && (viewInfo->arraySize == tex->arraySize());
+    }
 
-  if(res->state() != newState) {
-    if(!res->mInTransition) {
-      EXPECTS(flags == TRANSITION_BEGIN || flags == TRANSITION_FULL);
-      D3D12_RESOURCE_BARRIER barrier;
-      barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-      barrier.Transition.pResource = res->handle().Get();
-      barrier.Transition.StateBefore = asDx12ResourceState(res->state());
-      barrier.Transition.StateAfter = asDx12ResourceState(newState);
-      barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-
-      switch(flags) { 
-        case TRANSITION_FULL: 
-          barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-          res->mInTransition = false;
-          res->mState = newState;
-        break;
-        case TRANSITION_BEGIN:
-          barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY;
-          res->mInTransition = true;
-        break;
-      }
-      
-
-      mContextData->commandList()->ResourceBarrier(1, &barrier);
-      mCommandsPending = true;
+    if(globalBarrier) {
+      textureBarrier(*tex, newState, flags);
     } else {
-      EXPECTS(flags == TRANSITION_END);
+      subresourceBarrier(*tex, newState, viewInfo, flags);
+    }
 
-      D3D12_RESOURCE_BARRIER barrier;
-      barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-      barrier.Transition.pResource = res->handle().Get();
-      barrier.Transition.StateBefore = asDx12ResourceState(res->state());
-      barrier.Transition.StateAfter = asDx12ResourceState(newState);
-      barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-      barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_END_ONLY;
-      
-      res->mInTransition = false;
-      res->mState = newState;
 
-      mContextData->commandList()->ResourceBarrier(1, &barrier);
-      mCommandsPending = true;
-      
+  } else {
+    const RHIBuffer* buffer = dynamic_cast<const RHIBuffer*>(res);
+    if(buffer) {
+      bufferBarrier(*buffer, newState, flags);
     }
   }
 }

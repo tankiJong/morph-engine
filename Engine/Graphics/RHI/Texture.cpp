@@ -29,15 +29,7 @@ Texture2::sptr_t Texture2::create(rhi_resource_handle_t res) {
   return Texture2::sptr_t(new Texture2(res));
 }
 
-void Texture2::generateMipmap(RHIContext& ctx) {
-  EXPECTS(mType == Type::Texture2D);
 
-  for(uint i = 0; i < mMipLevels - 1; i++) {
-    const ShaderResourceView* fromSrv = srv(i);
-    const RenderTargetView* toRtv = rtv(i+1);
-    ctx.blit(*fromSrv, *toRtv);
-  }
-}
 
 template<>
 ResDef<Texture2> Resource<Texture2>::load(const std::string& file) {

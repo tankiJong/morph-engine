@@ -38,7 +38,7 @@ public:
   void copyResource(const RHIResource& from, RHIResource& to);
   void copySubresource(const RHITexture& from, uint fromSubIndex, const RHITexture& to, uint toSubIndex);
   size_t readBuffer(const RHIBuffer& res, void* data, size_t maxSize);
-  virtual void transitionBarrier(const RHIResource* res, RHIResource::State newState, eTransitionBarrierFlag = TRANSITION_FULL, ResourceViewInfo* viewInfo = nullptr);
+  virtual void transitionBarrier(const RHIResource* res, RHIResource::State newState, eTransitionBarrierFlag = TRANSITION_FULL, const ResourceViewInfo* viewInfo = nullptr);
   virtual void uavBarrier(const RHIResource* res);
 
   //-------------------------------------------------
@@ -74,6 +74,10 @@ public:
   static sptr_t create(command_queue_handle_t commandQueue);
 
 protected:
+  void textureBarrier(const RHITexture& tex, RHIResource::State newState, eTransitionBarrierFlag flag);
+  void bufferBarrier(const RHIBuffer& buffer, RHIResource::State newState, eTransitionBarrierFlag flag);
+  void subresourceBarrier(const RHITexture& tex, RHIResource::State newState, const ResourceViewInfo* viewInfo, eTransitionBarrierFlag flag);
+
   friend class RHIDevice;
   RHIContextData::sptr_t mContextData;
   bool mCommandsPending = false;
