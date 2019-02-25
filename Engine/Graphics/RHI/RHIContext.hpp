@@ -51,6 +51,8 @@ public:
   void drawIndexed(uint vertStart, uint idxStart, uint count);
   void drawInstanced(uint startVert, uint startIns, uint vertCount, uint insCount);
   void blit(const ShaderResourceView& from, const RenderTargetView& to);
+  void blit(const ShaderResourceView& from, const RenderTargetView& to, 
+            const aabb2& fromRect, const aabb2& toRect);
   void setGraphicsRootSignature(const RootSignature& rootSig);
   void setComputeRootSignature(const RootSignature& rootSig);
   void setGraphicsState(const GraphicsState& pso);

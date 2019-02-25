@@ -49,17 +49,52 @@ void RHIContext::updateBuffer(RHIBuffer* buffer, const void* data, size_t offset
 
 
 void RHIContext::blit(const ShaderResourceView& from, const RenderTargetView& to) {
+  aabb2 fullscreen = {{0,0}, {1, 1}};
+  blit(from, to, fullscreen, fullscreen);
+}
+
+void RHIContext::blit(
+  const ShaderResourceView& from, const RenderTargetView& to, 
+  const aabb2& fromRect, const aabb2& toRect) {
+
+  struct BlitConstant {
+    vec2 offset = vec2::zero;
+    vec2 scale = vec2::one;
+  };
   static auto prog = Resource<Program>::get("internal/shader/blit");
+
   auto inst = GraphicsProgramInst::create(prog);
 
   RHIResource::scptr_t destRes = to.res().lock();
   RHIResource::scptr_t srcRes = from.res().lock();
-  Texture2::scptr_t destTex = std::dynamic_pointer_cast<const Texture2>(destRes);
-  Texture2::scptr_t srcTex = std::dynamic_pointer_cast<const Texture2>(srcRes);
+  RHITexture::scptr_t destTex = std::dynamic_pointer_cast<const RHITexture>(destRes);
+  RHITexture::scptr_t srcTex = std::dynamic_pointer_cast<const RHITexture>(srcRes);
   ASSERT_OR_DIE(destTex != nullptr && srcTex != nullptr, "invalid dest resource for blit");
 
   uint destMipLevel = to.info().mostDetailedMip;
-  aabb2 viewport{ vec2::zero, { float(destTex->width(destMipLevel)), float(destTex->height(destMipLevel)) } };
+
+  {
+    BlitConstant constants;
+    constants.offset = fromRect.mins;
+    constants.scale = fromRect.size();
+
+    RHIBuffer::sptr_t blitCb = RHIBuffer::create(
+      sizeof(BlitConstant), 
+      RHIResource::BindingFlag::ConstantBuffer, 
+      RHIBuffer::CPUAccess::None, &constants);
+    inst->setCbv(*blitCb->cbv(), 0);
+    transitionBarrier(blitCb.get(), RHIResource::State::ConstantBuffer);
+  }
+
+  aabb2 viewport;
+  {
+    vec2 size = vec2(destTex->size(destMipLevel));
+   
+    vec2 offset = size * toRect.mins;
+    vec2 vsize = toRect.size() * size;
+
+    viewport = { offset, vsize + offset };
+  }
 
   inst->setSrv(from, 0);
 
@@ -90,7 +125,8 @@ void RHIContext::blit(const ShaderResourceView& from, const RenderTargetView& to
   inst->apply(*this, true);
   setPrimitiveTopology(DRAW_TRIANGES);
   setFrameBuffer(fbo);
-  draw(0, 3);
+  contextData()->commandList()->IASetIndexBuffer(nullptr);
+  draw(0, 6);
   // copySubresource(*tempTex, 0, *destTex, to.info().mostDetailedMip);
   // flush();
 }

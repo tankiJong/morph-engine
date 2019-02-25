@@ -84,7 +84,7 @@ public:
   virtual const UnorderedAccessView* uav(uint mipLevel = 0) const { UNUSED(mipLevel); return nullptr; };
   virtual const ConstantBufferView* cbv() const { return nullptr; };
   virtual const ShaderResourceView* srv(uint mipLevel = 0, uint32_t mipCount = ResourceViewInfo::MAX_POSSIBLE) const { UNUSED(mipLevel); UNUSED(mipCount); return nullptr; };
-  virtual const RenderTargetView* rtv(uint mipLevel = 0) const { UNUSED(mipLevel); return nullptr; }
+  virtual const RenderTargetView* rtv(uint mipLevel = 0, uint arraySlice = 0) const { UNUSED(mipLevel); UNUSED(arraySlice);return nullptr; }
   virtual const DepthStencilView* dsv(uint mipLevel = 0) const { UNUSED(mipLevel); return nullptr; }
   virtual ~RHIResource();
 

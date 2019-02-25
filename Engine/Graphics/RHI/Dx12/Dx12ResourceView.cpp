@@ -10,6 +10,7 @@ void initTextureSrv(const RHITexture* res, uint mostDetailedMip, uint mipCount, 
     desc.Format = toDXGIFormat(res->format());
   }
 
+
   bool isTextureArray = arraySize > 1;
 
   switch(res->type()) {
@@ -39,8 +40,20 @@ void initTextureSrv(const RHITexture* res, uint mostDetailedMip, uint mipCount, 
         desc.Texture2D.MostDetailedMip = mostDetailedMip;
       }
     break;
+    case RHIResource::Type::TextureCube:
+      if(arraySize > 1) {
+        desc.TextureCubeArray.First2DArrayFace = 0;
+        desc.TextureCubeArray.NumCubes = arraySize;
+        desc.TextureCubeArray.MipLevels = mipCount;
+        desc.TextureCubeArray.MostDetailedMip = mostDetailedMip;
+        desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+      } else {
+        desc.TextureCube.MipLevels = mipCount;
+        desc.TextureCube.MostDetailedMip = mostDetailedMip;
+        desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+      }
+    break;
     case RHIResource::Type::Texture3D:
-    case RHIResource::Type::TextureCube: 
     default: 
     BAD_CODE_PATH();
   }
@@ -69,15 +82,13 @@ void initRtv(const RHITexture* res, uint miplevel, uint firstArraySlice, uint ar
     }
     break;
     case RHIResource::Type::Texture2D:
-    case RHIResource::Type::TextureCube: 
-    if(res->arraySize() * arrayMultiplier > 1) {
+    case RHIResource::Type::TextureCube:
+    {
+      // for now, only support bind face separately
       desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
-      desc.Texture2DArray.ArraySize = arraySize * arrayMultiplier;
-      desc.Texture2DArray.FirstArraySlice = firstArraySlice * arrayMultiplier;
+      desc.Texture2DArray.ArraySize = 1;
+      desc.Texture2DArray.FirstArraySlice = firstArraySlice;
       desc.Texture2DArray.MipSlice = miplevel;
-    } else {
-      desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-      desc.Texture2D.MipSlice = miplevel;
     }
     break;
     default: 

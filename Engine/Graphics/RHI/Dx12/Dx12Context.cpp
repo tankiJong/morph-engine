@@ -185,8 +185,6 @@ void RHIContext::transitionBarrier(const RHIResource* res, RHIResource::State ne
       subresourceBarrier(*tex, newState, viewInfo, flags);
     }
 
-
-
   } else {
     const RHIBuffer* buffer = dynamic_cast<const RHIBuffer*>(res);
     if(buffer) {
@@ -286,7 +284,7 @@ void RHIContext::setFrameBuffer(const FrameBuffer& fbo) {
     if(rtv) {
       rtvHandles[i] = rtv->handle()->cpuHandle(0);
       RHIResource::scptr_t res = rtv->res().lock();
-      transitionBarrier(res.get(), RHIResource::State::RenderTarget);
+      transitionBarrier(res.get(), RHIResource::State::RenderTarget, TRANSITION_FULL, &rtv->info());
     } else {
       rtvHandles[i] = RenderTargetView::nullView()->handle()->cpuHandle(0);
     }

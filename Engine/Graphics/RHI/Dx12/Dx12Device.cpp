@@ -252,6 +252,7 @@ void RHIDevice::present() {
   // need to take care of the full screen mode
   // UINT presentFlags = (m_tearingSupport && m_windowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
   UINT presentFlags = mAllowTearing ? DXGI_PRESENT_ALLOW_TEARING : 0;
+  // UINT presentFlags = 0;
   d3d_call(mSwapChain->Present(0, presentFlags));
   executeDeferredRelease();
 

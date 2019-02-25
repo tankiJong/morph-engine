@@ -37,7 +37,11 @@ void Application::_init() {
   FileSystem::Get().mount("/Data", "Data");
   FileSystem::Get().foreach("/Data", [](const fs::path& p, auto...) {
     if(p.extension() == ".png" || p.extension() == ".jpg") {
-      Resource<Texture2>::define(p.generic_string());
+      std::string name = p.generic_string();
+      Resource<Texture2>::define(name);
+      if(name.find(".cube") != std::string::npos) {
+        Resource<TextureCube>::define(name);
+      }
     }
     //
     // if (p.extension() == ".shader") {

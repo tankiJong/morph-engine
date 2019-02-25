@@ -26,7 +26,7 @@ public:
   
   uint arraySize() const { return mArraySize; }
   uint mipCount() const { return mMipLevels; }
-  uvec2 size() const { return uvec2{ mWidth, mHeight }; }
+  uvec2 size(uint mipLevel= 0) const { return uvec2{ width(mipLevel), height(mipLevel)}; }
   eTextureFormat format() const { return mFormat; }
   uint subresourceIndex(uint arraySlice, uint mipLevel) const {
     return mipLevel + arraySlice * mMipLevels;
@@ -37,7 +37,7 @@ public:
   }
 
   virtual ShaderResourceView* srv(uint mipLevel = 0, uint mipCount = ResourceViewInfo::MAX_POSSIBLE) const override;
-  virtual const RenderTargetView* rtv(uint mipLevel = 0) const override;
+  virtual const RenderTargetView* rtv(uint mipLevel = 0, uint arraySlice = 0) const override;
   virtual const DepthStencilView* dsv(uint mipLevel = 0) const override;
   virtual const UnorderedAccessView* uav(uint mipLevel = 0) const override;
 

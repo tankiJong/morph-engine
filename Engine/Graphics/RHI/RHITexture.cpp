@@ -32,9 +32,9 @@ void RHITexture::invalidateViews() {
   mSrvs.clear();
 }
 
-const RenderTargetView* RHITexture::rtv(uint mipLevel) const {
-
-  ResourceViewInfo info(mipLevel, 1, 0, 1, DescriptorPool::Type::TextureSrv);
+const RenderTargetView* RHITexture::rtv(uint mipLevel, uint arraySlice) const {
+  // EXPECTS(arraySlice < mArraySize);
+  ResourceViewInfo info(mipLevel, 1, arraySlice, 1, DescriptorPool::Type::TextureSrv);
 
   auto kv = mRtvs.find(info);
 
