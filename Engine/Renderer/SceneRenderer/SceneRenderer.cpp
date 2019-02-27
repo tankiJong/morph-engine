@@ -39,6 +39,7 @@
 #include "Engine/Math/Primitives/uvec3.hpp"
 #include "Engine/Graphics/Program/ProgramInst.hpp"
 #include "Engine/Graphics/Model/BVH.hpp"
+#include "Engine/Gui/ImGui.hpp"
 static Program::sptr_t gGenGBufferProgram = nullptr;
 
 static Program::sptr_t gGenAOProgram = nullptr;
@@ -303,7 +304,10 @@ void SceneRenderer::onLoad(RHIContext&) {
 void SceneRenderer::onRenderFrame(RHIContext& ctx) {
   setupFrame();
   setupView(ctx);
+  ctx.bindDescriptorHeap();
   ctx.copyResource(*mAO, *mGAO);
+  // visualizeBVH(ctx);
+  // return;
   ctx.transitionBarrier(mGAO.get(), RHIResource::State::NonPixelShader, TRANSITION_BEGIN);
   ctx.transitionBarrier(mAO.get(), RHIResource::State::UnorderedAccess, TRANSITION_BEGIN);
   genGBuffer(ctx);
@@ -466,7 +470,6 @@ void SceneRenderer::genGBuffer(RHIContext& ctx) {
   SCOPED_GPU_EVENT(ctx, "Gen G-Buffer");
 
   ctx.setFrameBuffer(mGFbo);
-  ctx.bindDescriptorHeap();
 
   static S<GraphicsProgramInst> prog;
 
@@ -856,6 +859,12 @@ void SceneRenderer::setupFrame() {
 
   mFrameData.frameCount++;
   mFrameData.time = (float)GetMainClock().total.second;
+  {
+    ImGui::Begin("material param");
+    ImGui::SliderFloat("roughness", &mFrameData.roughness, 0.f, 1.f);
+    // ImGui::SliderFloat("metallic", &mFrameData.metallic, 0.f, 1.f);
+    ImGui::End();
+  }
   mcFrameData->updateData(mFrameData);
 
   if (!mTargetScene.lights().empty()) {

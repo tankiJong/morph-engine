@@ -125,7 +125,10 @@ Contact trace(Ray ray,
 
 	while(nextRecord < MAX_COLLISION_RECORD && currentNodeIndex < numNode) {
 		BVHNode node = nodes[currentNodeIndex];
-
+		if(node.triRange.start == node.triRange.end) {
+			currentNodeIndex = max(node.childRange.end, currentNodeIndex + 1);
+			continue;
+		}
 		bool intersected = intersect(ray, node.bounds);
 
 		if(intersected) {

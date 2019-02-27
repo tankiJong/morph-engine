@@ -145,7 +145,7 @@ float3 adaptiveAverage(float3 original, float3 ssample, float variance) {
 	// Debug.Log("Original: " + original + "|Diff: " + diff);
 	float k = diff;
 	
-	k = k * .001f + 0.0005f;
+	k = k * .002f + 0.0005f;
 	// k = lerp(1.f / (1.f * 1024.f), 1.f / 8.f, diff);
 	// k = k * k * k;
 	// k = smoothstep(0, 0.9f, k);
@@ -189,7 +189,7 @@ void updateSurfels(inout surfel_t surfel, inout SurfelHistoryBuffer history) {
 
 void main( uint3 threadId : SV_DispatchThreadID, uint3 localThreadId : SV_GroupThreadID, uint3 groupId: SV_GroupId )
 {
-	seed = threadId.x + threadId.y * 1000 + asuint(gTime);	
+	seed = threadId.x + threadId.y * 1000 + gFrameCount;	
 
 	//[loop]
 	//for(uint kk = 0; kk < 2; kk++) {

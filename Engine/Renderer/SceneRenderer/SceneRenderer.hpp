@@ -56,6 +56,14 @@ RootSignature:
 *
 *
 */
+
+struct s_frame_data_t {
+  float time;
+  float frameCount;
+  float roughness = 1;
+  float metallic = 0;
+};
+
 class SceneRenderer : public Renderer {
 public:
   SceneRenderer(const RenderScene& target);
@@ -104,7 +112,7 @@ protected:
   Texture2::sptr_t mFinalColor;
 
   // cbo
-  frame_data_t mFrameData;
+  s_frame_data_t mFrameData;
   S<RHIBuffer> mcFrameData;
   S<RHIBuffer> mcCamera;
   S<RHIBuffer> mcModel;

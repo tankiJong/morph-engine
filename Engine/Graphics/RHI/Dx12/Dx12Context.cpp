@@ -65,7 +65,9 @@ RHIContext::sptr_t RHIContext::create(command_queue_handle_t commandQueue) {
 void RHIContext::textureBarrier(const RHITexture& tex, RHIResource::State newState, eTransitionBarrierFlag flag) {
 
   bool success = setGlobalState(tex, newState, mContextData->commandList().Get(), flag);
-  tex.setGlobalState(newState);
+  if(flag != TRANSITION_BEGIN) {
+    tex.setGlobalState(newState);
+  }
   tex.markGlobalInTransition(flag == TRANSITION_BEGIN);
 
   mCommandsPending = mCommandsPending || success;
@@ -76,7 +78,9 @@ void RHIContext::bufferBarrier(const RHIBuffer& buffer, RHIResource::State newSt
 
   if(buffer.cpuAccess() != RHIBuffer::CPUAccess::None) return;
   bool success = setGlobalState(buffer, newState, mContextData->commandList().Get(), flag);
-  buffer.setGlobalState(newState);
+  if(flag != TRANSITION_BEGIN) {
+    buffer.setGlobalState(newState);
+  }
   buffer.markGlobalInTransition(flag == TRANSITION_BEGIN);
 
 
@@ -115,7 +119,9 @@ void RHIContext::subresourceBarrier(const RHITexture& tex,
         setTransitionBarrier(tex, newState, oldState, tex.subresourceIndex(arraySlice, mip),
                              mContextData->commandList().Get(), flag);
         if(!setGlobal) {
-          tex.setSubresourceState(arraySlice, mip, newState);
+          if(flag != TRANSITION_BEGIN) {
+            tex.setSubresourceState(arraySlice, mip, newState);
+          }
           tex.markSubresourceInTransition(arraySlice, mip, flag == TRANSITION_BEGIN);
         }
         mCommandsPending = true;

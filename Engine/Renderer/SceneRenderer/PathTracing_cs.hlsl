@@ -28,6 +28,18 @@ float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 
 	ray.position = surfacePosition + surfaceNormal * 0.0001f;
 
+	// uint count, _;
+	// gVerts.GetDimensions(count, _);
+	// Contact c;
+	// c.t = 1e6;
+	// c.valid = false;
+	// for(uint i = 0; i < count; i++) {
+	// 	Prim p = gVerts[i];
+	// 	Contact contact = triIntersection(p.p[0], p.p[1], p.p[2], 1, ray);
+	// 	if(contact.valid && (contact.t < c.t) && (contact.t > 0.f)) {
+	// 		c = contact;
+	// 	}
+	// }
 	Contact c = trace(ray, gBvh, gVerts);
 
 	Randomf r = rnd01(seed);
@@ -45,8 +57,8 @@ float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 	camPosition = camPosition / camPosition.w;
 
 	float3 diffuse, specular;
-	pbrDirectLighting(1.f.xxx, 1.f, 0.f, surfacePosition, camPosition.xyz, surfaceNormal, tan, bitan, gLight,	diffuse, specular);
-	// return diffuse;
+	return pbrDirectLighting(1.f.xxx, gRoughness, gMetallic, surfacePosition, camPosition.xyz, surfaceNormal, tan, bitan, gLight,	diffuse, specular);
+	return diffuse;
 	return Diffuse(surfacePosition, surfaceNormal, gLight.color.xyz, gLight);
 
 }
@@ -68,7 +80,21 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 		uint vertCount, stride;
 		gVerts.GetDimensions(vertCount, stride);
 
-		float4 albedo;
+		float4 albedo = float4(0, 0, 0, 1);
+
+		// uint count, _;
+		// gVerts.GetDimensions(count, _);
+		// Contact contact;
+		// contact.t = 1e6;
+		// contact.valid = false;
+		// for(uint i = 0; i < count; i++) {
+		// 	Prim p = gVerts[i];
+		// 	Contact c = triIntersection(p.p[0], p.p[1], p.p[2], 1, ray);
+		// 	if(c.valid && (c.t < contact.t) && (c.t > 0.f)) {
+		// 		contact = c;
+		// 		albedo = p.c[0];
+		// 	}
+		// }
 		Contact contact = trace(ray, gBvh, gVerts, albedo);
 
 
@@ -108,7 +134,7 @@ float3 PathTracing(Ray startRay, float3 startPosition, float3 startNormal, float
 [numthreads(16, 16, 1)]
 void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex, uint3 groupId: SV_GroupId )
 {
-	seed = threadId.x * 10000 + threadId.y * 121144 + gFrameCount;	
+	seed = threadId.x * 18600 + threadId.y * 121144 + gFrameCount;	
 
 
 	uint2 pix = threadId.xy;
@@ -128,7 +154,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 	float3 indirect = 0;
 	float3 direction;
 
-	const uint SPP = 1;
+	const uint SPP = 8;
 	for(uint i = 0; i < SPP; i++) {
 		Ray ray = GenReflectionRay(seed, position, normal);
 		// direction += ray.direction;

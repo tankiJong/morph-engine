@@ -48,6 +48,8 @@ struct DisneyBRDFParam {
 cbuffer cFrameData: register(b0) {
 	float gTime;
 	float gFrameCount;
+	float gRoughness;
+	float gMetallic;
 }
 
 cbuffer cCamera : register(b1) {

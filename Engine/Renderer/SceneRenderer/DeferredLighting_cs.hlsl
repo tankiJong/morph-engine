@@ -37,6 +37,23 @@ float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 
 	if(c.valid && c.t < maxDist) return float3(0,0,0);
 	
+	// Randomf r = rnd01(seed);
+	// seed = r.seed; 
+	float x = .37568f;
+						
+	float3 right = float3(x,1,1);
+	float3 _tan = normalize(right);
+	float3 bitan = normalize(cross(_tan, surfaceNormal));
+	float3 tan = cross(bitan, surfaceNormal);
+
+	if(c.valid && c.t < maxDist) return float3(0,0,0);
+	
+	float4 camPosition = mul(inverse(view), 0.f.xxxx);
+	camPosition = camPosition / camPosition.w;
+
+	float3 diffuse, specular;
+	return pbrDirectLighting(1.f.xxx, gRoughness, gMetallic, surfacePosition, camPosition.xyz, surfaceNormal, tan, bitan, gLight,	diffuse, specular);
+	return diffuse;
 	return Diffuse(surfacePosition, surfaceNormal, gLight.color.xyz, gLight);
 
 }

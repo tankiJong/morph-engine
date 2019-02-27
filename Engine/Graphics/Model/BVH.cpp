@@ -111,6 +111,7 @@ BVH::BVH(span<vec3> vertices, span<vec4> color, uint depth) {
     current.depth = job.depth;
 
     current.bounds = computeBounds(prims);
+
     current.indexInArray = (uint)mNodes.size() - 1;
     // link back the node 
     EXPECTS(job.parent->marker == 0xabcdaabb);
@@ -255,6 +256,7 @@ aabb3 BVH::computeBounds(span<Prim> prims) {
     bounds.grow(p.bounds);
   }
 
+  // ENSURES(bounds.mins.x <= 1 && bounds.mins.x >= -1);
   return bounds;
 }
 
