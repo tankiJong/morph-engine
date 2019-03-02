@@ -44,8 +44,8 @@ public:
   void rotate(const Euler& euler);
   void translate(const vec3& translation);
 
-  inline const Transform& transfrom() const { return mTransform; }
-  inline Transform& transfrom() { mIsDirty = true; return mTransform; };
+  inline const Transform& transform() const { return mTransform; }
+  inline Transform& transform() { mIsDirty = true; return mTransform; };
   inline void setFlag(uint flag) { mFlag = mFlag | flag; }
   inline bool queryFlag(eCamreraFlag flag) const { return flag & mFlag; }
 

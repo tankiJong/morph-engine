@@ -33,7 +33,7 @@ PSInput vmain(
 
 	input.position = mul(model, mul(projection, mul(view, float4(position, 1.f))));
 	input.color = color;
-	input.uv = uv;
+	input.uv = float2(uv.x, 1 - uv.y);
 
 	return input;
 }

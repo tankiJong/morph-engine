@@ -1,6 +1,6 @@
-#define FXAA_RootSig \
+#define Debug_RootSig \
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
-		"DescriptorTable(CBV(c0, numDescriptors = 11), visibility = SHADER_VISIBILITY_ALL)," \
+		"DescriptorTable(CBV(b0, numDescriptors = 11), visibility = SHADER_VISIBILITY_ALL)," \
     "StaticSampler(s0, maxAnisotropy = 8, visibility = SHADER_VISIBILITY_PIXEL)," 
 
 struct PSInput {
@@ -24,6 +24,7 @@ cbuffer cTint : register(b6) {
 	float4 tint;
 }
 
+[RootSignature(Debug_RootSig)]
 PSInput vmain(
 	float3 position: POSITION,
 	float4 color:    COLOR,
@@ -38,6 +39,7 @@ PSInput vmain(
 	return input;
 }
 
+[RootSignature(Debug_RootSig)]
 PSOutput pmain(PSInput input) {
 	PSOutput output;
 

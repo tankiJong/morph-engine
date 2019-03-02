@@ -44,11 +44,20 @@ Input::Input() {
   win->addWinMessageHandler([this](uint msg, size_t wparam, size_t /*lParam*/) {
     switch (msg) {
       // Raw physical keyboard "key-was-just-depressed" event (case-insensitive, not translated)
-      case WM_KEYDOWN:
-      case WM_LBUTTONDOWN:
-      case WM_MBUTTONDOWN:
-      case WM_RBUTTONDOWN: {
+      case WM_KEYDOWN: {
         onKeyDown((unsigned char)wparam);
+        break;
+      }
+      case WM_LBUTTONDOWN: {
+        onKeyDown(MOUSE_LBUTTON);
+        break;
+      }
+      case WM_MBUTTONDOWN: {
+        onKeyDown((unsigned char)MOUSE_MBUTTON);
+        break;
+      }
+      case WM_RBUTTONDOWN: {
+        onKeyDown((unsigned char)MOUSE_RBUTTON);
         break;
       }
 
