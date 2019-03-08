@@ -1255,6 +1255,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="Math\Transform.cpp" />
     <ClCompile Include="Memory\Allocator.cpp" />
     <ClCompile Include="Memory\Pool.cpp" />
+    <ClCompile Include="Memory\RingBuffer.cpp" />
     <ClCompile Include="Net\Net.cpp" />
     <ClCompile Include="Net\NetAddress.cpp" />
     <ClCompile Include="Net\NetMessage.cpp" />
@@ -2111,6 +2112,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="Math\Transform.hpp" />
     <ClInclude Include="Memory\Allocator.hpp" />
     <ClInclude Include="Memory\Pool.hpp" />
+    <ClInclude Include="Memory\RingBuffer.hpp" />
     <ClInclude Include="Net\Net.hpp" />
     <ClInclude Include="Net\NetAddress.hpp" />
     <ClInclude Include="Net\NetMessage.hpp" />

@@ -45,7 +45,7 @@ light_info_t& Light::info() {
 //
 // Camera& Light::camera() {
 //   mCamera.setDepthStencilTarget(&shadowMap());
-//   mCamera.transfrom() = transform;
+//   mCamera.transform() = transform;
 //
 //   return mCamera;
 // }
@@ -66,8 +66,8 @@ void Light::updateCamera() {}
 //   constexpr float viewFZ = 30.f;
 //   mat44 vp = view.projection()*view.view();
 //   mat44 viewCameraToWorld = (vp).inverse();
-//   vec4 viewFzPosition = vp * vec4(view.transfrom().position() + view.transfrom().forward() * viewFZ, 1.f);
-//   // Debug::drawCube(view.transfrom().position() + view.transfrom().forward() * viewFZ, 1.f, false, 0.f);
+//   vec4 viewFzPosition = vp * vec4(view.transform().position() + view.transform().forward() * viewFZ, 1.f);
+//   // Debug::drawCube(view.transform().position() + view.transform().forward() * viewFZ, 1.f, false, 0.f);
 //   float ndcFarZ = viewFzPosition.z / viewFzPosition.w;
 //
 //   aabb2 bound{ {-1, -1}, {1, 1} };
@@ -113,7 +113,7 @@ void Light::updateCamera() {}
 //       origin.z = 0;
 //       mat44 t = mat44::makeTranslation((transform.localToWorld() * vec4(origin, 1.f)).xyz());
 //       mat44 r = mat44::makeRotation(transform.rotation());
-//       mCamera.transfrom().setWorldTransform(t * r);
+//       mCamera.transform().setWorldTransform(t * r);
 //       mCamera.setProjectionOrtho(box.size().x, box.size().y, box.min.z, box.max.z);
 //     } break;
 //     case LIGHT_POINT: return;

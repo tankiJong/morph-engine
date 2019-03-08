@@ -503,13 +503,13 @@ mat44 mat44::ortho(float width, float height, float near, float far) {
 }
 
 
-// This is for openGL, openGL ndc z is from -1 ~ 1(while directx is from 0,1)
+// This is for directx, openGL ndc z is from -1 ~ 1(while directx is from 0,1)
 mat44 mat44::perspective(float fovDeg, float aspect, float nz, float fz) {
   float d = 1.f / tanDegree(fovDeg * .5f);
   return {
     d / aspect, 0, 0, 0,
     0,          d, 0, 0,
-    0,          0, (fz + nz) / (fz-nz), 2*nz*fz/(nz-fz),
+    0,          0, (fz) / (fz-nz), nz*fz/(nz-fz),
     0,          0, 1, 0
   };
 }

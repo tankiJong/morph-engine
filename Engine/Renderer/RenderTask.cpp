@@ -8,7 +8,7 @@ void RenderTask::sort(const Camera& cam, span<RenderTask> tasks) {
   std::sort(tasks.begin(), tasks.end(), [&cam](RenderTask& a, RenderTask& b) {
 
     if(a.layer >= SHADER_LAYER_ALPHA && b.layer >= SHADER_LAYER_ALPHA) {
-      vec3 camPos = cam.transfrom().position();
+      vec3 camPos = cam.transform().position();
       return camPos.distance2(a.transform->position()) < camPos.distance2(b.transform->position());
     } else {
       return ShaderPass::order(a.layer, a.queue) < ShaderPass::order(b.layer, b.queue);

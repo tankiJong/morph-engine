@@ -756,6 +756,9 @@
     <ClCompile Include="Renderer\RenderGraph\RenderGraphRegistry.cpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClCompile>
+    <ClCompile Include="Memory\RingBuffer.cpp">
+      <Filter>Engine\Memory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -1501,6 +1504,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\RenderGraph\RenderGraphRegistry.hpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\RingBuffer.hpp">
+      <Filter>Engine\Memory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

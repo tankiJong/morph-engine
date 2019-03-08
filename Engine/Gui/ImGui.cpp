@@ -24,6 +24,7 @@ void ImGui::startup() {
   ImGuiIO& io = ImGui::GetIO(); (void)io;
   // io.Fonts->AddFontFromFileTTF("Engine/font/FiraMono-Regular.ttf", 8.0f);
   io.Fonts->AddFontFromFileTTF("Engine/font/FiraMono-Regular.ttf", 16.0f);
+  io.ConfigResizeWindowsFromEdges = true;
 
   bool re1 = ImGui_ImplWin32_Init(Window::Get()->getHandle());
 
@@ -41,6 +42,9 @@ void ImGui::startup() {
   GUARANTEE_OR_DIE(re1 && re2, "fail to initialize ImGui");
 
   ImGui::StyleColorsDark();
+  ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, 5.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {8, 3});
 
 
 }
