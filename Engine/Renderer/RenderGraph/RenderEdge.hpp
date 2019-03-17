@@ -2,23 +2,17 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RHIResource.hpp"
 #include "Engine/Graphics/RHI/DescriptorSet.hpp"
+#include "Engine/Renderer/RenderGraph/RenderResourceHandle.hpp"
 
 class RenderNode;
 
 struct RenderEdge {
   using ResourceState = RHIResource::State;
-
   struct BindingInfo {
-    RHIResource::scptr_t res;
+    std::string name;
+    const RenderResourceHandle* handle;
     ResourceState state;
 
-    union {
-      const ConstantBufferView* cbv;
-      const ShaderResourceView* srv;
-      const UnorderedAccessView* uav;
-      const RenderTargetView* rtv;
-      const DepthStencilView* dsv;
-    };
     uint regIndex;
     uint regSpace;
     // bool isOwned;

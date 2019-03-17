@@ -3,11 +3,11 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 RHIDevice::sptr_t gDevice;
 
-Texture2::sptr_t& RHIDevice::backBuffer() {
+const Texture2::sptr_t& RHIDevice::backBuffer() const {
   return mBackBuffers[mCurrentBackBufferIndex];
 }
 
-Texture2::sptr_t& RHIDevice::depthBuffer() {
+const Texture2::sptr_t& RHIDevice::depthBuffer() const {
   return mDepthBuffer[mCurrentBackBufferIndex];
 }
 

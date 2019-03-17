@@ -4,6 +4,9 @@
 #include "Engine/Graphics/RHI/ResourceView.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 
+
+// code structure idea adpot from Falcor Engine: Source/API/Resource.h
+
 class RHIResource: public std::enable_shared_from_this<RHIResource> {
   friend class RHIContext;
 public:
@@ -31,7 +34,7 @@ public:
 
   /** Resource types. Notice there are no array types. Array are controlled using the array size parameter on texture creation.
    */
-  enum class Type {
+  enum class Type: uint {
     Unknown,
     Buffer,                 ///< Buffer. Can be bound to all shader-stages
     Texture1D,              ///< 1D texture. Can be bound as render-target, shader-resource and UAV
@@ -124,4 +127,47 @@ void setName(const RHIResource& res, const wchar_t* name);
 #define NAME_RHIRES(res) setName(*res, L#res)
 enum_class_operators(RHIResource::BindingFlag);
 
-// code structure idea adpot from Falcor Engine: Source/API/Resource.h
+
+template<typename T>
+struct rhi_type {
+  static constexpr RHIResource::Type value = RHIResource::Type::Unknown;
+  static constexpr bool valid = false;
+};
+
+template<>
+struct rhi_type<RHIResource> {
+  static constexpr RHIResource::Type value = RHIResource::Type::Unknown;
+  static constexpr bool valid = true;
+};
+
+template<>
+struct rhi_type<Texture2> {
+  static constexpr RHIResource::Type value = RHIResource::Type::Texture2D;
+  static constexpr bool valid = true;
+};
+
+class Texture3;
+template<>
+struct rhi_type<Texture3> {
+  static constexpr RHIResource::Type value = RHIResource::Type::Texture3D;
+  static constexpr bool valid = true;
+};
+
+class TextureCube;
+template<>
+struct rhi_type<TextureCube> {
+  static constexpr RHIResource::Type value = RHIResource::Type::TextureCube;
+  static constexpr bool valid = true;
+};
+
+template<>
+struct rhi_type<RHIBuffer> {
+  static constexpr RHIResource::Type value = RHIResource::Type::Buffer;
+  static constexpr bool valid = true;
+};
+
+template<typename T>
+struct rhi_type_t {
+  static constexpr RHIResource::Type value = rhi_type<std::decay_t<T>>::value;
+  static constexpr bool valid = rhi_type<std::decay_t<T>>::valid;
+};

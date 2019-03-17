@@ -6,10 +6,10 @@
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 
 void RenderNode::init() {
-  mPass->construct(mNodeContext);
+  mPass->construct(mNodeBuilder, mNodeContext);
 }
 
-void RenderNode::compile() {
+void RenderNode::build() {
   if(mIsCompiled) return;
 
   // resolve hidden dependency from input
@@ -21,7 +21,10 @@ void RenderNode::compile() {
   }
   Log::log("============ Ignore dependency warnings end =============");
 
-  mNodeContext.compile();
+  mNodeContext.build();
+
+  // later, also need to resolve the scope for all transient resources
+
   mIsCompiled = true;
 }
 
@@ -43,27 +46,35 @@ void RenderNode::dependOn(RenderNode& dependency) {
 }
 
 RenderEdge::BindingInfo* RenderNode::res(std::string_view name) {
-  return mNodeContext.find(name);
+  std::string fullname = mName + ".";
+  fullname.append(name);
+
+  return mNodeContext.find(fullname);
 }
 
 void RenderNode::run(RHIContext& ctx) {
   // resolve barrier
   SCOPED_GPU_EVENT(ctx, mName.c_str());
 
+  RenderGraphResourceSet& set = resourceSet();
+
   for(const RenderEdge* input: mInputs) {
-    ctx.transitionBarrier(input->toRes->res.get(), input->toRes->state);
+    
+    RHIResource::sptr_t res = set.get<RHIResource>(*input->toRes->handle);
+    ctx.transitionBarrier(res.get(), input->toRes->state);
   }
 
   for(const RenderEdge* output: mOutputs) {
-    EXPECTS(
-      output->fromRes->state == RHIResource::State::UnorderedAccess
-    ||output->fromRes->state == RHIResource::State::RenderTarget
-    ||output->fromRes->state == RHIResource::State::DepthStencil);
-    ctx.transitionBarrier(output->fromRes->res.get(), output->fromRes->state);
+    RHIResource::sptr_t res = set.get<RHIResource>(*output->fromRes->handle);
+    ctx.transitionBarrier(res.get(), output->fromRes->state);
   }
 
   mNodeContext.apply(ctx);
-  mPass->execute(ctx);
+  mPass->execute(set, ctx);
+}
+
+RenderGraphResourceSet& RenderNode::resourceSet() {
+  return mOwner->mResourceSet;
 }
 
 //

@@ -5,14 +5,18 @@
 #include <unordered_set>
 #include <atomic>
 
-#include "Engine/Renderer/RenderGraph/RenderNodeContext.hpp"
 #include "Engine/Graphics/RHI/Fence.hpp"
+
+#include "Engine/Renderer/RenderGraph/RenderEdge.hpp"
+#include "Engine/Renderer/RenderGraph/RenderNodeContext.hpp"
+#include "Engine/Renderer/RenderGraph/RenderNodeBuilder.hpp"
 
 class RenderPass;
 class RenderNode;
 class RenderGraph;
-
+class RenderGraphResourceSet;
 class RenderNode {
+
   friend class RenderGraph;
 public:
   RenderNode(RenderGraph* owner, std::string_view name, RenderPass* pass)
@@ -21,7 +25,7 @@ public:
 
   const std::string& name() const { return mName; }
   void init();
-  void compile();
+  void build();
   void dependOn(RenderNode& dependency);
   void connectInput(const RenderEdge& edge);
   void connectOutput(const RenderEdge& edge);
@@ -41,7 +45,11 @@ public:
   //
   // Inst instantiate() const;
 
+  const RenderGraphResourceSet& resourceSet() const;
+  RenderGraphResourceSet& resourceSet();
+
 protected:
+
   RenderGraph* mOwner = nullptr;
   RenderPass* mPass = nullptr;
   std::string mName = "Unnamed";
@@ -51,6 +59,7 @@ protected:
   std::unordered_set<RenderNode*> mOutGoingNodes;
   std::unordered_set<RenderNode*> mInComingNodes;
   RenderNodeContext mNodeContext { this };
+  RenderNodeBuilder mNodeBuilder { this };
 
   bool mVisited = false;
 private:

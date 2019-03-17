@@ -7,6 +7,8 @@ class uvec2 {
 public:
   uint x = 0u, y = 0u;
   uvec2() = default;
+  uvec2(const uvec2&) = default;
+  uvec2& operator=(const uvec2&) = default;
   uvec2(uint x, uint y);
   explicit uvec2(const vec2& castFrom);
   explicit uvec2(const ivec2& castFrom);
@@ -15,6 +17,7 @@ public:
 
   bool operator==(const uvec2& rhs) const;
   bool operator!=(const uvec2& rhs) const;
+
 
   void fromString(const char* data);
 

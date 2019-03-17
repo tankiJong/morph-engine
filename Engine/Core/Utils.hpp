@@ -21,21 +21,26 @@ using span = gsl::span<ElementType, Extent>;
 
 
 struct unique {
-  inline bool operator=(const unique& rhs) const { return id() == rhs.id(); }
+  constexpr bool operator==(const unique& rhs) const { return type == rhs.type; }
 protected:
-  virtual inline size_t id() const= 0;
+  constexpr unique(size_t type): type(type) {}
+  size_t type;
 };
 
 template<typename T>
 struct tid : public unique {
 protected:
-  inline size_t id() const { return (size_t)&_id; }
-  static char _id;
+  static const char _id = 0;
+public:
+  static const tid<T> value;
+  constexpr tid(): unique((size_t)&_id) {}
 };
 
 template<typename T>
-char tid<T>::_id = 0;
+const char tid<T>::_id = 0;
 
+template<typename T>
+const tid<T> tid<T>::value;
 
 template<typename T>
 using S = std::shared_ptr<T>;

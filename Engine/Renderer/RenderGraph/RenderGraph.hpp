@@ -6,15 +6,17 @@
 #include <functional>
 #include <unordered_set>
 #include "Engine/Renderer/RenderGraph/RenderEdge.hpp"
+#include "Engine/Renderer/RenderGraph/RenderGraphResourceSet.hpp"
 
 class RenderPass;
 class RenderNode;
 class RHIContext;
 class RenderNodeContext;
 class RenderPassExecutor;
+class RenderNodeBuilder;
 
-class RenderPassConstructor: public std::function<RenderPassExecutor(RenderNodeContext&)> {
-  using BaseType = std::function<RenderPassExecutor(RenderNodeContext&)>;
+class RenderPassConstructor: public std::function<RenderPassExecutor(RenderNodeBuilder&, RenderNodeContext&)> {
+  using BaseType = std::function<RenderPassExecutor(RenderNodeBuilder&, RenderNodeContext&)>;
 public:
   RenderPassConstructor() = default;
 
@@ -22,8 +24,8 @@ public:
   typename = std::enable_if_t<!std::is_same_v<std::decay_t<Lambda>, RenderPassConstructor> && !std::is_void_v<Lambda>>>
   RenderPassConstructor(Lambda&& lambda)
     : BaseType(std::forward<Lambda>(lambda)) {
-    using RtnType = std::invoke_result_t<Lambda, RenderNodeContext&>;
-    static_assert(std::is_same_v<void, std::invoke_result_t<RtnType, RHIContext&>>);
+    using RtnType = std::invoke_result_t<Lambda, RenderNodeBuilder&, RenderNodeContext&>;
+    static_assert(std::is_same_v<void, std::invoke_result_t<RtnType, const RenderGraphResourceSet&, RHIContext&>>);
   };
 
   using BaseType::operator();
@@ -31,8 +33,9 @@ public:
 protected:
 };
 
-class RenderPassExecutor: public std::function<void(RHIContext&)> {
-  using BaseType = std::function<void(RHIContext&)>;
+class RenderPassExecutor: 
+  public std::function<void(const RenderGraphResourceSet&, RHIContext&)> {
+  using BaseType = std::function<void(const RenderGraphResourceSet&, RHIContext&)>;
 public:
   RenderPassExecutor() = default;
 
@@ -40,7 +43,7 @@ public:
   typename = std::enable_if_t<!std::is_same_v<std::decay_t<Lambda>, RenderPassExecutor> && !std::is_void_v<Lambda>>>
   RenderPassExecutor(Lambda&& lambda)
     : BaseType(std::forward<Lambda>(lambda)) {
-    static_assert(std::is_same_v<void, std::invoke_result_t<Lambda, RHIContext&>>);
+    static_assert(std::is_same_v<void, std::invoke_result_t<Lambda, const RenderGraphResourceSet&, RHIContext&>>);
   };
 
   using BaseType::operator();
@@ -63,13 +66,44 @@ public:
 
   void depend(RenderNode& blocker, RenderNode& blockee);
 
-  void connect(RenderNode& fromNode, std::string_view fromRes, RenderNode& toNode, std::string_view toRes);
+  void bind(std::string_view resourceInPass, std::string_view resource);
 
-  bool execute() const;
+  void connect(RenderNode& fromNode, std::string_view fromNodeOutParam, RenderNode& toNode, std::string_view toNodeInParam);
 
-  bool compile();
-  void setOutput(std::string_view passName, std::string_view resName);
-  void setOutput(RenderNode& node, std::string_view resName);
+  // void connect(RenderNode& fromNode, std::string_view fromNodeOutParam, std::string_view resName);
+  //
+  // void connect(std::string_view resName, RenderNode& toNode, std::string_view toNodeInParam);
+ 
+  /**
+   * Connect from a resource/param to another resource/param.
+   * 
+   * For resource: resource name;
+   * For param: [pass-name].[param-name];
+   *        
+   */
+  void connect(std::string_view fromRes, std::string_view toRes);
+
+  template<typename T>
+  void setParam(rhi_sptr_t<T> p, std::string_view name) {
+    auto handle = mResourceSet.find(name);
+    mResourceSet.set<T>(p, *handle, RenderGraphResourceHandle::OWN_EXTERNAL, true);
+  }
+
+  void setCustomBackBuffer(const Texture2::sptr_t& backbuffer) {
+    mResourceSet.setBackbuffer(backbuffer);
+  }
+
+  void setOutputPass(RenderNode& node) { mOutputNode = &node; }
+
+  bool execute();
+
+  bool build();
+
+  template<typename T>
+  decltype(auto) declare(std::string name) {
+    return mResourceSet.declare<T>(name);
+  }
+
 protected:
 
   RenderNode& addPass(std::string_view name, RenderPass* pass);
@@ -84,7 +118,7 @@ protected:
   std::map<std::string, RenderNode*, std::greater<>> mDefinedNodes;
   std::unordered_set<RenderEdge> mEdges;
   RenderNode* mOutputNode;
-  RHIResource::scptr_t mOutputResource;
+  RenderGraphResourceSet mResourceSet;
 
 private:
   void topologySortVisitor(std::vector<RenderNode*>& sortedNodes, RenderNode* node) const;

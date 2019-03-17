@@ -1525,11 +1525,13 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </ClCompile>
     <ClCompile Include="Renderer\RenderGraph\RenderEdge.cpp" />
     <ClCompile Include="Renderer\RenderGraph\RenderGraph.cpp" />
-    <ClCompile Include="Renderer\RenderGraph\RenderGraphRegistry.cpp" />
+    <ClCompile Include="Renderer\RenderGraph\RenderGraphResourceSet.cpp" />
+    <ClCompile Include="Renderer\RenderGraph\RenderNodeBuilder.cpp" />
     <ClCompile Include="Renderer\RenderGraph\RenderNodeContext.cpp" />
     <ClCompile Include="Renderer\RenderGraph\RenderNode.cpp" />
     <ClCompile Include="Renderer\RenderGraph\RenderPass.cpp" />
     <ClCompile Include="Renderer\RenderGraph\RenderPass\BlurPass.cpp" />
+    <ClCompile Include="Renderer\RenderGraph\RenderResourceHandle.cpp" />
     <ClCompile Include="Renderer\RenderScene.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">true</ExcludedFromBuild>
@@ -2387,11 +2389,13 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </ClInclude>
     <ClInclude Include="Renderer\RenderGraph\RenderEdge.hpp" />
     <ClInclude Include="Renderer\RenderGraph\RenderGraph.hpp" />
-    <ClInclude Include="Renderer\RenderGraph\RenderGraphRegistry.hpp" />
+    <ClInclude Include="Renderer\RenderGraph\RenderGraphResourceSet.hpp" />
+    <ClInclude Include="Renderer\RenderGraph\RenderNodeBuilder.hpp" />
     <ClInclude Include="Renderer\RenderGraph\RenderNodeContext.hpp" />
     <ClInclude Include="Renderer\RenderGraph\RenderNode.hpp" />
     <ClInclude Include="Renderer\RenderGraph\RenderPass.hpp" />
     <ClInclude Include="Renderer\RenderGraph\RenderPass\BlurPass.hpp" />
+    <ClInclude Include="Renderer\RenderGraph\RenderResourceHandle.hpp" />
     <ClInclude Include="Renderer\RenderScene.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='FastBreak|Win32'">true</ExcludedFromBuild>

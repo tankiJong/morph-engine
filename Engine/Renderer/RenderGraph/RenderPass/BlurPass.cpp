@@ -4,36 +4,54 @@
 #include "Renderer/RenderGraph/RenderPass/Blur_cs.h"
 #include "Engine/Renderer/RenderGraph/RenderNodeContext.hpp"
 #include "Engine/Graphics/RHI/RHIContext.hpp"
+#include "Engine/Renderer/RenderGraph/RenderNodeBuilder.hpp"
+#include "Engine/Renderer/RenderGraph/RenderGraphResourceSet.hpp"
 
-BlurPass::BlurPass(const Texture2::sptr_t& target, bool vertical) {
+BlurPass::BlurPass(bool vertical) {
   mBlurConstant.verticalFlag = vertical ? 1.f : 0.f;
 
   mcBlurConstant = RHIBuffer::create(sizeof(BlurConstant), RHIResource::BindingFlag::ConstantBuffer, RHIBuffer::CPUAccess::Write);
   mcBlurConstant->updateData(mBlurConstant);
-  mTarget = target;
-  mTempBuffer = Texture2::create(mTarget->width(), mTarget->height(), 
-                                 mTarget->format(), 
-                                 RHIResource::BindingFlag::ShaderResource |
-                                 RHIResource::BindingFlag::UnorderedAccess |
-                                 RHIResource::BindingFlag::RenderTarget);
+  // mTempBuffer = Texture2::create(mTarget->width(), mTarget->height(), 
+  //                                mTarget->format(), 
+  //                                RHIResource::BindingFlag::ShaderResource |
+  //                                RHIResource::BindingFlag::UnorderedAccess |
+  //                                RHIResource::BindingFlag::RenderTarget);
 }
 
-void BlurPass::construct(RenderNodeContext& builder) {
+void BlurPass::construct(RenderNodeBuilder& builder, RenderNodeContext& context) {
+  
+  auto& target = builder.inputOutput<Texture2>(kInput);
+  mTarget = &target;
+
   auto prog = Resource<Program>::get("internal/ShaderPass/Blur");
 
-  builder.reset(prog, true);
+  context.reset(prog, true);
 
-  builder.readCbv("blur-constant", mcBlurConstant, 0);
-  builder.readSrv("blur-input", mTarget, 0);
-  builder.readWriteUav("blur-output", mTempBuffer, 0);
+  auto& constants = context.bind<RHIBuffer>(mcBlurConstant, "blur-constant");
+
+  RenderGraphResourceDesc desc;
+  desc.type = RHIResource::Type::Texture2D;
+  desc.texture2.format = TEXTURE_FORMAT_RGBA8;
+  auto& tempBuffer = context.extend(target, "temp-buffer", desc);
+
+  mTempBuffer = &tempBuffer;
+
+  context.readCbv(".blur-constant", 0);
+  context.readSrv(".target", 0);
+  context.readWriteUav(tempBuffer, 0);
 }
 
-void BlurPass::execute(RHIContext& ctx) const {
-  uint width = mTarget->width();
-  uint height = mTarget->height();
+void BlurPass::execute(const RenderGraphResourceSet& set, RHIContext& ctx) const {
+  auto tempBuffer = set.get<Texture2>(*mTempBuffer);
+  uint width = tempBuffer->width();
+  uint height = tempBuffer->height();
 
   ctx.dispatch(width / 16 + 1, height / 16 + 1, 1);
-  ctx.copyResource(*mTempBuffer, *mTarget);
+
+  auto target = set.get<Texture2>(*mTarget);
+
+  ctx.copyResource(*tempBuffer, *target);
 }
 
 DEF_RESOURCE(Program, "internal/ShaderPass/Blur") {

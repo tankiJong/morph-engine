@@ -12,11 +12,11 @@ public:
   FunctionalRenderPass(RenderPassConstructor constructor)
     : mConstructor(std::move(constructor)) {}
 
-  void construct(RenderNodeContext& builder) override {
-    mExecutor = mConstructor(builder);
+  void construct(RenderNodeBuilder& builder, RenderNodeContext& context) override {
+    mExecutor = mConstructor(builder, context);
   };
-  void execute(RHIContext& ctx) const override {
-    mExecutor(ctx);
+  void execute(const RenderGraphResourceSet& set, RHIContext& ctx) const override {
+    mExecutor(set, ctx);
   };
 
 protected:
@@ -33,6 +33,10 @@ RenderNode& RenderGraph::defineNode(std::string_view name, RenderPassConstructor
 
 void RenderGraph::depend(RenderNode& blocker, RenderNode& blockee) {
   blockee.dependOn(blocker);
+}
+
+void RenderGraph::bind(std::string_view resourceInPass, std::string_view resource) {
+  mResourceSet.bind(resourceInPass, resource);
 }
 
 void RenderGraph::connect(RenderNode& fromNode, std::string_view fromRes, RenderNode& toNode, std::string_view toRes) {
@@ -52,6 +56,8 @@ void RenderGraph::connect(RenderNode& fromNode, std::string_view fromRes, Render
   }
   fromNode.connectOutput(*edge);
   toNode.connectInput(*edge);
+
+  mResourceSet.bind(to->name, from->name);
 }
 
 void RenderGraph::topologySortVisitor(std::vector<RenderNode*>& sortedNodes, RenderNode* node) const {
@@ -63,34 +69,34 @@ void RenderGraph::topologySortVisitor(std::vector<RenderNode*>& sortedNodes, Ren
   sortedNodes.push_back(node);
 }
 
-bool RenderGraph::execute() const {
-  EXPECTS(mOutputNode != nullptr && mOutputResource != nullptr);
+bool RenderGraph::execute() {
+  EXPECTS(mOutputNode != nullptr);
 
+  // reset nodes, do topology sort
   for(auto& [_, node]: mDefinedNodes) {
     node->mVisited = false;
   }
-
   std::vector<RenderNode*> sortedNodes;
-
   topologySortVisitor(sortedNodes, mOutputNode);
 
 
   RHIContext::sptr_t ctx = RHIDevice::get()->defaultRenderContext();
-
   ctx->bindDescriptorHeap();
-
   for(RenderNode* node: sortedNodes) {
     node->run(*ctx);
   }
 
-  ctx->copyResource(*mOutputResource, *RHIDevice::get()->backBuffer());
+  // ctx->copyResource(*mOutputResource, *RHIDevice::get()->backBuffer());
+
+  // clean up all resources for the next execution
+  mResourceSet.clearResources();
 
   return true;
 }
 
-bool RenderGraph::compile() {
+bool RenderGraph::build() {
   for(auto& [_, node]: mDefinedNodes) {
-    node->compile();
+    node->build();
   }
 
   return true;
@@ -100,12 +106,12 @@ bool RenderGraph::compile() {
 //   
 // }
 
-void RenderGraph::setOutput(RenderNode& node, std::string_view resName) {
-  EXPECTS(node.mOwner == this);
-  mOutputNode = &node;
-  auto* bindingInfo = node.res(resName);
-  mOutputResource = bindingInfo->res;
-}
+// void RenderGraph::setOutput(RenderNode& node, std::string_view resName) {
+//   EXPECTS(node.mOwner == this);
+//   mOutputNode = &node;
+//   auto* bindingInfo = node.res(resName);
+//   mOutputResource = bindingInfo->res;
+// }
 
 RenderNode& RenderGraph::addPass(std::string_view name, RenderPass* pass) {
   EXPECTS(pass != nullptr);

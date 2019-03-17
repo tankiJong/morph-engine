@@ -47,7 +47,7 @@ bool ParamData::setUav(const UnorderedAccessView& uav, const BindPoint& bp) {
   res.res = uav.res().lock();
   ASSERT_OR_RETURN(res.res != nullptr, false);
 
-  res.type = DescriptorPool::Type::Cbv;
+  res.type = DescriptorPool::Type::TextureUav;
   // res.requiredSize = 
   res.uav = &uav;
 
@@ -115,7 +115,7 @@ ParamData::sptr_t ParamData::create(const DescriptorSet::Layout& layout) {
   auto* paramData = new ParamData();
   paramData->mBindedResources.resize(layout.rangeCount());
 
-  for(uint i = 0; i < layout.rangeCount(); i++) {\
+  for(uint i = 0; i < layout.rangeCount(); i++) {
     auto& range = layout.range(i);
     paramData->mBindedResources[i].resize(range.descCount);
 

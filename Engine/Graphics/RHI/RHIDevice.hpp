@@ -29,8 +29,8 @@ public:
   DescriptorPool::sptr_t cpuDescriptorPool() { return mCpuDescriptorPool; };
   DescriptorPool::sptr_t gpuDescriptorPool() { return mGpuDescriptorPool; }
 
-  Texture2::sptr_t& backBuffer();
-  Texture2::sptr_t& depthBuffer();
+  const Texture2::sptr_t& backBuffer() const;
+  const Texture2::sptr_t& depthBuffer() const;
 
   ~RHIDevice();
   void cleanup();

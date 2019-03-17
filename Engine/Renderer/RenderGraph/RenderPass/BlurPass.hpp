@@ -3,22 +3,25 @@
 #include "Engine/Renderer/RenderGraph/RenderPass.hpp"
 #include "Engine/Graphics/RHI/Texture.hpp"
 #include "Engine/Graphics/RHI/RHIBuffer.hpp"
+#include "Engine/Renderer/RenderGraph/RenderResourceHandle.hpp"
 
 class RenderNodeContext;
 class RHIContext;
 
 class BlurPass: public RenderPass {
 public:
-  BlurPass(const Texture2::sptr_t& target, bool vertical);
+  static constexpr const char* kInput = "target";
+  static constexpr const char* kOutput = "result";
 
-  void construct(RenderNodeContext& builder) override;
-  void execute(RHIContext& ctx) const override;
+  BlurPass(bool vertical);
+
+  void construct(RenderNodeBuilder& builder, RenderNodeContext& context) override;
+  void execute(const RenderGraphResourceSet& set, RHIContext& ctx) const override;
 
 protected:
-  Texture2::sptr_t mTarget;
-  Texture2::sptr_t mTempBuffer;
+  RenderResourceHandle* mTarget;
   RHIBuffer::sptr_t mcBlurConstant;
-
+  RenderResourceHandle* mTempBuffer;
   struct BlurConstant {
     float verticalFlag;
     vec3 __padding;

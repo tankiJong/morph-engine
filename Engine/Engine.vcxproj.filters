@@ -753,11 +753,17 @@
     <ClCompile Include="Renderer\RenderGraph\RenderPass\BlurPass.cpp">
       <Filter>Engine\Renderer\RenderGraph\RenderPass</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\RenderGraph\RenderGraphRegistry.cpp">
-      <Filter>Engine\Renderer\RenderGraph</Filter>
-    </ClCompile>
     <ClCompile Include="Memory\RingBuffer.cpp">
       <Filter>Engine\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderGraph\RenderNodeBuilder.cpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderGraph\RenderGraphResourceSet.cpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderGraph\RenderResourceHandle.cpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1502,11 +1508,17 @@
     <ClInclude Include="Config.hpp">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\RenderGraph\RenderGraphRegistry.hpp">
-      <Filter>Engine\Renderer\RenderGraph</Filter>
-    </ClInclude>
     <ClInclude Include="Memory\RingBuffer.hpp">
       <Filter>Engine\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderGraph\RenderNodeBuilder.hpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderGraph\RenderGraphResourceSet.hpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderGraph\RenderResourceHandle.hpp">
+      <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
