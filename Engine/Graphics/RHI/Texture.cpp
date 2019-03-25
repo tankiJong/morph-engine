@@ -32,6 +32,11 @@ Texture2::sptr_t Texture2::create(rhi_resource_handle_t res) {
   return Texture2::sptr_t(new Texture2(res));
 }
 
+Texture3::sptr_t Texture3::create(uint width, uint height, uint depth, eTextureFormat format,
+                                  BindingFlag flag, const void* data, size_t size) {
+  return createOrFail<Texture3>(false, data, size, width, height, depth, format, flag);
+}
+
 TextureCube::sptr_t TextureCube::create(
   uint width, uint height, eTextureFormat format,
   bool genMipMap, BindingFlag flag,

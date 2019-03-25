@@ -66,7 +66,7 @@ public:
   using sptr_t = std::shared_ptr<Texture3>;
   using inherit_shared_from_this<RHITexture, Texture3>::shared_from_this;
 
-  Texture3::sptr_t create(uint width, uint height, uint depth,
+  static Texture3::sptr_t create(uint width, uint height, uint depth, eTextureFormat format,
                           BindingFlag flag = BindingFlag::ShaderResource,
                           const void* data = nullptr, size_t size = 0);
 protected:
