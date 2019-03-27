@@ -29,6 +29,7 @@ public:
   S<RHIContext>& context() { return mRhiContext; };
   FrameBuffer* currentFbo() { return mFrameBuffer.get(); };
 
+  void drawSubMesh(Mesh& mesh, uint subMeshIndex);
   void drawMesh(Mesh& mesh);
   void drawMeshImmediate(span<const vertex_lit_t> vertices, eDrawPrimitive prim);
 

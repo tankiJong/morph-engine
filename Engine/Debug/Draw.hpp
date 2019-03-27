@@ -15,15 +15,14 @@ class Camera;
 class Gradient;
 namespace Debug {
   enum eDebugDrawDepthMode {
-    DEBUG_DEPTH_DEFAULT,
     DEBUG_DEPTH_ENABLE,
     DEBUG_DEPTH_DISABLE,
     DEBUG_DEPTH_XRAY,
   };
 
   class DrawHandle {
-    friend struct DebugDrawMeta;
-    DebugDrawMeta* mTarget;
+    friend struct DebugDrawMetaData;
+    DebugDrawMetaData* mTarget;
     uint id = NULL;
     inline static uint _id = 0;
   public:
@@ -34,12 +33,23 @@ namespace Debug {
   };
 
   inline constexpr float INF = INFINITY;
-  void setRenderer(ImmediateRenderer* renderer);
-  void setCamera2D(Camera* camera);
-  void setCamera(Camera* camera);
-  void setClock(const Clock* clock = nullptr);
+
+  struct DrawOption {
+    DrawOption();
+    eDebugDrawDepthMode depthMode;
+    const Clock* clock;
+    float duration;
+    const Camera* camera;
+    Gradient decayColor = Rgba::white;
+
+  };
+
   void setDuration(float time);
   void setDepth(eDebugDrawDepthMode depthMode);
+
+  void setRenderer(ImmediateRenderer* renderer);
+  void setCamera(Camera* camera);
+  void setClock(const Clock* clock = nullptr);
   void clear();
   void toggleDebugRender(bool isEnabled);
   void toggleDebugRender();
@@ -58,7 +68,7 @@ namespace Debug {
   const DrawHandle* drawLine2(const vec2& a, const vec2& b, float duration,
                  const Rgba& cla = Rgba::white, const Rgba& clb = Rgba::white, const Clock* clockOverride = nullptr);
 
-  const DrawHandle* drawText2(std::string_view text, float size, const vec2& bottomLeft, 
+  const DrawHandle* drawText2(std::string text, float size, const vec2& bottomLeft, 
                               float duration = INF, const Gradient& cl = Gradient::white, const Font* font = nullptr);
 
   // -------------------- 3D ---------------------------
@@ -101,10 +111,10 @@ namespace Debug {
                              float unitSize = 1.f, float limit = 10.f, float duration = INF,
                              const Gradient& cl = Gradient::white, const Clock* clockOverride = nullptr);
 
-  const DrawHandle* drawText(std::string_view text, float size, const vec3& bottomLeft, 
+  const DrawHandle* drawText(std::string text, float size, const vec3& bottomLeft, 
                              const vec3& direction = vec3::right, const vec3& up = vec3::up, const Font* font = nullptr, float duration = INF, 
                              const Gradient& cl = Gradient::white, const Clock* clockOverride = nullptr);
-  const DrawHandle* drawText(std::string_view text, float size, const vec3& bottomLeft, float duration, 
+  const DrawHandle* drawText(std::string text, float size, const vec3& bottomLeft, float duration, 
                              const vec3& direction = vec3::right, const vec3& up = vec3::up, const Font* font = nullptr, 
                              const Gradient& cl = Gradient::white, const Clock* clockOverride = nullptr);
 

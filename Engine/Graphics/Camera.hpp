@@ -28,8 +28,8 @@ public:
   void lookAt(const vec3& position, const vec3& target, const vec3& up = vec3::up);
 
   // projection settings
-  void setProjectionOrtho(float width, float height, float near, float far);
-  void setProjectionPrespective(float fovDeg, float width, float height, float near, float far);
+  void setProjectionOrtho(float width, float height, float nearZ, float farZ);
+  void setProjectionPrespective(float fovDeg, float width, float height, float nearZ, float farZ);
 
   inline float width() const { return mWidth; }
   inline float height() const { return mHeight; }

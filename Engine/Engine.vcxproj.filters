@@ -1750,5 +1750,11 @@
     <FxCompile Include="Graphics\RHI\Blit_ps.hlsl">
       <Filter>Engine\Graphics\RHI</Filter>
     </FxCompile>
+    <FxCompile Include="Debug\Debug_Text_ps.hlsl">
+      <Filter>Engine\Debug</Filter>
+    </FxCompile>
+    <FxCompile Include="Debug\Debug_Text_vs.hlsl">
+      <Filter>Engine\Debug</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

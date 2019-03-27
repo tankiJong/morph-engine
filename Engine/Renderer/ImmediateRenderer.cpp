@@ -26,9 +26,9 @@ void ImmediateRenderer::startUp() {
 
   }
 
-  mLightBuffer = RHIBuffer::create(sizeof(light_info_t), RHIResource::BindingFlag::ConstantBuffer, RHIBuffer::CPUAccess::Write);
-  mCameraBuffer = RHIBuffer::create(sizeof(camera_t), RHIResource::BindingFlag::ConstantBuffer, RHIBuffer::CPUAccess::Write);
-  mModelMatrixBuffer = RHIBuffer::create(sizeof(mat44), RHIResource::BindingFlag::ConstantBuffer, RHIBuffer::CPUAccess::Write);
+  mLightBuffer = RHIBuffer::create(sizeof(light_info_t), RHIResource::BindingFlag::ConstantBuffer, RHIBuffer::CPUAccess::None);
+  mCameraBuffer = RHIBuffer::create(sizeof(camera_t), RHIResource::BindingFlag::ConstantBuffer, RHIBuffer::CPUAccess::None);
+  mModelMatrixBuffer = RHIBuffer::create(sizeof(mat44), RHIResource::BindingFlag::ConstantBuffer, RHIBuffer::CPUAccess::None);
 
   mProgram.reset(new Program());
   mRhiContext = RHIDevice::get()->defaultRenderContext();
@@ -38,7 +38,7 @@ void ImmediateRenderer::startUp() {
   layout.addRange(DescriptorSet::Type::Cbv, 0, NUM_UNIFORM_SLOT);
   layout.addRange(DescriptorSet::Type::TextureSrv, 0, NUM_TEXTURE_SLOT);
 
-  mDescriptorSet = DescriptorSet::create(RHIDevice::get()->get()->gpuDescriptorPool(), layout);
+  mDescriptorSet = DescriptorSet::create(RHIDevice::get()->gpuDescriptorPool(), layout);
 
   {
     RootSignature::Desc desc;
@@ -49,6 +49,70 @@ void ImmediateRenderer::startUp() {
   mDescriptorSet->setCbv(0, UNIFORM_LIGHT, *mLightBuffer->cbv());
   mDescriptorSet->setCbv(0, UNIFORM_CAMERA, *mCameraBuffer->cbv());
   mDescriptorSet->setCbv(0, UNIFORM_TRANSFORM, *mModelMatrixBuffer->cbv());
+}
+
+void ImmediateRenderer::drawSubMesh(Mesh& mesh, uint subMeshIndex) {
+  GraphicsState::Desc desc;
+  mRhiContext->bindDescriptorHeap();
+  S<const RootSignature> sig = mProgram->rootSignature();
+  if (sig == nullptr) {
+    sig = mRootSignature;
+  }
+
+  ASSERT_RECOVERABLE(sig != nullptr, "the current root signature is going to be empty");
+
+  if (sig == nullptr) {
+    sig = RootSignature::emptyRootSignature();
+  }
+
+
+  desc.setFboDesc(mFrameBuffer->desc());
+  desc.setVertexLayout(&mesh.layout());
+  desc.setProgram(mProgram);
+  desc.setRootSignature(sig);
+
+  GraphicsState::PrimitiveType prim = GraphicsState::PrimitiveType::Undefined;
+
+  const draw_instr_t& instr = mesh.instructions()[subMeshIndex];
+
+  switch(instr.prim) { 
+    case DRAW_POINTS:
+      prim = GraphicsState::PrimitiveType::Point;
+    break;
+    case DRAW_LINES:
+      prim = GraphicsState::PrimitiveType::Line;
+    break;
+    case DRAW_TRIANGES:
+      prim = GraphicsState::PrimitiveType::Triangle;
+    break;
+    case NUM_PRIMITIVE_TYPES:
+    default: 
+    BAD_CODE_PATH();
+  }
+  desc.setPrimTye(prim);
+
+  GraphicsState::sptr_t gs = GraphicsState::create(desc);
+
+  mRhiContext->setGraphicsState(*gs);
+
+  if (mMaterial) {
+    mMaterial->bindForGraphics(*mRhiContext, *sig);
+  } else {
+    mDescriptorSet->bindForGraphics(*mRhiContext, *sig);
+  }
+
+  mRhiContext->setFrameBuffer(*mFrameBuffer);
+  // mRhiContext->setFrameBuffer(fbo);
+  mesh.bindForContext(*mRhiContext);
+
+  {
+    mRhiContext->setPrimitiveTopology(instr.prim);
+    if(instr.useIndices) {
+      mRhiContext->drawIndexed(0, instr.startIndex, instr.elementCount);
+    } else {
+      mRhiContext->draw(instr.startIndex, instr.elementCount);
+    }
+  }
 }
 
 void ImmediateRenderer::drawMesh(Mesh& mesh) {
@@ -65,14 +129,6 @@ void ImmediateRenderer::drawMesh(Mesh& mesh) {
     sig = RootSignature::emptyRootSignature();
   }
   desc.setRootSignature(sig);
-
-  mRhiContext->setGraphicsRootSignature(*sig);
-
-  if (mMaterial) {
-    mMaterial->bindForGraphics(*mRhiContext, *sig);
-  } else {
-    mDescriptorSet->bindForGraphics(*mRhiContext, *sig);
-  }
 
   desc.setFboDesc(mFrameBuffer->desc());
   desc.setVertexLayout(&mesh.layout());
@@ -99,6 +155,12 @@ void ImmediateRenderer::drawMesh(Mesh& mesh) {
   GraphicsState::sptr_t gs = GraphicsState::create(desc);
 
   mRhiContext->setGraphicsState(*gs);
+  
+  if (mMaterial) {
+    mMaterial->bindForGraphics(*mRhiContext, *sig);
+  } else {
+    mDescriptorSet->bindForGraphics(*mRhiContext, *sig);
+  }
 
   mRhiContext->setFrameBuffer(*mFrameBuffer);
   // mRhiContext->setFrameBuffer(fbo);

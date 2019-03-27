@@ -47,7 +47,7 @@ void BlurPass::execute(const RenderGraphResourceSet& set, RHIContext& ctx) const
   uint width = tempBuffer->width();
   uint height = tempBuffer->height();
 
-  ctx.dispatch(width / 16 + 1, height / 16 + 1, 1);
+  ctx.dispatch(width / 8 + 1, height / 8 + 1, 1);
 
   auto target = set.get<Texture2>(*mTarget);
 

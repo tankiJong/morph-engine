@@ -15,7 +15,7 @@ RWTexture2D<float4> uOutput: register(u0);
 static const int KERNEL_SIZE = 9;
 
 [RootSignature(Blur_RootSig)]
-[numthreads(16, 16, 1)]
+[numthreads(8, 8, 1)]
 void main( uint3 pixCoords : SV_DispatchThreadID )
 {
 	float weight[KERNEL_SIZE] = { 0.016216, 0.054054, 0.1216216, 0.1945946, 

@@ -112,7 +112,7 @@ owner<Mesh*> Mesher::createMesh() {
   m->setInstructions(mIns);
   m->setVertices(mVertices);
   
-  if(mCurrentIns.useIndices) {
+  if(mIndices.size() != 0) {
     m->setIndices(mIndices);
   }
 
