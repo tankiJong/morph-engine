@@ -29,8 +29,6 @@ class Transform {
 public:
 
   mat44 localToWorld() const;
-
-
   mat44 worldToLocal() const;
 
   // mutator
@@ -61,6 +59,9 @@ public:
              model.y().xyz().magnitude(), 
              model.z().xyz().magnitude() };
   };
+
+  vec3 transform(const vec3& pointOrDisp, bool isDisp = false) const;
+
   const Transform*& parent() { return mParent; }
 
   static mat44 lookAt(const vec3& position, const vec3& target);

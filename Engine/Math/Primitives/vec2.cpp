@@ -235,6 +235,12 @@ float vec2::manhattan(const vec2& rhs) const {
   return (*this - rhs).manhattan();
 }
 
+float vec2::distance(const vec2& another) const {
+  float xx = float(x - another.x);
+  float yy = float(y - another.y);
+  return sqrt(xx * xx + yy * yy);
+}
+
 float vec2::dot(const vec2& another) const {
   return dotProduct(*this, another);
 }

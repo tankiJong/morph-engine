@@ -74,6 +74,12 @@ vec3 Transform::right() const {
   return (localToWorld() * vec4(vec3::right, 0)).xyz();
 }
 
+vec3 Transform::transform(const vec3& pointOrDisp, bool isDisp) const {
+  vec4 from(pointOrDisp, isDisp ? 0 : 1);
+  vec4 result = localToWorld() * from;
+  return result.xyz();
+}
+
 mat44 Transform::lookAt(const vec3& position, const vec3& target) {
   vec3 _forward = (target - position).normalized();
 

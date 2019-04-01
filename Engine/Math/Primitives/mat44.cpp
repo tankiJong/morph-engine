@@ -326,26 +326,51 @@ mat44 mat44::inverse() const {
 
 Euler mat44::euler(eRotationOrder rotationOrder) const {
   UNUSED(rotationOrder);
-  EXPECTS(rotationOrder == ROTATION_ZXY);
-  vec3 ii = i.xyz().normalized();
-  vec3 jj = j.xyz().normalized();
-  vec3 kk = k.xyz().normalized();
+  if(rotationOrder == ROTATION_ZXY) {
+    vec3 ii = i.xyz().normalized();
+    vec3 jj = j.xyz().normalized();
+    vec3 kk = k.xyz().normalized();
 
-  Euler e;
+    Euler e;
 
-  e.x = asinDegrees(kk.y);
-  // cosx = 0
-  if(kk.y == 1.f || kk.y == -1.f) {
-    e.y = 0;
-    e.z = atan2Degree(jj.x, ii.x);
+    e.x = asinDegrees(kk.y);
+    // cosx = 0
+    if(kk.y == 1.f || kk.y == -1.f) {
+      e.y = 0;
+      e.z = atan2Degree(jj.x, ii.x);
+
+      return e;
+    }
+
+    e.z = atan2Degree(-ii.y, jj.y);
+    e.y = atan2Degree(-kk.x, kk.z);
 
     return e;
   }
 
-  e.z = atan2Degree(-ii.y, jj.y);
-  e.y = atan2Degree(-kk.x, kk.z);
+  if(rotationOrder == ROTATION_YZX) {
+    vec3 ii = i.xyz().normalized();
+    vec3 jj = j.xyz().normalized();
+    vec3 kk = k.xyz().normalized();
 
-  return e;
+    Euler e;
+
+    e.z = asinDegrees(jj.x);
+    // cosz = 0
+    if(jj.x == 1.f || jj.x == -1.f) {
+      e.x = 0;
+      e.y = atan2Degree(kk.y, -ii.y);
+
+      return e;
+    }
+
+    e.x = atan2Degree(-jj.z, jj.y);
+    e.y = atan2Degree(-kk.x, ii.x);
+
+    return e;
+  }
+
+  BAD_CODE_PATH();
 }
 
 quaternion mat44::quat() const {

@@ -54,7 +54,7 @@ public:
   float distance(const vec3& rhs) const;
   vec2 xy() const;
   vec2 xz() const;
-
+  vec2 yz() const;
   float angle(const vec3& rhs) const;
 
   static vec3 abs(const vec3& vec);

@@ -52,49 +52,52 @@ void ImmediateRenderer::startUp() {
 }
 
 void ImmediateRenderer::drawSubMesh(Mesh& mesh, uint subMeshIndex) {
-  GraphicsState::Desc desc;
-  mRhiContext->bindDescriptorHeap();
   S<const RootSignature> sig = mProgram->rootSignature();
-  if (sig == nullptr) {
-    sig = mRootSignature;
-  }
-
-  ASSERT_RECOVERABLE(sig != nullptr, "the current root signature is going to be empty");
-
-  if (sig == nullptr) {
-    sig = RootSignature::emptyRootSignature();
-  }
-
-
-  desc.setFboDesc(mFrameBuffer->desc());
-  desc.setVertexLayout(&mesh.layout());
-  desc.setProgram(mProgram);
-  desc.setRootSignature(sig);
-
-  GraphicsState::PrimitiveType prim = GraphicsState::PrimitiveType::Undefined;
-
   const draw_instr_t& instr = mesh.instructions()[subMeshIndex];
+  
+  if(mIsStateDirty) {
+    GraphicsState::Desc desc;
+    mRhiContext->bindDescriptorHeap();
+    if (sig == nullptr) {
+      sig = mRootSignature;
+    }
 
-  switch(instr.prim) { 
-    case DRAW_POINTS:
-      prim = GraphicsState::PrimitiveType::Point;
-    break;
-    case DRAW_LINES:
-      prim = GraphicsState::PrimitiveType::Line;
-    break;
-    case DRAW_TRIANGES:
-      prim = GraphicsState::PrimitiveType::Triangle;
-    break;
-    case NUM_PRIMITIVE_TYPES:
-    default: 
-    BAD_CODE_PATH();
+    ASSERT_RECOVERABLE(sig != nullptr, "the current root signature is going to be empty");
+
+    if (sig == nullptr) {
+      sig = RootSignature::emptyRootSignature();
+    }
+    desc.setRootSignature(sig);
+
+    desc.setFboDesc(mFrameBuffer->desc());
+    desc.setVertexLayout(&mesh.layout());
+    desc.setProgram(mProgram);
+    desc.setRootSignature(sig);
+
+    GraphicsState::PrimitiveType prim = GraphicsState::PrimitiveType::Triangle;
+    switch(instr.prim) { 
+      case DRAW_POINTS:
+        prim = GraphicsState::PrimitiveType::Point;
+      break;
+      case DRAW_LINES:
+        prim = GraphicsState::PrimitiveType::Line;
+      break;
+      case DRAW_TRIANGES:
+        prim = GraphicsState::PrimitiveType::Triangle;
+      break;
+      case NUM_PRIMITIVE_TYPES:
+      default: 
+      BAD_CODE_PATH();
+    }
+    desc.setPrimTye(prim);
+
+    mPipelineState = GraphicsState::create(desc);
+    mIsStateDirty = false;
   }
-  desc.setPrimTye(prim);
+  
 
-  GraphicsState::sptr_t gs = GraphicsState::create(desc);
-
-  mRhiContext->setGraphicsState(*gs);
-
+  mRhiContext->setGraphicsState(*mPipelineState);
+  
   if (mMaterial) {
     mMaterial->bindForGraphics(*mRhiContext, *sig);
   } else {
@@ -116,45 +119,49 @@ void ImmediateRenderer::drawSubMesh(Mesh& mesh, uint subMeshIndex) {
 }
 
 void ImmediateRenderer::drawMesh(Mesh& mesh) {
-  GraphicsState::Desc desc;
-  mRhiContext->bindDescriptorHeap();
   S<const RootSignature> sig = mProgram->rootSignature();
-  if (sig == nullptr) {
-    sig = mRootSignature;
+  if(mIsStateDirty) {
+    GraphicsState::Desc desc;
+    mRhiContext->bindDescriptorHeap();
+    if (sig == nullptr) {
+      sig = mRootSignature;
+    }
+
+    ASSERT_RECOVERABLE(sig != nullptr, "the current root signature is going to be empty");
+
+    if (sig == nullptr) {
+      sig = RootSignature::emptyRootSignature();
+    }
+    desc.setRootSignature(sig);
+
+    desc.setFboDesc(mFrameBuffer->desc());
+    desc.setVertexLayout(&mesh.layout());
+    desc.setProgram(mProgram);
+    desc.setRootSignature(sig);
+
+    GraphicsState::PrimitiveType prim = GraphicsState::PrimitiveType::Triangle;
+    switch(mesh.instruction(0).prim) { 
+      case DRAW_POINTS:
+        prim = GraphicsState::PrimitiveType::Point;
+      break;
+      case DRAW_LINES:
+        prim = GraphicsState::PrimitiveType::Line;
+      break;
+      case DRAW_TRIANGES:
+        prim = GraphicsState::PrimitiveType::Triangle;
+      break;
+      case NUM_PRIMITIVE_TYPES:
+      default: 
+      BAD_CODE_PATH();
+    }
+    desc.setPrimTye(prim);
+
+    mPipelineState = GraphicsState::create(desc);
+    mIsStateDirty = false;
   }
+  
 
-  ASSERT_RECOVERABLE(sig != nullptr, "the current root signature is going to be empty");
-
-  if (sig == nullptr) {
-    sig = RootSignature::emptyRootSignature();
-  }
-  desc.setRootSignature(sig);
-
-  desc.setFboDesc(mFrameBuffer->desc());
-  desc.setVertexLayout(&mesh.layout());
-  desc.setProgram(mProgram);
-  desc.setRootSignature(sig);
-
-  GraphicsState::PrimitiveType prim = GraphicsState::PrimitiveType::Triangle;
-  switch(mesh.instruction(0).prim) { 
-    case DRAW_POINTS:
-      prim = GraphicsState::PrimitiveType::Point;
-    break;
-    case DRAW_LINES:
-      prim = GraphicsState::PrimitiveType::Line;
-    break;
-    case DRAW_TRIANGES:
-      prim = GraphicsState::PrimitiveType::Triangle;
-    break;
-    case NUM_PRIMITIVE_TYPES:
-    default: 
-    BAD_CODE_PATH();
-  }
-  desc.setPrimTye(prim);
-
-  GraphicsState::sptr_t gs = GraphicsState::create(desc);
-
-  mRhiContext->setGraphicsState(*gs);
+  mRhiContext->setGraphicsState(*mPipelineState);
   
   if (mMaterial) {
     mMaterial->bindForGraphics(*mRhiContext, *sig);
@@ -200,6 +207,7 @@ void ImmediateRenderer::setModelMatrix(const mat44& model) {
 
 void ImmediateRenderer::setProgram(S<const Program>& program) {
   mProgram = program;
+  mIsStateDirty = true;
 }
 
 void ImmediateRenderer::setRenderTarget(const RenderTargetView* rtv, uint index) {

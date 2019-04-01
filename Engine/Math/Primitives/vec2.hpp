@@ -50,7 +50,7 @@ public:
  
   float manhattan() const;
   float manhattan(const vec2& rhs) const;
-  
+  float distance(const vec2& another) const;
   float dot(const vec2& another) const;
   void setAngle(float degree);
   static vec2 makeDirectionAtDegrees(float degrees); // create vector at angle

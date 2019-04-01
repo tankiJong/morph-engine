@@ -60,4 +60,5 @@ protected:
   RHIBuffer::sptr_t mLightBuffer       = nullptr;
   RHIBuffer::sptr_t mModelMatrixBuffer = nullptr;
   RHIBuffer::sptr_t mCameraBuffer      = nullptr;
+  bool              mIsStateDirty      = true;
 };

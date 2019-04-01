@@ -182,6 +182,10 @@ vec2 vec3::xz() const {
   return { x,z };
 }
 
+vec2 vec3::yz() const {
+  return { y, z };
+}
+
 float vec3::angle(const vec3& rhs) const {
   float l = magnitude() * rhs.magnitude();
   float dt = dot(rhs);
