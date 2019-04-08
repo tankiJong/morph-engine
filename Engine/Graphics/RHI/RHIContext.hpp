@@ -50,6 +50,8 @@ public:
   void draw(uint start, uint count);
   void drawIndexed(uint vertStart, uint idxStart, uint count);
   void drawInstanced(uint startVert, uint startIns, uint vertCount, uint insCount);
+  void drawIndirect(RHIBuffer& args, uint count = 1, uint offset = 0);
+
   void blit(const ShaderResourceView& from, const RenderTargetView& to);
   void blit(const ShaderResourceView& from, const RenderTargetView& to, 
             const aabb2& fromRect, const aabb2& toRect);

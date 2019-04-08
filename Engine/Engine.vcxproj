@@ -2761,6 +2761,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <None Include="Renderer\SceneRenderer\fxaa.hlsli" />
     <None Include="Renderer\SceneRenderer\GenGBuffer.hlsli" />
     <None Include="Renderer\SceneRenderer\Lighting.hlsli" />
+    <None Include="Renderer\Shader\Debug.hlsli" />
     <None Include="Renderer\Shader\Random.hlsli" />
   </ItemGroup>
   <ItemGroup>

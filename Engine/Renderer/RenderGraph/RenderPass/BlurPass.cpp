@@ -28,7 +28,7 @@ void BlurPass::construct(RenderNodeBuilder& builder, RenderNodeContext& context)
 
   context.reset(prog, true);
 
-  auto& constants = context.bind<RHIBuffer>(mcBlurConstant, "blur-constant");
+  context.bind<RHIBuffer>(mcBlurConstant, "blur-constant");
 
   RenderGraphResourceDesc desc;
   desc.type = RHIResource::Type::Texture2D;

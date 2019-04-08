@@ -21,7 +21,7 @@ namespace Debug {
   };
 
   class DrawHandle {
-    friend struct DebugDrawMetaData;
+    friend class DebugDrawMetaData;
     DebugDrawMetaData* mTarget;
     uint id = NULL;
     inline static uint _id = 0;
@@ -46,7 +46,7 @@ namespace Debug {
 
   void setDuration(float time);
   void setDepth(eDebugDrawDepthMode depthMode);
-
+  void enableGpuRecord();
   void setRenderer(ImmediateRenderer* renderer);
   void setCamera(Camera* camera);
   void setClock(const Clock* clock = nullptr);
@@ -127,4 +127,7 @@ namespace Debug {
                  const Gradient& tint = Gradient::white, const Clock* clockOverride = nullptr);
 
   const DrawHandle* drawMesh(const Mesh& mesh, float duration = INF, const Gradient& tint = Gradient::white, const Clock* clockOverride = nullptr);
+
+  TypedBuffer::sptr_t uavMesh();
+  void resetUavMesh();
 }

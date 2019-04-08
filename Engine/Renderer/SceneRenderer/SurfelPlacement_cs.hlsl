@@ -65,7 +65,6 @@ float chanceToSpawnAt(uint2 pix) {
 	uSpawnChance[pix] = float4(distance(c, d), distance(d, a), 0, 1.f);
 	//pixArea is around 0.004~0.01
 	return 8000000.f * depthFactor * pixArea * legal;
-	
 }
 
 pixel leastCoveredInRange(uint2 topLeft, uint seed) {

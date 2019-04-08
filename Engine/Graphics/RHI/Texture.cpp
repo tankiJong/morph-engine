@@ -98,7 +98,7 @@ ResDef<TextureCube> Resource<TextureCube>::load(const std::string& file) {
 
   uvec2 texSize = texture->size(0);
   TextureCube* cube = new TextureCube(
-    texSize.x / 4.f, texSize.y / 3.f,
+    texSize.x / 4u, texSize.y / 3u,
     texture->format(),
     RHIResource::BindingFlag::ShaderResource | RHIResource::BindingFlag::RenderTarget);
 

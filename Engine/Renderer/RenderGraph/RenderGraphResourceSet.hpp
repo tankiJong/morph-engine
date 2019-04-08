@@ -248,7 +248,7 @@ auto RenderGraphResourceSet::get(const RenderGraphResourceHandle& handle) const
   BAD_CODE_PATH();
 }
 
-template< typename T, typename ResType = rhi_sptr_t<T>>
+template< typename T, typename ResType>
 void RenderGraphResourceSet::set(ResType&& res, const RenderGraphResourceHandle& handle, 
                                  RenderGraphResourceHandle::eOwnership ownership, bool isStatic) {
   auto iter = mResourceMap.find(handle.id);
@@ -256,7 +256,7 @@ void RenderGraphResourceSet::set(ResType&& res, const RenderGraphResourceHandle&
   cache->isStatic = isStatic;
   const unique& t = tid<T>::value;
   EXPECTS(*cache->handle->type == t);
-  EXPECTS(!cache->ready());
+  // EXPECTS(!cache->ready());
 
   cache->res = res;
   cache->handle->owner = ownership;

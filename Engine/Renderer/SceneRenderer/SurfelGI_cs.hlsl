@@ -145,7 +145,7 @@ float3 adaptiveAverage(float3 original, float3 ssample, float variance) {
 	// Debug.Log("Original: " + original + "|Diff: " + diff);
 	float k = diff;
 	
-	k = k * .002f + 0.0005f;
+	k = k * .002f + 0.0001f;
 	// k = lerp(1.f / (1.f * 1024.f), 1.f / 8.f, diff);
 	// k = k * k * k;
 	// k = smoothstep(0, 0.9f, k);

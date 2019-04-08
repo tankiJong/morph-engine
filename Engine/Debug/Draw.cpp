@@ -14,6 +14,7 @@
 #include "Debug/Debug_Text_vs.h"
 #include "Engine/Graphics/Camera.hpp"
 #include "Engine/Application/Window.hpp"
+#include "Engine/Graphics/RHI/PipelineState.hpp"
 ImmediateRenderer* gRenderer = nullptr;
 
 float gDefaultDuration = Debug::INF;
@@ -28,6 +29,19 @@ S<const Program> gDebugProgramDepthAlways;
 // RHIBuffer::sptr_t gTintBuffer;
 
 bool gEnabled = true;
+bool gEnableGpuRecord = false;
+
+
+TypedBuffer::sptr_t gGpuDebugMesh;
+TypedBuffer::sptr_t gFakeGpuDebugMesh;
+
+TypedBuffer::sptr_t& getGpuMesh() {
+  if(gEnableGpuRecord) {
+    return gGpuDebugMesh;
+  } else {
+    return gFakeGpuDebugMesh;
+  }
+}
 class Debug::DebugDrawMetaData {
 public:
   virtual ~DebugDrawMetaData() = default;
@@ -44,7 +58,7 @@ public:
 
   float progress() const {
     double current = options.clock->total.second;
-    return (float)(options.duration == INF || options.duration == 0)? 0 : (current - endSec + options.duration) / options.duration;
+    return (float)((options.duration == INF || options.duration == 0)? 0 : (current - endSec + options.duration) / options.duration);
   }
 
   void terminate() const {
@@ -196,6 +210,11 @@ void Debug::setDepth(eDebugDrawDepthMode depthMode) {
   gDefaultDepthMode = depthMode;
 }
 
+void Debug::enableGpuRecord() {
+  gEnableGpuRecord = true;
+  resetUavMesh();
+}
+
 void Debug::clear() {
   for(auto& dc: gDebugDrawCalls) {
     delete dc;
@@ -216,6 +235,16 @@ void Debug::drawInit() {
   gUICamera.reset(new Camera());
   aabb2 size = Window::Get()->bounds();
   gUICamera->setProjectionOrtho(size.width(), size.height(), -100, 100);
+
+  gGpuDebugMesh = 
+    TypedBuffer::create(sizeof(vertex_pcu_t), 4000000, 
+                        RHIResource::BindingFlag::UnorderedAccess | RHIResource::BindingFlag::ShaderResource);
+  NAME_RHIRES(gGpuDebugMesh);
+  gFakeGpuDebugMesh =
+    TypedBuffer::create(sizeof(vertex_pcu_t), 4000000, 
+                        RHIResource::BindingFlag::UnorderedAccess | RHIResource::BindingFlag::ShaderResource);
+  NAME_RHIRES(gFakeGpuDebugMesh);
+
 }
 
 template<typename F>
@@ -250,6 +279,85 @@ Debug::DrawHandle* drawMetaText(const Debug::DrawOption& options, const Font* fo
   gDebugDrawCalls.push_back(meta);
 
   return reinterpret_cast<Debug::DrawHandle*>(meta);
+}
+
+DeclVertexType(v_debug) {
+  vec3 position{ 0.f };
+  vec4 color{ 1.f, 1.f, 1.f, 1.f };
+  vec2 uvs{ 0.f };
+  v_debug() = default;
+};
+
+DefineVertexType(v_debug) {
+  define(0, "POSITION", MP_FLOAT, 3, 0, true, 0);
+  define(0, "COLOR",    MP_FLOAT, 4, 3, false, 0);
+  define(0, "UV",       MP_FLOAT, 2, 7, true, 0);
+}
+void debugDrawGpuMesh() {
+  auto defaultProg = Resource<Program>::get("internal/Shader/debug/default");
+  auto alwaysProg = Resource<Program>::get("internal/Shader/debug/always");
+
+  static GraphicsState::sptr_t defaultpps;
+  static GraphicsState::sptr_t alwayspps;
+
+  auto sig = gRenderer->defaultRootSignature();
+  GraphicsState::PrimitiveType prim = GraphicsState::PrimitiveType::Line;
+  if(defaultpps == nullptr) {
+  
+    GraphicsState::Desc desc;
+    gRenderer->context()->bindDescriptorHeap();
+
+    desc.setRootSignature(sig);
+
+    desc.setFboDesc(gRenderer->defaultFrameBuffer()->desc());
+    desc.setVertexLayout(VertexLayout::For<v_debug>());
+    desc.setProgram(defaultProg);
+    desc.setRootSignature(sig);
+
+    desc.setPrimTye(prim);
+
+    defaultpps = GraphicsState::create(desc);
+  }
+  if(alwayspps == nullptr) {
+    sig = gRenderer->defaultRootSignature();
+  
+    GraphicsState::Desc desc;
+    gRenderer->context()->bindDescriptorHeap();
+
+    desc.setRootSignature(sig);
+
+    desc.setFboDesc(gRenderer->defaultFrameBuffer()->desc());
+    desc.setVertexLayout(VertexLayout::For<v_debug>());
+    desc.setProgram(alwaysProg);
+    desc.setRootSignature(sig);
+
+
+    desc.setPrimTye(prim);
+
+    alwayspps = GraphicsState::create(desc);
+  }
+
+  S<RHIContext> ctx = gRenderer->context();
+ 
+  ctx->setGraphicsState(*defaultpps);
+  gRenderer->defaultDescriptorSet()->bindForGraphics(*ctx, *sig);
+  ctx->setFrameBuffer(*gRenderer->defaultFrameBuffer());
+
+  ctx->setVertexBuffer(*gGpuDebugMesh, 0);
+  ctx->setPrimitiveTopology(DRAW_LINES);
+
+  struct DrawArgs {
+    UINT VertexCountPerInstance;
+    UINT InstanceCount = 1;
+    UINT StartVertexLocation = 0;
+    UINT StartInstanceLocation = 0;
+  };
+
+  DrawArgs drawArgs;
+  static RHIBuffer::sptr_t buffer = RHIBuffer::create(sizeof(DrawArgs), RHIResource::BindingFlag::IndirectArg, RHIBuffer::CPUAccess::None, &drawArgs);
+
+  ctx->copyBufferRegion(buffer.get(), 0, gGpuDebugMesh->uavCounter().get(), 0, sizeof(UINT));
+  ctx->drawIndirect(*buffer, 1, 0);
 }
 
 void Debug::drawNow() {
@@ -293,7 +401,9 @@ void Debug::drawNow() {
   }
 
   SAFE_DELETE(immediateMesh);
-  
+
+  debugDrawGpuMesh();
+  gEnableGpuRecord = false;
 }
 
 const Debug::DrawHandle* Debug::drawQuad2(const vec2& a, const vec2& b, const vec2& c, const vec2& d, float duration, const Gradient& cl,
@@ -330,7 +440,7 @@ const Debug::DrawHandle* Debug::drawLine2(const vec2& a, const vec2& b, float du
   options.clock = clockOverride == nullptr ? gDefaultClock : clockOverride;
   options.camera = gUICamera.get();
 
-  return drawMetaShape(options, [=](Mesher& mesher, DebugDrawMetaData& meta) {
+  return drawMetaShape(options, [=](Mesher& mesher, DebugDrawMetaData& /*meta*/) {
     mesher.begin(DRAW_LINES, false);
 
     mesher.color(cla);
@@ -401,7 +511,7 @@ const Debug::DrawHandle* Debug::drawLine(const vec3& from, const vec3& to, float
   options.duration = duration;
   options.clock = clockOverride == nullptr ? gDefaultClock : clockOverride;
 
-  return drawMetaShape(options, [=](Mesher& mesher, DebugDrawMetaData& meta) {
+  return drawMetaShape(options, [=](Mesher& mesher, DebugDrawMetaData&) {
     mesher.begin(DRAW_LINES, false);
 
     mesher.color(colorStart);
@@ -587,7 +697,7 @@ const Debug::DrawHandle* Debug::drawBasis(const vec3& position, const vec3& i, c
   options.duration = duration;
   options.clock = clockOverride == nullptr ? gDefaultClock : clockOverride;
   
-  Debug::DrawHandle* handle =  drawMetaShape(options, [=](Mesher& mesher, DebugDrawMetaData& meta) {
+  Debug::DrawHandle* handle =  drawMetaShape(options, [=](Mesher& mesher, DebugDrawMetaData&) {
     mesher.begin(DRAW_LINES, false);
 
     mesher.color(Rgba::red);
@@ -660,6 +770,15 @@ const Debug::DrawHandle* Debug::drawText(std::string text, float size, const vec
       .end();
 
   });
+}
+
+TypedBuffer::sptr_t Debug::uavMesh() {
+  return getGpuMesh();
+}
+
+void Debug::resetUavMesh() {
+  u32 zero = 0;
+  getGpuMesh()->uavCounter()->updateData(zero);
 }
 
 DEF_RESOURCE(Program, "internal/Shader/debug/default") {

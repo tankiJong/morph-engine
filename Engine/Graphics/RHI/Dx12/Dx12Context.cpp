@@ -16,6 +16,25 @@
 #pragma comment(lib, "ThirdParty/WinPixEventRuntime/bin/WinPixEventRuntime.lib")
 
 
+ID3D12CommandSignaturePtr gDrawCommandSignature;
+
+static void initCommandSignatures() {
+  if(gDrawCommandSignature != nullptr) return;
+
+  //Common properties
+  D3D12_COMMAND_SIGNATURE_DESC sigDesc;
+  sigDesc.NumArgumentDescs = 1;
+  sigDesc.NodeMask = 0;
+  D3D12_INDIRECT_ARGUMENT_DESC argDesc;
+
+  //Draw 
+  sigDesc.ByteStride = sizeof(D3D12_DRAW_ARGUMENTS);
+  argDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+  sigDesc.pArgumentDescs = &argDesc;
+  RHIDevice::get()->nativeDevice()->CreateCommandSignature(&sigDesc, nullptr, IID_PPV_ARGS(&gDrawCommandSignature));
+
+}
+
 static void setTransitionBarrier(const RHIResource& res, RHIResource::State newState, RHIResource::State oldState, uint subresourceIndex, ID3D12GraphicsCommandList* cmdList, eTransitionBarrierFlag flag) {
 
   D3D12_RESOURCE_BARRIER barrier;
@@ -58,6 +77,8 @@ RHIContext::sptr_t RHIContext::create(command_queue_handle_t commandQueue) {
     RHIContextData::CommandQueueType::Direct, commandQueue);
 
   ENSURES(ctx->mContextData != nullptr);
+
+  initCommandSignatures();
 
   return ctx;
 }
@@ -258,6 +279,12 @@ void RHIContext::drawIndexed(uint vertStart, uint idxStart, uint count) {
 void RHIContext::drawInstanced(uint startVert, uint startIns, uint vertCount, uint insCount) {
   mContextData->commandList()->DrawInstanced(vertCount, insCount, startVert, startIns);
   mCommandsPending = true;
+}
+
+void RHIContext::drawIndirect(RHIBuffer& args, uint count, uint offset) {
+  transitionBarrier(&args, RHIResource::State::IndirectArg);
+  mContextData->commandList()->ExecuteIndirect(
+    gDrawCommandSignature.Get(), count, args.handle().Get(), offset, nullptr, 0);
 }
 
 void RHIContext::setGraphicsRootSignature(const RootSignature& rootSig) {

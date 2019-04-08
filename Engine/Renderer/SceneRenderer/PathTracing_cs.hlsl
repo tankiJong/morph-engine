@@ -18,7 +18,6 @@ StructuredBuffer<BVHNode> gBvh: register(t14);
 RWTexture2D<float4> uTexScene: register(u0);
 
 static uint seed;
-
 float3 computeDiffuse(float3 surfacePosition, float3 surfaceNormal) {
 	// return float3(0,0,0);
 	Ray ray;
@@ -138,6 +137,7 @@ void main( uint3 threadId : SV_DispatchThreadID, uint groupIndex: SV_GroupIndex,
 
 
 	uint2 pix = threadId.xy;
+	
 
 	uint2 size;
 	uTexScene.GetDimensions(size.x, size.y);

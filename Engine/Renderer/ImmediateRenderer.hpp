@@ -32,7 +32,6 @@ public:
   void drawSubMesh(Mesh& mesh, uint subMeshIndex);
   void drawMesh(Mesh& mesh);
   void drawMeshImmediate(span<const vertex_lit_t> vertices, eDrawPrimitive prim);
-
   void setDepthStencilTarget(const DepthStencilView* dsv);
   void setLight(uint index, const light_info_t& lightInfo);
   void setMaterial(Material& material);
@@ -46,6 +45,9 @@ public:
   const DepthStencilView* defaultDsv() const;
   const RenderTargetView& defaultRtv() const;
 
+  S<RootSignature> defaultRootSignature() const { return mRootSignature; }
+  S<FrameBuffer>   defaultFrameBuffer() const { return mFrameBuffer; }
+  S<DescriptorSet> defaultDescriptorSet() const { return mDescriptorSet; }
   static ImmediateRenderer& get();
 
 protected:

@@ -40,6 +40,7 @@
 #include "Engine/Graphics/Program/ProgramInst.hpp"
 #include "Engine/Graphics/Model/BVH.hpp"
 #include "Engine/Gui/ImGui.hpp"
+#include "Engine/Debug/Profile/Profiler.hpp"
 static Program::sptr_t gGenGBufferProgram = nullptr;
 
 static Program::sptr_t gGenAOProgram = nullptr;
@@ -859,12 +860,20 @@ void SceneRenderer::setupFrame() {
 
   mFrameData.frameCount++;
   mFrameData.time = (float)GetMainClock().total.second;
+
+  // bool debugFrame = false;
   {
-    ImGui::Begin("material param");
+    ImGui::Begin("Configs");
     ImGui::SliderFloat("roughness", &mFrameData.roughness, 0.f, 1.f);
     // ImGui::SliderFloat("metallic", &mFrameData.metallic, 0.f, 1.f);
+    // ImGui::Checkbox("Debug Frame", &debugFrame);
     ImGui::End();
   }
+  //
+  // if(debugFrame) {
+  //   Debug::enableGpuRecord();
+  // }
+
   mcFrameData->updateData(mFrameData);
 
   if (!mTargetScene.lights().empty()) {
@@ -920,7 +929,7 @@ void SceneRenderer::setupView(RHIContext& ctx) {
 
 void SceneRenderer::dumpSurfels(RHIContext& ctx) {
   uint32_t numSurfels;
-  ctx.readBuffer(mSurfels[0]->uavCounter(), &numSurfels, sizeof(uint32_t));
+  ctx.readBuffer(*mSurfels[0]->uavCounter(), &numSurfels, sizeof(uint32_t));
 
   if (numSurfels < 200) return;
   surfel_t* surfels = (surfel_t*)_alloca(sizeof(surfel_t)*numSurfels);
@@ -955,6 +964,7 @@ void SceneRenderer::pathTracing(RHIContext& ctx) {
     progIns->setSrv(*mVertexData->srv(), 13);
     progIns->setSrv(*mBVH->srv(), 14);
     progIns->setUav(*mScene->uav(), 0); 
+
 
     ComputeState::Desc desc;
     desc.setRootSignature(prog->rootSignature());
@@ -1052,3 +1062,4 @@ DEF_RESOURCE(Program, "internal/Shader/scene-renderer/bvhVisual") {
 
   return S<Program>(prog);
 }
+

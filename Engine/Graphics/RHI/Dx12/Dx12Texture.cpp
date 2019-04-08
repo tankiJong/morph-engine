@@ -64,7 +64,7 @@ bool Texture2::rhiInit(bool genMipmap, const void* data, size_t /*size*/) {
   return true;
 }
 
-bool TextureCube::rhiInit(bool genMipmap, const void* data, size_t size) {
+bool TextureCube::rhiInit(bool genMipmap, const void* data, size_t /*size*/) {
   TODO("`size` should be used here");
   D3D12_RESOURCE_DESC desc = {};
 
@@ -126,7 +126,7 @@ bool TextureCube::rhiInit(bool genMipmap, const void* data, size_t size) {
 }
 
 
-bool Texture3::rhiInit(bool genMipmap, const void* data, size_t size) {
+bool Texture3::rhiInit(bool genMipmap, const void* data, size_t /*size*/) {
   D3D12_RESOURCE_DESC desc = {};
   if(genMipmap) {
     uint dim = mWidth | mHeight | mDepth;
@@ -141,7 +141,7 @@ bool Texture3::rhiInit(bool genMipmap, const void* data, size_t size) {
   desc.Format = toDXGIFormat(mFormat);
   desc.Width = mWidth;
   desc.Height = mHeight;
-  desc.DepthOrArraySize = mDepth;
+  desc.DepthOrArraySize = (UINT16)mDepth;
   desc.Flags = asDx12ResourceFlags(mBindingFlags);
   desc.SampleDesc.Count = 1;
   desc.SampleDesc.Quality = 0;

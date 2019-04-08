@@ -276,7 +276,7 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(const TypedBuffer& res) 
   D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
 
   RHIResource::handle_t resHandle = res.handle();
-  RHIResource::handle_t counterHandle = res.uavCounter().handle();
+  RHIResource::handle_t counterHandle = res.uavCounter()->handle();
 
   desc.Format = DXGI_FORMAT_UNKNOWN;
   desc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;

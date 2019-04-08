@@ -75,7 +75,7 @@ vec3 Transform::right() const {
 }
 
 vec3 Transform::transform(const vec3& pointOrDisp, bool isDisp) const {
-  vec4 from(pointOrDisp, isDisp ? 0 : 1);
+  vec4 from(pointOrDisp, isDisp ? 0.f : 1.f);
   vec4 result = localToWorld() * from;
   return result.xyz();
 }

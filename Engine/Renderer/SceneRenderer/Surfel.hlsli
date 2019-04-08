@@ -142,7 +142,7 @@ struct SurfelHistoryBuffer {
   }
 
 
-	// return [the biggest color][biggest variance], measurement use eular distance
+	// return [the biggest color][biggest variance], measurement use euler distance
 	inline float4 dataMin() {
 		float4 mmin = float4(1e9, 1e9, 1e9, 1e9);
 
@@ -235,15 +235,13 @@ static const uint TILE_SIZE = 16;
 
 
 float isCovered(float3 position, float3 normal, surfel_t surfel) {
-
 	// 1. their normal agree with each other
 	float dp = dot(normal, surfel.normal);
-
-	if(dp < 0) return 0;
+  dp = clamp(dp, 0, 1);
+	// if(dp < 0) return 0;
 
 	// 2. if this is too far, no
 	float dist = distance(position, surfel.position);
-
 	float dirDot = dot((position - surfel.position), surfel.normal);
 
 	// too far and not in the same plane
@@ -255,7 +253,6 @@ float isCovered(float3 position, float3 normal, surfel_t surfel) {
 	float d = distance(projected, surfel.position);
 	float dd = 1 / (d*d/(SURFEL_RADIUS*SURFEL_RADIUS) + 1) * dp;
 	return dd;			// [1, 0)
-
 }
 
 float2 GetProjectedDistanceFromSurfel(float3 position, in float3 sposition, in float3 snormal) {

@@ -1648,6 +1648,9 @@
     <None Include="Renderer\DeferredRenderer\Common.hlsli">
       <Filter>Engine\Renderer\DeferredRenderer</Filter>
     </None>
+    <None Include="Renderer\Shader\Debug.hlsli">
+      <Filter>Engine\Renderer\Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ThirdParty\gsl\GSL.natvis">
