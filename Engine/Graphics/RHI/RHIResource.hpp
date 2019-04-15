@@ -3,7 +3,7 @@
 #include "Engine/Graphics/RHI/RHI.hpp"
 #include "Engine/Graphics/RHI/ResourceView.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
-
+#include "Engine/Graphics/RHI/RHIHeap.hpp"
 
 // code structure idea adpot from Falcor Engine: Source/API/Resource.h
 
@@ -98,6 +98,7 @@ protected:
   mutable bool mInTransition = false;
 
   handle_t mRhiHandle;
+  RHIHeap::sptr_t mGpuMemory = nullptr;
   Type mType;
   BindingFlag mBindingFlags;
   mutable UnorderedAccessView::sptr_t mUav;

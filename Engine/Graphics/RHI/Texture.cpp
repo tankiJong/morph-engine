@@ -10,22 +10,22 @@
 #include "Engine/Renderer/Texture.hpp"
 
 template<typename TexType, typename ...Args>
-typename TexType::sptr_t createOrFail(bool genMipmap, const void* data, size_t size, Args ... args) {
+typename TexType::sptr_t createOrFail(bool impliciteHeap, bool genMipmap, const void* data, size_t size, Args ... args) {
   auto tex = TexType::sptr_t(new TexType(args..., data, size));
-  return tex->rhiInit(genMipmap, data, size) ? tex : nullptr;
+  return tex->rhiInit(genMipmap, data, size, impliciteHeap) ? tex : nullptr;
 }
 
 
 Texture2::sptr_t Texture2::create(
   uint width, uint height, eTextureFormat format, 
-  BindingFlag flag, const void* data, size_t size) {
-  return createOrFail<Texture2>(false, data, size, width, height, format, flag);
+  BindingFlag flag, const void* data, size_t size, bool implicitHeap) {
+  return createOrFail<Texture2>(implicitHeap, false, data, size, width, height, format, flag);
 }
 
 Texture2::sptr_t Texture2::create(
   uint width, uint height, eTextureFormat format, bool genMip,
-  BindingFlag flag, const void* data, size_t size) {
-  return createOrFail<Texture2>(genMip, data, size, width, height, format, flag);
+  BindingFlag flag, const void* data, size_t size, bool implicitHeap) {
+  return createOrFail<Texture2>(implicitHeap, genMip, data, size, width, height, format, flag);
 }
 
 Texture2::sptr_t Texture2::create(rhi_resource_handle_t res) {
@@ -34,14 +34,20 @@ Texture2::sptr_t Texture2::create(rhi_resource_handle_t res) {
 
 Texture3::sptr_t Texture3::create(uint width, uint height, uint depth, eTextureFormat format,
                                   BindingFlag flag, const void* data, size_t size) {
-  return createOrFail<Texture3>(false, data, size, width, height, depth, format, flag);
+  return createOrFail<Texture3>(true, false, data, size, width, height, depth, format, flag);
+}
+
+Texture3::sptr_t Texture3::create(uint width, uint height, uint depth,
+                                  eTextureFormat format, bool genMipmaps, 
+	                                BindingFlag flag, const void* data, size_t size) {
+  return createOrFail<Texture3>(true, genMipmaps, data, size, width, height, depth, format, flag);
 }
 
 TextureCube::sptr_t TextureCube::create(
   uint width, uint height, eTextureFormat format,
   bool genMipMap, BindingFlag flag,
   const void* data, size_t size) {
-  return createOrFail<TextureCube>(genMipMap, data, size,  width, height, format, flag);
+  return createOrFail<TextureCube>(true, genMipMap, data, size,  width, height, format, flag);
   
 }
 
@@ -51,7 +57,7 @@ ResDef<Texture2> Resource<Texture2>::load(const std::string& file) {
   auto name = make_wstring("Texture2: " + file);
   if (file == "$default") {
     Texture2* tex = new Texture2(1, 1, TEXTURE_FORMAT_RGBA8, RHIResource::BindingFlag::ShaderResource);
-    tex->rhiInit(false, &Rgba::white, sizeof(vec4));
+    tex->rhiInit(false, &Rgba::white, sizeof(vec4), true);
     setName(*tex, name.c_str());
     return { file, tex };
   }
@@ -68,7 +74,7 @@ ResDef<Texture2> Resource<Texture2>::load(const std::string& file) {
 
   // hack to make shared from this works
   S<Texture2> sTex(tex, [](Texture2*) {});
-  tex->rhiInit(true, img.data(), img.size());
+  tex->rhiInit(true, img.data(), img.size(), true);
   tex->invalidateViews();
   setName(*tex, name.c_str());
   return { file, tex };
@@ -86,12 +92,12 @@ ResDef<TextureCube> Resource<TextureCube>::load(const std::string& file) {
   //          bottom
 
   static const aabb2 uvregions[6] = {
-    { {.5f, .33333f}, {.75f, .66666f} }, // right
-    { {.0f, .33333f}, {.25f, .66666f} }, // left
-    { {.25f, .0f}, {.5f, .333333f} }, // top
-    { {.25f, .66666f}, {.5f, 1.f} }, // btm
-    { {.25f, .33333f}, {.5f, .66666f} }, // front
-    { {.75f, .33333f}, {1.f, .66666f} }, // back
+    { {.5f, 1.f/3.f}, {.75f, 2.f/3.f} }, // right
+    { {.0f, 1.f/3.f}, {.25f, 2.f/3.f} }, // left
+    { {.25f, .0f}, {.5f, 1.f/3.f} }, // top
+    { {.25f, 2.f/3.f}, {.5f, 1.f} }, // btm
+    { {.25f, 1.f/3.f}, {.5f, 2.f/3.f} }, // front
+    { {.75f, 1.f/3.f}, {1.f, 2.f/3.f} }, // back
   };
 
   auto texture = Resource<Texture2>::get(file);
@@ -104,7 +110,7 @@ ResDef<TextureCube> Resource<TextureCube>::load(const std::string& file) {
 
     // hack to make shared from this works
   S<TextureCube> sTex(cube, [](TextureCube*) {});
-  cube->rhiInit(false, nullptr, 0);
+  cube->rhiInit(false, nullptr, 0, true);
   ShaderResourceView* srv = texture->srv(0);
   for(uint i = 0; i < 6; i++) {
     const RenderTargetView* rtv = cube->rtv(0, i);  

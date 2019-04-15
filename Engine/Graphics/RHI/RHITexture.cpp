@@ -9,7 +9,7 @@ ShaderResourceView* RHITexture::srv(uint mipLevel, uint mipCount) const {
   if(mipCount == ResourceViewInfo::MAX_POSSIBLE) {
     mipCount = mMipLevels - mipLevel;
   }
-  ResourceViewInfo info(mipLevel, mipCount, 0, mArraySize, DescriptorPool::Type::TextureSrv);
+  ResourceViewInfo info(mipLevel, mipCount, 0, mDepthOrArraySize, DescriptorPool::Type::TextureSrv);
 
   auto kv = mSrvs.find(info);
 
@@ -72,7 +72,7 @@ const DepthStencilView* RHITexture::dsv(uint mipLevel) const {
 }
 
 const UnorderedAccessView* RHITexture::uav(uint mipLevel) const {
-  ResourceViewInfo info(mipLevel, 1, 0, mArraySize, DescriptorPool::Type::TextureUav);
+  ResourceViewInfo info(mipLevel, 1, 0, depth(mipLevel), DescriptorPool::Type::TextureUav);
 
   auto kv = mUavs.find(info);
 

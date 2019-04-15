@@ -54,6 +54,10 @@ void initTextureSrv(const RHITexture* res, uint mostDetailedMip, uint mipCount, 
       }
     break;
     case RHIResource::Type::Texture3D:
+      desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
+      desc.Texture3D.MipLevels = mipCount;
+      desc.Texture3D.MostDetailedMip = mostDetailedMip;
+    break;
     default: 
     BAD_CODE_PATH();
   }
@@ -272,6 +276,7 @@ DepthStencilView::sptr_t DepthStencilView::create(W<const RHITexture> res, uint 
   return dsv;
 }
 
+
 UnorderedAccessView::sptr_t UnorderedAccessView::create(const TypedBuffer& res) {
   D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
 
@@ -342,34 +347,48 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(W<const RHITexture> res,
   }
 
   D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
-  if(arraySize > 1) {
-    desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
-  } else {
-    desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-  }
-  
+
+   
   RHIResource::handle_t resHandle = nullptr;
   RHIResource::handle_t counterHandle = nullptr;
 
   if(ptr) {
     desc.Format = toDXGIFormat(ptr->format());
-
-    if(arraySize > 1) {
-      desc.Texture2DArray.MipSlice = mipLevel;
-      desc.Texture2DArray.ArraySize = arraySize;
-      desc.Texture2DArray.FirstArraySlice = firstArraySlice;
-      desc.Texture2DArray.PlaneSlice = 0;
-    } else {
-      desc.Texture2D.MipSlice = mipLevel;
-      desc.Texture2D.PlaneSlice = 0;
-    }
-    
     resHandle = ptr->handle();
+    switch(ptr->type()) { 
+      case RHIResource::Type::Texture2D:
+        if(arraySize > 1) {
+          desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+          desc.Texture2DArray.MipSlice = mipLevel;
+          desc.Texture2DArray.ArraySize = arraySize;
+          desc.Texture2DArray.FirstArraySlice = firstArraySlice;
+          desc.Texture2DArray.PlaneSlice = 0;
+        } else {
+          desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+          desc.Texture2D.MipSlice = mipLevel;
+          desc.Texture2D.PlaneSlice = 0;
+        }
+      break;
+      case RHIResource::Type::Texture3D: 
+        desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE3D;
+        desc.Texture3D.MipSlice = mipLevel;
+        desc.Texture3D.FirstWSlice = firstArraySlice;
+        desc.Texture3D.WSize = arraySize;
+      break;
+      case RHIResource::Type::TextureCube: 
+      case RHIResource::Type::Texture1D: 
+      case RHIResource::Type::Buffer: 
+      case RHIResource::Type::Unknown: 
+      case RHIResource::Type::Texture2DMultisample: 
+      default:
+      BAD_CODE_PATH();
+    }
   } else {
     desc = {};
     desc.Format = DXGI_FORMAT_R32_UINT;
     desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
   }
+
 
   DescriptorSet::Layout layout;
   layout.addRange(DescriptorSet::Type::TextureUav, 0, 1);
@@ -380,7 +399,7 @@ UnorderedAccessView::sptr_t UnorderedAccessView::create(W<const RHITexture> res,
 
   sptr_t obj;
   sptr_t uav = ptr ? obj : sNullView;
-  uav = sptr_t(new UnorderedAccessView(res, DescriptorPool::Type::TextureUav, handle, mipLevel, 0, 1));
+  uav = sptr_t(new UnorderedAccessView(res, DescriptorPool::Type::TextureUav, handle, mipLevel, firstArraySlice, arraySize));
 
   return uav;
 }

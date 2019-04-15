@@ -20,16 +20,19 @@ struct RenderGraphResourceDesc {
     std::optional<uvec2> size = std::nullopt;
 
     Texture2Desc& operator=(const Texture2Desc& copy) = default;
+    bool operator==(const Texture2Desc& rhs) const;
   } texture2;
 
   struct BufferDesc {
     std::optional<size_t> size = std::nullopt;
     std::optional<RHIBuffer::CPUAccess> cpuAccess = std::nullopt;
     BufferDesc& operator=(const BufferDesc& copy) = default;
+    bool operator==(const BufferDesc& rhs) const;
+
   } buffer;
 
   RenderGraphResourceDesc& operator=(const RenderGraphResourceDesc& copy) = default;
-
+  bool operator==(const RenderGraphResourceDesc& rhs) const;
 };
 
 

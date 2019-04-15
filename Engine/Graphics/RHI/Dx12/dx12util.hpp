@@ -56,12 +56,15 @@ MAKE_SMART_COM_PTR(ID3D12RootSignature);
 MAKE_SMART_COM_PTR(ID3D12QueryHeap);
 MAKE_SMART_COM_PTR(ID3D12CommandSignature);
 MAKE_SMART_COM_PTR(IUnknown);
+MAKE_SMART_COM_PTR(ID3D12Heap);
 
 std::wstring make_wstring(const std::string& str);
 
 DXGI_FORMAT toDXGIFormat(eDataDeclType declType, uint count, bool normalized);
 
 DXGI_FORMAT toDXGIFormat(eTextureFormat format);
+
+size_t DXGIFormatSize(DXGI_FORMAT fmt);
 
 eTextureFormat toTextureFormat(DXGI_FORMAT format);
 /*****************RHI typedef********************************/
@@ -80,6 +83,8 @@ using heap_cpu_handle_t = D3D12_CPU_DESCRIPTOR_HANDLE;
 using heap_gpu_handle_t = D3D12_GPU_DESCRIPTOR_HANDLE;
 using descriptor_heap_handle_t = ID3D12DescriptorHeapPtr;
 using descriptor_set_rhi_handle_t = void*;
+using gpu_memory_t = ID3D12HeapPtr;
+using heap_properties_t = D3D12_HEAP_PROPERTIES;
 using eCommandQueueType = D3D12_COMMAND_LIST_TYPE;
 
 using srv_handle_t = S<DescriptorSet>;

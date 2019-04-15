@@ -99,6 +99,7 @@ protected:
   public:
     U<RenderGraphResourceHandle> handle = nullptr;
     std::any res = {};
+    RenderGraphResourceDesc currentResDesc;
     uint nodeId = INVALID_NODE_ID;
     bool isStatic = false;
     bool ready() const { return res.has_value(); }

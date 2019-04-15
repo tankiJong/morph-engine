@@ -45,8 +45,9 @@ Mesh& Mesh::setIndices(span<const uint> indices) {
 void Mesh::bindForContext(RHIContext & ctx) const {
   for(uint i = 0; i < mVertices.size(); ++i) {
     ctx.transitionBarrier(&mVertices[i]->res(), RHIResource::State::VertexBuffer);
-    ctx.setVertexBuffer(*mVertices[i], i);
   }
+
+  ctx.setVertexBuffers(mVertices.data(), mVertices.size(), 0);
 
   if(mIndices) {
     ctx.transitionBarrier(&mIndices->res(), RHIResource::State::IndexBuffer);

@@ -23,8 +23,12 @@ public:
   uint height(uint mipLevel = 0) const {
     return (mipLevel < mMipLevels) ? std::max(1u, mHeight >> mipLevel) : 0u;
   }
+
+  uint depth(uint mipLevel = 0) const {
+    return (mipLevel < mMipLevels) ? std::max(1u, mDepthOrArraySize >> mipLevel) : 0u;
+  }
   
-  uint arraySize() const { return mArraySize; }
+  uint arraySize() const { return mDepthOrArraySize; }
   uint mipCount() const { return mMipLevels; }
   uvec2 size(uint mipLevel= 0) const { return uvec2{ width(mipLevel), height(mipLevel)}; }
   eTextureFormat format() const { return mFormat; }
@@ -50,16 +54,15 @@ public:
 
 protected:
   RHITexture(RHIResource::Type type, uint width, uint height, 
-             uint depth, uint arraySize, eTextureFormat format, BindingFlag flags, const void* /*data*/, size_t /*size*/)
-    : RHIResource(type, flags), mWidth(width), mHeight(height), mDepth(depth), mArraySize(arraySize), mFormat(format) {
+             uint depthOrarraySize, eTextureFormat format, BindingFlag flags, const void* /*data*/, size_t /*size*/)
+    : RHIResource(type, flags), mWidth(width), mHeight(height), mDepthOrArraySize(depthOrarraySize), mFormat(format) {
   }
   RHITexture(rhi_resource_handle_t res);
-  virtual bool rhiInit(bool genMipmap, const void* data, size_t size) = 0;
+  virtual bool rhiInit(bool genMipmap, const void* data, size_t size, bool implicitHeap) = 0;
 
   uint mWidth = 0;
   uint mHeight = 0;
-  uint mDepth = 0;
-  uint mArraySize = 0;
+  uint mDepthOrArraySize = 0;
   uint mMipLevels = 0;
 
   mutable std::unordered_map<ResourceViewInfo, ShaderResourceView::sptr_t>  mSrvs;

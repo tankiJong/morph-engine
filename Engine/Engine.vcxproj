@@ -1189,6 +1189,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="Graphics\RHI\Dx12\Dx12Device.cpp" />
     <ClCompile Include="Graphics\RHI\Dx12\Dx12Context.cpp" />
     <ClCompile Include="Graphics\RHI\Dx12\Dx12Fence.cpp" />
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12Heap.cpp" />
     <ClCompile Include="Graphics\RHI\Dx12\Dx12PipelineState.cpp" />
     <ClCompile Include="Graphics\RHI\Dx12\Dx12Resource.cpp" />
     <ClCompile Include="Graphics\RHI\Dx12\Dx12ResourceView.cpp" />
@@ -1206,6 +1207,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="Graphics\RHI\RHIContext.cpp" />
     <ClCompile Include="Graphics\RHI\RHIDevice.cpp" />
     <ClCompile Include="Graphics\RHI\RHIContextData.cpp" />
+    <ClCompile Include="Graphics\RHI\RHIHeap.cpp" />
     <ClCompile Include="Graphics\RHI\RHIResource.cpp" />
     <ClCompile Include="Graphics\RHI\RHITexture.cpp" />
     <ClCompile Include="Graphics\RHI\RootSignature.cpp" />
@@ -2063,6 +2065,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="Graphics\RHI\RHIContext.hpp" />
     <ClInclude Include="Graphics\RHI\RHIDevice.hpp" />
     <ClInclude Include="Graphics\RHI\RHIContextData.hpp" />
+    <ClInclude Include="Graphics\RHI\RHIHeap.hpp" />
     <ClInclude Include="Graphics\RHI\RHIResource.hpp" />
     <ClInclude Include="Graphics\RHI\RHITexture.hpp" />
     <ClInclude Include="Graphics\RHI\RHIType.hpp" />

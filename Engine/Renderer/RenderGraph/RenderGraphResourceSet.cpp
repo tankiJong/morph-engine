@@ -1,6 +1,67 @@
 ﻿#include "RenderGraphResourceSet.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 
+class ResourcePool {
+protected:
+  struct Cache {
+    RenderGraphResourceDesc desc;
+    RHIResource::sptr_t res;
+  };
+
+  std::vector<Cache> mAvailableCache;
+
+  template<typename RHIType>
+  typename RHIType::sptr_t create(const RenderGraphResourceDesc& desc) {
+    if constexpr(std::is_same_v<RHIType, RHIBuffer>) {
+      EXPECTS(desc.type == RHIResource::Type::Buffer);
+      auto res = RHIBuffer::create(*desc.buffer.size, *desc.bindingFlags, *desc.buffer.cpuAccess);
+	  //mAvailableCache.emplace_back(Cache{desc, res});
+      return res;
+    }
+
+    if constexpr(std::is_same_v<RHIType, Texture2>) {
+      EXPECTS(desc.type == RHIResource::Type::Texture2D)
+      auto res = Texture2::create(desc.texture2.size->x, desc.texture2.size->y,
+                                    *desc.texture2.format, *desc.bindingFlags);
+	  //mAvailableCache.emplace_back(Cache{desc, res});
+      return res;
+    }
+
+    BAD_CODE_PATH();
+    return nullptr;
+  }
+
+public:
+  template<typename RHIType>
+  typename RHIType::sptr_t acquire(const RenderGraphResourceDesc& desc) {
+    using sptr_t = typename RHIType::sptr_t;
+    for(size_t i = 0; i < mAvailableCache.size(); i++) {
+      Cache& c = mAvailableCache[i];
+      if(desc == c.desc) {
+        RHIResource::sptr_t res = c.res;
+        std::swap(c, mAvailableCache.back());
+        mAvailableCache.pop_back();
+        return std::dynamic_pointer_cast<RHIType>(res);
+      }
+    }
+
+    if constexpr(std::is_same_v<RHIType, RHIBuffer>) {
+      return create<RHIBuffer>(desc);
+    }
+    if constexpr(std::is_same_v<RHIType, Texture2>) {
+      return create<Texture2>(desc);
+    }
+    
+    BAD_CODE_PATH();
+  }
+  void free(RHIResource::sptr_t res, const RenderGraphResourceDesc& desc) {
+	  mAvailableCache.emplace_back(Cache{desc, res});
+  }
+
+};
+
+ResourcePool gResourcePool;
+
 uint RenderGraphResourceSet::ResourceNode::sNextUsableId = 0;
 
 RenderGraphResourceSet::ResourceCache* RenderGraphResourceSet::allocResouceCache(uint handleId) {
@@ -39,7 +100,12 @@ const Texture2::sptr_t& RenderGraphResourceSet::backBuffer() const {
 
 void RenderGraphResourceSet::clearResources() {
   for(auto& [_, cache]: mResourceMap) {
-    if(!cache->isStatic) {
+    if(!cache->isStatic && cache->ready()) {
+      eResolvePolicy policy = mResourceGraph.node(*cache)->resolvePolicy;
+      if(policy == RESOLVE_FROM_CREATE || policy == RESOLVE_FROM_PARENT_CREATE) {
+        RHIResource::sptr_t res = get<RHIResource>(*cache->handle);
+        gResourcePool.free(res, cache->currentResDesc);
+      }
       cache->res.reset();
     }
   }
@@ -213,15 +279,16 @@ void RenderGraphResourceSet::resolveResource(ResourceCache& target) const {
   if(node->resolvePolicy == RESOLVE_FROM_CREATE) {
     auto& desc = handle.desc;
     if(desc.type == RHIResource::Type::Buffer) {
-      auto res = RHIBuffer::create(*desc.buffer.size, *desc.bindingFlags, *desc.buffer.cpuAccess);
+      auto res = gResourcePool.acquire<RHIBuffer>(desc);
       setName(*res, make_wstring(handle.name).c_str());
+      target.currentResDesc = desc;
       target.res = res;
       return;
     }
 
     if(desc.type == RHIResource::Type::Texture2D) {
-      auto res = Texture2::create(desc.texture2.size->x, desc.texture2.size->y,
-                                    *desc.texture2.format, *desc.bindingFlags);
+      auto res = gResourcePool.acquire<Texture2>(desc);
+      target.currentResDesc = desc;
       setName(*res, make_wstring(handle.name).c_str());
       target.res = res;
       return;
@@ -259,7 +326,8 @@ void RenderGraphResourceSet::resolveResource(ResourceCache& target) const {
       desc.buffer.size = desc.buffer.size.value_or(parentRes->size());
       desc.buffer.cpuAccess = desc.buffer.cpuAccess.value_or(parentRes->cpuAccess());
 
-      auto res = RHIBuffer::create(*desc.buffer.size, *desc.bindingFlags, *desc.buffer.cpuAccess);
+      auto res = gResourcePool.acquire<RHIBuffer>(desc);
+      target.currentResDesc = desc;
       setName(*res, make_wstring(handle.name).c_str());
       target.res = res;
      return;
@@ -272,7 +340,8 @@ void RenderGraphResourceSet::resolveResource(ResourceCache& target) const {
       desc.texture2.size = desc.texture2.size.value_or(uvec2{parentRes->width(), parentRes->height()});
       desc.texture2.format = desc.texture2.format.value_or(parentRes->format());
 
-      auto res = Texture2::create(desc.texture2.size->x, desc.texture2.size->y, *desc.texture2.format, *desc.bindingFlags);
+      auto res = gResourcePool.acquire<Texture2>(desc);
+      target.currentResDesc = desc;
       setName(*res, make_wstring(handle.name).c_str());
       target.res = res;
       return;

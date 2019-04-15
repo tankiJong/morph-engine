@@ -84,8 +84,9 @@ public:
 
   virtual const UnorderedAccessView* uav(uint mipLevel = 0) const override;
 
-  const RHIBuffer::sptr_t& uavCounter() const { return mUavCounter; }
-  RHIBuffer::sptr_t& uavCounter() { return mUavCounter; }
+  const RHIBuffer::sptr_t& uavCounter() const;
+
+  RHIBuffer::sptr_t& uavCounter();
 
   static sptr_t create(u32 stride, u32 eleCount, BindingFlag bindingFlags = BindingFlag::ShaderResource);
 protected:
@@ -101,7 +102,7 @@ protected:
   u32 mStride = 1;
   Blob mData;
   bool mCpuDirty = false;
-  RHIBuffer::sptr_t mUavCounter;
+  mutable RHIBuffer::sptr_t mUavCounter;
   mutable ShaderResourceView::sptr_t mSrv;
 };
 

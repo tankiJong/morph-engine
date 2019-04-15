@@ -765,6 +765,12 @@
     <ClCompile Include="Renderer\RenderGraph\RenderResourceHandle.cpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\RHI\RHIHeap.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RHI\Dx12\Dx12Heap.cpp">
+      <Filter>Engine\Graphics\RHI\Dx12</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -1519,6 +1525,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\RenderGraph\RenderResourceHandle.hpp">
       <Filter>Engine\Renderer\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\RHIHeap.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

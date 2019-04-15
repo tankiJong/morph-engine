@@ -42,7 +42,7 @@ public:
 class ComputeProgramInst: public ProgramInst {
 public:
   virtual bool apply(RHIContext& ctx, bool bindRootSignature) override;
-  static S<ComputeProgramInst> create(const S<Program>& program);
+  static S<ComputeProgramInst> create(const S<const Program>& program);
 
   ComputeProgramInst(const S<const Program>& program): ProgramInst(program) {};
 };

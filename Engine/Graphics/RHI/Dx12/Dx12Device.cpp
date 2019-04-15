@@ -95,7 +95,7 @@ bool RHIDevice::rhiInit() {
 
   uint dxgiFlags = 0;
 
-#if defined(_DEBUG)
+//#if defined(_DEBUG)
   // enable debug layer for debug mode.
   // have to do this step before create device or it will inavalidate the active device
   ID3D12Debug* debugLayer;
@@ -104,7 +104,7 @@ bool RHIDevice::rhiInit() {
 
     dxgiFlags |= DXGI_CREATE_FACTORY_DEBUG;
   }
-#endif
+//#endif
 
   d3d_call(CreateDXGIFactory2(dxgiFlags, IID_PPV_ARGS(&mDeviceData->dxgiFactory)));
   BOOL allowTearing = FALSE;
@@ -122,17 +122,18 @@ bool RHIDevice::rhiInit() {
 
     d3d_call(D3D12CreateDevice(
       warpAdapter,
-      D3D_FEATURE_LEVEL_11_0,
+      D3D_FEATURE_LEVEL_12_1,
       IID_PPV_ARGS(&mRhiHandle)
     ));
   } else {
-    d3d_call(D3D12CreateDevice(hardwareAdapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&mRhiHandle)));
+    d3d_call(D3D12CreateDevice(hardwareAdapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&mRhiHandle)));
   }
 
   if(mRhiHandle == nullptr) {
     return false;
   }
-
+  D3D12_FEATURE_DATA_D3D12_OPTIONS5 features5;
+  hr = mRhiHandle->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &features5, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS5));
   /*
    *  for (uint32_t i = 0; i < RHIContextData::CommandQueueType::NUM_COMMAND_QUEUE_TYPE; i++)
         {

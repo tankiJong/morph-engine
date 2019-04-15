@@ -2,6 +2,7 @@
 #include "Engine/Core/common.hpp"
 #include "Engine/Graphics/RHI/RHIContextData.hpp"
 #include "Engine/Graphics/RHI/TypedBuffer.hpp"
+#include "Engine/Math/Primitives/uvec3.hpp"
 
 class aabb2;
 class ComputeState;
@@ -25,11 +26,16 @@ public:
   using sptr_t = S<RHIContext>;
   virtual RHIContextData::sptr_t contextData() const { return mContextData; }
   // void initDefaultRenderTarget();
-  virtual void flush();
+  virtual void flush(bool wait = true);
 
   //-------------- resource operations --------------
 
   void copyBufferRegion(const RHIBuffer* dst, size_t dstOffset, RHIBuffer* src, size_t srcOffset, size_t byteCount);
+  void copyTextureRegion(RHITexture* dst, uint dstSubresourceIndex, uvec3 dstOffset, 
+	                       const RHITexture* src, uint srcSubresourceIndex, uvec3 srcStart, uvec3 srcEnd);
+  void copyTextureRegion(RHITexture* dst, uint dstSubresourceIndex, uvec3 dstOffset, 
+	                       const RHITexture* src, uint srcSubresourceIndex);
+  void copyTextureRegion(RHITexture* dst, uint dstSubresourceIndex, const RHITexture* src, uint srcSubresourceIndex);
   void updateBuffer(RHIBuffer* buffer, const void* data, size_t offset = 0, size_t byteCount = 0);
 
   void updateTextureSubresources(const RHITexture& texture, uint firstSubresource, uint subresourceCount, const void* data);
@@ -61,6 +67,7 @@ public:
   void setComputeState(const ComputeState& pso);
   void setFrameBuffer(const FrameBuffer& fbo);
   void setVertexBuffer(const VertexBuffer& vbo, uint streamIndex);
+  void setVertexBuffers(const VertexBuffer::sptr_t* vbos, size_t count, uint startStreamIndex);
   void setIndexBuffer(const IndexBuffer* ibo);
   void setPrimitiveTopology(const eDrawPrimitive prim);
   void setViewport(const aabb2& bounds);

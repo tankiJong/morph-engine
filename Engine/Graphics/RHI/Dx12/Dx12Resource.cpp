@@ -1,5 +1,6 @@
 ﻿#include "Dx12Resource.hpp"
 #include "Engine/Debug/ErrorWarningAssert.hpp"
+#include "Engine/Graphics/RHI/RHIDevice.hpp"
 
 const D3D12_HEAP_PROPERTIES DefaultHeapProps =
 {
@@ -146,7 +147,6 @@ D3D12_RESOURCE_STATES asDx12ResourceState(RHIResource::State state) {
       ERROR_AND_DIE("unexpected state type");
   }
 }
-
 
 RHIResource::RHIResource(rhi_resource_handle_t res) {
   mRhiHandle = res;

@@ -40,6 +40,6 @@ bool ComputeProgramInst::apply(RHIContext& ctx, bool bindRootSignature) {
   return mProgramData.bindForCompute(ctx, *mProg->rootSignature(), bindRootSignature);
 }
 
-S<ComputeProgramInst> ComputeProgramInst::create(const S<Program>& program) {
+S<ComputeProgramInst> ComputeProgramInst::create(const S<const Program>& program) {
   return S<ComputeProgramInst>(new ComputeProgramInst(program));
 }

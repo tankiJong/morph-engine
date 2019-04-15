@@ -26,9 +26,15 @@ DxgiFormatDesc<eTextureFormat> DxgiFormatDescMap[] = {
   { TEXTURE_FORMAT_RGBA8,   DXGI_FORMAT_R8G8B8A8_UNORM },   // default color format
   { TEXTURE_FORMAT_RG8,     DXGI_FORMAT_R8G8_UNORM },
   { TEXTURE_FORMAT_R8,      DXGI_FORMAT_R8_UNORM },
+  { TEXTURE_FORMAT_R8_UINT,      DXGI_FORMAT_R8_UINT },
+
   { TEXTURE_FORMAT_RGBA16,  DXGI_FORMAT_R16G16B16A16_FLOAT },
   { TEXTURE_FORMAT_RG16,    DXGI_FORMAT_R16G16_FLOAT },  
   { TEXTURE_FORMAT_R16,     DXGI_FORMAT_R16_FLOAT },
+  { TEXTURE_FORMAT_R16_UINT,      DXGI_FORMAT_R16_UINT },
+
+  { TEXTURE_FORMAT_R32_UINT,      DXGI_FORMAT_R32_UINT },
+
   { TEXTURE_FORMAT_D24S8,   DXGI_FORMAT_R24G8_TYPELESS },
 };
 
@@ -118,6 +124,23 @@ DXGI_FORMAT toDXGIFormat(eDataDeclType declType, uint count, bool normalized) {
 DXGI_FORMAT toDXGIFormat(eTextureFormat format) {
   EXPECTS(DxgiFormatDescMap[format].key == format);
   return DxgiFormatDescMap[format].val;
+}
+
+size_t DXGIFormatSize(DXGI_FORMAT fmt) {
+  switch(fmt) {
+    case DXGI_FORMAT_UNKNOWN: return 0;    
+    case DXGI_FORMAT_R8G8B8A8_UNORM: return 32;   // default color format
+    case DXGI_FORMAT_R8G8_UNORM: return 16;
+    case DXGI_FORMAT_R8_UNORM: return 8;
+    case DXGI_FORMAT_R8_UINT: return 8;
+    case DXGI_FORMAT_R16G16B16A16_FLOAT: return 64;
+    case DXGI_FORMAT_R16G16_FLOAT: return 32;  
+    case DXGI_FORMAT_R16_FLOAT: return 16;
+    case DXGI_FORMAT_R16_UINT: return 16;
+    case DXGI_FORMAT_R32_UINT: return 32;
+    case DXGI_FORMAT_R24G8_TYPELESS: return 32;
+  }
+  BAD_CODE_PATH();
 }
 
 eTextureFormat toTextureFormat(DXGI_FORMAT format) {

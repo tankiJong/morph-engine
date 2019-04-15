@@ -11,3 +11,4 @@ D3D12_RESOURCE_FLAGS asDx12ResourceFlags(RHIResource::BindingFlag flags);
 RHIResource::BindingFlag asRHIResourceFlags(D3D12_RESOURCE_FLAGS flags);
 
 D3D12_RESOURCE_STATES asDx12ResourceState(RHIResource::State state);
+

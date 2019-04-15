@@ -176,12 +176,14 @@ void RHIContext::subresourceBarrier(const RHITexture& tex,
 //   barrier.Transition.pResource = rt[frameIndex];
 // }
 
-void RHIContext::flush() {
+void RHIContext::flush(bool wait) {
   if(mCommandsPending) {
     mContextData->flush();
     mCommandsPending = false;
   }
-  mContextData->fence()->syncCpu();
+  if(wait) {
+    mContextData->fence()->syncCpu();
+  }
 }
 
 void RHIContext::copyBufferRegion(const RHIBuffer* dst, size_t dstOffset, RHIBuffer* src, size_t srcOffset, size_t byteCount) {
@@ -192,6 +194,73 @@ void RHIContext::copyBufferRegion(const RHIBuffer* dst, size_t dstOffset, RHIBuf
     src->handle().Get(), src->gpuAddressOffset() + srcOffset, 
     byteCount);
   mCommandsPending = true;
+}
+
+void RHIContext::copyTextureRegion(
+	RHITexture* dst, uint dstSubresourceIndex, uvec3 dstOffset,
+  const RHITexture* src, uint srcSubresourceIndex, uvec3 srcStart, uvec3 srcEnd) {
+  D3D12_TEXTURE_COPY_LOCATION srcLoc, dstLoc;
+  ResourceViewInfo srcInfo(srcSubresourceIndex, 1, 0, 1, DescriptorPool::Type::TextureSrv);
+  ResourceViewInfo dstInfo(dstSubresourceIndex, 1, 0, 1, DescriptorPool::Type::TextureSrv);
+  transitionBarrier(dst, RHIResource::State::CopyDest, TRANSITION_FULL, &dstInfo);
+  transitionBarrier(src, RHIResource::State::CopySource, TRANSITION_FULL, &srcInfo);
+
+  srcLoc.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+  srcLoc.SubresourceIndex = srcSubresourceIndex;
+  srcLoc.pResource = src->handle().Get();
+
+  dstLoc.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+  dstLoc.SubresourceIndex = dstSubresourceIndex;
+  dstLoc.pResource = dst->handle().Get();
+
+  D3D12_BOX srcBox;
+  srcBox.left = srcStart.x;
+  srcBox.top = srcStart.y;
+  srcBox.front = srcStart.z;
+
+  srcBox.right = srcEnd.x;
+  srcBox.bottom = srcEnd.y;
+  srcBox.back = srcEnd.z;
+
+  mContextData->commandList()
+        ->CopyTextureRegion(
+			      &dstLoc, dstOffset.x, dstOffset.y, dstOffset.z,
+			      &srcLoc, &srcBox);
+}
+
+void RHIContext::copyTextureRegion(RHITexture* dst, uint dstSubresourceIndex, uvec3 dstOffset,
+  const RHITexture* src, uint srcSubresourceIndex) {
+  D3D12_TEXTURE_COPY_LOCATION srcLoc, dstLoc;
+
+  srcLoc.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+  srcLoc.SubresourceIndex = srcSubresourceIndex;
+  srcLoc.pResource = src->handle().Get();
+
+  dstLoc.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+  dstLoc.SubresourceIndex = dstSubresourceIndex;
+  dstLoc.pResource = dst->handle().Get();
+
+  mContextData->commandList()
+        ->CopyTextureRegion(
+			      &dstLoc, dstOffset.x, dstOffset.y, dstOffset.z,
+			      &srcLoc, nullptr);
+}
+
+void RHIContext::copyTextureRegion(RHITexture* dst, uint dstSubresourceIndex, const RHITexture* src, uint srcSubresourceIndex) {
+    D3D12_TEXTURE_COPY_LOCATION srcLoc, dstLoc;
+
+  srcLoc.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+  srcLoc.SubresourceIndex = srcSubresourceIndex;
+  srcLoc.pResource = src->handle().Get();
+
+  dstLoc.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+  dstLoc.SubresourceIndex = dstSubresourceIndex;
+  dstLoc.pResource = dst->handle().Get();
+
+  mContextData->commandList()
+        ->CopyTextureRegion(
+			      &dstLoc, 0, 0, 0,
+			      &srcLoc, nullptr);
 }
 
 void RHIContext::transitionBarrier(const RHIResource* res, RHIResource::State newState, eTransitionBarrierFlag flags, const ResourceViewInfo* viewInfo) {
@@ -348,6 +417,20 @@ void RHIContext::setVertexBuffer(const VertexBuffer& vbo, uint streamIndex) {
   mContextData->commandList()->IASetVertexBuffers(streamIndex, 1, &vb);
 }
 
+void RHIContext::setVertexBuffers(const VertexBuffer::sptr_t* vbos, size_t count, uint startStreamIndex) {
+  D3D12_VERTEX_BUFFER_VIEW* vbs = (D3D12_VERTEX_BUFFER_VIEW*)_alloca(sizeof(D3D12_VERTEX_BUFFER_VIEW) * count);
+
+  for(uint i = 0; i < count; i++) {
+    D3D12_VERTEX_BUFFER_VIEW& vb = vbs[i];
+    VertexBuffer& vbo = *vbos[i];
+    vb.BufferLocation = vbo.res().gpuAddress();
+    vb.StrideInBytes  = (UINT)vbo.stride();
+    vb.SizeInBytes    = (UINT)vbo.res().size();
+  }
+
+  mContextData->commandList()->IASetVertexBuffers(startStreamIndex, count, vbs);
+}
+
 void RHIContext::setIndexBuffer(const IndexBuffer* ibo) {
   if (ibo == nullptr) return;
   D3D12_INDEX_BUFFER_VIEW ib = {};
@@ -485,34 +568,35 @@ void RHIContext::updateTexture(const RHITexture& texture, const void* data) {
 
   uint pixelSize;
 
-  switch(texture.format()) { 
-    case TEXTURE_FORMAT_UNKNOWN:
-      pixelSize = 0;
-    break;
-    case TEXTURE_FORMAT_RGBA8: 
-      pixelSize = 4;
-    break;
-    case TEXTURE_FORMAT_RG8: 
-      pixelSize = 2;
-    break;
-    case TEXTURE_FORMAT_R8:
-      pixelSize = 1;
-    break;
-    case TEXTURE_FORMAT_RGBA16: 
-      pixelSize = 8;
-    break;
-    case TEXTURE_FORMAT_RG16: 
-      pixelSize = 4;
-    break;
-    case TEXTURE_FORMAT_R16: 
-      pixelSize = 2;
-    break;
-    case TEXTURE_FORMAT_D24S8:
-      pixelSize = 4;
-    break;
-    default:
-      ERROR_AND_DIE("missing format");
-  }
+  pixelSize = DXGIFormatSize(toDXGIFormat(texture.format())) / 8;
+  //switch(texture.format()) { 
+  //  case TEXTURE_FORMAT_UNKNOWN:
+  //    pixelSize = 0;
+  //  break;
+  //  case TEXTURE_FORMAT_RGBA8: 
+  //    pixelSize = 4;
+  //  break;
+  //  case TEXTURE_FORMAT_RG8: 
+  //    pixelSize = 2;
+  //  break;
+  //  case TEXTURE_FORMAT_R8:
+  //    pixelSize = 1;
+  //  break;
+  //  case TEXTURE_FORMAT_RGBA16: 
+  //    pixelSize = 8;
+  //  break;
+  //  case TEXTURE_FORMAT_RG16: 
+  //    pixelSize = 4;
+  //  break;
+  //  case TEXTURE_FORMAT_R16: 
+  //    pixelSize = 2;
+  //  break;
+  //  case TEXTURE_FORMAT_D24S8:
+  //    pixelSize = 4;
+  //  break;
+  //  default:
+  //    ERROR_AND_DIE("missing format");
+  //}
   D3D12_SUBRESOURCE_DATA textureData = {};
   textureData.pData = data;
   textureData.RowPitch = texture.width() * pixelSize;
