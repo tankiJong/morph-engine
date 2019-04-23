@@ -5,7 +5,9 @@
 #include <map>
 #include <functional>
 
-
+/*
+ * `EventEmitter` is a center where you can register/unregister event of different names
+ */
 class EventEmitter {
   friend class EventListener;
 public:

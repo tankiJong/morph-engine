@@ -771,6 +771,9 @@
     <ClCompile Include="Graphics\RHI\Dx12\Dx12Heap.cpp">
       <Filter>Engine\Graphics\RHI\Dx12</Filter>
     </ClCompile>
+    <ClCompile Include="Async\Job.cpp">
+      <Filter>Engine\Async</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -1528,6 +1531,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\RHI\RHIHeap.hpp">
       <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Async\Job.hpp">
+      <Filter>Engine\Async</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

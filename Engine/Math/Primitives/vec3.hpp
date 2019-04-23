@@ -55,6 +55,14 @@ public:
   vec2 xy() const;
   vec2 xz() const;
   vec2 yz() const;
+
+  inline vec3 yzx() const {
+    return { y, z, x };
+  }
+
+  inline vec3 zxy() const {
+    return { z, x, y };
+  }
   float angle(const vec3& rhs) const;
 
   static vec3 abs(const vec3& vec);
@@ -82,7 +90,9 @@ using point3 = vec3;
 using Euler = vec3;
 
 vec3 operator*(float lhs, const vec3& rhs);
-
+inline vec3 operator/(float lhs, const vec3& rhs) {
+  return { lhs / rhs.x,  lhs / rhs.y, lhs / rhs.z };
+};
 vec3 fromSpherical(float r, float thetaDeg, float phiDeg);
 
 // eg: XYZ means (v)XYZ

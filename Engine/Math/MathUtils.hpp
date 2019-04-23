@@ -20,6 +20,7 @@ typedef int int32_t;
 class vec2;
 class Disc2;
 
+
 float convertRadiansToDegrees (float radians);
 float convertDegreesToRadians (float degrees);
 float cosDegrees (float degrees);
@@ -47,6 +48,23 @@ template<class VectorType>
 float dotProduct(const VectorType& a, const VectorType& b) {
   return a.dot(b);
 }
+
+inline float frac(float v) {
+  return v - floor(v);
+}
+
+inline float step(float a, float b) {
+  return (a >= b) ? 1.f : 0.f;
+}
+
+inline vec3 step(const vec3& a, const vec3& b) {
+  return vec3{step(a.x, b.x), step(a.y, b.y), step(a.z, b.z) };
+}
+
+inline vec3 abs(const vec3& val) {
+  return { abs(val.x), abs(val.y), abs(val.z) };
+}
+
 //--------------------------- ranging, clamping ------------------------------------------------------------
 
 // QA: constexpr with link error

@@ -17,6 +17,10 @@ private:
   bool cancelBubble = true;
 };
 
+/*
+ * `EventTarget` is a strong typed event system, used for certain defined event data.
+ * `EventTarget` can form into a hierarchy, where event can bubble up through the chain
+ */
 template<typename D>
 class EventTarget {
 public:

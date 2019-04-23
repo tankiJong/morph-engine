@@ -313,7 +313,6 @@ void debugDrawGpuMesh() {
     desc.setVertexLayout(VertexLayout::For<v_debug>());
     desc.setProgram(defaultProg);
     desc.setRootSignature(sig);
-
     desc.setPrimTye(prim);
 
     defaultpps = GraphicsState::create(desc);
@@ -338,7 +337,7 @@ void debugDrawGpuMesh() {
   }
 
   S<RHIContext> ctx = gRenderer->context();
- 
+  gRenderer->setView(*gDefaultCamera);
   ctx->setGraphicsState(*defaultpps);
   gRenderer->defaultDescriptorSet()->bindForGraphics(*ctx, *sig);
   ctx->setFrameBuffer(*gRenderer->defaultFrameBuffer());
@@ -358,6 +357,10 @@ void debugDrawGpuMesh() {
 
   ctx->copyBufferRegion(buffer.get(), 0, gGpuDebugMesh->uavCounter().get(), 0, sizeof(UINT));
   ctx->drawIndirect(*buffer, 1, 0);
+  ctx->setGraphicsState(*alwayspps);
+  gRenderer->defaultDescriptorSet()->bindForGraphics(*ctx, *sig);
+  ctx->drawIndirect(*buffer, 1, 0);
+
 }
 
 void Debug::drawNow() {
@@ -816,10 +819,10 @@ DEF_RESOURCE(Program, "internal/Shader/debug/always") {
   RenderState state;
   state.isWriteDepth = FLAG_FALSE;
   state.depthMode = COMPARE_ALWAYS;
-  state.colorBlendOp = BLEND_OP_ADD;
+  state.colorBlendOp = BLEND_OP_DISABLE;
   state.colorSrcFactor = BLEND_F_SRC_ALPHA;
   state.colorDstFactor = BLEND_F_DST_ALPHA;
-  state.alphaBlendOp = BLEND_OP_ADD;
+  state.alphaBlendOp = BLEND_OP_DISABLE;
   state.alphaSrcFactor = BLEND_F_SRC_ALPHA;
   state.alphaDstFactor = BLEND_F_DST_ALPHA;
   state.cullMode = CULL_NONE;

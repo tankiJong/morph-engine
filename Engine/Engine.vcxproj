@@ -1071,6 +1071,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="..\ThirdParty\stb\stb_image_write.c" />
     <ClCompile Include="Application\Application.cpp" />
     <ClCompile Include="Application\Window.cpp" />
+    <ClCompile Include="Async\Job.cpp" />
     <ClCompile Include="Async\Thread.cpp" />
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Blackboard.cpp" />
@@ -1933,6 +1934,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="..\ThirdParty\yaml-cpp\yaml.h" />
     <ClInclude Include="Application\Application.hpp" />
     <ClInclude Include="Application\Window.hpp" />
+    <ClInclude Include="Async\Job.hpp" />
     <ClInclude Include="Async\Thread.hpp" />
     <ClInclude Include="Audio\Audio.hpp" />
     <ClInclude Include="Config.hpp" />

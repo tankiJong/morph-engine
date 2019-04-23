@@ -6,6 +6,7 @@
 #include <thread>
 #include "Engine/Debug/Console/Console.hpp"
 #include "Engine/Math/MathUtils.hpp"
+#include "Game/Gameplay/FollowCamera.hpp"
 
 using thread_handle_t = Thread::thread_handle_t;
 using thread_id_t = Thread::thread_id_t;
@@ -19,12 +20,14 @@ static DWORD WINAPI threadEntryPoint(void* arg) {
   return 0;
 }
 
-thread_handle_t threadCreate(void* args, const char* = "", size_t stackSize = DEFAULT_THREAD_STACK_SIZE) {
+thread_handle_t threadCreate(void* args, const char* name = "", size_t stackSize = DEFAULT_THREAD_STACK_SIZE) {
 
   DWORD id = 0;
 
   thread_handle_t handle = ::CreateThread(NULL, stackSize, threadEntryPoint, args, 0, &id);
 
+  auto wstr = make_wstring(std::string(name));
+  SetThreadDescription(handle, wstr.c_str());
   return handle;
 }
 

@@ -196,6 +196,10 @@ auto RenderGraphResourceSet::get(const RenderGraphResourceHandle& handle) const
           ptr = std::any_cast<Texture2::sptr_t>(cache->res);
         }
         break;
+        case RHIResource::Type::Texture3D: {
+          ptr = std::any_cast<Texture3::sptr_t>(cache->res);
+        }
+        break;
         case RHIResource::Type::TextureCube: {
           ptr = std::any_cast<TextureCube::sptr_t>(cache->res);
         }
@@ -220,6 +224,15 @@ auto RenderGraphResourceSet::get(const RenderGraphResourceHandle& handle) const
           auto* rptr = std::any_cast<Texture2::scptr_t>(&cache->res);
           if(rptr == nullptr) {
             ptr = std::any_cast<Texture2::sptr_t>(cache->res);
+          } else {
+            ptr = *rptr;
+          }
+        }
+        break;
+        case RHIResource::Type::Texture3D: {
+          auto* rptr = std::any_cast<Texture3::scptr_t>(&cache->res);
+          if(rptr == nullptr) {
+            ptr = std::any_cast<Texture3::sptr_t>(cache->res);
           } else {
             ptr = *rptr;
           }

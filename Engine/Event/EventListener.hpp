@@ -5,6 +5,9 @@
 
 class EventEmitter;
 
+/*
+ * The `EventListener` is an entry of all callback of certain named event
+ */
 class EventListener {
   friend class EventEmitter;
 public:
