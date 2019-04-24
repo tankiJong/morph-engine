@@ -32,7 +32,8 @@ void* EventEmitter::allocCallback(size_t size) {
 }
 
 void EventEmitter::freeCallback(void* callback) {
-  delete[] callback;
+  byte_t* buf = (byte_t*) callback;
+  delete[] buf;
 }
 
 EventEmitter::EventEmitter() {

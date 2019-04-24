@@ -88,6 +88,20 @@ thread_id_t threadGetId(thread_handle_t handle) {
 
 const Thread::thread_handle_t Thread::INVALID_HANDLE = (thread_handle_t)-1;
 
+Thread::Thread(Thread&& from) noexcept {
+  std::swap(mId, from.mId);
+  std::swap(mHandle, from.mHandle);
+  mName = from.mName;
+  from.mName = "INVALID";
+}
+
+Thread& Thread::operator=(Thread&& from) noexcept {
+  std::swap(mId, from.mId);
+  std::swap(mHandle, from.mHandle);
+  std::swap(mName, from.mName);
+  return *this;
+}
+
 void Thread::join() {
   threadJoin(mHandle);
   mHandle = INVALID_HANDLE;

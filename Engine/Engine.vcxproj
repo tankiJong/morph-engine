@@ -1076,6 +1076,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Blackboard.cpp" />
     <ClCompile Include="Core\BytePacker.cpp" />
+    <ClCompile Include="Core\closure.cpp" />
     <ClCompile Include="Core\Endianness.cpp" />
     <ClCompile Include="Core\Engine.cpp" />
     <ClCompile Include="Core\EngineCommon.cpp" />
@@ -1940,6 +1941,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="Config.hpp" />
     <ClInclude Include="Core\Blackboard.hpp" />
     <ClInclude Include="Core\BytePacker.hpp" />
+    <ClInclude Include="Core\closure.hpp" />
     <ClInclude Include="Core\common.hpp" />
     <ClInclude Include="Core\Delegate.hpp" />
     <ClInclude Include="Core\Endianness.hpp" />

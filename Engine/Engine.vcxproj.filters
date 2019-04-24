@@ -774,6 +774,9 @@
     <ClCompile Include="Async\Job.cpp">
       <Filter>Engine\Async</Filter>
     </ClCompile>
+    <ClCompile Include="Core\closure.cpp">
+      <Filter>Engine\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -1534,6 +1537,9 @@
     </ClInclude>
     <ClInclude Include="Async\Job.hpp">
       <Filter>Engine\Async</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\closure.hpp">
+      <Filter>Engine\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

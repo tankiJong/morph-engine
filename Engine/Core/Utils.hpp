@@ -27,20 +27,20 @@ protected:
   size_t type;
 };
 
-template<typename T>
+template<typename ...T>
 struct tid : public unique {
 protected:
-  static const char _id = 0;
-public:
-  static const tid<T> value;
+  static const char _id;
   constexpr tid(): unique((size_t)&_id) {}
+public:
+  static const tid<T...> value;
 };
 
-template<typename T>
-const char tid<T>::_id = 0;
+template<typename ...T>
+const char tid<T...>::_id = 0;
 
-template<typename T>
-const tid<T> tid<T>::value;
+template<typename ...T>
+const tid<T...> tid<T...>::value;
 
 template<typename T>
 using S = std::shared_ptr<T>;

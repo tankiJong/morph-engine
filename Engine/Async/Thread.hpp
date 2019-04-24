@@ -40,6 +40,8 @@ public:
   using thread_id_t = void*;
   static const thread_handle_t INVALID_HANDLE;
 
+  Thread() = default;
+
   template<typename Fn, typename ...Args>
   Thread(Fn&& fn, Args&& ...args) {
     auto* launcher = 
@@ -53,17 +55,17 @@ public:
   Thread(const char* name, Fn&& fn, Args&& ...args) {
     mName = name;
     auto* launcher =
-      new detail::Launcher<Fn, Args...>(
+      new detail::Launcher<Fn, std::decay_t<Args>...>(
         std::forward<Fn>(fn),
-        std::forward<Args>(args)...);
+        std::forward<std::decay_t<Args>>(args)...);
     launch(launcher);
   };
 
   Thread(const Thread&) = delete;
-  Thread(const Thread&&) = delete;
+  Thread(Thread&&) noexcept;
 
   Thread& operator=(const Thread&) = delete;
-  Thread& operator=(const Thread&&) = delete;
+  Thread& operator=(Thread&&) noexcept;
 
   void join();
   void detach();
