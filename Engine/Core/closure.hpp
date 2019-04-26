@@ -66,7 +66,7 @@ class closure {
    public:
       template<typename ...Args, typename T, typename C = typename detail::closure_decay<T, void, Args...>::type>
       closure(T&& func, Args&&... args)
-         : mArgs(std::forward<Args>(args)...) {
+         : mArgs(std::forward<std::decay_t<Args>>(args)...) {
          static_assert(sizeof(C) <= sizeof(mFunction));
          if constexpr(std::is_convertible_v<C, void(*)(Args...)>) {
             using invoke_t = void(*)(Args...);
@@ -75,17 +75,26 @@ class closure {
             // pure function, lambda without capture
          } else {
             new (&mFunction)C{std::forward<T>(func)};
-            mCallback = &invokeStatic<C, Args...>;
+            mCallback = &invokeStatic<C, std::decay_t<Args>...>;
          }
       }
 
-      template<typename Object, typename ...Args>
-      closure(Object* object, void(Object::*func)(Args...), Args&&... args)
+      template<typename Object, typename R, typename ...Args>
+      closure(Object* object, R(Object::*func)(Args...), Args&&... args)
 	      : mObject(object)
-         , mArgs(std::forward<Args>(args)...) {
-         using invoke_t = void(Object::*)(Args...);
+         , mArgs(std::forward<std::decay_t<Args>>(args)...) {
+         using invoke_t = R(Object::*)(Args...);
          new (&mFunction)invoke_t{func};
-         mCallback = &invokeMember<Object, invoke_t, Args...>;
+         mCallback = &invokeMember<Object, invoke_t, std::decay_t<Args>...>;
+      }
+
+      template<typename Object, typename R, typename ...Args>
+      closure(const Object* object, R(Object::*func)(Args...) const, Args&&... args)
+	      : mObject(const_cast<Object*>(object))
+         , mArgs(std::forward<std::decay_t<Args>>(args)...) {
+         using invoke_t = R(Object::*)(Args...) const;
+         new (&mFunction)invoke_t{func};
+         mCallback = &invokeMember<Object, invoke_t, std::decay_t<Args>...>;
       }
 
       void operator()() {
@@ -119,7 +128,7 @@ class closure {
       template<typename Object, typename MemberFunc, typename ...Args>
       static void invokeMember(closure& decl) {
          MemberFunc* func = reinterpret_cast<MemberFunc*>(&decl.mFunction);
-         arg_list::storage_data_t<Args...>& data = decl.mArgs.get<Args...>();
+         arg_list::storage_data_t<Args...>& data = decl.mArgs.get<std::decay_t<Args>...>();
          tupleExecuteMember(*(Object*)decl.mObject, *func, data, 
 			            std::make_index_sequence<std::tuple_size_v<std::tuple<Args...>>>());
       };

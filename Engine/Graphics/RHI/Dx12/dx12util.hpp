@@ -18,6 +18,8 @@
 #include "Engine/Graphics/RHI/RHIType.hpp"
 #include <d3dcompiler.h>
 
+#include "Engine/Core/StringUtils.hpp"
+
 #pragma warning(pop)
 class DescriptorSet;
 
@@ -57,8 +59,6 @@ MAKE_SMART_COM_PTR(ID3D12QueryHeap);
 MAKE_SMART_COM_PTR(ID3D12CommandSignature);
 MAKE_SMART_COM_PTR(IUnknown);
 MAKE_SMART_COM_PTR(ID3D12Heap);
-
-std::wstring make_wstring(const std::string& str);
 
 DXGI_FORMAT toDXGIFormat(eDataDeclType declType, uint count, bool normalized);
 

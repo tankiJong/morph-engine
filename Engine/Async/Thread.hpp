@@ -77,11 +77,11 @@ protected:
   thread_id_t   mId = 0;
   thread_handle_t mHandle = INVALID_HANDLE;
   const char* mName = "";
-
 };
 
 namespace CurrentThread {
   void yield();
   void sleep(uint ms);
   Thread::thread_id_t id();
+  void setName(const char* name);
 }

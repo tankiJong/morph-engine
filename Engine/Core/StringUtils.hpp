@@ -106,3 +106,5 @@ inline void operator >>(const T& lhs, std::string& rhs) {
 
 using namespace std::literals::string_literals;
 using namespace std::literals::string_view_literals;
+
+std::wstring make_wstring(const std::string& str);

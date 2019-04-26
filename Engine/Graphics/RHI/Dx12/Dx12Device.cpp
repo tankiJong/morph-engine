@@ -126,7 +126,7 @@ bool RHIDevice::rhiInit() {
       IID_PPV_ARGS(&mRhiHandle)
     ));
   } else {
-    d3d_call(D3D12CreateDevice(hardwareAdapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&mRhiHandle)));
+    d3d_call(D3D12CreateDevice(hardwareAdapter, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&mRhiHandle)));
   }
 
   if(mRhiHandle == nullptr) {

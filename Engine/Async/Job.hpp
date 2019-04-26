@@ -16,6 +16,7 @@ namespace Job {
    enum eCategory: category_t {
       CAT_GENERIC = 0,
       CAT_GENERIC_SLOW,
+      CAT_MAIN_THREAD,
       CAT_IO,
       NUM_CATEGORY,
    };
@@ -32,8 +33,12 @@ namespace Job {
          : mClosure(std::forward<T>(func), std::forward<Args>(args)...) {
       }
 
-      template<typename Object, typename ...Args>
-      Decl(Object* object, void(Object::*func)(Args...), Args&&... args)
+      template<typename Object, typename R, typename ...Args>
+      Decl(Object* object, R(Object::*func)(Args...), Args&&... args)
+		  : mClosure(object, func, std::forward<Args>(args)...) {}
+
+      template<typename Object, typename R, typename ...Args>
+      Decl(const Object* object, R(Object::*func)(Args...) const, Args&&... args)
 		  : mClosure(object, func, std::forward<Args>(args)...) {}
 
       void operator()() {
@@ -49,23 +54,29 @@ namespace Job {
 
    class Counter {
    friend class Consumer;
+   friend void chain(const S<Counter>& prerequisite, const S<Counter>& afterFinish);
    public:
       uint counter() const { return mDispatchCounter; }
-      Counter(S<Decl> decl)
-         : mDecl(std::move(decl)) {
+      Counter(S<Decl> decl, category_t cat)
+         : mDecl(std::move(decl))
+         , mCategory(cat) {
          mBlockees.fill(nullptr);
       }
-      void decrementCounter() { mDispatchCounter--; }
-   protected:
+      void decrementCounter() { --mDispatchCounter; }
+      category_t category() const { return mCategory; }
 
+      void dispatchBlockees() const;
+   protected:
       void invoke();
       void reset();
-
+      void addBlockee(const S<Counter>& counter);
       static std::atomic<counter_id_t> sNextId;
+
       S<Decl> mDecl = nullptr;
+      category_t mCategory = CAT_GENERIC;
       std::atomic_uint mDispatchCounter = 1;
-      std::array<Counter*, kMaxDependentJob> mBlockees; // I am blocking them
-      size_t mBlockeeCount = 0;
+      std::array<S<Counter>, kMaxDependentJob> mBlockees; // I am blocking them
+      std::atomic_size_t mBlockeeCount = 0;
       counter_id_t mId = sNextId++;
    };
 
@@ -81,7 +92,18 @@ namespace Job {
    void startup(uint categoryCount);
    void shutdown();
    bool running();
+
+   /*
+    * this api is thread specific
+    */
+   Counter* currentJob();
+   S<Counter> create(Decl& decl, category_t cat);
+   S<Counter> create(Decl&& decl, category_t cat);
+   void dispatch(const S<Counter>& counter);
    W<Counter> dispatch(Decl& decl, category_t cat);
+   W<Counter> dispatch(Decl&& decl, category_t cat);
+   void chain(const S<Counter>& prerequisite, const S<Counter>& afterFinish);
+   
    void wait(W<Counter> counter);
 
 }

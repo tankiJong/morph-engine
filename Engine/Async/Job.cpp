@@ -1,8 +1,9 @@
 ﻿#include "Job.hpp"
-#include <vector>
 #include <mutex>
 #include "Thread.hpp"
 #include "Engine/Memory/Pool.hpp"
+#include <queue>
+#include "Engine/Core/Time/Clock.hpp"
 using namespace Job;
 
 class JobQueue {
@@ -10,12 +11,12 @@ public:
   JobQueue() = default;
   JobQueue(const JobQueue& q)
 	  : mCategory(q.mCategory) {}
-  S<Counter> enqueue(const S<Decl>& decl);
+  S<Counter> enqueue(const S<Counter>& counter);
   S<Counter> dequeue();
   void category(category_t cat) { mCategory = cat; }
 protected:
   category_t mCategory;
-  std::vector<S<Counter>> mCounters;
+  std::queue<S<Counter>> mCounters;
   std::mutex mLock;
 };
 
@@ -23,8 +24,10 @@ class JobCenter {
 public:
 
   ~JobCenter();
-  S<Counter> issueJob(const S<Decl>& decl, category_t cat);
   S<Counter> claimJob(category_t category);
+  S<Counter> createJob(const S<Decl>& decl, category_t cat);
+  S<Counter> issueJob(const S<Counter>& counter);
+  S<Counter> issueJob(const S<Decl>& decl, category_t cat);
   void shutdown();
   void startup(uint categoryCount);
   bool opening() const { return mIsOpening; }
@@ -38,6 +41,16 @@ protected:
 
 
 static JobCenter gJobCenter;
+thread_local Counter* gCurrentJob = nullptr;
+
+
+
+
+
+
+
+
+
 
 void JobCenter::startup(uint categoryCount) {
   mIsOpening = true;
@@ -52,9 +65,12 @@ void JobCenter::startup(uint categoryCount) {
   // create job threads
   mSystemJobThreads.emplace_back("Job Generic", systemThreadEntry, CAT_GENERIC);
   mSystemJobThreads.emplace_back("Job Generic", systemThreadEntry, CAT_GENERIC);
+  mSystemJobThreads.emplace_back("Job Generic", systemThreadEntry, CAT_GENERIC);
+  mSystemJobThreads.emplace_back("Job GenericSlow", systemThreadEntry, CAT_GENERIC_SLOW);
   mSystemJobThreads.emplace_back("Job GenericSlow", systemThreadEntry, CAT_GENERIC_SLOW);
   mSystemJobThreads.emplace_back("Job IO", systemThreadEntry, CAT_IO);
 }
+
 
 void JobCenter::systemThreadEntry(uint category) {
   Consumer consumer;
@@ -66,26 +82,18 @@ void JobCenter::systemThreadEntry(uint category) {
   }
 }
 
-S<Counter> JobQueue::enqueue(const S<Decl>& decl) {
+S<Counter> JobQueue::enqueue(const S<Counter>& counter) {
   std::scoped_lock lock(mLock);
-  S<Counter> counter = std::make_shared<Counter>(decl);
-  mCounters.push_back(counter);
-  counter->decrementCounter();
+  mCounters.push(counter);
   return counter;
 }
 
 S<Counter> JobQueue::dequeue() {
   std::scoped_lock lock(mLock);
-  for(uint i = 0; i < mCounters.size(); i++) {
-    S<Counter>& counter = mCounters[i];
-    if(counter->counter() == 0) {
-      std::swap(counter, mCounters.back());
-      S<Counter> c = mCounters.back();
-      mCounters.pop_back();
-      return c;
-    }
-  }
-  return nullptr;
+  if(mCounters.size() == 0) return nullptr;
+  S<Counter> counter = mCounters.front();
+  mCounters.pop();
+  return counter;
 }
 
 JobCenter::~JobCenter() {
@@ -95,13 +103,26 @@ JobCenter::~JobCenter() {
 }
 
 S<Counter> JobCenter::issueJob(const S<Decl>& decl, category_t cat) {
+  S<Counter> counter = createJob(decl, cat);
+  counter->decrementCounter();
+  EXPECTS(counter->counter() == 0);
   JobQueue& q = mQueues[cat];
-  return q.enqueue(decl);
+  return q.enqueue(counter);
 }
 
 S<Counter> JobCenter::claimJob(category_t category) {
   JobQueue& q = mQueues[category];
   return q.dequeue();
+}
+
+S<Counter> JobCenter::createJob(const S<Decl>& decl, category_t cat) {
+  S<Counter> counter = std::make_shared<Counter>(decl, cat);
+  return counter;
+}
+
+S<Counter> JobCenter::issueJob(const S<Counter>& counter) {
+  JobQueue& q = mQueues[counter->category()];
+  return q.enqueue(counter);
 }
 
 void JobCenter::shutdown() {
@@ -113,12 +134,16 @@ namespace Job {
   std::atomic<counter_id_t> Counter::sNextId = 0;
 };
 
+void Counter::dispatchBlockees() const {
+  for(uint i = 0; i < mBlockeeCount; i++) {
+    S<Counter> blockee = mBlockees[i];
+    dispatch(blockee);
+  }
+}
+
 void Counter::invoke() {
   mDecl->execute();
-  for(uint i = 0; i < mBlockeeCount; i++) {
-    Counter* blockee = mBlockees[i];
-    blockee->decrementCounter();
-  }
+  dispatchBlockees();
 }
 
 void Counter::reset() {
@@ -126,6 +151,11 @@ void Counter::reset() {
   mDispatchCounter = 1;
   mBlockees.fill(nullptr);
   mBlockeeCount = 0;
+}
+
+void Counter::addBlockee(const S<Counter>& counter) {
+  mBlockees[mBlockeeCount++] = counter;
+  counter->mDispatchCounter++;
 }
 
 void Consumer::init(span<category_t> categories) {
@@ -137,7 +167,9 @@ bool Consumer::consume() {
   for(category_t category: mCategories) {
     S<Counter> counter = gJobCenter.claimJob(category);
     if(counter != nullptr) {
+      gCurrentJob = counter.get();
       counter->invoke();
+      gCurrentJob = nullptr;
       return true;
     }
   }
@@ -154,6 +186,14 @@ bool Consumer::consumeAll() {
   return consumed;
 }
 
+void Consumer::consumeFor(uint ms) {
+  uint start = GetMainClock().total.millisecond;
+
+  while(consume()) {
+    if(GetMainClock().total.millisecond >= start + ms) break;
+  }
+}
+
 void Job::startup(uint categoryCount) {
   gJobCenter.startup(categoryCount);
 }
@@ -166,8 +206,37 @@ bool Job::running() {
   return gJobCenter.opening();
 }
 
+Counter* Job::currentJob() {
+  return gCurrentJob;
+}
+
+S<Counter> Job::create(Decl& decl, category_t cat) {
+  return create(std::move(decl), cat);
+}
+
+S<Counter> Job::create(Decl&& decl, category_t cat) {
+  S<Decl> realDecl = std::make_shared<Decl>(decl);
+  return gJobCenter.createJob(realDecl, cat);
+}
+
+void Job::dispatch(const S<Counter>& counter) {
+  counter->decrementCounter();
+  if(counter->counter() == 0) {
+    gJobCenter.issueJob(counter);
+  }
+}
+
 W<Counter> Job::dispatch(Decl& decl,  category_t cat) {
-  S<Decl> realDecl = std::make_shared<Decl>(std::move(decl));
+  return dispatch(std::move(decl), cat);
+}
+
+W<Counter> Job::dispatch(Decl&& decl, category_t cat) {
+  S<Decl> realDecl = std::make_shared<Decl>(decl);
   return gJobCenter.issueJob(realDecl, cat);
+}
+
+void Job::chain(const S<Counter>& prerequisite, const S<Counter>& afterFinish) {
+  EXPECTS(afterFinish != nullptr);
+  prerequisite->addBlockee(afterFinish);
 }
 

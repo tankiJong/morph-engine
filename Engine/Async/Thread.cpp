@@ -6,7 +6,7 @@
 #include <thread>
 #include "Engine/Debug/Console/Console.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "Game/Gameplay/FollowCamera.hpp"
+#include "Engine/Core/StringUtils.hpp"
 
 using thread_handle_t = Thread::thread_handle_t;
 using thread_id_t = Thread::thread_id_t;
@@ -132,6 +132,11 @@ Thread::thread_id_t CurrentThread::id() {
   return threadGetCurrentId();
 }
 
+void CurrentThread::setName(const char* name) {
+  auto wstr = make_wstring(std::string(name));
+  thread_handle_t handle = GetCurrentThread();
+  SetThreadDescription(handle, wstr.c_str());
+}
 
 void ThreadTest() {
   constexpr u64 NUM_COUNT = 12000000;

@@ -150,8 +150,8 @@ float3 PhongLighting(uint2 pix)
 
   // float ambient = Ambient(aoSize, pix, surfacePosition, surfaceNormal);
 	// ambient = clamp(smoothstep(0, 1, ambient), 0, 1);
-  float3 ambient = gTexAO[pix].xxx;
-  // float ambient = 1;
+  // float3 ambient = gTexAO[pix].xxx;
+  float ambient = 1;
 	// gTexAO[pix] = float4(ambient, ambient, ambient, 1.f);
 	// return float3(ambient, ambient, ambient);
 
