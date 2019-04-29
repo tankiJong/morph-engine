@@ -39,9 +39,9 @@ float4 ComputeIndirect(uint2 pix)
 	uint bucketCount, _;
 	uSurfelBucket.GetDimensions(bucketCount, _);
 
-	if (groupOffset * groupSliceSize + localThreadId.x < bucketCount) {
+	// if (groupOffset * groupSliceSize + localThreadId.x < bucketCount) {
 		infos[localThreadId.x] = uSurfelBucket[groupOffset * groupSliceSize + localThreadId.x];
-	}	
+	// }	
 	GroupMemoryBarrierWithGroupSync();
 
 	[unroll]
@@ -58,6 +58,7 @@ float4 ComputeIndirect(uint2 pix)
 			uint count = min(4, infos[k].currentCount - i);
 			uint kk = 0;
 
+			[unroll]
 			while(kk < count) {
 				// surfel_t surfel = surfeCache[kk];
 				float2 d1 = GetProjectedDistanceFromSurfel(surfacePosition, surfeCache[kk].position, surfeCache[kk].normal);

@@ -13,6 +13,7 @@
 #include <fstream>
 #include <atomic>
 #include "Engine/Core/Time/Time.hpp"
+#include "Engine/Async/Job.hpp"
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -404,8 +405,12 @@ void LogFileOutput::out(const std::string& line) {
 }
 
 void LogFileOutput::flush() {
-  file.flush();
-  fileStamped.flush();
+  if(!Job::ready()) return;
+  auto counter = Job::dispatch({[this] {
+    file.flush();
+    fileStamped.flush();
+  }}, Job::CAT_IO);
+  Job::wait(counter);
 }
 
 COMMAND_REG("log_filter", "name: string, display: bool", "display/hide log with certain tag") (Command& cmd) {

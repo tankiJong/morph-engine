@@ -777,6 +777,9 @@
     <ClCompile Include="Core\closure.cpp">
       <Filter>Engine\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Core\vary.cpp">
+      <Filter>Engine\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\MathUtils.hpp">
@@ -1539,6 +1542,9 @@
       <Filter>Engine\Async</Filter>
     </ClInclude>
     <ClInclude Include="Core\closure.hpp">
+      <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\vary.hpp">
       <Filter>Engine\Core</Filter>
     </ClInclude>
   </ItemGroup>

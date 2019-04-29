@@ -95,7 +95,7 @@ bool RHIDevice::rhiInit() {
 
   uint dxgiFlags = 0;
 
-//#if defined(_DEBUG)
+#if defined(_DEBUG)
   // enable debug layer for debug mode.
   // have to do this step before create device or it will inavalidate the active device
   ID3D12Debug* debugLayer;
@@ -104,7 +104,7 @@ bool RHIDevice::rhiInit() {
 
     dxgiFlags |= DXGI_CREATE_FACTORY_DEBUG;
   }
-//#endif
+#endif
 
   d3d_call(CreateDXGIFactory2(dxgiFlags, IID_PPV_ARGS(&mDeviceData->dxgiFactory)));
   BOOL allowTearing = FALSE;

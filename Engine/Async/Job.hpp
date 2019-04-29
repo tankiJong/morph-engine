@@ -57,7 +57,10 @@ namespace Job {
    friend void chain(const S<Counter>& prerequisite, const S<Counter>& afterFinish);
    public:
       uint counter() const { return mDispatchCounter; }
-      Counter(S<Decl> decl, category_t cat)
+
+   void terminate() { mIsDone = true; };
+
+   Counter(S<Decl> decl, category_t cat)
          : mDecl(std::move(decl))
          , mCategory(cat) {
          mBlockees.fill(nullptr);
@@ -66,6 +69,10 @@ namespace Job {
       category_t category() const { return mCategory; }
 
       void dispatchBlockees() const;
+
+      bool done() const { return mIsDone; }
+
+   ~Counter();
    protected:
       void invoke();
       void reset();
@@ -78,6 +85,7 @@ namespace Job {
       std::array<S<Counter>, kMaxDependentJob> mBlockees; // I am blocking them
       std::atomic_size_t mBlockeeCount = 0;
       counter_id_t mId = sNextId++;
+      bool mIsDone = false;
    };
 
    class Consumer {
@@ -105,5 +113,5 @@ namespace Job {
    void chain(const S<Counter>& prerequisite, const S<Counter>& afterFinish);
    
    void wait(W<Counter> counter);
-
+   bool ready();
 }

@@ -1088,6 +1088,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="Core\StringUtils.cpp" />
     <ClCompile Include="Core\Time\Clock.cpp" />
     <ClCompile Include="Core\Time\Time.cpp" />
+    <ClCompile Include="Core\vary.cpp" />
     <ClCompile Include="Debug\Console\Command.cpp" />
     <ClCompile Include="Debug\Console\Console.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -1957,6 +1958,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="Core\Time\Time.hpp" />
     <ClInclude Include="Core\type.h" />
     <ClInclude Include="Core\Utils.hpp" />
+    <ClInclude Include="Core\vary.hpp" />
     <ClInclude Include="Debug\Console\Command.hpp" />
     <ClInclude Include="Debug\Console\Console.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

@@ -14,6 +14,9 @@ public:
   S<Counter> enqueue(const S<Counter>& counter);
   S<Counter> dequeue();
   void category(category_t cat) { mCategory = cat; }
+
+  auto clear();
+
 protected:
   category_t mCategory;
   std::queue<S<Counter>> mCounters;
@@ -96,6 +99,15 @@ S<Counter> JobQueue::dequeue() {
   return counter;
 }
 
+auto JobQueue::clear() {
+  std::scoped_lock lock(mLock);
+  while(!mCounters.empty()) {
+    S<Counter>& counter = mCounters.front();
+    counter->terminate();
+    mCounters.pop();
+  }
+}
+
 JobCenter::~JobCenter() {
   for(Thread& t: mSystemJobThreads) {
     t.join();
@@ -127,6 +139,9 @@ S<Counter> JobCenter::issueJob(const S<Counter>& counter) {
 
 void JobCenter::shutdown() {
   mIsOpening = false;
+  for(JobQueue& queue: mQueues) {
+    queue.clear();
+  }
 }
 
 
@@ -141,9 +156,16 @@ void Counter::dispatchBlockees() const {
   }
 }
 
+Counter::~Counter() {
+  for(uint i = 0; i < mBlockeeCount; i++) {
+    mBlockees[i]->terminate();
+  }
+}
+
 void Counter::invoke() {
   mDecl->execute();
   dispatchBlockees();
+  mIsDone = true;
 }
 
 void Counter::reset() {
@@ -240,3 +262,18 @@ void Job::chain(const S<Counter>& prerequisite, const S<Counter>& afterFinish) {
   prerequisite->addBlockee(afterFinish);
 }
 
+bool Job::ready() {
+  return gJobCenter.opening();
+}
+
+
+void Job::wait(W<Counter> counter) {
+
+  // see whether someone is holding it
+  S<Counter> c = counter.lock();
+  if(c == nullptr) return;
+
+  while(!c->done()) {
+    CurrentThread::yield();
+  };
+}
