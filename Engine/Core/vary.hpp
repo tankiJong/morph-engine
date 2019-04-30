@@ -4,53 +4,73 @@
 #include "Engine/Debug/ErrorWarningAssert.hpp"
 
 struct vary {
+  vary() {};
+  
   template<typename T>
-  T& get() const;
+  const T& get() const;
+  template<typename T>
+  T& get();
+
+  const void* get() const;
+  void* get();
 
   template<typename T, typename V = std::decay_t<T>>
   void set(T&& value);
 
+  vary(vary&& from) noexcept;
+  vary(const vary& from);
+
+  vary& operator=(const vary& from);
+  vary& operator=(vary&& from) noexcept;
+
   ~vary();
 protected:
   using deleter_t = void(*)(vary&);
+  using copy_construct_t = void(*)(const void*, void*);
+  struct meta_data_t {
+    deleter_t         deleter  = nullptr;
+    copy_construct_t  copyConstructor = nullptr;
+    const unique*     typeInfo = nullptr;
+    bool              useHeap  = false;
+
+    void reset();
+  };
+
   struct storage_t{
-    static constexpr size_t kBufferSize = 32 - sizeof(void*);
-    uint32_t buf[kBufferSize];
-  }; // 124 bytes
+    static constexpr size_t kBufferSize = 32  - sizeof(meta_data_t);
+    uint8_t buf[kBufferSize];
+  };
 
   union {
     storage_t     mStorage;
     struct {
-      void* value = nullptr;
+      void*  value = nullptr;
+      size_t size  = 0;
     }             mPtr{};
   };
 
-      deleter_t   mDeleter = nullptr;
-  const unique*   mTypeInfo = nullptr;
+  meta_data_t mMetaData;
 
   void reset();
 
-  template<typename T, bool UseStorage>
-  void destructor(vary& v);
+  template<typename T>
+  static void copyConstruct(const void* from, void* to);
+  template<typename T, bool UseHeap>
+  static void destructor(vary& v);
+
 };
 
 template< typename T >
-inline T& vary::get() const {
-  EXPECTS(&tid<T>::value == mTypeInfo);
+inline const T& vary::get() const {
+  EXPECTS(&tid<T>::value == mMetaData.typeInfo);
+  T* valptr = (T*)get();
+  return *valptr;
+}
 
-  constexpr size_t vsize = sizeof(T);
-
-  T* valptr = nullptr;
-
-  if constexpr ( vsize > sizeof(storage_t)) {
-    // use heap storage
-    EXPECTS(mPtr.value != nullptr);
-    valptr = (T*)mPtr.value;
-  } else {
-    // use local storage
-    valptr = (T*)&mStorage;
-  }
-
+template< typename T >
+T& vary::get() {
+  EXPECTS(&tid<T>::value == mMetaData.typeInfo);
+  T* valptr = (T*)get();
   return *valptr;
 }
 
@@ -60,40 +80,56 @@ inline void vary::set(T&& value) {
 
   reset();
   V* valptr = nullptr;
-  if constexpr ( vsize > sizeof(storage_t)) {
+
+  constexpr bool useHeap = vsize > sizeof(storage_t);
+  if constexpr (useHeap) {
     // use heap storage
     valptr = (V*)malloc(vsize);
     mPtr.value = valptr;
-    mDeleter = &destructor<V, true>;
+    mPtr.size = vsize;
   } else {
     // use local storage
     valptr = (V*)&mStorage;
-    mDeleter = &destructor<V, false>;
   }
-
+  
   // finally emplace new.
   new (valptr) V(value);
-  mTypeInfo = &tid<V>::value;
+
+  mMetaData = { &destructor<V, useHeap>, &copyConstruct<V>, &tid<V>::value, useHeap };
 }
 
-template< typename T, bool UseStorage >
+template< typename T >
+void vary::copyConstruct(const void* from, void* to) {
+  T* vFrom = (T*)from;
+  new (to) T(*vFrom);
+}
+
+template< typename T, bool UseHeap >
 void vary::destructor(vary& v) {
   T* vptr = nullptr;
 
   if constexpr (std::is_destructible_v<T>) {
-    if constexpr (UseStorage) {
-      vptr = &mStorage;
+    if constexpr (UseHeap) {
+      vptr = (T*)v.mPtr.value;
     } else {
-      vptr = mPtr.value;
+      vptr = (T*)&v.mStorage;
     }
     vptr->~T();
   }
 
-  if constexpr (!UseStorage) {
-   free(v.mPtr.value);
-    v.mPtr.value = nullptr;
-    v.mDeleter = nullptr;
+  if constexpr (UseHeap) {
+    free(v.mPtr.value);
   }
 
 }
 
+template<typename T, typename V = std::decay_t<T>>
+void operator << (T&& lhs, const vary& rhs) {
+  lhs = rhs.get<V>();
+}
+
+template<typename A, typename B>
+A* is_castable_from_to(B* b) {
+  if constexpr (std::is_base_of_v<A, B>) return (A*)b;
+  return nullptr;
+}

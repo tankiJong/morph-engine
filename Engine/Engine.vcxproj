@@ -1862,6 +1862,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\ThirdParty\catch2\catch2.hpp" />
     <ClInclude Include="..\ThirdParty\d3d12\FallbackLayer\d3d12.h" />
     <ClInclude Include="..\ThirdParty\d3d12\FallbackLayer\D3D12RaytracingFallback.h" />
     <ClInclude Include="..\ThirdParty\d3d12\FallbackLayer\D3D12RaytracingPrototypeHelpers.hpp" />

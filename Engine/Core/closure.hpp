@@ -2,6 +2,7 @@
 
 #include "Engine/Core/common.hpp"
 #include "Delegate.hpp"
+#include "Engine/Core/vary.hpp"
 
 class arg_list {
 public:
@@ -12,54 +13,18 @@ public:
    using deleter_t = void(void*);
 
    template<typename ...Args>
-   arg_list(Args&& ...args)
-      : mTypeInfo(&tid<Args...>::value){
+   arg_list(Args&& ...args) {
       using data_t = storage_data_t<Args...>;
-      if constexpr (sizeof(data_t) >= kStorageSize) { // I need extra byte at the end as flag
-         size_t dataSize = sizeof(data_t);
-         *((size_t*)mPtr[2]) = dataSize;
-         mPtr[0] = (uint8_t*)malloc(dataSize);
-         new (mPtr[0]) data_t(std::forward<Args>(args)...);
-         mPtr[1] = &deleter<Args...>;
-         mStorage[kStorageSize - 1] = 1;
-      } else {
-         new (mStorage) data_t(std::forward<Args>(args)...);
-         mStorage[kStorageSize - 1] = 0;
-      }
+      mData.set<data_t>(data_t{std::forward<Args>(args)...});
    }
 
-   arg_list(const arg_list& from);
-   arg_list(arg_list&& from) noexcept;
-
-   arg_list& operator=(arg_list&& rhs) noexcept;
-   arg_list& operator=(const arg_list& rhs);
    template<typename ...Args>
-	storage_data_t<Args...>& get() const {
-      EXPECTS(*mTypeInfo == tid<Args...>::value);
-      if(heapData()) {
-         return *((storage_data_t<Args...>*)mPtr[0]);
-      } else {
-         return *((storage_data_t<Args...>*)mStorage);
-      }
+	storage_data_t<Args...>& get() {
+      return mData.get<storage_data_t<Args...>>();
    }
-
-   bool heapData() const { return mStorage[kStorageSize - 1] != 0; }
-   size_t heapDataSize() const { return mStorage[kStorageSize - 1] != 0 ? *((size_t*)mPtr[2]) : 0; }
-   ~arg_list();
 
 protected:
-   union {
-      uint8_t mStorage[kStorageSize];
-      void*   mPtr[3]; // [0] data ptr, [1] deleter ptr [2] data size
-   };
-   const unique* mTypeInfo;
-   template<typename ...Args>
-   static void deleter(void* ptr) {
-      using data_t = std::tuple<Args...>;
-      data_t* tuplePtr = (data_t*)ptr;
-      tuplePtr->~DataType();
-      free(ptr);
-   }
+   vary mData;
 };
 
 class closure {

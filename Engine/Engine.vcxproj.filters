@@ -211,6 +211,9 @@
     <Filter Include="Engine\Renderer\RenderGraph\RenderPass">
       <UniqueIdentifier>{7a5f4d55-b94a-4a70-a699-8892cc584aa2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ThirdParty\catch2">
+      <UniqueIdentifier>{65c8a45b-3717-4757-9610-5702a49a20c8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\MathUtils.cpp">
@@ -1546,6 +1549,9 @@
     </ClInclude>
     <ClInclude Include="Core\vary.hpp">
       <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\catch2\catch2.hpp">
+      <Filter>ThirdParty\catch2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

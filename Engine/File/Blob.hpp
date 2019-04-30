@@ -20,6 +20,8 @@ public:
 
   Blob clone() const;
 
+  void* data() const { return buffer; }
+
   void set(const void* data, size_t size, size_t offset = 0);
   template<typename T>
   operator T() {
@@ -38,6 +40,7 @@ public:
   operator const bool() const {
     return valid();
   }
+
 
 
   Blob& operator=(Blob&& other) noexcept;

@@ -38,7 +38,7 @@ public:
 protected:
   std::vector<JobQueue> mQueues;
   std::vector<Thread> mSystemJobThreads;
-  static void systemThreadEntry(uint category);
+  static void systemThreadEntry(category_t category);
   bool mIsOpening = false;
 };
 
@@ -75,7 +75,7 @@ void JobCenter::startup(uint categoryCount) {
 }
 
 
-void JobCenter::systemThreadEntry(uint category) {
+void JobCenter::systemThreadEntry(category_t category) {
   Consumer consumer;
   category_t categories[1] = { category };
   consumer.init(categories);
