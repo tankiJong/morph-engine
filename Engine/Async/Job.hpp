@@ -112,6 +112,6 @@ namespace Job {
    W<Counter> dispatch(Decl&& decl, category_t cat);
    void chain(const S<Counter>& prerequisite, const S<Counter>& afterFinish);
    
-   void wait(W<Counter> counter);
+   void wait(W<Counter> counter, float maxTimeSecond);
    bool ready();
 }

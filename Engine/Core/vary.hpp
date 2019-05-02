@@ -127,9 +127,3 @@ template<typename T, typename V = std::decay_t<T>>
 void operator << (T&& lhs, const vary& rhs) {
   lhs = rhs.get<V>();
 }
-
-template<typename A, typename B>
-A* is_castable_from_to(B* b) {
-  if constexpr (std::is_base_of_v<A, B>) return (A*)b;
-  return nullptr;
-}

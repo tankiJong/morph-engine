@@ -238,6 +238,14 @@ RenderTargetView::sptr_t RenderTargetView::create(W<const RHITexture> res, uint 
   return rtv;
 }
 
+DXGI_FORMAT toDepthFormat(eTextureFormat format) {
+  switch(format) { 
+    case TEXTURE_FORMAT_D24S8: return DXGI_FORMAT_D24_UNORM_S8_UINT;
+    case TEXTURE_FORMAT_D32: return DXGI_FORMAT_D32_FLOAT;
+    default:
+      BAD_CODE_PATH();
+  }
+}
 DepthStencilView::sptr_t DepthStencilView::create(W<const RHITexture> res, uint mipLevel, uint firstArraySlice, uint arraySize) {
   
   RHITexture::scptr_t ptr = res.lock();
@@ -250,7 +258,7 @@ DepthStencilView::sptr_t DepthStencilView::create(W<const RHITexture> res, uint 
   RHIResource::handle_t resHandle = nullptr;
 
   if(ptr) {
-    desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    desc.Format = toDepthFormat(ptr->format());
     desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
     desc.Texture2D.MipSlice = mipLevel;
     resHandle = ptr->handle();

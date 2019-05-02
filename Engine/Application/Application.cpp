@@ -10,13 +10,14 @@
 #include "Engine/Debug/Draw.hpp"
 #include "Engine/Graphics/RHI/RHIDevice.hpp"
 #include "Engine/Debug/Log.hpp"
+#include "Engine/Async/Job.hpp"
 
 bool Application::runFrame() {
   switch(mRunStatus) { 
     case APP_CREATED: {
       _init();
       mRunStatus = APP_RUNNING;
-    } return true;
+    } return true;//*
 
     case APP_RUNNING: {
       _update();
@@ -65,6 +66,8 @@ void Application::_init() {
 void Application::_destroy() {
   onDestroy();
   Log::shutDown();
+  Job::shutdown();
+
   mEngine->destory();
   mEngine = nullptr;
 }

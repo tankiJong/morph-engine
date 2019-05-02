@@ -410,7 +410,7 @@ void LogFileOutput::flush() {
     file.flush();
     fileStamped.flush();
   }}, Job::CAT_IO);
-  Job::wait(counter);
+  Job::wait(counter, 5);
 }
 
 COMMAND_REG("log_filter", "name: string, display: bool", "display/hide log with certain tag") (Command& cmd) {

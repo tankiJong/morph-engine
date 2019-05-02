@@ -267,13 +267,13 @@ bool Job::ready() {
 }
 
 
-void Job::wait(W<Counter> counter) {
-
+void Job::wait(W<Counter> counter, float maxTimeSecond) {
+  float start = (float)GetMainClock().total.second;
   // see whether someone is holding it
   S<Counter> c = counter.lock();
   if(c == nullptr) return;
 
-  while(!c->done()) {
+  while(!c->done() && (float)GetMainClock().total.second < start + maxTimeSecond) {
     CurrentThread::yield();
   };
 }

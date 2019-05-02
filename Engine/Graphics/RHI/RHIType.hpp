@@ -69,6 +69,7 @@ enum eTextureFormat {
   TEXTURE_FORMAT_R16_UINT,
   TEXTURE_FORMAT_R32_UINT,
   TEXTURE_FORMAT_D24S8,
+  TEXTURE_FORMAT_D32,
 };
 
 enum eUniformSlot : uint {

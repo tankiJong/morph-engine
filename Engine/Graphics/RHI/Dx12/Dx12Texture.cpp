@@ -46,9 +46,8 @@ bool Texture2::rhiInit(bool genMipmap, const void* data, size_t /*size*/, bool i
     clearValPtr = &clearValue;
   }
 
-  if(mFormat == TEXTURE_FORMAT_D24S8 && is_set(mBindingFlags, Texture2::BindingFlag::ShaderResource | Texture2::BindingFlag::UnorderedAccess)) {
-    TODO("set to typeless later when do the unorder access");
-    desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+  if((mFormat == TEXTURE_FORMAT_D24S8 || mFormat == TEXTURE_FORMAT_D32)
+	  && is_set(mBindingFlags, Texture2::BindingFlag::ShaderResource | Texture2::BindingFlag::UnorderedAccess)) {
     clearValPtr = nullptr;
   }
 
