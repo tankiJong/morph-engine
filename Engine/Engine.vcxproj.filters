@@ -777,10 +777,16 @@
     <ClCompile Include="Async\Job.cpp">
       <Filter>Engine\Async</Filter>
     </ClCompile>
-    <ClCompile Include="Core\closure.cpp">
+    <ClCompile Include="Core\vary.cpp">
       <Filter>Engine\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Core\vary.cpp">
+    <ClCompile Include="Graphics\RHI\CommandList.cpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\any_func.cpp">
+      <Filter>Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\closure.cpp">
       <Filter>Engine\Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1544,14 +1550,23 @@
     <ClInclude Include="Async\Job.hpp">
       <Filter>Engine\Async</Filter>
     </ClInclude>
-    <ClInclude Include="Core\closure.hpp">
-      <Filter>Engine\Core</Filter>
-    </ClInclude>
     <ClInclude Include="Core\vary.hpp">
       <Filter>Engine\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\catch2\catch2.hpp">
       <Filter>ThirdParty\catch2</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\CommandQueue.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RHI\CommandList.hpp">
+      <Filter>Engine\Graphics\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\any_func.hpp">
+      <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\closure.hpp">
+      <Filter>Engine\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

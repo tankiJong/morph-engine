@@ -237,7 +237,7 @@ S<Counter> Job::create(Decl& decl, category_t cat) {
 }
 
 S<Counter> Job::create(Decl&& decl, category_t cat) {
-  S<Decl> realDecl = std::make_shared<Decl>(decl);
+  S<Decl> realDecl = S<Decl>(new Decl(decl));
   return gJobCenter.createJob(realDecl, cat);
 }
 

@@ -1076,6 +1076,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Core\Blackboard.cpp" />
     <ClCompile Include="Core\BytePacker.cpp" />
+    <ClCompile Include="Core\any_func.cpp" />
     <ClCompile Include="Core\closure.cpp" />
     <ClCompile Include="Core\Endianness.cpp" />
     <ClCompile Include="Core\Engine.cpp" />
@@ -1182,6 +1183,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClCompile Include="Graphics\Program\Program.cpp" />
     <ClCompile Include="Graphics\Program\ProgramData.cpp" />
     <ClCompile Include="Graphics\Program\ProgramInst.cpp" />
+    <ClCompile Include="Graphics\RHI\CommandList.cpp" />
     <ClCompile Include="Graphics\RHI\DescriptorPool.cpp" />
     <ClCompile Include="Graphics\RHI\DescriptorSet.cpp" />
     <ClCompile Include="Graphics\RHI\Dx12\Dx12Buffer.cpp" />
@@ -1943,6 +1945,7 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="Config.hpp" />
     <ClInclude Include="Core\Blackboard.hpp" />
     <ClInclude Include="Core\BytePacker.hpp" />
+    <ClInclude Include="Core\any_func.hpp" />
     <ClInclude Include="Core\closure.hpp" />
     <ClInclude Include="Core\common.hpp" />
     <ClInclude Include="Core\Delegate.hpp" />
@@ -2053,6 +2056,8 @@ PostbuildCopy.bat $(SolutionDir)Run_Win32\</Command>
     <ClInclude Include="Graphics\Program\Program.hpp" />
     <ClInclude Include="Graphics\Program\ProgramData.hpp" />
     <ClInclude Include="Graphics\Program\ProgramInst.hpp" />
+    <ClInclude Include="Graphics\RHI\CommandList.hpp" />
+    <ClInclude Include="Graphics\RHI\CommandQueue.hpp" />
     <ClInclude Include="Graphics\RHI\DescriptorPool.hpp" />
     <ClInclude Include="Graphics\RHI\DescriptorSet.hpp" />
     <ClInclude Include="Graphics\RHI\Dx12\d3d12.h" />

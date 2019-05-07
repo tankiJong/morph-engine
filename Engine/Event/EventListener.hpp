@@ -2,6 +2,7 @@
 #include "Engine/Core/common.hpp"
 #include <vector>
 #include <functional>
+#include "Engine/Core/any_func.hpp"
 
 class EventEmitter;
 
@@ -22,33 +23,20 @@ public:
   }
 
   template<typename ...Args>
-  bool invoke(Args ...args) const {
-    for(CallbackHandle handle: mHandles) {
-      std::function<void(Args...)>* func = (std::function<void(Args...)>*)handle.callback;
-      (*func)(args...);
+  bool invoke(Args&& ...args) const {
+    for(const any_func& handle: mHandles) {
+      handle(std::forward<Args>(args)...);
     }
 
     return !mHandles.empty();
   }
 
-  void subscribe(void* origin, void* callback);
+  void subscribe(any_func&& func);
 
-  void unsubscribe(void* func);
+  void unsubscribe(any_func&& func);
 
 protected:
-  struct CallbackHandle {
-    void* callback;
-    void* _originPointer;
-
-    bool operator==(const CallbackHandle& hd) const {
-      return _originPointer == hd._originPointer;
-    }
-
-    bool operator!=(const CallbackHandle& hd) const {
-      return !(*this == hd);
-    }
-  };
-  std::vector<CallbackHandle> mHandles;
+  std::vector<any_func> mHandles;
   std::string mName;
   EventEmitter* mEmitter;
 };

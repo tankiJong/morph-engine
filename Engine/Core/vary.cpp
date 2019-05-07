@@ -17,7 +17,8 @@ void* vary::get() {
 }
 
 vary::vary(vary&& from) noexcept
-  : mMetaData(from.mMetaData){
+  : mMetaData(from.mMetaData) {
+  static_assert(sizeof(mStorage) >= sizeof(mPtr));
   memcpy_s(&mStorage, sizeof(storage_t), &from.mStorage, sizeof(storage_t));
   from.mMetaData.reset();
 }
@@ -27,9 +28,13 @@ vary::vary(const vary& from)
   if(from.mMetaData.useHeap) {
     mPtr.size = from.mPtr.size;
     mPtr.value = malloc(mPtr.size);
-    mMetaData.copyConstructor(from.mPtr.value, mPtr.value);
+    if(mMetaData.copyConstructor != nullptr) {
+      mMetaData.copyConstructor(from.mPtr.value, mPtr.value);
+	  }
   } else {
-    mMetaData.copyConstructor(&from.mStorage, &mStorage);
+    if(mMetaData.copyConstructor != nullptr) {
+      mMetaData.copyConstructor(&from.mStorage, &mStorage);
+    }
   }
 }
 
@@ -50,14 +55,13 @@ vary::~vary() {
 }
 
 void vary::meta_data_t::reset() {
-  deleter = nullptr;
+  deleter = &defaultDelete;
+  copyConstructor = &defaultCopy;
   useHeap = false;
   typeInfo = nullptr;
 }
 
 void vary::reset() {
-  if(mMetaData.deleter != nullptr) {
-    mMetaData.deleter(*this);
-  }
+  mMetaData.deleter(*this);
   mMetaData.reset();
 }
